@@ -1,0 +1,653 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6413273E2556E86000CBB6B8 /* Claim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6413273D2556E86000CBB6B8 /* Claim.swift */; };
+		641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641327432556EB2200CBB6B8 /* LbryUri.swift */; };
+		641327492556EB3400CBB6B8 /* Lbry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641327482556EB3400CBB6B8 /* Lbry.swift */; };
+		6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6413274D2557D89200CBB6B8 /* Extensions.swift */; };
+		64424DCF25588D0D00F2D247 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */; };
+		64424DDA255895A500F2D247 /* ContentSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DD9255895A500F2D247 /* ContentSources.swift */; };
+		644F76AE25592F8400813451 /* FileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76AD25592F8400813451 /* FileViewController.swift */; };
+		64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE79C25502A290082AF2E /* AppDelegate.swift */; };
+		64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE79E25502A290082AF2E /* SceneDelegate.swift */; };
+		64FBE7A125502A290082AF2E /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7A025502A290082AF2E /* MainViewController.swift */; };
+		64FBE7A425502A290082AF2E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7A225502A290082AF2E /* Main.storyboard */; };
+		64FBE7A725502A290082AF2E /* Odysee.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */; };
+		64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7A825502A2C0082AF2E /* Assets.xcassets */; };
+		64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */; };
+		64FBE7B725502A2D0082AF2E /* OdyseeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7B625502A2D0082AF2E /* OdyseeTests.swift */; };
+		64FBE7C225502A2D0082AF2E /* OdyseeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7C125502A2D0082AF2E /* OdyseeUITests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		64FBE7B325502A2D0082AF2E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 64FBE79125502A290082AF2E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 64FBE79825502A290082AF2E;
+			remoteInfo = Odysee;
+		};
+		64FBE7BE25502A2D0082AF2E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 64FBE79125502A290082AF2E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 64FBE79825502A290082AF2E;
+			remoteInfo = Odysee;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		6413273D2556E86000CBB6B8 /* Claim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Claim.swift; sourceTree = "<group>"; };
+		641327432556EB2200CBB6B8 /* LbryUri.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUri.swift; sourceTree = "<group>"; };
+		641327482556EB3400CBB6B8 /* Lbry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lbry.swift; sourceTree = "<group>"; };
+		6413274D2557D89200CBB6B8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTableViewCell.swift; sourceTree = "<group>"; };
+		64424DD9255895A500F2D247 /* ContentSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSources.swift; sourceTree = "<group>"; };
+		644F76AD25592F8400813451 /* FileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewController.swift; sourceTree = "<group>"; };
+		64FBE79925502A290082AF2E /* Odysee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Odysee.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		64FBE79C25502A290082AF2E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		64FBE79E25502A290082AF2E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		64FBE7A025502A290082AF2E /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		64FBE7A325502A290082AF2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		64FBE7A625502A290082AF2E /* Odysee.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Odysee.xcdatamodel; sourceTree = "<group>"; };
+		64FBE7A825502A2C0082AF2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		64FBE7AB25502A2C0082AF2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		64FBE7AD25502A2C0082AF2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		64FBE7B225502A2D0082AF2E /* OdyseeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OdyseeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		64FBE7B625502A2D0082AF2E /* OdyseeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeTests.swift; sourceTree = "<group>"; };
+		64FBE7B825502A2D0082AF2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		64FBE7BD25502A2D0082AF2E /* OdyseeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OdyseeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		64FBE7C125502A2D0082AF2E /* OdyseeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeUITests.swift; sourceTree = "<group>"; };
+		64FBE7C325502A2D0082AF2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		64FBE79625502A290082AF2E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64FBE7AF25502A2D0082AF2E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64FBE7BA25502A2D0082AF2E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6413273C2556E83C00CBB6B8 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				6413273D2556E86000CBB6B8 /* Claim.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		641327422556EB1000CBB6B8 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				641327432556EB2200CBB6B8 /* LbryUri.swift */,
+				641327482556EB3400CBB6B8 /* Lbry.swift */,
+				6413274D2557D89200CBB6B8 /* Extensions.swift */,
+				64424DD9255895A500F2D247 /* ContentSources.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		64FBE79025502A290082AF2E = {
+			isa = PBXGroup;
+			children = (
+				64FBE79B25502A290082AF2E /* Odysee */,
+				64FBE7B525502A2D0082AF2E /* OdyseeTests */,
+				64FBE7C025502A2D0082AF2E /* OdyseeUITests */,
+				64FBE79A25502A290082AF2E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		64FBE79A25502A290082AF2E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				64FBE79925502A290082AF2E /* Odysee.app */,
+				64FBE7B225502A2D0082AF2E /* OdyseeTests.xctest */,
+				64FBE7BD25502A2D0082AF2E /* OdyseeUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		64FBE79B25502A290082AF2E /* Odysee */ = {
+			isa = PBXGroup;
+			children = (
+				641327422556EB1000CBB6B8 /* Utils */,
+				6413273C2556E83C00CBB6B8 /* Models */,
+				64FBE79C25502A290082AF2E /* AppDelegate.swift */,
+				64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */,
+				64FBE79E25502A290082AF2E /* SceneDelegate.swift */,
+				64FBE7A025502A290082AF2E /* MainViewController.swift */,
+				64FBE7A225502A290082AF2E /* Main.storyboard */,
+				64FBE7A825502A2C0082AF2E /* Assets.xcassets */,
+				64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */,
+				64FBE7AD25502A2C0082AF2E /* Info.plist */,
+				64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */,
+				644F76AD25592F8400813451 /* FileViewController.swift */,
+			);
+			path = Odysee;
+			sourceTree = "<group>";
+		};
+		64FBE7B525502A2D0082AF2E /* OdyseeTests */ = {
+			isa = PBXGroup;
+			children = (
+				64FBE7B625502A2D0082AF2E /* OdyseeTests.swift */,
+				64FBE7B825502A2D0082AF2E /* Info.plist */,
+			);
+			path = OdyseeTests;
+			sourceTree = "<group>";
+		};
+		64FBE7C025502A2D0082AF2E /* OdyseeUITests */ = {
+			isa = PBXGroup;
+			children = (
+				64FBE7C125502A2D0082AF2E /* OdyseeUITests.swift */,
+				64FBE7C325502A2D0082AF2E /* Info.plist */,
+			);
+			path = OdyseeUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		64FBE79825502A290082AF2E /* Odysee */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 64FBE7C625502A2D0082AF2E /* Build configuration list for PBXNativeTarget "Odysee" */;
+			buildPhases = (
+				64FBE79525502A290082AF2E /* Sources */,
+				64FBE79625502A290082AF2E /* Frameworks */,
+				64FBE79725502A290082AF2E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Odysee;
+			productName = Odysee;
+			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
+			productType = "com.apple.product-type.application";
+		};
+		64FBE7B125502A2D0082AF2E /* OdyseeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 64FBE7C925502A2D0082AF2E /* Build configuration list for PBXNativeTarget "OdyseeTests" */;
+			buildPhases = (
+				64FBE7AE25502A2D0082AF2E /* Sources */,
+				64FBE7AF25502A2D0082AF2E /* Frameworks */,
+				64FBE7B025502A2D0082AF2E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				64FBE7B425502A2D0082AF2E /* PBXTargetDependency */,
+			);
+			name = OdyseeTests;
+			productName = OdyseeTests;
+			productReference = 64FBE7B225502A2D0082AF2E /* OdyseeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		64FBE7BC25502A2D0082AF2E /* OdyseeUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 64FBE7CC25502A2D0082AF2E /* Build configuration list for PBXNativeTarget "OdyseeUITests" */;
+			buildPhases = (
+				64FBE7B925502A2D0082AF2E /* Sources */,
+				64FBE7BA25502A2D0082AF2E /* Frameworks */,
+				64FBE7BB25502A2D0082AF2E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				64FBE7BF25502A2D0082AF2E /* PBXTargetDependency */,
+			);
+			name = OdyseeUITests;
+			productName = OdyseeUITests;
+			productReference = 64FBE7BD25502A2D0082AF2E /* OdyseeUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		64FBE79125502A290082AF2E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1210;
+				LastUpgradeCheck = 1210;
+				TargetAttributes = {
+					64FBE79825502A290082AF2E = {
+						CreatedOnToolsVersion = 12.1;
+					};
+					64FBE7B125502A2D0082AF2E = {
+						CreatedOnToolsVersion = 12.1;
+						TestTargetID = 64FBE79825502A290082AF2E;
+					};
+					64FBE7BC25502A2D0082AF2E = {
+						CreatedOnToolsVersion = 12.1;
+						TestTargetID = 64FBE79825502A290082AF2E;
+					};
+				};
+			};
+			buildConfigurationList = 64FBE79425502A290082AF2E /* Build configuration list for PBXProject "Odysee" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 64FBE79025502A290082AF2E;
+			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				64FBE79825502A290082AF2E /* Odysee */,
+				64FBE7B125502A2D0082AF2E /* OdyseeTests */,
+				64FBE7BC25502A2D0082AF2E /* OdyseeUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		64FBE79725502A290082AF2E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */,
+				64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */,
+				64FBE7A425502A290082AF2E /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64FBE7B025502A2D0082AF2E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64FBE7BB25502A2D0082AF2E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		64FBE79525502A290082AF2E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64FBE7A725502A290082AF2E /* Odysee.xcdatamodeld in Sources */,
+				64424DCF25588D0D00F2D247 /* FileTableViewCell.swift in Sources */,
+				641327492556EB3400CBB6B8 /* Lbry.swift in Sources */,
+				641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */,
+				6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */,
+				64FBE7A125502A290082AF2E /* MainViewController.swift in Sources */,
+				64424DDA255895A500F2D247 /* ContentSources.swift in Sources */,
+				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
+				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
+				6413273E2556E86000CBB6B8 /* Claim.swift in Sources */,
+				64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64FBE7AE25502A2D0082AF2E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64FBE7B725502A2D0082AF2E /* OdyseeTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		64FBE7B925502A2D0082AF2E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				64FBE7C225502A2D0082AF2E /* OdyseeUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		64FBE7B425502A2D0082AF2E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 64FBE79825502A290082AF2E /* Odysee */;
+			targetProxy = 64FBE7B325502A2D0082AF2E /* PBXContainerItemProxy */;
+		};
+		64FBE7BF25502A2D0082AF2E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 64FBE79825502A290082AF2E /* Odysee */;
+			targetProxy = 64FBE7BE25502A2D0082AF2E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		64FBE7A225502A290082AF2E /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				64FBE7A325502A290082AF2E /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				64FBE7AB25502A2C0082AF2E /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		64FBE7C425502A2D0082AF2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		64FBE7C525502A2D0082AF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		64FBE7C725502A2D0082AF2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = Odysee/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.odysee.OdyseeIOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		64FBE7C825502A2D0082AF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = Odysee/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.odysee.OdyseeIOS;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		64FBE7CA25502A2D0082AF2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = OdyseeTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lbry.OdyseeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Odysee.app/Odysee";
+			};
+			name = Debug;
+		};
+		64FBE7CB25502A2D0082AF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = OdyseeTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lbry.OdyseeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Odysee.app/Odysee";
+			};
+			name = Release;
+		};
+		64FBE7CD25502A2D0082AF2E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = OdyseeUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lbry.OdyseeUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Odysee;
+			};
+			name = Debug;
+		};
+		64FBE7CE25502A2D0082AF2E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				INFOPLIST_FILE = OdyseeUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.lbry.OdyseeUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Odysee;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		64FBE79425502A290082AF2E /* Build configuration list for PBXProject "Odysee" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				64FBE7C425502A2D0082AF2E /* Debug */,
+				64FBE7C525502A2D0082AF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		64FBE7C625502A2D0082AF2E /* Build configuration list for PBXNativeTarget "Odysee" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				64FBE7C725502A2D0082AF2E /* Debug */,
+				64FBE7C825502A2D0082AF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		64FBE7C925502A2D0082AF2E /* Build configuration list for PBXNativeTarget "OdyseeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				64FBE7CA25502A2D0082AF2E /* Debug */,
+				64FBE7CB25502A2D0082AF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		64FBE7CC25502A2D0082AF2E /* Build configuration list for PBXNativeTarget "OdyseeUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				64FBE7CD25502A2D0082AF2E /* Debug */,
+				64FBE7CE25502A2D0082AF2E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				64FBE7A625502A290082AF2E /* Odysee.xcdatamodel */,
+			);
+			currentVersion = 64FBE7A625502A290082AF2E /* Odysee.xcdatamodel */;
+			path = Odysee.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
+	};
+	rootObject = 64FBE79125502A290082AF2E /* Project object */;
+}
