@@ -23,6 +23,7 @@ class FileViewController: UIViewController {
     @IBOutlet weak var viewCountLabel: UILabel!
     @IBOutlet weak var timeAgoLabel: UILabel!
     
+    @IBOutlet weak var publisherImageView: UIImageView!
     @IBOutlet weak var publisherTitleLabel: UILabel!
     @IBOutlet weak var publisherNameLabel: UILabel!
     
@@ -57,8 +58,10 @@ class FileViewController: UIViewController {
         timeAgoLabel.text = formatter.localizedString(for: date, relativeTo: Date())
         
         // publisher
+        publisherImageView.rounded()
         publisherTitleLabel.text = claim?.signingChannel?.value?.title
         publisherNameLabel.text = claim?.signingChannel?.name
+        publisherImageView.load(url: URL(string: (claim?.signingChannel?.value?.thumbnail?.url!)!)!)
         
         // details
         descriptionLabel.text = claim?.value?.description

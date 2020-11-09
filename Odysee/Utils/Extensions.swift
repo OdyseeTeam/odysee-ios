@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension String {
     var isBlank: Bool {
@@ -22,5 +23,34 @@ extension String {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return String(self[start..<end])
+    }
+}
+
+extension UIImageView {
+    func load(url: URL) {
+        DispatchQueue.global().async { [weak self] in
+            DispatchQueue.main.async {
+                self?.image = nil
+            }
+            
+            var image: UIImage? = nil
+            if let cacheData = Cache.getImage(url: url.absoluteString) {
+                image = UIImage(data: cacheData)
+            } else if let data = try? Data(contentsOf: url) {
+                image = UIImage(data: data)
+                if (image != nil) {
+                    Cache.putImage(url: url.absoluteString, image: data)
+                }
+            }
+            DispatchQueue.main.async {
+                self?.image = image
+            }
+        }
+    }
+    
+    func rounded() {
+        self.layer.masksToBounds = false
+        self.layer.cornerRadius = self.frame.height / 2
+        self.clipsToBounds = true
     }
 }
