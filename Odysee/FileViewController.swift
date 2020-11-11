@@ -29,12 +29,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var descriptionLabel: UILabel!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let main = appDelegate.mainViewController as! MainViewController
         main.toggleHeaderVisibility(hidden: true)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self

@@ -297,18 +297,19 @@
                                 </constraints>
                             </stackView>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TRZ-ZH-YFM">
-                                <rect key="frame" x="179" y="355" width="56" height="56"/>
+                                <rect key="frame" x="175" y="351" width="64" height="64"/>
                                 <subviews>
-                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="fYk-nV-as0">
-                                        <rect key="frame" x="18" y="18" width="20" height="20"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="fYk-nV-as0">
+                                        <rect key="frame" x="13.5" y="13.5" width="37" height="37"/>
                                         <color key="color" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </activityIndicatorView>
                                 </subviews>
                                 <color key="backgroundColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="56" id="gmK-eq-vAx"/>
-                                    <constraint firstAttribute="width" constant="56" id="kV5-i8-2be"/>
+                                    <constraint firstItem="fYk-nV-as0" firstAttribute="centerX" secondItem="TRZ-ZH-YFM" secondAttribute="centerX" id="Sed-J6-kU6"/>
+                                    <constraint firstAttribute="height" constant="64" id="gmK-eq-vAx"/>
+                                    <constraint firstItem="fYk-nV-as0" firstAttribute="centerY" secondItem="TRZ-ZH-YFM" secondAttribute="centerY" id="hZF-eJ-6Xa"/>
+                                    <constraint firstAttribute="width" constant="64" id="kV5-i8-2be"/>
                                 </constraints>
                             </view>
                         </subviews>

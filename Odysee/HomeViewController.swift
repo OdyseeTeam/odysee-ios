@@ -125,6 +125,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
+        vc.hidesBottomBarWhenPushed = true
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
@@ -144,7 +145,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         button.layer.borderWidth = 1
         button.layer.borderColor = Helper.primaryColor.cgColor
         button.setTitle(label, for: .normal)
-        button.setTitleColor(UIColor.black, for: .normal)
+        button.setTitleColor(UIColor.label, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 13)
         button.addTarget(self, action: #selector(self.categoryButtonTapped), for: .touchUpInside)
         
@@ -156,7 +157,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         for button in categoryButtons {
             if (button.backgroundColor == Helper.primaryColor) {
                 button.backgroundColor = UIButton(type: .roundedRect).backgroundColor
-                button.setTitleColor(UIColor.black, for: .normal)
+                button.setTitleColor(UIColor.label, for: .normal)
                 break
             }
         }
