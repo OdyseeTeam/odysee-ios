@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Claim: Decodable, Identifiable  {
+class Claim: Decodable  {
     var address: String?
     var amount: String?
     var canonicalUrl: String?

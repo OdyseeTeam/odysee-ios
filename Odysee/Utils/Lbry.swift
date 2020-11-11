@@ -5,6 +5,8 @@
 //  Created by Akinwale Ariwodola on 02/11/2020.
 //
 
+import Base58Swift
+import CryptoKit
 import Foundation
 
 final class Lbry {
@@ -13,6 +15,9 @@ final class Lbry {
     
     static let methodClaimSearch = "claim_search"
     static let methodResolve = "resolve"
+    
+    static var installationId: String? = nil
+    static let keyInstallationId = "AppInstallationId"
     
     static func apiCall(method: String, params: Dictionary<String, Any>, connectionString: String, completion: @escaping ([String: Any]?, Error?) -> Void) {
         let counter = Date().timeIntervalSince1970
@@ -44,6 +49,9 @@ final class Lbry {
                 return
             }
             do {
+                /*if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
+                   print(JSONString)
+                }*/
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 completion(response, nil)
             } catch let error {
@@ -96,5 +104,20 @@ final class Lbry {
         if ((list ?? []).count > 0) {
             options[key] = list
         }
+    }
+    
+    static func generateId() -> String? {
+        return generateId(numBytes: 64)
+    }
+    static func generateId(numBytes: Int) -> String? {
+        var data = Data(count: numBytes)
+        let result = data.withUnsafeMutableBytes {
+            SecRandomCopyBytes(kSecRandomDefault, numBytes, $0.baseAddress!)
+        }
+        if (result == errSecSuccess) {
+            let hash = SHA384.hash(data: data)
+            return Base58.base58Encode(Array(hash.makeIterator()))
+        }
+        return nil
     }
 }

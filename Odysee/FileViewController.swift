@@ -9,7 +9,7 @@ import AVKit
 import AVFoundation
 import UIKit
 
-class FileViewController: UIViewController {
+class FileViewController: UIViewController, UIGestureRecognizerDelegate {
 
     var claim: Claim?
     
@@ -31,12 +31,31 @@ class FileViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let main = appDelegate.mainViewController as! MainViewController
+        main.toggleHeaderVisibility(hidden: true)
+        
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        
         // Do any additional setup after loading the view.
         displayClaim()
+        loadAndDisplayViewCount()
     }
     
-
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let main = appDelegate.mainViewController as! MainViewController
+        main.toggleHeaderVisibility(hidden: false)
+    }
+    
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
+    }
+    
     /*
     // MARK: - Navigation
 
@@ -84,5 +103,23 @@ class FileViewController: UIViewController {
         let claimId: String = claim.claimId!
         return String(format: "https://cdn.lbryplayer.xyz/content/claims/%@/%@/stream", claimName, claimId);
     }
-
+    
+    func loadAndDisplayViewCount() {
+        var options = Dictionary<String, String>()
+        options["claim_id"] = claim?.claimId
+        try! Lbryio.call(resource: "file", action: "view_count", options: options, method: Lbryio.methodGet, completion: { data, error in
+            if (error != nil) {
+                // could load the view count for display
+                DispatchQueue.main.async {
+                    self.viewCountLabel.isHidden = true
+                }
+                return
+            }
+            DispatchQueue.main.async {
+                let viewCount:Int = (data as! NSArray)[0] as! Int
+                self.viewCountLabel.isHidden = false
+                self.viewCountLabel.text = String(format: "%d view%@", viewCount, viewCount == 1 ? "" : "s") // TODO: Proper i18n
+            }
+        })
+    }
 }
