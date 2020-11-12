@@ -37,6 +37,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate {
         appDelegate.mainController.toggleMiniPlayer(hidden: true)
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.updateMiniPlayer()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if (appDelegate.player != nil) {
+            appDelegate.mainController.toggleMiniPlayer(hidden: false)
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -46,21 +58,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate {
         // Do any additional setup after loading the view.
         displayClaim()
         loadAndDisplayViewCount()
-    }
-    
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.updateMiniPlayer()
-        if (appDelegate.player != nil) {
-            appDelegate.mainController.toggleMiniPlayer(hidden: false)
-        }
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {

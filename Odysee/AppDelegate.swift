@@ -13,8 +13,10 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     weak var mainViewController: UIViewController?
+    weak var mainTabViewController: UITabBarController?
     weak var mainNavigationController: UINavigationController?
     weak var miniPlayerView: UIView?
+    
     var player: AVPlayer?
     var currentClaim: Claim?
     

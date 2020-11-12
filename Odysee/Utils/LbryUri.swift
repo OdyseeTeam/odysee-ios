@@ -106,7 +106,7 @@ struct LbryUri: CustomStringConvertible {
         
         let includesChannel = streamOrChannelName.starts(with: "@")
         let isChannel = includesChannel && possibleStreamName.isEmpty
-        let channelName: String? = includesChannel && streamOrChannelName.count > 1 ? String(streamOrChannelName[1..<streamOrChannelName.endIndex.utf16Offset(in: streamOrChannelName)]) : nil
+        let channelName: String? = includesChannel && streamOrChannelName.count > 1 ? String(streamOrChannelName.suffix(from: streamOrChannelName.index(after: streamOrChannelName.firstIndex(of: "@")!))) : nil
         
         if (!components[1].isBlank) {
             if (primaryModSeparator == ":") {
@@ -216,7 +216,8 @@ struct LbryUri: CustomStringConvertible {
     static func tryParse(url: String, requireProto: Bool) -> LbryUri? {
         do {
             return try LbryUri.parse(url: url, requireProto: requireProto)
-        } catch {
+        } catch let error {
+            print(error)
             return nil
         }
     }
@@ -250,7 +251,7 @@ struct LbryUri: CustomStringConvertible {
             
             if (claimId != nil && !(claimId ?? "").isBlank &&
                     (claimId!.count > LbryUri.claimIdMaxLength ||
-                        regexClaimId.firstMatch(in: claimId!, options: [], range: NSRange(claimId!.startIndex..., in: claimId!)) != nil)) {
+                        regexClaimId.firstMatch(in: claimId!, options: [], range: NSRange(claimId!.startIndex..., in: claimId!)) == nil)) {
                 throw LbryUriError.runtimeError(String(format: "Invalid claim ID %@", claimId!))
             }
             if (claimSequence == -1) {

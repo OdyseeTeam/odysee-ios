@@ -12,6 +12,7 @@ class MainViewController: UIViewController {
 
     @IBOutlet weak var headerArea: UIView!
     @IBOutlet weak var headerAreaHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var miniPlayerBottomConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var miniPlayerView: UIView!
     @IBOutlet weak var miniPlayerMediaView: UIView!
@@ -24,6 +25,7 @@ class MainViewController: UIViewController {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainViewController = self
         // Do any additional setup after loading the view.
+
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -40,6 +42,10 @@ class MainViewController: UIViewController {
         view!.layoutIfNeeded()
     }
     
+    func adjustMiniPlayerBottom(bottom: CGFloat) {
+        miniPlayerBottomConstraint.constant = bottom
+    }
+    
     @IBAction func closeMiniPlayer(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if (appDelegate.player != nil) {
@@ -50,6 +56,12 @@ class MainViewController: UIViewController {
         miniPlayerTitleLabel.text = ""
         miniPlayerPublisherLabel.text = ""
         appDelegate.currentClaim = nil
+    }
+    
+    @IBAction func openSearch(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = storyboard?.instantiateViewController(identifier: "search_vc") as! SearchViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func openCurrentClaim(_ sender: Any) {

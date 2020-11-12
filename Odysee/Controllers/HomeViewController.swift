@@ -38,6 +38,13 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     var loading: Bool = false
     var claims: [Claim] = []
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
+        let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
