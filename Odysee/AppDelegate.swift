@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 02/11/2020.
 //
 
+import AVFoundation
 import UIKit
 import CoreData
 
@@ -12,6 +13,14 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     weak var mainViewController: UIViewController?
+    weak var mainNavigationController: UINavigationController?
+    weak var miniPlayerView: UIView?
+    var player: AVPlayer?
+    var currentClaim: Claim?
+    
+    var mainController: MainViewController {
+        return mainViewController as! MainViewController
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.

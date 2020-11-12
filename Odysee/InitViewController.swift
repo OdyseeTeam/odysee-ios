@@ -66,7 +66,7 @@ class InitViewController: UIViewController {
                 }
             })
         } catch {
-            // install/new failed
+            // /install/new failed
             // show error message
             showError()
         }

@@ -33,8 +33,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate {
         super.viewWillAppear(animated)
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let main = appDelegate.mainViewController as! MainViewController
-        main.toggleHeaderVisibility(hidden: true)
+        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+        appDelegate.mainController.toggleMiniPlayer(hidden: true)
     }
     
     override func viewDidLoad() {
@@ -49,11 +49,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     
+    override func viewWillDisappear(_ animated: Bool) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.updateMiniPlayer()
+        if (appDelegate.player != nil) {
+            appDelegate.mainController.toggleMiniPlayer(hidden: false)
+        }
+    }
+    
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let main = appDelegate.mainViewController as! MainViewController
-        main.toggleHeaderVisibility(hidden: false)
+        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -91,14 +98,32 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate {
         
         // display video content
         let avpc: AVPlayerViewController = AVPlayerViewController()
-        addChild(avpc)
+        self.addChild(avpc)
         avpc.view.frame = self.mediaView.bounds
         self.mediaView.addSubview(avpc.view)
         avpc.didMove(toParent: self)
         
+        do {
+            // enable audio in silent mode
+            try AVAudioSession.sharedInstance().setCategory(.playback)
+        } catch {
+            // pass
+        }
+        
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId) {
+            avpc.player = appDelegate.player
+            return
+        }
+        
+        appDelegate.currentClaim = claim
+        if (appDelegate.player != nil) {
+            appDelegate.player?.pause()
+        }
         let videoUrl = URL(string: getStreamingUrl(claim: claim!))
-        let player = AVPlayer(url: videoUrl!)
-        avpc.player = player
+        appDelegate.player = AVPlayer(url: videoUrl!)
+        avpc.player = appDelegate.player
         avpc.player?.play()
     }
     
@@ -122,7 +147,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate {
             DispatchQueue.main.async {
                 let viewCount:Int = (data as! NSArray)[0] as! Int
                 self.viewCountLabel.isHidden = false
-                self.viewCountLabel.text = String(format: "%d view%@", viewCount, viewCount == 1 ? "" : "s") // TODO: Proper i18n
+                self.viewCountLabel.text = String(format: viewCount == 1 ? String.localized("%d view") : String.localized("%d views"), viewCount)
             }
         })
     }

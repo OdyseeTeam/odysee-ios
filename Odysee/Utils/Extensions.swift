@@ -24,6 +24,9 @@ extension String {
         let end = index(startIndex, offsetBy: bounds.upperBound)
         return String(self[start..<end])
     }
+    public static func localized(_ key: String, comment: String? = nil) -> String {
+        return NSLocalizedString(key, comment: comment ?? "")
+    }
 }
 
 extension UIImageView {
