@@ -38,8 +38,9 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         
-        searchBar.backgroundImage = UIImage()
         getStartedView.isHidden = false
+        searchBar.backgroundImage = UIImage()
+        searchBar.becomeFirstResponder()
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -52,6 +53,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         }
         
         getStartedView.isHidden = true
+        noResultsView.isHidden = true
         loadingContainer.isHidden = false
         
         searching = true
@@ -79,9 +81,10 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         var params: Dictionary<String, Any> = Dictionary<String, Any>()
         params["urls"] = urls
         
-        Lbry.apiCall(method: "resolve", params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
+        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
             guard let data = data, error == nil else {
                 // display no results
+                self.loadingContainer.isHidden = true
                 self.checkNoResults()
                 return
             }
@@ -132,6 +135,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
     
     func checkNoResults() {
         DispatchQueue.main.async {
+            self.loadingContainer.isHidden = true
             self.noResultsView.isHidden = self.claims.count > 0
         }
     }

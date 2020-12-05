@@ -43,8 +43,10 @@ class FileTableViewCell: UITableViewCell {
             thumbnailImageView.load(url: URL(string: (claim.value?.thumbnail?.url)!)!)
         }
         
-        
-        let releaseTime: Double = Double(claim.value?.releaseTime ?? "0")!
+        var releaseTime: Double = Double(claim.value?.releaseTime ?? ("0"))!
+        if (releaseTime == 0) {
+            releaseTime = Double(claim.timestamp ?? 0)
+        }
         let date: Date = NSDate(timeIntervalSince1970: releaseTime) as Date // TODO: Timezone check / conversion?
         
         let formatter = RelativeDateTimeFormatter()

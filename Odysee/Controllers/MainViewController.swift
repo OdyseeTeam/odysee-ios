@@ -19,13 +19,18 @@ class MainViewController: UIViewController {
     @IBOutlet weak var miniPlayerTitleLabel: UILabel!
     @IBOutlet weak var miniPlayerPublisherLabel: UILabel!
     
+    var walletObservers: Dictionary<String, WalletBalanceObserver> = Dictionary<String, WalletBalanceObserver>()
+    var walletBalanceTimer: Timer = Timer()
+    var balanceTimerScheduled = false
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainViewController = self
         // Do any additional setup after loading the view.
-
+        
+        startWalletBalanceTimer()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -86,7 +91,6 @@ class MainViewController: UIViewController {
             miniPlayerTitleLabel.text = appDelegate.currentClaim?.value?.title
             miniPlayerPublisherLabel.text = appDelegate.currentClaim?.signingChannel?.value?.title
             
-            
             let mediaViewLayer: CALayer = miniPlayerMediaView.layer
             let playerLayer: AVPlayerLayer = AVPlayerLayer(player: appDelegate.player)
             playerLayer.frame = mediaViewLayer.bounds
@@ -100,6 +104,70 @@ class MainViewController: UIViewController {
         miniPlayerView.isHidden = hidden
     }
 
+    func showMessage(message: String?) {
+        DispatchQueue.main.async {
+        let sb = Snackbar()
+            sb.sbLength = .long
+            sb.createWithText(message ?? "")
+            sb.show()
+        }
+    }
+    
+    func showError(message: String?) {
+        DispatchQueue.main.async {
+            let sb = Snackbar()
+            sb.sbLength = .long
+            sb.backgroundColor = UIColor.red
+            sb.textColor = UIColor.white
+            sb.createWithText(message ?? "")
+            sb.show()
+        }
+    }
+    
+    func addWalletObserver(key: String, observer: WalletBalanceObserver) {
+        walletObservers[key] = observer
+    }
+    func removeWalletObserver(key: String) {
+        walletObservers.removeValue(forKey: key)
+    }
+    
+    func startWalletBalanceTimer() {
+        if (Lbryio.isSignedIn() && !balanceTimerScheduled) {
+            walletBalanceTimer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(self.fetchWalletBalance), userInfo: nil, repeats: true)
+            balanceTimerScheduled = true
+        }
+    }
+    
+    @objc func fetchWalletBalance() {
+        Lbry.apiCall(method: Lbry.methodWalletBalance, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+            guard let data = data, error == nil else {
+                print(error)
+                return
+            }
+            
+            let result = data["result"] as! [String: Any]
+            
+            var balance = WalletBalance()
+            balance.available = Decimal(string: result["available"] as! String)
+            balance.reserved = Decimal(string: result["reserved"] as! String)
+            balance.total = Decimal(string: result["total"] as! String)
+            
+            let reservedSubtotals = data["reserved_subtotals"] as? [String: Any]
+            if (reservedSubtotals != nil) {
+                balance.claims = Decimal(string: reservedSubtotals!["claims"] as! String)
+                balance.supports = Decimal(string: reservedSubtotals!["supports"] as! String)
+                balance.tips = Decimal(string: reservedSubtotals!["tips"] as! String)
+            }
+            
+            Lbry.walletBalance = balance
+            DispatchQueue.main.async {
+                self.walletObservers.values.forEach{ observer in
+                    observer.balanceUpdated(balance: balance)
+                }
+            }
+        })
+    }
+    
     /*
     // MARK: - Navigation
 
@@ -110,4 +178,8 @@ class MainViewController: UIViewController {
     }
     */
 
+}
+
+protocol WalletBalanceObserver {
+    func balanceUpdated(balance: WalletBalance)
 }

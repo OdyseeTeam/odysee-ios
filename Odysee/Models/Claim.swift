@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Claim: Decodable  {
+class Claim: Decodable, Equatable  {
     var address: String?
     var amount: String?
     var canonicalUrl: String?
@@ -97,5 +97,9 @@ class Claim: Decodable  {
         var height: Int64?
         var width: Int64?
         var os: String?
+    }
+    
+    static func ==(lhs:Claim, rhs:Claim) -> Bool {
+        return lhs.claimId == rhs.claimId
     }
 }

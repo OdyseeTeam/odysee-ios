@@ -16,10 +16,29 @@ final class Lbry {
     static let methodClaimSearch = "claim_search"
     static let methodResolve = "resolve"
     
+    static let methodPreferenceGet = "preference_get"
+    static let methodPreferenceSet = "preference_set"
+    static let methodSyncHash = "sync_hash"
+    static let methodSyncApply = "sync_apply"
+    static let methodTransactionList = "transaction_list"
+    static let methodWalletBalance = "wallet_balance"
+    static let methodWalletStatus = "wallet_status"
+    static let methodWalletUnlock = "wallet_unlock"
+    static let methodWalletSend = "wallet_send"
+    
+    static let methodAddressUnused = "address_unused"
+    
     static var installationId: String? = nil
     static let keyInstallationId = "AppInstallationId"
     
-    static func apiCall(method: String, params: Dictionary<String, Any>, connectionString: String, completion: @escaping ([String: Any]?, Error?) -> Void) {
+    static var remoteWalletHash: String? = nil
+    static var localWalletHash: String? = nil
+    static var walletBalance: WalletBalance? = nil
+    
+    static var claimCacheById: Dictionary<String, Claim> = Dictionary<String, Claim>()
+    static var claimCacheByUrl: Dictionary<String, Claim> = Dictionary<String, Claim>()
+    
+    static func apiCall(method: String, params: Dictionary<String, Any>, connectionString: String, authToken: String? = nil, completion: @escaping ([String: Any]?, Error?) -> Void) {
         let counter = Date().timeIntervalSince1970
         let url = URL(string: connectionString)!
         let body: Dictionary<String, Any> = [
@@ -41,6 +60,9 @@ final class Lbry {
         
         req.addValue("application/json", forHTTPHeaderField: "Content-Type")
         req.addValue("application/json", forHTTPHeaderField: "Accept")
+        if (!(authToken ?? "").isBlank) {
+            req.addValue(authToken!, forHTTPHeaderField: "X-Lbry-Auth-Token")
+        }
         
         let task = session.dataTask(with: req, completionHandler: { data, response, error in
             guard let data = data, error == nil else {
@@ -49,16 +71,38 @@ final class Lbry {
                 return
             }
             do {
-                /*if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
+                // TODO: remove
+                if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
                    print(JSONString)
-                }*/
+                }
+                
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                completion(response, nil)
+                if (response?["result"] != nil) {
+                    completion(response, nil)
+                } else {
+                    if (response?["error"] as? String != nil) {
+                        completion(nil, LbryApiResponseError.runtimeError(response?["error"] as! String))
+                    } else if let errorJson = response?["error"] as? [String: Any] {
+                        completion(nil, LbryApiResponseError.runtimeError(errorJson["message"] as! String))
+                    } else {
+                        completion(nil, LbryApiResponseError.runtimeError("unknown api error"))
+                    }
+                }
             } catch let error {
                 completion(nil, error)
             }
         });
         task.resume();
+    }
+    
+    static func addClaimToCache(claim: Claim?) {
+        if (claim != nil) {
+            Lbry.claimCacheById[(claim?.claimId!)!] = claim
+            let claimUrl: LbryUri? = LbryUri.tryParse(url: (claim?.permanentUrl!)!, requireProto: false)
+            if (claimUrl != nil) {
+                Lbry.claimCacheByUrl[(claimUrl?.description)!] = claim
+            }
+        }
     }
     
     static func buildClaimSearchOptions(
@@ -67,6 +111,7 @@ final class Lbry {
         notTags: [String]?,
         channelIds: [String]?,
         notChannelIds: [String]?,
+        claimIds: [String]?,
         orderBy: [String]?,
         releaseTime: String?,
         maxDuration: Int64?,
@@ -95,6 +140,7 @@ final class Lbry {
         addClaimSearchListOption(key: "not_tags", list: notTags, options: &options)
         addClaimSearchListOption(key: "channel_ids", list: channelIds, options: &options)
         addClaimSearchListOption(key: "not_channel_ids", list: notChannelIds, options: &options)
+        addClaimSearchListOption(key: "claim_ids", list: claimIds, options: &options)
         addClaimSearchListOption(key: "order_by", list: orderBy, options: &options)
         
         return options
@@ -120,4 +166,8 @@ final class Lbry {
         }
         return nil
     }
+}
+
+enum LbryApiResponseError: Error {
+    case runtimeError(String)
 }

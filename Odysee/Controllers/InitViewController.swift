@@ -24,7 +24,10 @@ class InitViewController: UIViewController {
         
         Lbryio.authToken = defaults.string(forKey: Lbryio.keyAuthToken)
         
-        authenticateAndRegisterInstall()
+        Lbryio.loadExchangeRate(completion: { rate, error in
+            // don't bother with error checks here, simply proceed to authenticate
+            self.authenticateAndRegisterInstall()
+        })
     }
     
     func authenticateAndRegisterInstall() {

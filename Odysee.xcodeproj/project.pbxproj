@@ -17,14 +17,26 @@
 		641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641327432556EB2200CBB6B8 /* LbryUri.swift */; };
 		641327492556EB3400CBB6B8 /* Lbry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641327482556EB3400CBB6B8 /* Lbry.swift */; };
 		6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6413274D2557D89200CBB6B8 /* Extensions.swift */; };
+		642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6AFC257A382900F17355 /* WalletViewController.swift */; };
+		642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */; };
+		642B6B07257A635300F17355 /* WalletSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B06257A635300F17355 /* WalletSync.swift */; };
+		642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B0B257AB9F200F17355 /* WalletBalance.swift */; };
+		642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B10257B4CBC00F17355 /* Transaction.swift */; };
+		642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B15257B528300F17355 /* TransactionTableViewCell.swift */; };
+		642B6B1B257B698C00F17355 /* TransactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B1A257B698C00F17355 /* TransactionsViewController.swift */; };
 		64424DCF25588D0D00F2D247 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */; };
 		64424DDA255895A500F2D247 /* ContentSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DD9255895A500F2D247 /* ContentSources.swift */; };
 		644F76AE25592F8400813451 /* FileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76AD25592F8400813451 /* FileViewController.swift */; };
 		644F76B625595D4E00813451 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76B525595D4E00813451 /* Cache.swift */; };
 		6462DABD255D3CFE001CF1E8 /* UICardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6462DABC255D3CFE001CF1E8 /* UICardView.swift */; };
+		647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647408502577FA30008007C6 /* ChannelCollectionViewCell.swift */; };
+		648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */; };
+		648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F320B2575D52500E2CA51 /* UserAccountViewController.swift */; };
 		64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA70255DADFB00294E74 /* SearchViewController.swift */; };
 		64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA75255DB5B200294E74 /* Lighthouse.swift */; };
 		64A6CA7B255DD34700294E74 /* AppTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA7A255DD34700294E74 /* AppTabBarController.swift */; };
+		64CB288225768A9A00FE48B3 /* Snackbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CB288125768A9A00FE48B3 /* Snackbar.swift */; };
+		64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */; };
 		64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE79C25502A290082AF2E /* AppDelegate.swift */; };
 		64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE79E25502A290082AF2E /* SceneDelegate.swift */; };
 		64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7A025502A290082AF2E /* HomeViewController.swift */; };
@@ -63,14 +75,26 @@
 		641327432556EB2200CBB6B8 /* LbryUri.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUri.swift; sourceTree = "<group>"; };
 		641327482556EB3400CBB6B8 /* Lbry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lbry.swift; sourceTree = "<group>"; };
 		6413274D2557D89200CBB6B8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		642B6AFC257A382900F17355 /* WalletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletViewController.swift; sourceTree = "<group>"; };
+		642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSyncViewController.swift; sourceTree = "<group>"; };
+		642B6B06257A635300F17355 /* WalletSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSync.swift; sourceTree = "<group>"; };
+		642B6B0B257AB9F200F17355 /* WalletBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalance.swift; sourceTree = "<group>"; };
+		642B6B10257B4CBC00F17355 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
+		642B6B15257B528300F17355 /* TransactionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTableViewCell.swift; sourceTree = "<group>"; };
+		642B6B1A257B698C00F17355 /* TransactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsViewController.swift; sourceTree = "<group>"; };
 		64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTableViewCell.swift; sourceTree = "<group>"; };
 		64424DD9255895A500F2D247 /* ContentSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSources.swift; sourceTree = "<group>"; };
 		644F76AD25592F8400813451 /* FileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewController.swift; sourceTree = "<group>"; };
 		644F76B525595D4E00813451 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		6462DABC255D3CFE001CF1E8 /* UICardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICardView.swift; sourceTree = "<group>"; };
+		647408502577FA30008007C6 /* ChannelCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelCollectionViewCell.swift; sourceTree = "<group>"; };
+		648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedChannelCollectionViewCell.swift; sourceTree = "<group>"; };
+		648F320B2575D52500E2CA51 /* UserAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountViewController.swift; sourceTree = "<group>"; };
 		64A6CA70255DADFB00294E74 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64A6CA75255DB5B200294E74 /* Lighthouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lighthouse.swift; sourceTree = "<group>"; };
 		64A6CA7A255DD34700294E74 /* AppTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarController.swift; sourceTree = "<group>"; };
+		64CB288125768A9A00FE48B3 /* Snackbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snackbar.swift; sourceTree = "<group>"; };
+		64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingViewController.swift; sourceTree = "<group>"; };
 		64FBE79925502A290082AF2E /* Odysee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Odysee.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64FBE79C25502A290082AF2E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		64FBE79E25502A290082AF2E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -124,8 +148,10 @@
 		6413273C2556E83C00CBB6B8 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				648F31F72573F75600E2CA51 /* Lbryinc */,
 				6413273D2556E86000CBB6B8 /* Claim.swift */,
-				641108EB255AA4CF00F0FB8A /* User.swift */,
+				642B6B0B257AB9F200F17355 /* WalletBalance.swift */,
+				642B6B10257B4CBC00F17355 /* Transaction.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -148,9 +174,23 @@
 		6462DABB255D3CE0001CF1E8 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				64CB288025768A8A00FE48B3 /* ThirdParty */,
+				64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */,
 				6462DABC255D3CFE001CF1E8 /* UICardView.swift */,
+				648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */,
+				647408502577FA30008007C6 /* ChannelCollectionViewCell.swift */,
+				642B6B15257B528300F17355 /* TransactionTableViewCell.swift */,
 			);
 			path = UI;
+			sourceTree = "<group>";
+		};
+		648F31F72573F75600E2CA51 /* Lbryinc */ = {
+			isa = PBXGroup;
+			children = (
+				641108EB255AA4CF00F0FB8A /* User.swift */,
+				642B6B06257A635300F17355 /* WalletSync.swift */,
+			);
+			path = Lbryinc;
 			sourceTree = "<group>";
 		};
 		64A6CA6F255DADB400294E74 /* Controllers */ = {
@@ -162,8 +202,21 @@
 				6411C0B4255B94DA0018C3D5 /* MainViewController.swift */,
 				64A6CA70255DADFB00294E74 /* SearchViewController.swift */,
 				64A6CA7A255DD34700294E74 /* AppTabBarController.swift */,
+				64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */,
+				648F320B2575D52500E2CA51 /* UserAccountViewController.swift */,
+				642B6AFC257A382900F17355 /* WalletViewController.swift */,
+				642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */,
+				642B6B1A257B698C00F17355 /* TransactionsViewController.swift */,
 			);
 			path = Controllers;
+			sourceTree = "<group>";
+		};
+		64CB288025768A8A00FE48B3 /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				64CB288125768A9A00FE48B3 /* Snackbar.swift */,
+			);
+			path = ThirdParty;
 			sourceTree = "<group>";
 		};
 		64FBE79025502A290082AF2E = {
@@ -195,7 +248,6 @@
 				641327422556EB1000CBB6B8 /* Utils */,
 				6413273C2556E83C00CBB6B8 /* Models */,
 				64FBE79C25502A290082AF2E /* AppDelegate.swift */,
-				64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */,
 				64FBE79E25502A290082AF2E /* SceneDelegate.swift */,
 				64FBE7A225502A290082AF2E /* Main.storyboard */,
 				64FBE7A825502A2C0082AF2E /* Assets.xcassets */,
@@ -362,23 +414,35 @@
 			files = (
 				64FBE7A725502A290082AF2E /* Odysee.xcdatamodeld in Sources */,
 				64424DCF25588D0D00F2D247 /* FileTableViewCell.swift in Sources */,
+				642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */,
 				641327492556EB3400CBB6B8 /* Lbry.swift in Sources */,
 				641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */,
 				64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */,
+				648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */,
 				6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */,
 				64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */,
+				648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */,
 				6462DABD255D3CFE001CF1E8 /* UICardView.swift in Sources */,
 				641108DC255A8D7D00F0FB8A /* Lbryio.swift in Sources */,
+				64CB288225768A9A00FE48B3 /* Snackbar.swift in Sources */,
 				64A6CA7B255DD34700294E74 /* AppTabBarController.swift in Sources */,
+				642B6B1B257B698C00F17355 /* TransactionsViewController.swift in Sources */,
 				6411C0B5255B94DA0018C3D5 /* MainViewController.swift in Sources */,
+				642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */,
+				642B6B07257A635300F17355 /* WalletSync.swift in Sources */,
+				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
 				641108F1255AF6CE00F0FB8A /* Helper.swift in Sources */,
 				64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */,
 				64424DDA255895A500F2D247 /* ContentSources.swift in Sources */,
 				641108EC255AA4CF00F0FB8A /* User.swift in Sources */,
+				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,
+				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
 				641108E7255AA2BC00F0FB8A /* InitViewController.swift in Sources */,
+				64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
 				6413273E2556E86000CBB6B8 /* Claim.swift in Sources */,
+				642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */,
 				644F76B625595D4E00813451 /* Cache.swift in Sources */,
 				64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */,
 			);

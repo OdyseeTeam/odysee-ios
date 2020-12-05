@@ -18,6 +18,9 @@ final class Lbryio {
     static var authToken: String? = nil
     
     static let keyAuthToken = "AuthToken"
+    static var currentUser: User? = nil
+    
+    static var currentLbcUsdRate: Decimal? = 0
     
     static func call(resource: String, action: String, options: Dictionary<String, String>?, method: String, completion: @escaping (Any?, Error?) -> Void) throws {
         let url = String(format: "%@/%@/%@", connectionString, resource, action)
@@ -44,18 +47,19 @@ final class Lbryio {
         }
         
         var requestUrl = URL(string: url)
+        var queryItems: [URLQueryItem] = []
+        if (!(authToken ?? "").isBlank) {
+            queryItems.append(URLQueryItem(name: authTokenParam, value: authToken))
+        }
+        if (options != nil) {
+            for (name, value) in options! {
+                queryItems.append(URLQueryItem(name: name, value: value))
+            }
+        }
+        var urlComponents = URLComponents(string: url)
+        urlComponents?.queryItems = queryItems
+        
         if (method.lowercased() == methodGet.lowercased()) {
-            var queryItems: [URLQueryItem] = []
-            if (!(authToken ?? "").isBlank) {
-                queryItems.append(URLQueryItem(name: authTokenParam, value: authToken))
-            }
-            if (options != nil) {
-                for (name, value) in options! {
-                    queryItems.append(URLQueryItem(name: name, value: value))
-                }
-            }
-            var urlComponents = URLComponents(string: url)
-            urlComponents?.queryItems = queryItems
             requestUrl = urlComponents?.url!
         }
 
@@ -79,10 +83,10 @@ final class Lbryio {
                 }
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 
-                /*print(respData)
+                print(respData)
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
                    print(JSONString)
-                }*/
+                }
                 
                 if (respCode >= 200 && respCode < 300) {
                     if (respData?["data"] == nil) {
@@ -93,10 +97,12 @@ final class Lbryio {
                     return
                 }
                 
-                if (respData?["error"] != nil) {
-                    completion(nil, LbryioResponseError.runtimeError(respData?["error"] as! String, respCode))
+                if (respData?["error"] as? NSNull != nil) {
+                    completion(nil, LbryioResponseError("no error message", respCode))
+                } else if (respData?["error"] as? String != nil) {
+                    completion(nil, LbryioResponseError(respData?["error"] as! String, respCode))
                 } else {
-                    completion(nil, LbryioResponseError.runtimeError("Unknown api error signature", respCode))
+                    completion(nil, LbryioResponseError("Unknown api error signature", respCode))
                 }
             } catch let error {
                 completion(nil, error)
@@ -119,7 +125,7 @@ final class Lbryio {
                 qs.append(delim)
                 qs.append(name)
                 qs.append("=")
-                qs.append(value.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!)
+                qs.append(value.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!.replacingOccurrences(of: "+", with: "%2B"))
                 delim = "&"
             }
         }
@@ -144,12 +150,16 @@ final class Lbryio {
                 let tokenData = data as! [String: Any]?
                 let token: String? = tokenData?["auth_token"] as? String
                 if ((token ?? "").isBlank) {
-                    completion(nil, LbryioResponseError.runtimeError("auth_token was not set in the response", 0))
+                    completion(nil, LbryioResponseError("auth_token was not set in the response", 0))
                     return
                 }
                 completion(token, nil)
             }
         })
+    }
+    
+    static func isSignedIn() -> Bool {
+        return currentUser != nil && !(currentUser?.primaryEmail ?? "").isEmpty
     }
     
     static func fetchCurrentUser(completion: @escaping (User?, Error?) -> Void) throws {
@@ -164,6 +174,7 @@ final class Lbryio {
                 do {
                     let user: User? = try JSONDecoder().decode(User.self, from: jsonData)
                     if (user != nil) {
+                        currentUser = user
                         completion(user, nil)
                     }
                 } catch let error {
@@ -181,7 +192,7 @@ final class Lbryio {
         options["node_id"] = ""
         options["operating_system"] = "ios"
         options["platform"] = "darwin"
-        options["domain"] = "odysee"
+        options["domain"] = "odysee.com"
         try call(resource: "install", action: "new", options: options, method: methodPost, completion: { data, error in
             if (error != nil) {
                 completion(error)
@@ -191,11 +202,92 @@ final class Lbryio {
             completion(nil)
         })
     }
+    
+    static func loadExchangeRate(completion: @escaping(Decimal?, Error?) -> Void) {
+        do {
+            try call(resource: "lbc", action: "exchange_rate", options: nil, method: methodGet, completion: { data, error in
+                guard let data = data, error == nil else {
+                    completion(nil, error)
+                    return
+                }
+                
+                let response = data as! [String: Any]
+                let lbcUsdRate = response["lbc_usd"] as? Decimal
+                if (lbcUsdRate != nil) {
+                    currentLbcUsdRate = lbcUsdRate
+                    completion(lbcUsdRate, nil)
+                    return
+                }
+                
+                completion(nil, LbryioResponseError("exchange rate retrieval failed", 0))
+            })
+        } catch let error {
+            completion(nil, error)
+        }
+    }
+    
+    static func syncSet(oldHash: String, newHash: String, data: String, completion: @escaping (String?, Error?) -> Void) {
+        var options = Dictionary<String, String>()
+        options["old_hash"] = oldHash
+        options["new_hash"] = newHash
+        options["data"] = data
+        do {
+            try Lbryio.call(resource: "sync", action: "set", options: options, method: Lbryio.methodPost, completion: { data, error in
+                guard let data = data, error == nil else {
+                    completion(nil, error)
+                    return
+                }
+                
+                let response = data as! [String: Any]
+                let remoteHash = response["hash"] as! String
+                completion(remoteHash, nil)
+            })
+        } catch let error {
+            completion(nil, error)
+        }
+    }
+    
+    static func syncGet(hash: String, applySyncChanges: Bool = false, completion: @escaping (WalletSync?, Bool?, Error?) -> Void) {
+        var options = Dictionary<String, String>()
+        options["hash"] = hash
+        do {
+            try Lbryio.call(resource: "sync", action: "get", options: options, method: Lbryio.methodPost, completion: { data, error in
+                guard let data = data, error == nil else {
+                    if let responseError = error as? LbryioResponseError {
+                        if (responseError.code == 404) {
+                            // no wallet found for the user, so it's a new sync
+                            completion(nil, true, nil)
+                            return
+                        }
+                    }
+                    completion(nil, nil, error)
+                    return
+                }
+                
+                let response = data as! [String: Any]
+                var walletSync = WalletSync()
+                walletSync.hash = response["hash"] as? String
+                walletSync.data = response["data"] as? String
+                walletSync.changed = response["changed"] as? Bool
+                completion(walletSync, false, nil)
+            })
+        } catch let error {
+            completion(nil, nil, error)
+        }
+    }
 }
 
 enum LbryioRequestError: Error {
     case runtimeError(String)
 }
-enum LbryioResponseError: Error {
-    case runtimeError(String, Int)
+struct LbryioResponseError: Error {
+    let message: String
+    let code: Int
+    init (_ message: String, _ code: Int) {
+        self.message = message
+        self.code = code
+    }
+    public var localizedDescription: String {
+        return message
+    }
 }
