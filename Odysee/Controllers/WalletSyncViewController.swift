@@ -64,11 +64,9 @@ class WalletSyncViewController: UIViewController {
             
             var unlocked = data["result"] as! Bool
             if (unlocked) {
-                print("unlocked wallet")
                 self.obtainHashForSync()
             } else {
                 // error
-                print("failed woefully!")
             }
         })
     }
@@ -95,7 +93,6 @@ class WalletSyncViewController: UIViewController {
             }
             
             if (needsNewWallet ?? false) {
-                print("processing new wallet")
                 self.processNewWallet()
                 return
             }
@@ -141,7 +138,7 @@ class WalletSyncViewController: UIViewController {
     }
     
     func requestSyncApplyWithPassword() {
-        print("i need to show password field")
+        
     }
     
     

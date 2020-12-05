@@ -200,7 +200,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                                 print(error)
                             }
                         }
-                        print(loadedClaims.count)
                         self.suggestedFollows.append(contentsOf: loadedClaims)
                     }
                 }
