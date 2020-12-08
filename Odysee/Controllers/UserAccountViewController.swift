@@ -116,11 +116,7 @@ class UserAccountViewController: UIViewController {
                 }
                 
                 guard let data = data, error == nil else {
-                    var message = error?.localizedDescription
-                    if let responseError = error as? LbryioResponseError {
-                        message = responseError.message
-                    }
-                    self.showError(message: message)
+                    self.showError(error: error)
                     return
                 }
                 
@@ -188,7 +184,7 @@ class UserAccountViewController: UIViewController {
             try Lbryio.fetchCurrentUser(completion: { user, error in
                 guard let user = user, error == nil else {
                     // user verification failed
-                    self.showError(message: error?.localizedDescription)
+                    self.showError(error: error)
                     return
                 }
                 
@@ -204,19 +200,18 @@ class UserAccountViewController: UIViewController {
                 }
             })
         } catch let error {
-            self.showError(message: error.localizedDescription)
+            self.showError(error: error)
         }
     }
     
     func showError(message: String?) {
-        DispatchQueue.main.async {
-            let sb = Snackbar()
-            sb.sbLength = .long
-            sb.backgroundColor = UIColor.red
-            sb.textColor = UIColor.white
-            sb.createWithText(message ?? "")
-            sb.show()
-        }
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.showError(message: message)
+    }
+    
+    func showError(error: Error?) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.showError(error: error)
     }
     
     func handleUserSignIn() {
@@ -244,7 +239,7 @@ class UserAccountViewController: UIViewController {
                                 DispatchQueue.main.async {
                                     self.defaultActionButton.isEnabled = true
                                 }
-                                self.showError(message: error?.localizedDescription)
+                                self.showError(error: error)
                             }
                         }
                         return
@@ -267,7 +262,7 @@ class UserAccountViewController: UIViewController {
                     }
                 })
             } catch let error {
-                self.showError(message: error.localizedDescription)
+                self.showError(error: error)
             }
             
             return
@@ -287,14 +282,14 @@ class UserAccountViewController: UIViewController {
             options["only_if_expired"] = "true"
             try Lbryio.call(resource: "user_email", action: "resend_token", options: options, method: Lbryio.methodPost, completion: { data, error in
                 guard let _ = data, error == nil else {
-                    self.showError(message: error?.localizedDescription)
+                    self.showError(error: error)
                     return
                 }
                 
                 self.waitForVerification()
             })
         } catch let error {
-            self.showError(message: error.localizedDescription)
+            self.showError(error: error)
         }
     }
     
@@ -309,7 +304,7 @@ class UserAccountViewController: UIViewController {
                         if responseError.code == 409 {
                             self.handleEmailExistsFlow(email: email)
                         } else {
-                            self.showError(message: error?.localizedDescription)
+                            self.showError(error: error)
                         }
                     }
                     return
@@ -318,7 +313,7 @@ class UserAccountViewController: UIViewController {
                 self.waitForVerification()
             })
         } catch let error {
-            self.showError(message: error.localizedDescription)
+            self.showError(error: error)
         }
     }
     

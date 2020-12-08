@@ -57,3 +57,24 @@ extension UIImageView {
         self.clipsToBounds = true
     }
 }
+
+extension UIApplication {
+    class func currentViewController(_ viewController: UIViewController? = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.rootViewController
+) -> UIViewController? {
+        if let main = viewController as? MainViewController {
+            return currentViewController(main.mainNavigationController)
+        }
+        if let nav = viewController as? UINavigationController {
+            return currentViewController(nav.visibleViewController)
+        }
+        if let tab = viewController as? UITabBarController {
+            if let selected = tab.selectedViewController {
+                return currentViewController(selected)
+            }
+        }
+        if let presented = viewController?.presentedViewController {
+            return currentViewController(presented)
+        }
+        return viewController
+    }
+}

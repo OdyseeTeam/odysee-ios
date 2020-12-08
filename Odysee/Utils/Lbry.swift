@@ -16,8 +16,10 @@ final class Lbry {
     static let methodClaimSearch = "claim_search"
     static let methodResolve = "resolve"
     
+    static let methodAddressUnused = "address_unused"
     static let methodPreferenceGet = "preference_get"
     static let methodPreferenceSet = "preference_set"
+    static let methodSupportCreate = "support_create"
     static let methodSyncHash = "sync_hash"
     static let methodSyncApply = "sync_apply"
     static let methodTransactionList = "transaction_list"
@@ -25,8 +27,6 @@ final class Lbry {
     static let methodWalletStatus = "wallet_status"
     static let methodWalletUnlock = "wallet_unlock"
     static let methodWalletSend = "wallet_send"
-    
-    static let methodAddressUnused = "address_unused"
     
     static var installationId: String? = nil
     static let keyInstallationId = "AppInstallationId"
@@ -73,7 +73,7 @@ final class Lbry {
             do {
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   print(JSONString)
+                   //print(JSONString)
                 }
                 
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]

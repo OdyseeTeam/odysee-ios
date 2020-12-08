@@ -21,6 +21,8 @@ final class Lbryio {
     static var currentUser: User? = nil
     
     static var currentLbcUsdRate: Decimal? = 0
+    static var followedUrls: [String] = [] // simple cache of followed urls
+    static var cachedSubscriptions: Dictionary<String, LbrySubscription> = Dictionary<String, LbrySubscription>()
     
     static func call(resource: String, action: String, options: Dictionary<String, String>?, method: String, completion: @escaping (Any?, Error?) -> Void) throws {
         let url = String(format: "%@/%@/%@", connectionString, resource, action)
@@ -83,7 +85,7 @@ final class Lbryio {
                 }
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 
-                print(respData)
+                // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
                    print(JSONString)
                 }
@@ -274,6 +276,36 @@ final class Lbryio {
         } catch let error {
             completion(nil, nil, error)
         }
+    }
+    
+    static func addSubscription(sub: LbrySubscription, url: String?) {
+        let url = LbryUri.tryParse(url: url!, requireProto: false)
+        if (url != nil) {
+            cachedSubscriptions[url!.description] = sub
+        }
+    }
+    static func removeSubscription(subUrl: String?) {
+        let url = LbryUri.tryParse(url: subUrl!, requireProto: false)
+        if (url != nil) {
+            cachedSubscriptions.removeValue(forKey: url!.description)
+        }
+    }
+    
+    static func isFollowing(claim: Claim) -> Bool {
+        let url = LbryUri.tryParse(url: claim.permanentUrl!, requireProto: false)
+        return url != nil && cachedSubscriptions[url!.description] != nil
+    }
+    static func isFollowing(subscription: Subscription) -> Bool {
+        let url = LbryUri.tryParse(url: subscription.url!, requireProto: false)
+        return url != nil && cachedSubscriptions[url!.description] != nil
+    }
+    static func isNotificationsDisabledForSub(claim: Claim) -> Bool {
+        let url = LbryUri.tryParse(url: claim.permanentUrl!, requireProto: false)
+        if url != nil && cachedSubscriptions[url!.description] != nil {
+            return cachedSubscriptions[url!.description]!.notificationsDisabled ?? true
+        }
+        
+        return true
     }
 }
 

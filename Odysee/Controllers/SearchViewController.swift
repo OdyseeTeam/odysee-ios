@@ -38,6 +38,8 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
         
+        loadingContainer.layer.cornerRadius = 20
+        
         getStartedView.isHidden = false
         searchBar.backgroundImage = UIImage()
         searchBar.becomeFirstResponder()
@@ -149,7 +151,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! FileTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
         
         let claim: Claim = claims[indexPath.row]
         cell.setClaim(claim: claim)
@@ -162,16 +164,24 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         let claim: Claim = claims[indexPath.row]
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-        vc.claim = claim
-        
-        let transition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        transition.type = .push
-        transition.subtype = .fromTop
-        appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        if (claim.name!.starts(with: "@")) {
+            // channel claim
+            let vc = storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+            vc.channelClaim = claim
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        } else {
+            // file claim
+            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+            vc.claim = claim
+            
+            let transition = CATransition()
+            transition.duration = 0.3
+            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            transition.type = .push
+            transition.subtype = .fromTop
+            appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        }
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

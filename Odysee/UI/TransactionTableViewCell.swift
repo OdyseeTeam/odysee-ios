@@ -37,11 +37,14 @@ class TransactionTableViewCell: UITableViewCell {
         amountLabel.text = Helper.currencyFormatter.string(from: Decimal(string: transaction.value!)! as NSDecimalNumber)
         txidLabel.text = String(transaction.txid!.prefix(7))
         
-        let date: Date = NSDate(timeIntervalSince1970: Double(transaction.timestamp!)) as Date
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        dateLabel.text = formatter.localizedString(for: date, relativeTo: Date())
-        
+        if (transaction.timestamp == nil) {
+            dateLabel.text = String.localized("Pending")
+        } else {
+            let date: Date = NSDate(timeIntervalSince1970: Double(transaction.timestamp!)) as Date
+            let formatter = RelativeDateTimeFormatter()
+            formatter.unitsStyle = .short
+            dateLabel.text = formatter.localizedString(for: date, relativeTo: Date())
+        }
         feeLabel.text = ""
         
         let txidTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.txidTapped(_:)))

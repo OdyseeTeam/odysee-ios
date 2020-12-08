@@ -12,7 +12,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     let keyBalanceObserver = "wallet_vc"
     let keyReceiveAddress = "walletReceiveAddress"
     let currencyFormatter = NumberFormatter()
-    let sdkAmountFormatter = NumberFormatter()
     
     var loadingRecentTransactions = false
     var recentTransactions: [Transaction] = []
@@ -77,12 +76,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         currencyFormatter.numberStyle = .decimal
         currencyFormatter.locale = Locale.current
         
-        sdkAmountFormatter.minimumFractionDigits = 2
-        sdkAmountFormatter.maximumFractionDigits = 8
-        sdkAmountFormatter.usesGroupingSeparator = false
-        sdkAmountFormatter.numberStyle = .decimal
-        sdkAmountFormatter.locale = Locale.init(identifier: "en_US")
-        
         displayBalance(balance: Lbry.walletBalance)
         
         registerForKeyboardNotifications()
@@ -138,8 +131,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { action in
               switch action.style{
               case .default:
-                self.confirmSendCredits(recipientAddress: recipientAddress!, amount: self.sdkAmountFormatter.string(from: amount! as NSDecimalNumber)!)
-                print("default")
+                self.confirmSendCredits(recipientAddress: recipientAddress!, amount: Helper.sdkAmountFormatter.string(from: amount! as NSDecimalNumber)!)
               case .cancel:
                 break
               case .destructive:
@@ -167,7 +159,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         sendButton.isEnabled = false
         Lbry.apiCall(method: Lbry.methodWalletSend, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let _ = data, error == nil else {
-                self.showError(message: error?.localizedDescription)
+                self.showError(error: error)
                 return
             }
             
@@ -236,7 +228,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     func adjustRecentTransactionsListSize() {
-        print(recentTransactionsListView.contentSize.height)
         recentTxListHeightConstraint.constant = recentTransactionsListView.contentSize.height + CGFloat(8 * recentTransactions.count)
     }
     
@@ -259,7 +250,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         Lbry.apiCall(method: Lbry.methodTransactionList, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let data = data, error == nil else {
-                self.showError(message: error?.localizedDescription)
+                self.showError(error: error)
                 return
             }
             
@@ -309,5 +300,9 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func showError(message: String?) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.showError(message: message)
+    }
+    func showError(error: Error?) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.showError(error: error)
     }
 }

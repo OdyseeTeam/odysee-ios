@@ -8,7 +8,7 @@
 import CoreData
 import UIKit
 
-class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource {
+class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource {
     
     static let suggestedFollowCount = 5
     
@@ -22,6 +22,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     @IBOutlet weak var contentListView: UITableView!
     
     @IBOutlet weak var loadingContainer: UIView!
+    @IBOutlet weak var sortByLabel: UILabel!
+    @IBOutlet weak var contentFromLabel: UILabel!
+    
+    var sortByPicker: UIPickerView!
+    var contentFromPicker: UIPickerView!
     
     var suggestedFollows: [Claim] = []
     var following: [Claim] = []
@@ -42,6 +47,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var lastPageReached: Bool = false
     var loadingContent: Bool = false
     var claims: [Claim] = []
+    
+    var currentSortByIndex = 1 // default to New content
+    var currentContentFromIndex = 1 // default to Past week
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -80,7 +88,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         if (selectedChannelIds.count > 0) {
             channelIdFilter = selectedChannelIds
         }
-        self.claimSearchOptions = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIdFilter, notChannelIds: nil, claimIds: nil, orderBy: ["release_time"], releaseTime: nil, maxDuration: nil, limitClaimsPerChannel: 0, page: currentPage, pageSize: pageSize)
+        
+        let orderByValue = Helper.sortByItemValues[currentSortByIndex]
+        let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
+        self.claimSearchOptions = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIdFilter, notChannelIds: nil, claimIds: nil, orderBy: orderByValue, releaseTime: releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: 0, page: currentPage, pageSize: pageSize)
     }
     
     func loadLocalSubscriptions() {
@@ -142,6 +153,14 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         let subUrl = LbryUri.tryParse(url: String(format: "%@#%@", channelName, sub["claim_id"] as! String), requireProto: false)
                         if (subUrl != nil) {
                             let urlString = subUrl?.description
+                            do {
+                                let jsonData = try JSONSerialization.data(withJSONObject: sub, options: [.prettyPrinted, .sortedKeys])
+                                let subscription: LbrySubscription? = try JSONDecoder().decode(LbrySubscription.self, from: jsonData)
+                                Lbryio.addSubscription(sub: subscription!, url: urlString)
+                            } catch {
+                                // skip if an error occurred
+                            }
+                            
                             self.addSubscription(url: urlString!, channelName: channelName, isNotificationsDisabled: sub["is_notifications_disabled"] as! Bool, reloadAfter: false)
                         }
                     }
@@ -183,25 +202,24 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                     print(error)
                     return
                 }
-                if (data != nil) {
-                    let result = data["result"] as? [String: Any]
-                    let items = result?["items"] as? [[String: Any]]
-                    if (items != nil) {
-                        var loadedClaims: [Claim] = []
-                        items?.forEach{ item in
-                            let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                            do {
-                                let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                                if (claim != nil && !self.suggestedFollows.contains(where: { $0.claimId == claim?.claimId })) {
-                                    Lbry.addClaimToCache(claim: claim)
-                                    loadedClaims.append(claim!)
-                                }
-                            } catch let error {
-                                print(error)
+                
+                let result = data["result"] as? [String: Any]
+                let items = result?["items"] as? [[String: Any]]
+                if (items != nil) {
+                    var loadedClaims: [Claim] = []
+                    items?.forEach{ item in
+                        let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
+                        do {
+                            let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                            if (claim != nil && !self.suggestedFollows.contains(where: { $0.claimId == claim?.claimId })) {
+                                Lbry.addClaimToCache(claim: claim)
+                                loadedClaims.append(claim!)
                             }
+                        } catch let error {
+                            print(error)
                         }
-                        self.suggestedFollows.append(contentsOf: loadedClaims)
                     }
+                    self.suggestedFollows.append(contentsOf: loadedClaims)
                 }
             
                 self.loadingSuggested = false
@@ -238,6 +256,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 let result = data?["result"] as? [String: Any]
                 let items = result?["items"] as? [[String: Any]]
                 if (items != nil) {
+                    if (items!.count < self.pageSize) {
+                        self.lastPageReached = true
+                    }
                     var loadedClaims: [Claim] = []
                     items?.forEach{ item in
                         let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
@@ -298,7 +319,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! FileTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
         
         let claim: Claim = claims[indexPath.row]
         cell.setClaim(claim: claim)
@@ -374,9 +395,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             }
             
             if (prevSelectedChannelIds != selectedChannelIds) {
-                currentPage = 1
-                claims.removeAll()
-                contentListView.reloadData()
+                resetSubscriptionContent()
                 loadSubscriptionContent()
             }
         }
@@ -430,8 +449,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 }
 
                 if (!unsubscribing) {
+                    Lbryio.addSubscription(sub: LbrySubscription.fromClaim(claim: claim!, notificationsDisabled: notificationsDisabled), url: subUrl.description)
                     self.addSubscription(url: subUrl.description, channelName: subUrl.channelName!, isNotificationsDisabled: notificationsDisabled, reloadAfter: true)
                 } else {
+                    Lbryio.removeSubscription(subUrl: subUrl.description)
                     self.removeSubscription(url: subUrl.description, channelName: subUrl.channelName!)
                 }
                 
@@ -444,7 +465,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if (scrollView == contentListView) {
             if (contentListView.contentOffset.y >= (contentListView.contentSize.height - contentListView.bounds.size.height)) {
-                if (!loadingContent) {
+                if (!loadingContent && !lastPageReached) {
                     currentPage += 1
                     loadSubscriptionContent()
                 }
@@ -453,7 +474,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
     
     func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
-        
         // persist the subscription to CoreData
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -533,4 +553,79 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             self.loadSubscriptionContent()
         })
     }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if (pickerView == sortByPicker) {
+            return Helper.sortByItemNames.count
+        } else {
+            return Helper.contentFromItemNames.count
+        }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        if (pickerView == sortByPicker) {
+            return Helper.sortByItemNames[row]
+        } else {
+            return Helper.contentFromItemNames[row]
+        }
+    }
+    
+    func resetSubscriptionContent() {
+        currentPage = 1
+        lastPageReached = false
+        claims.removeAll()
+        contentListView.reloadData()
+    }
+    
+    func checkUpdatedSortBy() {
+        let itemName = Helper.sortByItemNames[currentSortByIndex]
+        sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
+        contentFromLabel.isHidden = currentSortByIndex != 2
+    }
+    
+    func checkUpdatedContentFrom() {
+        contentFromLabel.text = String(format: "%@ ▾", String(Helper.contentFromItemNames[currentContentFromIndex]))
+    }
+    
+    @IBAction func sortByLabelTapped(_ sender: Any) {
+       let (picker, alert) = Helper.buildPickerActionSheet(title: String.localized("Sort content by"), dataSource: self, delegate: self, parent: self, handler: { _ in
+            let selectedIndex = self.sortByPicker.selectedRow(inComponent: 0)
+            let prevIndex = self.currentSortByIndex
+            self.currentSortByIndex = selectedIndex
+            if (prevIndex != self.currentSortByIndex) {
+                self.checkUpdatedSortBy()
+                self.resetSubscriptionContent()
+                self.loadSubscriptionContent()
+            }
+        })
+        
+        sortByPicker = picker
+        present(alert, animated: true, completion: {
+            self.sortByPicker.selectRow(self.currentSortByIndex, inComponent: 0, animated: true)
+        })
+    }
+    
+    @IBAction func contentFromLabelTapped(_ sender: Any) {
+        let (picker, alert) = Helper.buildPickerActionSheet(title: String.localized("Content from"), dataSource: self, delegate: self, parent: self, handler: { _ in
+            let selectedIndex = self.contentFromPicker.selectedRow(inComponent: 0)
+            let prevIndex = self.currentContentFromIndex
+            self.currentContentFromIndex = selectedIndex
+            if (prevIndex != self.currentContentFromIndex) {
+                self.checkUpdatedContentFrom()
+                self.resetSubscriptionContent()
+                self.loadSubscriptionContent()
+            }
+        })
+        
+        contentFromPicker = picker
+        present(alert, animated: true, completion: {
+            self.contentFromPicker.selectRow(self.currentContentFromIndex, inComponent: 0, animated: true)
+        })
+    }
+    
+    
 }

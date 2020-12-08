@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TransactionsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class TransactionsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
     
     @IBOutlet weak var transactionListView: UITableView!
     @IBOutlet weak var noTransactionsView: UIView!
@@ -23,17 +23,23 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: 2)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
 
         // Do any additional setup after loading the view.
         loadingContainer.layer.cornerRadius = 20
         transactionListView.tableFooterView = UIView()
         loadTransactions()
+    }
+    
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return true
     }
     
     func loadTransactions() {

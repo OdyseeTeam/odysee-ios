@@ -19,6 +19,7 @@ class MainViewController: UIViewController {
     @IBOutlet weak var miniPlayerTitleLabel: UILabel!
     @IBOutlet weak var miniPlayerPublisherLabel: UILabel!
     
+    var mainNavigationController: UINavigationController!
     var walletObservers: Dictionary<String, WalletBalanceObserver> = Dictionary<String, WalletBalanceObserver>()
     var walletBalanceTimer: Timer = Timer()
     var balanceTimerScheduled = false
@@ -36,7 +37,8 @@ class MainViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "main_nav" {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainNavigationController = segue.destination as? UINavigationController
+            self.mainNavigationController = segue.destination as? UINavigationController
+            appDelegate.mainNavigationController = self.mainNavigationController
         }
     }
     
@@ -122,6 +124,15 @@ class MainViewController: UIViewController {
             sb.createWithText(message ?? "")
             sb.show()
         }
+    }
+    
+    func showError(error: Error?) {
+        if let responseError = error as? LbryioResponseError {
+            showError(message: responseError.localizedDescription)
+            return
+        }
+        
+        showError(message: error?.localizedDescription)
     }
     
     func addWalletObserver(key: String, observer: WalletBalanceObserver) {

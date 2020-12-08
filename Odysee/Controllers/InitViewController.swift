@@ -12,6 +12,11 @@ class InitViewController: UIViewController {
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     
+    // Init process flow
+    // 1. loadExchangeRate
+    // 2. loadAndCacheRemoteSubscriptions
+    // 3. authenticateAndRegisterInstall
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -26,7 +31,7 @@ class InitViewController: UIViewController {
         
         Lbryio.loadExchangeRate(completion: { rate, error in
             // don't bother with error checks here, simply proceed to authenticate
-            self.authenticateAndRegisterInstall()
+            self.loadAndCacheSubscriptions()
         })
     }
     
@@ -72,6 +77,41 @@ class InitViewController: UIViewController {
             // /install/new failed
             // show error message
             showError()
+        }
+    }
+    
+    // we only want to cache the URLs for followed channels (both local and remote) here
+    func loadAndCacheSubscriptions() {
+        do {
+            try Lbryio.call(resource: "subscription", action: "list", options: nil, method: Lbryio.methodGet, completion: { data, error in
+                guard let data = data, error == nil else {
+                    self.authenticateAndRegisterInstall()
+                    return
+                }
+                
+                if ((data as? NSNull) != nil) {
+                    self.authenticateAndRegisterInstall()
+                    return
+                }
+                
+                if let subs = data as? [[String: Any]] {
+                    for sub in subs {
+                        let jsonData = try! JSONSerialization.data(withJSONObject: sub, options: [.prettyPrinted, .sortedKeys])
+                        do {
+                            let subscription: LbrySubscription? = try JSONDecoder().decode(LbrySubscription.self, from: jsonData)
+                            let channelName = subscription!.channelName!
+                            let subUrl = LbryUri.tryParse(url: String(format: "%@#%@", channelName, subscription!.claimId!), requireProto: false)
+                            Lbryio.addSubscription(sub: subscription!, url: subUrl!.description)
+                        } catch {
+                            // skip the sub if it failed to parse
+                        }
+                    }
+                }
+                self.authenticateAndRegisterInstall()
+            })
+        } catch {
+            // simply continue if it fails
+            authenticateAndRegisterInstall()
         }
     }
     

@@ -22,6 +22,7 @@ class Claim: Decodable, Equatable  {
     var permanentUrl: String?
     var shortUrl: String?
     var signingChannel: Claim?
+    var repostedClaim: Claim?
     var timestamp: Int64?
     var txid: String?
     var type: String?
@@ -31,8 +32,8 @@ class Claim: Decodable, Equatable  {
     private enum CodingKeys: String, CodingKey {
         case address, amount, canonicalUrl = "canonical_url", claimId = "claim_id", claimOp = "claim_op", confirmations,
              height, isChannelSignatureValid = "is_channel_signature_valid", name, normalizedName = "normalized_name",
-             nout, permanentUrl = "permanent_url", shortUrl = "short_url", signingChannel = "signing_channel", timestamp,
-             txid, value, valueType = "value_type"
+             nout, permanentUrl = "permanent_url", shortUrl = "short_url", signingChannel = "signing_channel",
+             repostedClaim = "reposted_claim", timestamp, txid, value, valueType = "value_type"
     }
     
     struct Metadata: Decodable {
