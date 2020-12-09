@@ -9,9 +9,10 @@ import Firebase
 import CoreData
 import UIKit
 
-class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource {
+class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, WalletSyncObserver {
     
     static let suggestedFollowCount = 5
+    let keySyncObserver = "following_vc"
     
     @IBOutlet weak var suggestedView: UIView!
     @IBOutlet weak var mainView: UIView! // the view to display when the user is following at least one person
@@ -54,14 +55,21 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.addWalletSyncObserver(key: keySyncObserver, observer: self)
         
         // check if current user is signed in
         if (!Lbryio.isSignedIn()) {
             // show the sign in view
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
             appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         }
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.removeWalletSyncObserver(key: keySyncObserver)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -96,7 +104,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         self.claimSearchOptions = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIdFilter, notChannelIds: nil, claimIds: nil, orderBy: orderByValue, releaseTime: releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: 0, page: currentPage, pageSize: pageSize)
     }
     
-    func loadLocalSubscriptions() {
+    func loadLocalSubscriptions(_ refresh: Bool = false) {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Subscription")
         fetchRequest.returnsObjectsAsFaults = false
         let asyncFetchRequest = NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { asyncFetchResult in
@@ -107,7 +115,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 // load remote
                 self.loadRemoteSubscriptions()
             } else {
-                self.resolveChannelList()
+                self.resolveChannelList(refresh)
                 if (!self.showingSuggested) {
                     DispatchQueue.main.async {
                         self.suggestedView.isHidden = true
@@ -457,7 +465,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                     Lbryio.removeSubscription(subUrl: subUrl.description)
                     self.removeSubscription(url: subUrl.description, channelName: subUrl.channelName!)
                 }
-                
             })
         } catch let error {
             print(error)
@@ -517,16 +524,18 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         loadLocalSubscriptions()
     }
     
-    func resolveChannelList() {
+    func resolveChannelList(_ refresh: Bool = false) {
         let urls = subscriptions.map{ $0.url }
         var params: Dictionary<String, Any> = Dictionary<String, Any>()
         params["urls"] = urls
         
-        let prevFollowing = self.following
+        //let prevFollowing = self.following
+        var newFollowing: [Claim] = []
         Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
             guard let data = data, error == nil else {
                 // display no results
                 // channels could not be resolved
+                print(error!)
                 return
             }
             
@@ -536,20 +545,28 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
                 do {
                     let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if (claim != nil && !(claim?.claimId ?? "").isBlank && !self.following.contains(where: { $0.claimId == claim?.claimId })) {
+                    if (claim != nil && !(claim?.claimId ?? "").isBlank) {
                         Lbry.addClaimToCache(claim: claim)
-                        claimResults.append(claim!)
+                        if (!self.following.contains(where: { $0.claimId == claim?.claimId })) {
+                            claimResults.append(claim!)
+                        }
+                        if (refresh && !newFollowing.contains(where: { $0.claimId == claim?.claimId })) {
+                            newFollowing.append(claim!)
+                        }
                     }
                 } catch let error {
                     print(error)
                 }
             }
-            self.following.append(contentsOf: claimResults)
+            
+            if refresh {
+                self.following = newFollowing
+            } else {
+                self.following.append(contentsOf: claimResults)
+            }
             
             DispatchQueue.main.async {
-                if (prevFollowing != self.following) {
-                    self.channelListView.reloadData()
-                }
+                self.channelListView.reloadData()
                 self.contentListView.reloadData()
             }
             
@@ -630,5 +647,28 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         })
     }
     
-    
+    func syncCompleted() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Subscription")
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        do {
+            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            try context.execute(deleteRequest)
+        } catch let error {
+            print(error)
+            // pass
+            return
+        }
+        
+        // save cached subscriptions
+        subscriptions.removeAll()
+        for (url, sub) in Lbryio.cachedSubscriptions {
+            let uri: LbryUri? = LbryUri.tryParse(url: url, requireProto: false)
+            if uri != nil {
+                self.addSubscription(url: uri!.description, channelName: uri!.channelName!, isNotificationsDisabled: sub.notificationsDisabled ?? true, reloadAfter: false)
+            }
+        }
+        
+        loadLocalSubscriptions(true)
+    }
 }

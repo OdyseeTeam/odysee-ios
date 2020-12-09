@@ -502,11 +502,25 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         present(vc, animated: true)
     }
     
+    func showUAView() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+    }
+    
     @IBAction func followUnfollowActionTapped(_ sender: Any) {
+        if (!Lbryio.isSignedIn()) {
+            showUAView()
+            return
+        }
         subscribeOrUnsubscribe(claim: channelClaim!, notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim!), unsubscribing: Lbryio.isFollowing(claim: channelClaim!))
     }
     
     @IBAction func bellActionTapped(_ sender: Any) {
+        if (!Lbryio.isSignedIn()) {
+            showUAView()
+            return
+        }
         subscribeOrUnsubscribe(claim: channelClaim!, notificationsDisabled: !Lbryio.isNotificationsDisabledForSub(claim: channelClaim!), unsubscribing: false)
     }
     
@@ -545,6 +559,19 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 
                 self.checkFollowing()
                 self.checkNotificationsDisabled()
+                
+                if (Lbryio.isSignedIn()) {
+                    Lbry.saveSharedUserState(completion: { success, error in
+                        guard error == nil else {
+                            // pass
+                            return
+                        }
+                        if (success) {
+                            // run wallet sync
+                            Lbry.pushSyncWallet()
+                        }
+                    })
+                }
             })
         } catch let error {
             showError(error: error)

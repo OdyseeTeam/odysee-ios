@@ -93,7 +93,7 @@ class WalletSyncViewController: UIViewController {
     func startSync(hash: String) {
         Lbryio.syncGet(hash: hash, completion: { walletSync, needsNewWallet, error in
             if error != nil {
-                print(error)
+                print(error!)
                 return
             }
             
