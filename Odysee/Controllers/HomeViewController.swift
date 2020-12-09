@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 02/11/2020.
 //
 
+import Firebase
 import UIKit
 
 class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
@@ -16,18 +17,19 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     var refreshControl = UIRefreshControl()
     
-    let categories: [String] = ["All", "Enlightenment", "Gaming", "Lab", "Tech", "News", "Finance 2.0", "Nice People", "The Rabbit Hole"]
-    let channelIds: [[String]] = [
+    let categories: [String] = ["Cheese", "Big Hits", "Gaming", "Lab", "Tech", "News", "Finance 2.0", "The Universe", "Wild West"]
+    let channelIds: [[String]?] = [
         ContentSources.PrimaryChannelContentIds,
-        ContentSources.EnlightenmentChannelIds,
+        ContentSources.BigHitsChannelIds,
         ContentSources.GamingChannelIds,
         ContentSources.ScienceChannelIds,
         ContentSources.TechnologyChannelIds,
         ContentSources.NewsChannelIds,
         ContentSources.FinanceChannelIds,
-        ContentSources.CommunityChannelIds,
-        ContentSources.RabbitHoleChannelIds
+        ContentSources.TheUniverseChannelIds,
+        ContentSources.PrimaryChannelContentIds
     ]
+    let wildWestCategoryIndex: Int = 8
     var currentCategoryIndex: Int = 0
     var categoryButtons: [UIButton] = []
     var options = Dictionary<String, Any>()
@@ -40,6 +42,8 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Home"])
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: false)
         let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
@@ -68,7 +72,8 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func updateClaimSearchOptions() {
-        options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: ["release_time"], releaseTime: nil, maxDuration: nil, limitClaimsPerChannel: 5, page: currentPage, pageSize: pageSize)
+        let isWildWest = currentCategoryIndex == wildWestCategoryIndex
+        options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["effective_amount"] : ["release_time"], releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[2]) : nil, maxDuration: nil, limitClaimsPerChannel: 5, page: currentPage, pageSize: pageSize)
     }
     
     func loadClaims() {
@@ -82,23 +87,33 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         updateClaimSearchOptions()
         Lbry.apiCall(method: Lbry.methodClaimSearch, params: options, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            if (data != nil) {
-                let result = data?["result"] as? [String: Any]
-                let items = result?["items"] as? [[String: Any]]
-                if (items != nil) {
-                    var loadedClaims: [Claim] = []
-                    items?.forEach{ item in
-                        let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                        do {
-                            let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                            if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId })) {
-                                loadedClaims.append(claim!)
-                            }
-                        } catch let error {
-                            print(error)
+            guard let data = data, error == nil else {
+                self.loadingContainer.isHidden = true
+                self.loading = false
+                self.checkNoContent()
+                return
+            }
+            
+            let result = data["result"] as? [String: Any]
+            let items = result?["items"] as? [[String: Any]]
+            if (items != nil) {
+                if items!.count < self.pageSize {
+                    self.lastPageReached = true
+                }
+                var loadedClaims: [Claim] = []
+                items?.forEach{ item in
+                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
+                    do {
+                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                        if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId })) {
+                            loadedClaims.append(claim!)
                         }
+                    } catch let error {
+                        print(error)
                     }
-                    self.claims.append(contentsOf: loadedClaims)
+                }
+                self.claims.append(contentsOf: loadedClaims)
+                if self.currentCategoryIndex != self.wildWestCategoryIndex {
                     self.claims.sort(by: { Int64($0.value?.releaseTime ?? "0")! > Int64($1.value?.releaseTime ?? "0")! })
                 }
             }
@@ -145,7 +160,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if (claimListView.contentOffset.y >= (claimListView.contentSize.height - claimListView.bounds.size.height)) {
-            if (!loading) {
+            if (!loading && !lastPageReached) {
                 currentPage += 1
                 loadClaims()
             }
@@ -180,12 +195,17 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         let category = sender.title(for: .normal)
         
         currentCategoryIndex = categories.firstIndex(of: category!)!
-        currentPage = 1
-        loading = false
-        
-        claims.removeAll()
-        claimListView.reloadData()
+        resetContent()
         loadClaims()
+    }
+    
+    func resetContent() {
+        DispatchQueue.main.async {
+            self.currentPage = 1
+            self.lastPageReached = false
+            self.claims.removeAll()
+            self.claimListView.reloadData()
+        }
     }
     
     func selectCategoryButton(button: UIButton) {
@@ -204,9 +224,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
             return
         }
         
-        currentPage = 1
-        claims.removeAll()
-        claimListView.reloadData()
+        resetContent()
         loadClaims()
     }
 }

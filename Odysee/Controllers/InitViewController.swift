@@ -56,28 +56,22 @@ class InitViewController: UIViewController {
     }
     
     func registerInstall() {
-        do {
-            try Lbryio.newInstall(completion: { error in
-                if (error != nil) {
-                    // show error
-                    print(error!)
-                    self.showError()
-                    return
-                }
-                
-                // successful authentication and install registration
-                // open the main application interface
-                DispatchQueue.main.async {
-                    let main = self.storyboard?.instantiateViewController(identifier: "main_vc") as! UIViewController
-                    main.modalPresentationStyle = .currentContext
-                    self.present(main, animated: true)
-                }
-            })
-        } catch {
-            // /install/new failed
-            // show error message
-            showError()
-        }
+        Lbryio.newInstall(completion: { error in
+            if (error != nil) {
+                // show error
+                print(error!)
+                self.showError()
+                return
+            }
+            
+            // successful authentication and install registration
+            // open the main application interface
+            DispatchQueue.main.async {
+                let main = self.storyboard?.instantiateViewController(identifier: "main_vc") as! UIViewController
+                main.modalPresentationStyle = .currentContext
+                self.present(main, animated: true)
+            }
+        })
     }
     
     // we only want to cache the URLs for followed channels (both local and remote) here

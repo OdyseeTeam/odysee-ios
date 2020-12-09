@@ -100,7 +100,13 @@ final class Lbry {
             Lbry.claimCacheById[(claim?.claimId!)!] = claim
             let claimUrl: LbryUri? = LbryUri.tryParse(url: (claim?.permanentUrl!)!, requireProto: false)
             if (claimUrl != nil) {
-                Lbry.claimCacheByUrl[(claimUrl?.description)!] = claim
+                Lbry.claimCacheByUrl[claimUrl!.description] = claim
+            }
+            if !(claim?.shortUrl ?? "").isBlank {
+                Lbry.claimCacheByUrl[claim!.shortUrl!] = claim
+            }
+            if !(claim?.canonicalUrl ?? "").isBlank {
+                Lbry.claimCacheByUrl[claim!.canonicalUrl!] = claim
             }
         }
     }

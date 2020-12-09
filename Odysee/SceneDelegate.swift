@@ -17,6 +17,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let _ = (scene as? UIWindowScene) else { return }
+        
+        if let urlContext = connectionOptions.urlContexts.first {
+            let url = urlContext.url
+            handleLaunchUrl(url: url)
+        }
+    }
+    
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let url = URLContexts.first?.url else { return }
+        handleLaunchUrl(url: url)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -50,6 +60,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
 
+    func handleLaunchUrl(url: URL) {
+        let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false)
+        if lbryUrl != nil {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            if (appDelegate.mainViewController != nil && appDelegate.mainNavigationController != nil) {
+                if lbryUrl!.isChannelUrl() {
+                    let vc = appDelegate.mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                    vc.claimUrl = lbryUrl
+                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                } else {
+                    let vc = appDelegate.mainViewController?.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                    vc.claimUrl = lbryUrl
+                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                }
+            } else {
+                appDelegate.pendingOpenUrl = lbryUrl
+            }
+        }
+    }
 
 }
 

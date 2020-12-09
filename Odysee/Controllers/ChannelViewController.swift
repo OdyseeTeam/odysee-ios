@@ -6,6 +6,7 @@
 //
 
 import CoreData
+import Firebase
 import SafariServices
 import UIKit
 
@@ -43,6 +44,12 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBOutlet weak var bellView: UIView!
     @IBOutlet weak var bellIconView: UIImageView!
     
+    @IBOutlet weak var resolvingView: UIView!
+    @IBOutlet weak var resolvingImageView: UIImageView!
+    @IBOutlet weak var resolvingLoadingIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var resolvingLabel: UILabel!
+    @IBOutlet weak var resolvingCloseButton: UIButton!
+    
     var sortByPicker: UIPickerView!
     var contentFromPicker: UIPickerView!
     
@@ -61,14 +68,19 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
         
-        checkFollowing()
-        checkNotificationsDisabled()
+        let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
+        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: window.frame.maxY - safeAreaFrame.maxY + 2)
+        
+        if channelClaim != nil {
+            checkFollowing()
+            checkNotificationsDisabled()
+        }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: 2)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Channel"])
         
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
@@ -87,11 +99,86 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         thumbnailImageView.rounded()
         
         // TODO: If channelClaim is not set, resolve the claim url before displaying
-        
+        if channelClaim == nil && claimUrl != nil {
+            resolveAndDisplayClaim()
+        } else if channelClaim != nil {
+            displayClaim()
+            loadAndDisplayFollowerCount()
+            loadContent()
+        } else {
+            displayNothingAtLocation()
+        }
+    }
+    
+    func showClaimAndCheckFollowing() {
         displayClaim()
-        
         loadAndDisplayFollowerCount()
         loadContent()
+        
+        checkFollowing()
+        checkNotificationsDisabled()
+    }
+    
+    func resolveAndDisplayClaim() {
+        displayResolving()
+        
+        let url = claimUrl!.description
+        if Lbry.claimCacheByUrl[url] != nil {
+            channelClaim = Lbry.claimCacheByUrl[url]
+            showClaimAndCheckFollowing()
+            return
+        }
+        
+        var params: Dictionary<String, Any> = Dictionary<String, Any>()
+        params["urls"] = [url]
+        
+        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
+            guard let data = data, error == nil else {
+                self.displayNothingAtLocation()
+                return
+            }
+            
+            let result = data["result"] as! NSDictionary
+            for (_, claimData) in result {
+                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
+                do {
+                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                    if claim != nil && !(claim!.claimId ?? "").isBlank {
+                        Lbry.addClaimToCache(claim: claim)
+                        self.channelClaim = claim
+                        DispatchQueue.main.async {
+                            self.showClaimAndCheckFollowing()
+                        }
+                    } else {
+                        self.displayNothingAtLocation()
+                    }
+                } catch let error {
+                    print(error)
+                }
+                
+                break
+            }
+        })
+    }
+    
+    func displayResolving() {
+        DispatchQueue.main.async {
+            self.resolvingView.isHidden = false
+            self.resolvingLoadingIndicator.isHidden = false
+            self.resolvingImageView.image = UIImage.init(named: "spaceman_happy")
+            self.resolvingLabel.text = String.localized("Resolving content...")
+            self.resolvingCloseButton.isHidden = true
+        }
+    }
+    
+    func displayNothingAtLocation() {
+        DispatchQueue.main.async {
+            self.resolvingView.isHidden = false
+            self.resolvingLoadingIndicator.isHidden = true
+            self.resolvingImageView.image = UIImage.init(named: "spaceman_sad")
+            self.resolvingLabel.text = String.localized("There's nothing at this location.")
+            self.resolvingCloseButton.isHidden = false
+        }
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -99,9 +186,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
     
     func displayClaim() {
+        resolvingView.isHidden = true
+        
         if channelClaim?.value != nil {
             if channelClaim?.value?.thumbnail != nil {
                 thumbnailImageView.load(url: URL(string: (channelClaim?.value?.thumbnail?.url)!)!)
+            } else {
+                thumbnailImageView.image = UIImage.init(named: "spaceman")
+                thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
             }
             if channelClaim?.value?.cover != nil {
                 coverImageView.load(url: URL(string: (channelClaim?.value?.cover?.url)!)!)
@@ -313,6 +405,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         present(alert, animated: true, completion: {
             self.sortByPicker.selectRow(self.currentSortByIndex, inComponent: 0, animated: true)
         })
+    }
+    
+    @IBAction func closeTapped(_ sender: UIButton) {
+        self.navigationController?.popViewController(animated: true)
     }
     
     @IBAction func contentFromLabelTapped(_ sender: Any) {

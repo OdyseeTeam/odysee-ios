@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 12/11/2020.
 //
 
+import Firebase
 import UIKit
 
 class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource {
@@ -28,7 +29,14 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: 2)
+        let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
+        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: window.frame.maxY - safeAreaFrame.maxY + 2)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Search"])
     }
     
     override func viewDidLoad() {
@@ -52,6 +60,10 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
     func search(query: String?, from: Int) {
         if ((query ?? "").isBlank || (currentQuery == query && currentFrom == from)) {
             return
+        }
+        
+        if (from == 0) {
+            Analytics.logEvent("search", parameters: ["query": query!])
         }
         
         getStartedView.isHidden = true
@@ -98,6 +110,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
                 do {
                     let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
                     if (claim != nil && !(claim?.claimId ?? "").isBlank && !self.claims.contains(where: { $0.claimId == claim?.claimId })) {
+                        Lbry.addClaimToCache(claim: claim)
                         claimResults.append(claim!)
                     }
                 } catch let error {

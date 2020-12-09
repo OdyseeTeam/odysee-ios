@@ -6,6 +6,7 @@
 //
 
 import Base58Swift
+import Firebase
 import UIKit
 
 class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, WalletBalanceObserver {
@@ -48,6 +49,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Wallet"])
         
         if (Lbryio.isSignedIn()) {
             checkReceiveAddress()

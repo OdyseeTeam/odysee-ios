@@ -25,6 +25,9 @@ class SuggestedChannelCollectionViewCell: UICollectionViewCell {
         thumbnailImageView.rounded()
         if (claim.value?.thumbnail != nil && claim.value?.thumbnail?.url != nil) {
             thumbnailImageView.load(url: URL(string: (claim.value?.thumbnail?.url)!)!)
+        } else {
+            thumbnailImageView.image = UIImage.init(named: "spaceman")
+            thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
         }
         
         titleLabel.text = claim.value?.title

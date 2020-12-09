@@ -5,12 +5,13 @@
 //  Created by Akinwale Ariwodola on 01/12/2020.
 //
 
+import Firebase
 import UIKit
 
 class UserAccountViewController: UIViewController {
 
     @IBOutlet weak var uaScrollView: UIScrollView!
-    @IBOutlet weak var closeView: UIView!
+    @IBOutlet weak var closeButton: UIButton!
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var emailField: UITextField!
@@ -38,14 +39,14 @@ class UserAccountViewController: UIViewController {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.toggleMiniPlayer(hidden: true)
+        let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
+        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: window.frame.maxY - safeAreaFrame.maxY + 2)
     }
     
-    override func viewDidDisappear(_ animated: Bool) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if (appDelegate.player != nil) {
-            appDelegate.mainController.toggleMiniPlayer(hidden: false)
-        }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "UserAccount"])
     }
     
     override func viewDidLoad() {
@@ -74,7 +75,7 @@ class UserAccountViewController: UIViewController {
         uaScrollView.scrollIndicatorInsets = contentInsets
     }
     
-    @IBAction func closeUAView(_ sender: Any) {
+    @IBAction func closeButtonTapped(_ sender: Any) {
         let vcs = self.navigationController?.viewControllers;
         let targetVc = vcs![max(0, vcs!.count - 2)];
         if let tabVc =  targetVc as? AppTabBarController {
@@ -122,6 +123,9 @@ class UserAccountViewController: UIViewController {
                 
                 if let stringData = data as? String {
                     if "ok" == stringData.lowercased() {
+                        self.currentEmail = email
+                        Analytics.logEvent("email_added", parameters: ["email": self.currentEmail!])
+                        
                         // display waiting for email verification view
                         self.waitForVerification()
                         return
@@ -170,7 +174,7 @@ class UserAccountViewController: UIViewController {
             
             self.controlsStackView.isHidden = true
             self.haveAccountLabel.isHidden = true
-            self.closeView.isHidden = true
+            self.closeButton.isHidden = true
             self.verificationLabel.isHidden = false
             self.verificationActionsView.isHidden = false
             
@@ -194,6 +198,8 @@ class UserAccountViewController: UIViewController {
                     
                     // close the view
                     DispatchQueue.main.async {
+                        Analytics.logEvent("email_verified", parameters: ["email": self.currentEmail!])
+                        
                         // after email verification, finish with wallet sync
                         self.finishWithWalletSync()
                     }
@@ -235,6 +241,7 @@ class UserAccountViewController: UIViewController {
                                 // old email verification flow
                                 self.currentEmail = email
                                 self.handleUserSignInWithoutPassword(email: email)
+                                Analytics.logEvent("email_added", parameters: ["email": self.currentEmail!])
                             } else {
                                 DispatchQueue.main.async {
                                     self.defaultActionButton.isEnabled = true
@@ -246,6 +253,8 @@ class UserAccountViewController: UIViewController {
                     }
                     
                     self.currentEmail = email
+                    Analytics.logEvent("email_added", parameters: ["email": self.currentEmail!])
+                    
                     self.emailSignInChecked = true
                     let respData = data as? [String: Any]
                     let hasPassword = respData!["has_password"] as! Bool
@@ -330,7 +339,7 @@ class UserAccountViewController: UIViewController {
         
         controlsStackView.isHidden = false
         haveAccountLabel.isHidden = false
-        closeView.isHidden = false
+        closeButton.isHidden = false
         verificationLabel.isHidden = true
         verificationActionsView.isHidden = true
     }

@@ -25,7 +25,7 @@ class Snackbar: NSObject {
     var sbLength: SBAnimationLength = .short
     
     //private variables
-    private let window = UIApplication.shared.keyWindow!
+    private let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
     private let snackbarView = UIView(frame: .zero)
     
     private let txt: UILabel = UILabel()

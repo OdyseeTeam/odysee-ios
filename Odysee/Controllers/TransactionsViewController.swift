@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 05/12/2020.
 //
 
+import Firebase
 import UIKit
 
 class TransactionsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
@@ -20,10 +21,17 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
     var currentPage = 1
     let pageSize = 25
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
+        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: window.frame.maxY - safeAreaFrame.maxY + 2)
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: 2)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Transactions"])
     }
     
     override func viewDidLoad() {

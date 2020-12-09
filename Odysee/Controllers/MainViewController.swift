@@ -19,18 +19,40 @@ class MainViewController: UIViewController {
     @IBOutlet weak var miniPlayerTitleLabel: UILabel!
     @IBOutlet weak var miniPlayerPublisherLabel: UILabel!
     
+    @IBOutlet weak var mainBalanceLabel: UILabel!
+    
     var mainNavigationController: UINavigationController!
     var walletObservers: Dictionary<String, WalletBalanceObserver> = Dictionary<String, WalletBalanceObserver>()
     var walletBalanceTimer: Timer = Timer()
     var balanceTimerScheduled = false
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        print("do we have pending url?")
+        print(appDelegate.pendingOpenUrl)
+        if appDelegate.pendingOpenUrl != nil {
+            let lbryUrl = appDelegate.pendingOpenUrl
+            if lbryUrl!.isChannelUrl() {
+                let vc = storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                vc.claimUrl = lbryUrl
+                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            } else {
+                let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                vc.claimUrl = lbryUrl
+                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainViewController = self
-        // Do any additional setup after loading the view.
         
+        // Do any additional setup after loading the view.
         startWalletBalanceTimer()
     }
     
@@ -53,7 +75,7 @@ class MainViewController: UIViewController {
         miniPlayerBottomConstraint.constant = bottom
     }
     
-    @IBAction func closeMiniPlayer(_ sender: Any) {
+    @IBAction func closeMiniPlayerTapped(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if (appDelegate.player != nil) {
             appDelegate.player?.pause()
@@ -65,10 +87,21 @@ class MainViewController: UIViewController {
         appDelegate.currentClaim = nil
     }
     
-    @IBAction func openSearch(_ sender: Any) {
+    @IBAction func walletBalanceActionTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainTabViewController?.selectedIndex = 2
+    }
+    
+    @IBAction func searchActionTapped(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "search_vc") as! SearchViewController
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @IBAction func accountActionTapped(_ sender: Any) {
+        let vc = storyboard?.instantiateViewController(identifier: "ua_menu_vc") as! UserAccountMenuViewController
+        vc.modalPresentationStyle = .overCurrentContext
+        present(vc, animated: true)
     }
     
     @IBAction func openCurrentClaim(_ sender: Any) {
@@ -172,6 +205,7 @@ class MainViewController: UIViewController {
             
             Lbry.walletBalance = balance
             DispatchQueue.main.async {
+                self.mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.available)
                 self.walletObservers.values.forEach{ observer in
                     observer.balanceUpdated(balance: balance)
                 }

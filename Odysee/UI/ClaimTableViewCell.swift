@@ -58,6 +58,11 @@ class ClaimTableViewCell: UITableViewCell {
             } else {
                 thumbnailImageView.load(url: thumbnailUrl)
             }
+        } else {
+            if channelImageView != nil {
+                channelImageView.image = UIImage.init(named: "spaceman")
+                channelImageView.backgroundColor = Helper.lightPrimaryColor
+            }
         }
         
         var releaseTime: Double = Double(claim.value?.releaseTime ?? ("0"))!

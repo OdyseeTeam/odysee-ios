@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import Firebase
 import UIKit
 import CoreData
 
@@ -19,6 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var player: AVPlayer?
     var currentClaim: Claim?
+    var pendingOpenUrl: LbryUri?
     
     var mainController: MainViewController {
         return mainViewController as! MainViewController
@@ -27,9 +29,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         
+        FirebaseApp.configure()
         Helper.initFormatters()
         
         return true
+    }
+    
+    func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false)
+        if lbryUrl != nil {
+            pendingOpenUrl = lbryUrl
+            return true
+        }
+        
+        return false
     }
 
     // MARK: UISceneSession Lifecycle

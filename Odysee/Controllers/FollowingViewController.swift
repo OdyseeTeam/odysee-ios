@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 28/11/2020.
 //
 
+import Firebase
 import CoreData
 import UIKit
 
@@ -65,6 +66,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Subscriptions"])
         
         if (Lbryio.isSignedIn()) {
             loadRemoteSubscriptions()
@@ -535,6 +537,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 do {
                     let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
                     if (claim != nil && !(claim?.claimId ?? "").isBlank && !self.following.contains(where: { $0.claimId == claim?.claimId })) {
+                        Lbry.addClaimToCache(claim: claim)
                         claimResults.append(claim!)
                     }
                 } catch let error {

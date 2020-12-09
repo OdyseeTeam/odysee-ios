@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Firebase
  
 final class Lbryio {
     static let methodGet = "GET"
@@ -87,7 +88,7 @@ final class Lbryio {
                 
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   print(JSONString)
+                   //print(JSONString)
                 }
                 
                 if (respCode >= 200 && respCode < 300) {
@@ -177,6 +178,11 @@ final class Lbryio {
                     let user: User? = try JSONDecoder().decode(User.self, from: jsonData)
                     if (user != nil) {
                         currentUser = user
+                        Analytics.setDefaultEventParameters([
+                            "user_id": currentUser!.id!,
+                            "user_email": currentUser!.primaryEmail ?? ""
+                        ])
+                        
                         completion(user, nil)
                     }
                 } catch let error {
@@ -186,22 +192,36 @@ final class Lbryio {
         })
     }
     
-    static func newInstall(completion: @escaping (Error?) -> Void) throws {
-        var options: Dictionary<String, String> = Dictionary<String, String>()
-        options["app_version"] = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String)
-        options["app_id"] = Lbry.installationId
-        options["daemon_version"] = ""
-        options["node_id"] = ""
-        options["operating_system"] = "ios"
-        options["platform"] = "darwin"
-        options["domain"] = "odysee.com"
-        try call(resource: "install", action: "new", options: options, method: methodPost, completion: { data, error in
+    static func newInstall(completion: @escaping (Error?) -> Void) {
+        Messaging.messaging().token(completion: { token, error in
             if (error != nil) {
-                completion(error)
-                return
+                // no need to fail on error here
+                print(error!)
             }
-            // successful
-            completion(nil)
+            
+            var options: Dictionary<String, String> = Dictionary<String, String>()
+            options["app_version"] = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String)
+            options["app_id"] = Lbry.installationId
+            options["daemon_version"] = ""
+            options["node_id"] = ""
+            options["operating_system"] = "ios"
+            options["platform"] = "darwin"
+            options["domain"] = "odysee.com"
+            if !(token ?? "").isBlank {
+                options["firebase_token"] = token!
+            }
+            do {
+                try call(resource: "install", action: "new", options: options, method: methodPost, completion: { data, error in
+                    if (error != nil) {
+                        completion(error)
+                        return
+                    }
+                    // successful
+                    completion(nil)
+                })
+            } catch let error {
+                completion(error)
+            }
         })
     }
     

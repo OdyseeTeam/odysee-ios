@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 07/12/2020.
 //
 
+import Firebase
 import UIKit
 
 class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource, WalletBalanceObserver {
@@ -34,6 +35,11 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         super.viewWillDisappear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.removeWalletObserver(key: keyBalanceObserver)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Support"])
     }
     
     override func viewDidLoad() {
@@ -141,7 +147,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             return
         }
         
-        if (amount! > Lbry.walletBalance!.available!) {
+        if (Lbry.walletBalance == nil || amount! > Lbry.walletBalance!.available!) {
             showError(message: String.localized("Insufficient funds"))
             return
         }
@@ -187,6 +193,11 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     }
     
     @IBAction func anywhereTapped(_ sender: Any) {
+        tipValueField.resignFirstResponder()
+        self.presentingViewController?.dismiss(animated: true, completion: nil)
+    }
+    
+    @IBAction func closeTapped(_ sender: UIButton) {
         tipValueField.resignFirstResponder()
         self.presentingViewController?.dismiss(animated: true, completion: nil)
     }

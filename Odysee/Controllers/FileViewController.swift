@@ -8,6 +8,7 @@
 import AVKit
 import AVFoundation
 import CoreData
+import Firebase
 import SafariServices
 import UIKit
 
@@ -18,10 +19,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     var subscribeUnsubscribeInProgress = false
     var relatedContent: [Claim] = []
     var loadingRelated = false
+    var fileViewLogged = false
+    var loggingInProgress = false
+    var playRequestTime: Int64 = 0
+    var playerObserverAdded = false
     
     @IBOutlet weak var titleArea: UIView!
     @IBOutlet weak var publisherArea: UIView!
     @IBOutlet weak var descriptionArea: UIView!
+    @IBOutlet weak var descriptionDivider: UIView!
     
     @IBOutlet weak var mediaView: UIView!
     
@@ -29,6 +35,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var viewCountLabel: UILabel!
     @IBOutlet weak var timeAgoLabel: UILabel!
     
+    @IBOutlet weak var publisherActionsArea: UIView!
     @IBOutlet weak var publisherImageView: UIImageView!
     @IBOutlet weak var publisherTitleLabel: UILabel!
     @IBOutlet weak var publisherNameLabel: UILabel!
@@ -43,6 +50,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var relatedContentListView: UITableView!
     @IBOutlet weak var relatedContentListHeightConstraint: NSLayoutConstraint!
     
+    @IBOutlet weak var resolvingView: UIView!
+    @IBOutlet weak var resolvingImageView: UIImageView!
+    @IBOutlet weak var resolvingLoadingIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var resolvingLabel: UILabel!
+    @IBOutlet weak var resolvingCloseButton: UIButton!
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -50,8 +63,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
         appDelegate.mainController.toggleMiniPlayer(hidden: true)
         
-        checkFollowing()
-        checkNotificationsDisabled()
+        if claim != nil {
+            checkFollowing()
+            checkNotificationsDisabled()
+        }
     }
     
     func checkRepost() {
@@ -74,6 +89,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "File"])
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
@@ -96,6 +112,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         }
         if (appDelegate.player != nil) {
             appDelegate.mainController.toggleMiniPlayer(hidden: false)
+            if playerObserverAdded {
+                appDelegate.player!.removeObserver(self, forKeyPath: "timeControlStatus")
+                playerObserverAdded = false
+            }
         }
     }
     
@@ -106,12 +126,86 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         relatedContentListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
         
         // Do any additional setup after loading the view.
-        
-        // TODO: If claim is not set, resolve the claim url before displaying
-        
+        if claim == nil && claimUrl != nil {
+            resolveAndDisplayClaim()
+        } else if claim != nil {
+            displayClaim()
+            loadAndDisplayViewCount()
+            loadRelatedContent()
+        } else {
+            displayNothingAtLocation()
+        }
+    }
+    
+    func showClaimAndCheckFollowing() {
         displayClaim()
         loadAndDisplayViewCount()
         loadRelatedContent()
+        
+        checkFollowing()
+        checkNotificationsDisabled()
+    }
+    
+    func resolveAndDisplayClaim() {
+        displayResolving()
+        
+        let url = claimUrl!.description
+        if Lbry.claimCacheByUrl[url] != nil {
+            claim = Lbry.claimCacheByUrl[url]
+            showClaimAndCheckFollowing()
+            return
+        }
+        
+        var params: Dictionary<String, Any> = Dictionary<String, Any>()
+        params["urls"] = [url]
+        
+        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
+            guard let data = data, error == nil else {
+                self.displayNothingAtLocation()
+                return
+            }
+            
+            let result = data["result"] as! NSDictionary
+            for (_, claimData) in result {
+                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
+                do {
+                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                    if claim != nil && !(claim!.claimId ?? "").isBlank {
+                        Lbry.addClaimToCache(claim: claim)
+                        self.claim = claim
+                        DispatchQueue.main.async {
+                            self.showClaimAndCheckFollowing()
+                        }
+                    } else {
+                        self.displayNothingAtLocation()
+                    }
+                } catch let error {
+                    print(error)
+                }
+                
+                break
+            }
+        })
+    }
+    
+    func displayResolving() {
+        DispatchQueue.main.async {
+            self.resolvingView.isHidden = false
+            self.resolvingLoadingIndicator.isHidden = false
+            self.resolvingImageView.image = UIImage.init(named: "spaceman_happy")
+            self.resolvingLabel.text = String.localized("Resolving content...")
+            self.resolvingCloseButton.isHidden = true
+        }
+    }
+    
+    func displayNothingAtLocation() {
+        DispatchQueue.main.async {
+            self.resolvingView.isHidden = false
+            self.resolvingLoadingIndicator.isHidden = true
+            self.resolvingImageView.image = UIImage.init(named: "spaceman_sad")
+            self.resolvingLabel.text = String.localized("There's nothing at this location.")
+            self.resolvingCloseButton.isHidden = false
+        }
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -129,6 +223,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     */
     
     func displayClaim() {
+        resolvingView.isHidden = true
+        
         titleLabel.text = claim?.value?.title
         
         let releaseTime: Double = Double(claim?.value?.releaseTime ?? "0")!
@@ -146,10 +242,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             if (claim?.signingChannel?.value != nil && claim?.signingChannel?.value?.thumbnail != nil) {
                 publisherImageView.load(url: URL(string: (claim?.signingChannel?.value?.thumbnail?.url!)!)!)
             }
+        } else {
+            publisherTitleLabel.text = String.localized("Anonymous")
+            publisherImageView.image = UIImage.init(named: "spaceman")
+            publisherImageView.backgroundColor = Helper.lightPrimaryColor
+            publisherActionsArea.isHidden = true
         }
-        // details
-        descriptionLabel.text = claim?.value?.description
         
+        if (claim?.value?.description ?? "").isBlank {
+            descriptionArea.isHidden = true
+            descriptionDivider.isHidden = true
+        } else {
+            // details
+            descriptionLabel.text = claim?.value?.description
+        }
+            
         // display video content
         let avpc: AVPlayerViewController = AVPlayerViewController()
         self.addChild(avpc)
@@ -178,7 +285,54 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         let videoUrl = URL(string: getStreamingUrl(claim: claim!))
         appDelegate.player = AVPlayer(url: videoUrl!)
         avpc.player = appDelegate.player
+        avpc.player!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
+        playerObserverAdded = true
+        playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
         avpc.player?.play()
+    }
+    
+    func checkTimeToStart() {
+        if (fileViewLogged || loggingInProgress) {
+            return
+        }
+        
+        let timeToStartMs = Int64(Date().timeIntervalSince1970 * 1000.0) - playRequestTime
+        let timeToStartSeconds = Int64(Double(timeToStartMs) / 1000.0)
+        let url = claim!.permanentUrl!
+        
+        Analytics.logEvent("play", parameters: [
+            "url": url,
+            "time_to_start_ms": timeToStartMs,
+            "time_to_start_seconds": timeToStartSeconds
+        ])
+     
+        logFileView(url: url, timeToStart: timeToStartMs)
+    }
+    
+    func logFileView(url: String, timeToStart: Int64) {
+        if (loggingInProgress) {
+            return
+        }
+        
+        loggingInProgress = true
+        
+        var options = Dictionary<String, String>()
+        options["uri"] = url
+        options["claim_id"] = claim?.claimId!
+        options["outpoint"] = String(format: "%@:%d", claim!.txid!, claim!.nout!)
+        if (timeToStart > 0) {
+            options["time_to_start"] = String(timeToStart)
+        }
+        
+        do {
+            try Lbryio.call(resource: "file", action: "view", options: options, method: Lbryio.methodPost, completion: { data, error in
+                // no need to check for errors here
+                self.loggingInProgress = false
+                self.fileViewLogged = true
+            })
+        } catch {
+            // pass
+        }
     }
     
     func getStreamingUrl(claim: Claim) -> String {
@@ -257,6 +411,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
                 do {
                     let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
                     if (claim != nil && !(claim?.claimId ?? "").isBlank && !self.relatedContent.contains(where: { $0.claimId == claim?.claimId })) {
+                        Lbry.addClaimToCache(claim: claim)
                         claimResults.append(claim!)
                     }
                 } catch let error {
@@ -274,6 +429,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if object as AnyObject? === appDelegate.player {
+            if keyPath == "timeControlStatus" && appDelegate.player!.timeControlStatus == .playing {
+                checkTimeToStart()
+                return
+            }
+        }
         if keyPath == "contentSize" {
             if (change?[.newKey]) != nil {
                 let contentHeight: CGFloat = relatedContentListView.contentSize.height
@@ -312,6 +474,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
     }
     
+    @IBAction func closeTapped(_ sender: UIButton) {
+        self.navigationController?.popViewController(animated: true)
+    }
+    
     @IBAction func publisherTapped(_ sender: Any) {
         if claim!.signingChannel != nil {
             let channelClaim = claim!.signingChannel!
@@ -322,7 +488,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         }
     }
     
+    func showUAView() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+    }
+    
     @IBAction func followUnfollowTapped(_ sender: Any) {
+        if (!Lbryio.isSignedIn()) {
+            showUAView()
+            return
+        }
+        
         if claim?.signingChannel == nil {
             return
         }
@@ -331,6 +508,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     @IBAction func bellTapped(_ sender: Any) {
+        if (!Lbryio.isSignedIn()) {
+            // shouldn't be able to access this action if the user is not signed in, but just in case
+            showUAView()
+            return
+        }
+        
         if claim?.signingChannel == nil {
             return
         }

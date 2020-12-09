@@ -59,7 +59,7 @@ extension UIImageView {
 }
 
 extension UIApplication {
-    class func currentViewController(_ viewController: UIViewController? = UIApplication.shared.windows.filter {$0.isKeyWindow}.first?.rootViewController
+    class func currentViewController(_ viewController: UIViewController? = UIApplication.shared.windows.filter { $0.isKeyWindow }.first?.rootViewController
 ) -> UIViewController? {
         if let main = viewController as? MainViewController {
             return currentViewController(main.mainNavigationController)

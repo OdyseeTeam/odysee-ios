@@ -17,6 +17,7 @@
 		641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641327432556EB2200CBB6B8 /* LbryUri.swift */; };
 		641327492556EB3400CBB6B8 /* Lbry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641327482556EB3400CBB6B8 /* Lbry.swift */; };
 		6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6413274D2557D89200CBB6B8 /* Extensions.swift */; };
+		641614D2258077EF003A2194 /* UserAccountMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641614D1258077EF003A2194 /* UserAccountMenuViewController.swift */; };
 		642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6AFC257A382900F17355 /* WalletViewController.swift */; };
 		642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */; };
 		642B6B07257A635300F17355 /* WalletSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B06257A635300F17355 /* WalletSync.swift */; };
@@ -24,11 +25,18 @@
 		642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B10257B4CBC00F17355 /* Transaction.swift */; };
 		642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B15257B528300F17355 /* TransactionTableViewCell.swift */; };
 		642B6B1B257B698C00F17355 /* TransactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B1A257B698C00F17355 /* TransactionsViewController.swift */; };
-		64424DCF25588D0D00F2D247 /* FileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */; };
+		64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DCE25588D0C00F2D247 /* ClaimTableViewCell.swift */; };
 		64424DDA255895A500F2D247 /* ContentSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DD9255895A500F2D247 /* ContentSources.swift */; };
 		644F76AE25592F8400813451 /* FileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76AD25592F8400813451 /* FileViewController.swift */; };
 		644F76B625595D4E00813451 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76B525595D4E00813451 /* Cache.swift */; };
+		64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 64533588257FDC6800C49BD1 /* FirebaseAnalytics */; };
+		6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6453358A257FDC6800C49BD1 /* FirebaseMessaging */; };
+		64533593257FE0E800C49BD1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 64533592257FE0E800C49BD1 /* GoogleService-Info.plist */; };
 		6462DABD255D3CFE001CF1E8 /* UICardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6462DABC255D3CFE001CF1E8 /* UICardView.swift */; };
+		646E54D8257D40DC00BEBFBE /* ChannelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */; };
+		646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54DC257DCD6100BEBFBE /* UIPaddedLabel.swift */; };
+		646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54E1257E276400BEBFBE /* LbrySubscription.swift */; };
+		646E54EA257E565000BEBFBE /* SupportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54E9257E565000BEBFBE /* SupportViewController.swift */; };
 		647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647408502577FA30008007C6 /* ChannelCollectionViewCell.swift */; };
 		648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */; };
 		648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F320B2575D52500E2CA51 /* UserAccountViewController.swift */; };
@@ -75,6 +83,7 @@
 		641327432556EB2200CBB6B8 /* LbryUri.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUri.swift; sourceTree = "<group>"; };
 		641327482556EB3400CBB6B8 /* Lbry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lbry.swift; sourceTree = "<group>"; };
 		6413274D2557D89200CBB6B8 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		641614D1258077EF003A2194 /* UserAccountMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountMenuViewController.swift; sourceTree = "<group>"; };
 		642B6AFC257A382900F17355 /* WalletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletViewController.swift; sourceTree = "<group>"; };
 		642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSyncViewController.swift; sourceTree = "<group>"; };
 		642B6B06257A635300F17355 /* WalletSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSync.swift; sourceTree = "<group>"; };
@@ -82,11 +91,16 @@
 		642B6B10257B4CBC00F17355 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		642B6B15257B528300F17355 /* TransactionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTableViewCell.swift; sourceTree = "<group>"; };
 		642B6B1A257B698C00F17355 /* TransactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsViewController.swift; sourceTree = "<group>"; };
-		64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileTableViewCell.swift; sourceTree = "<group>"; };
+		64424DCE25588D0C00F2D247 /* ClaimTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimTableViewCell.swift; sourceTree = "<group>"; };
 		64424DD9255895A500F2D247 /* ContentSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSources.swift; sourceTree = "<group>"; };
 		644F76AD25592F8400813451 /* FileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewController.swift; sourceTree = "<group>"; };
 		644F76B525595D4E00813451 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
+		64533592257FE0E800C49BD1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		6462DABC255D3CFE001CF1E8 /* UICardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICardView.swift; sourceTree = "<group>"; };
+		646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelViewController.swift; sourceTree = "<group>"; };
+		646E54DC257DCD6100BEBFBE /* UIPaddedLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIPaddedLabel.swift; sourceTree = "<group>"; };
+		646E54E1257E276400BEBFBE /* LbrySubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbrySubscription.swift; sourceTree = "<group>"; };
+		646E54E9257E565000BEBFBE /* SupportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewController.swift; sourceTree = "<group>"; };
 		647408502577FA30008007C6 /* ChannelCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelCollectionViewCell.swift; sourceTree = "<group>"; };
 		648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedChannelCollectionViewCell.swift; sourceTree = "<group>"; };
 		648F320B2575D52500E2CA51 /* UserAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountViewController.swift; sourceTree = "<group>"; };
@@ -117,6 +131,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */,
+				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
 				6411C0B0255B35260018C3D5 /* Base58Swift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -175,11 +191,12 @@
 			isa = PBXGroup;
 			children = (
 				64CB288025768A8A00FE48B3 /* ThirdParty */,
-				64424DCE25588D0C00F2D247 /* FileTableViewCell.swift */,
+				64424DCE25588D0C00F2D247 /* ClaimTableViewCell.swift */,
 				6462DABC255D3CFE001CF1E8 /* UICardView.swift */,
 				648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */,
 				647408502577FA30008007C6 /* ChannelCollectionViewCell.swift */,
 				642B6B15257B528300F17355 /* TransactionTableViewCell.swift */,
+				646E54DC257DCD6100BEBFBE /* UIPaddedLabel.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -189,6 +206,7 @@
 			children = (
 				641108EB255AA4CF00F0FB8A /* User.swift */,
 				642B6B06257A635300F17355 /* WalletSync.swift */,
+				646E54E1257E276400BEBFBE /* LbrySubscription.swift */,
 			);
 			path = Lbryinc;
 			sourceTree = "<group>";
@@ -207,6 +225,9 @@
 				642B6AFC257A382900F17355 /* WalletViewController.swift */,
 				642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */,
 				642B6B1A257B698C00F17355 /* TransactionsViewController.swift */,
+				646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */,
+				646E54E9257E565000BEBFBE /* SupportViewController.swift */,
+				641614D1258077EF003A2194 /* UserAccountMenuViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -243,6 +264,7 @@
 		64FBE79B25502A290082AF2E /* Odysee */ = {
 			isa = PBXGroup;
 			children = (
+				64533592257FE0E800C49BD1 /* GoogleService-Info.plist */,
 				64A6CA6F255DADB400294E74 /* Controllers */,
 				6462DABB255D3CE0001CF1E8 /* UI */,
 				641327422556EB1000CBB6B8 /* Utils */,
@@ -294,6 +316,8 @@
 			name = Odysee;
 			packageProductDependencies = (
 				6411C0AF255B35260018C3D5 /* Base58Swift */,
+				64533588257FDC6800C49BD1 /* FirebaseAnalytics */,
+				6453358A257FDC6800C49BD1 /* FirebaseMessaging */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -368,6 +392,7 @@
 			mainGroup = 64FBE79025502A290082AF2E;
 			packageReferences = (
 				6411C0AE255B35260018C3D5 /* XCRemoteSwiftPackageReference "Base58Swift" */,
+				64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -386,6 +411,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */,
+				64533593257FE0E800C49BD1 /* GoogleService-Info.plist in Resources */,
 				64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */,
 				64FBE7A425502A290082AF2E /* Main.storyboard in Resources */,
 			);
@@ -413,9 +439,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				64FBE7A725502A290082AF2E /* Odysee.xcdatamodeld in Sources */,
-				64424DCF25588D0D00F2D247 /* FileTableViewCell.swift in Sources */,
+				64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */,
 				642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */,
+				641614D2258077EF003A2194 /* UserAccountMenuViewController.swift in Sources */,
 				641327492556EB3400CBB6B8 /* Lbry.swift in Sources */,
+				646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */,
 				641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */,
 				64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */,
 				648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */,
@@ -439,11 +467,14 @@
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
 				641108E7255AA2BC00F0FB8A /* InitViewController.swift in Sources */,
 				64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */,
+				646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
 				6413273E2556E86000CBB6B8 /* Claim.swift in Sources */,
 				642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */,
 				644F76B625595D4E00813451 /* Cache.swift in Sources */,
+				646E54EA257E565000BEBFBE /* SupportViewController.swift in Sources */,
+				646E54D8257D40DC00BEBFBE /* ChannelViewController.swift in Sources */,
 				64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -554,6 +585,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -608,6 +640,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
@@ -785,6 +818,14 @@
 				minimumVersion = 2.1.14;
 			};
 		};
+		64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -792,6 +833,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 6411C0AE255B35260018C3D5 /* XCRemoteSwiftPackageReference "Base58Swift" */;
 			productName = Base58Swift;
+		};
+		64533588257FDC6800C49BD1 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		6453358A257FDC6800C49BD1 /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
 		};
 /* End XCSwiftPackageProductDependency section */
 

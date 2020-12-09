@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 04/12/2020.
 //
 
-
+import Firebase
 import UIKit
 
 // initial wallet sync processing after sign in / sign up
@@ -26,6 +26,11 @@ class WalletSyncViewController: UIViewController {
         if (appDelegate.player != nil) {
             appDelegate.mainController.toggleMiniPlayer(hidden: false)
         }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "WalletSync"])
     }
     
     override func viewDidLoad() {
