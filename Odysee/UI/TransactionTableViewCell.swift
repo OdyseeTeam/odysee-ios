@@ -34,7 +34,7 @@ class TransactionTableViewCell: UITableViewCell {
     func setTransaction(transaction: Transaction) {
         tx = transaction
         descriptionLabel.text = Helper.describeTransaction(transaction: transaction)
-        amountLabel.text = Helper.currencyFormatter.string(from: Decimal(string: transaction.value!)! as NSDecimalNumber)
+        amountLabel.text = Helper.currencyFormatter4.string(from: Decimal(string: transaction.value!)! as NSDecimalNumber)
         txidLabel.text = String(transaction.txid!.prefix(7))
         
         if (transaction.timestamp == nil) {

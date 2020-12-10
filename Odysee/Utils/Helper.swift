@@ -21,6 +21,7 @@ final class Helper {
     
     static let sdkAmountFormatter = NumberFormatter()
     static let currencyFormatter = NumberFormatter()
+    static let currencyFormatter4 = NumberFormatter()
     static func initFormatters() {
         currencyFormatter.roundingMode = .down
         currencyFormatter.minimumFractionDigits = 2
@@ -28,6 +29,13 @@ final class Helper {
         currencyFormatter.usesGroupingSeparator = true
         currencyFormatter.numberStyle = .decimal
         currencyFormatter.locale = Locale.current
+        
+        currencyFormatter4.roundingMode = .up
+        currencyFormatter4.minimumFractionDigits = 4
+        currencyFormatter4.maximumFractionDigits = 4
+        currencyFormatter4.usesGroupingSeparator = true
+        currencyFormatter4.numberStyle = .decimal
+        currencyFormatter4.locale = Locale.current
         
         sdkAmountFormatter.minimumFractionDigits = 2
         sdkAmountFormatter.maximumFractionDigits = 8

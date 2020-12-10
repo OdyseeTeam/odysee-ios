@@ -34,8 +34,10 @@ class ClaimTableViewCell: UITableViewCell {
         if (currentClaim != nil && claim.claimId != currentClaim!.claimId) {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
             thumbnailImageView.image = nil
+            thumbnailImageView.backgroundColor = UIColor.clear
             if channelImageView != nil {
                 channelImageView.image = nil
+                channelImageView.backgroundColor = UIColor.clear
             }
         }
         
@@ -59,6 +61,8 @@ class ClaimTableViewCell: UITableViewCell {
                 thumbnailImageView.load(url: thumbnailUrl)
             }
         } else {
+            thumbnailImageView.image = UIImage.init(named: "spaceman")
+            thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
             if channelImageView != nil {
                 channelImageView.image = UIImage.init(named: "spaceman")
                 channelImageView.backgroundColor = Helper.lightPrimaryColor

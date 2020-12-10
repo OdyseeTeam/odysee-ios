@@ -57,6 +57,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         super.viewWillAppear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.addWalletSyncObserver(key: keySyncObserver, observer: self)
+        self.view.isHidden = !Lbryio.isSignedIn()
         
         // check if current user is signed in
         if (!Lbryio.isSignedIn()) {

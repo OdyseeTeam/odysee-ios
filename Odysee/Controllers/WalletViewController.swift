@@ -23,7 +23,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var usdBalanceLabel: UILabel!
     
     @IBOutlet weak var receiveAddressTextField: UITextField!
-    @IBOutlet weak var getNewAddressButton: UIButton!
+    //@IBOutlet weak var getNewAddressButton: UIButton!
     
     @IBOutlet weak var sendAddressTextField: UITextField!
     @IBOutlet weak var sendAmountTextField: UITextField!
@@ -38,10 +38,10 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         super.viewWillAppear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.addWalletObserver(key: keyBalanceObserver, observer: self)
+        self.view.isHidden = !Lbryio.isSignedIn()
         
         if (!Lbryio.isSignedIn()) {
             // show the sign in view
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
             appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         }
@@ -112,9 +112,9 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         receiveAddressTextField.text = receiveAddress
     }
     
-    @IBAction func getNewAddressTapped(_ sender: UIButton) {
+    /*@IBAction func getNewAddressTapped(_ sender: UIButton) {
         getNewReceiveAddress()
-    }
+    }*/
     
     @IBAction func sendTapped(_ sender: UIButton) {
         let recipientAddress = sendAddressTextField.text
@@ -176,7 +176,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
         
     func getNewReceiveAddress() {
-        getNewAddressButton.isEnabled = false
+        //getNewAddressButton.isEnabled = false
         Lbry.apiCall(method: Lbry.methodAddressUnused, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let data = data, error == nil else {
                 print(error!)
@@ -188,7 +188,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 let defaults = UserDefaults.standard
                 defaults.setValue(newAddress, forKey: self.keyReceiveAddress)
                 self.receiveAddressTextField.text = newAddress
-                self.getNewAddressButton.isEnabled = true
+                //self.getNewAddressButton.isEnabled = true
             }
         })
     }
