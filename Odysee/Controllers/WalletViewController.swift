@@ -117,6 +117,9 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }*/
     
     @IBAction func sendTapped(_ sender: UIButton) {
+        sendAddressTextField.resignFirstResponder()
+        sendAmountTextField.resignFirstResponder()
+        
         let recipientAddress = sendAddressTextField.text
         let amount = Decimal(string: sendAmountTextField.text!)
         if (!Helper.isAddressValid(address: recipientAddress)) {
@@ -127,22 +130,14 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             showError(message: String.localized("Please enter valid amount"))
             return
         }
-        
-        // TODO: Confirm dialog
+
         let alert = UIAlertController(title: String.localized("Send credits?"), message: String.localized(String(format: "Are you sure you want to send credits to %@?", recipientAddress!)), preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { action in
-              switch action.style{
-              case .default:
-                self.confirmSendCredits(recipientAddress: recipientAddress!, amount: Helper.sdkAmountFormatter.string(from: amount! as NSDecimalNumber)!)
-              case .cancel:
-                break
-              case .destructive:
-                break
-              @unknown default:
-                break
-              }
+        alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
+            self.confirmSendCredits(recipientAddress: recipientAddress!, amount: Helper.sdkAmountFormatter.string(from: amount! as NSDecimalNumber)!)
         }))
-        self.present(alert, animated: true, completion: nil)
+        alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+        
+        present(alert, animated: true, completion: nil)
     }
     
     @IBAction func viewAllTapped(_ sender: UIButton) {
@@ -195,6 +190,9 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         if (textField == receiveAddressTextField) {
+            sendAddressTextField.resignFirstResponder()
+            sendAmountTextField.resignFirstResponder()
+            
             UIPasteboard.general.string = receiveAddressTextField.text
             showMessage(message: String.localized("Address copied!"))
             return false

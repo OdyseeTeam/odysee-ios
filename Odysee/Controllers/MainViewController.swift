@@ -209,7 +209,6 @@ class MainViewController: UIViewController {
                 // notify observers
                 DispatchQueue.main.async {
                     self.walletSyncObservers.values.forEach{ observer in
-                        print("notifying wallet sync observer")
                         observer.syncCompleted()
                     }
                 }

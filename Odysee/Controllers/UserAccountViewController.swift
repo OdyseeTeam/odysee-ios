@@ -23,9 +23,8 @@ class UserAccountViewController: UIViewController {
     @IBOutlet weak var agreementLabel: UILabel!
     @IBOutlet weak var haveAccountLabel: UILabel!
     
+    @IBOutlet weak var magicLinkButton: UIButton!
     @IBOutlet weak var verificationActionsView: UIView!
-    @IBOutlet weak var resendEmailButton: UIButton!
-    @IBOutlet weak var startOverButton: UIButton!
     
     var signInMode = false
     var waitingForVerification = false
@@ -85,12 +84,23 @@ class UserAccountViewController: UIViewController {
     }
     
     @IBAction func actionButtonTapped(_ sender: UIButton) {
+        emailField.resignFirstResponder()
+        passwordField.resignFirstResponder()
+        
         if (!signInMode) {
             handleUserSignUp()
             return
         }
         
         handleUserSignIn()
+    }
+    
+    @IBAction func magicLinkButtonTapped(_ sender: UIButton) {
+        if currentEmail == nil {
+            return
+        }
+        magicLinkButton.isEnabled = false
+        handleEmailVerificationFlow(email: currentEmail)
     }
     
     func handleUserSignUp() {
@@ -136,7 +146,7 @@ class UserAccountViewController: UIViewController {
                 self.showError(message: String.localized("An unknown error occurred. Please try again."))
             })
         } catch let error {
-            print(error)
+            self.showError(error: error)
         }
     }
     
@@ -211,13 +221,17 @@ class UserAccountViewController: UIViewController {
     }
     
     func showError(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(message: message)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(message: message)
+        }
     }
     
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(error: error)
+        }
     }
     
     func handleUserSignIn() {
@@ -268,6 +282,10 @@ class UserAccountViewController: UIViewController {
                         self.defaultActionButton.isEnabled = true
                         self.defaultActionButton.setTitle(String.localized("Sign In"), for: .normal)
                         self.passwordField.isHidden = false
+                        self.magicLinkButton.isHidden = false
+                        
+                        self.emailField.resignFirstResponder()
+                        self.passwordField.resignFirstResponder()
                     }
                 })
             } catch let error {
@@ -282,9 +300,53 @@ class UserAccountViewController: UIViewController {
             self.showError(message: String.localized("Please enter your password"))
             return
         }
+        
+        var options = Dictionary<String, String>()
+        options["email"] = email
+        options["password"] = passwordField.text!
+        do {
+            try Lbryio.call(resource: "user", action: "signin", options: options, method: Lbryio.methodPost, completion: { data, error in
+                DispatchQueue.main.async {
+                    self.defaultActionButton.isEnabled = true
+                }
+                
+                guard let data = data, error == nil else {
+                    if let responseError = error as? LbryioResponseError {
+                        if responseError.code == 409 {
+                            self.handleEmailVerificationFlow(email: email)
+                            return
+                        }
+                    }
+                    
+                    self.showError(error: error)
+                    return
+                }
+                
+                do {
+                    let jsonData = try! JSONSerialization.data(withJSONObject: data as Any, options: [.prettyPrinted, .sortedKeys])
+                    let user: User? = try JSONDecoder().decode(User.self, from: jsonData)
+                    if (user != nil) {
+                        Lbryio.currentUser = user
+                        Analytics.setDefaultEventParameters([
+                            "user_id": user!.id!,
+                            "user_email": user!.primaryEmail ?? ""
+                        ])
+                        self.finishWithWalletSync()
+                        return
+                    }
+                } catch {
+                    // pass
+                }
+                
+                // possible invalid state
+                self.showError(message: String.localized("An unknown error occurred. Please try again."))
+            })
+        } catch let error {
+            self.showError(error: error)
+        }
     }
     
-    func handleEmailExistsFlow(email: String?) {
+    func handleEmailVerificationFlow(email: String?) {
         do {
             var options = Dictionary<String, String>()
             options["email"] = email
@@ -311,7 +373,7 @@ class UserAccountViewController: UIViewController {
                 guard let _ = data, error == nil else {
                     if let responseError = error as? LbryioResponseError {
                         if responseError.code == 409 {
-                            self.handleEmailExistsFlow(email: email)
+                            self.handleEmailVerificationFlow(email: email)
                         } else {
                             self.showError(error: error)
                         }
@@ -327,7 +389,7 @@ class UserAccountViewController: UIViewController {
     }
     
     @IBAction func resendEmailTapped(_ sender: UIButton) {
-        handleEmailExistsFlow(email: currentEmail)
+        handleEmailVerificationFlow(email: currentEmail)
     }
     @IBAction func startOverTapped(_ sender: UIButton) {
         emailVerificationTimer.invalidate()
@@ -342,12 +404,18 @@ class UserAccountViewController: UIViewController {
         closeButton.isHidden = false
         verificationLabel.isHidden = true
         verificationActionsView.isHidden = true
+        
+        magicLinkButton.isHidden = true
+        magicLinkButton.isEnabled = true
     }
     
     func finishWithWalletSync() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let vc = storyboard?.instantiateViewController(identifier: "wallet_sync_vc") as! WalletSyncViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let vc = self.storyboard?.instantiateViewController(identifier: "wallet_sync_vc") as! WalletSyncViewController
+            appDelegate.mainNavigationController?.popViewController(animated: false)
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     // dismiss soft keyboard when anywhere in the view (outside of text fields) is tapped

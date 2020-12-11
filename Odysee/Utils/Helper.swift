@@ -48,7 +48,12 @@ final class Helper {
         if (address ?? "").isBlank {
             return false
         }
+        // TODO: Figure out why regex is broken
+        /*
         if LbryUri.regexAddress.firstMatch(in: address!, options: [], range: NSRange(address!.startIndex..., in:address!)) == nil {
+            return false
+        }*/
+        if !address!.starts(with: "b") {
             return false
         }
         if Base58.base58CheckDecode(address!) == nil {

@@ -391,7 +391,7 @@
                                                         <rect key="frame" x="63" y="16" width="20" height="20"/>
                                                         <color key="color" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
                                                     </activityIndicatorView>
-                                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Recipient address" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="070-Pq-xY6">
+                                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Recipient address" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="070-Pq-xY6">
                                                         <rect key="frame" x="16" y="55.5" width="350" height="34"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <textInputTraits key="textInputTraits" autocorrectionType="no" returnKeyType="continue"/>
@@ -1327,7 +1327,7 @@
                                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Email" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="v78-DT-l4h">
                                                         <rect key="frame" x="0.0" y="0.0" width="350" height="34"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                        <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress"/>
+                                                        <textInputTraits key="textInputTraits" autocorrectionType="no" keyboardType="emailAddress" textContentType="email"/>
                                                     </textField>
                                                     <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" textAlignment="center" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Nt2-WM-4WI">
                                                         <rect key="frame" x="0.0" y="46" width="350" height="34"/>
@@ -1342,6 +1342,14 @@
                                                         </state>
                                                         <connections>
                                                             <action selector="actionButtonTapped:" destination="yQM-IV-uQ4" eventType="touchUpInside" id="Hbi-9w-TpS"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mtA-8f-99U">
+                                                        <rect key="frame" x="0.0" y="127" width="350" height="0.0"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                        <state key="normal" title="Use magic link"/>
+                                                        <connections>
+                                                            <action selector="magicLinkButtonTapped:" destination="yQM-IV-uQ4" eventType="touchUpInside" id="tKi-iy-e1R"/>
                                                         </connections>
                                                     </button>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="By creating an account, you agree to our terms and confirm that you are over the age of 13." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Uf-8u-BrQ">
@@ -1464,6 +1472,7 @@
                         <outlet property="defaultActionButton" destination="P6e-4R-4iL" id="wkt-fD-OOR"/>
                         <outlet property="emailField" destination="v78-DT-l4h" id="Dfp-JU-tb5"/>
                         <outlet property="haveAccountLabel" destination="tKf-c4-XRO" id="zaW-tL-7mm"/>
+                        <outlet property="magicLinkButton" destination="mtA-8f-99U" id="Qzn-Ya-PNC"/>
                         <outlet property="passwordField" destination="Nt2-WM-4WI" id="JIr-1X-B4E"/>
                         <outlet property="titleLabel" destination="i9h-Zm-yIh" id="uDo-wc-EBu"/>
                         <outlet property="uaScrollView" destination="zQM-9E-uTu" id="ERS-iC-5Wj"/>
