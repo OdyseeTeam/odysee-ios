@@ -13,7 +13,7 @@ struct LbryUri: CustomStringConvertible {
     static let odyseeBaseUrl = "https://odysee.com/"
     static let highSurrogate: [unichar] = [0xd800]
     static let lowSurrogate: [unichar] = [0xdfff]
-    static let regexInvalidUri = try! NSRegularExpression(pattern: NSString(format: "[ =&#:$@%?;/\\\\\"<>%\\{\\}|^~\\[\\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}@%-@%\u{FFFE}-\u{FFFF}", NSString(characters: highSurrogate, length: highSurrogate.count), NSString(characters: lowSurrogate, length: lowSurrogate.count)) as String, options: .caseInsensitive)
+    static let regexInvalidUri = try! NSRegularExpression(pattern: NSString(format: "[ =&#:$@%?;/\\\\\"<>%\\{\\}|^~\\[\\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}%@-%@\u{FFFE}-\u{FFFF}]", NSString(characters: highSurrogate, length: highSurrogate.count), NSString(characters: lowSurrogate, length: lowSurrogate.count)) as String, options: .caseInsensitive)
     static let regexAddress  = try! NSRegularExpression(pattern: "^(b)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$", options: .caseInsensitive)
     static let channelNameMinLength = 1
     static let claimIdMaxLength = 40
@@ -58,8 +58,9 @@ struct LbryUri: CustomStringConvertible {
         return (!(channelName ?? "").isBlank && (streamName ?? "").isBlank) || (claimName ?? "").starts(with: "@")
     }
     
-    static func isNameValid(name: String) -> Bool {
-        return name.isBlank || regexInvalidUri.firstMatch(in: name, options: [], range: NSRange(name.startIndex..., in:name)) == nil
+    static func isNameValid(_ name: String?) -> Bool {
+        print("Checking name=" + name!)
+        return !(name ?? "").isBlank && regexInvalidUri.firstMatch(in: name!, options: [], range: NSRange(name!.startIndex..., in: name!)) == nil
     }
     
     static func parse(url: String, requireProto: Bool) throws -> LbryUri {
@@ -183,12 +184,10 @@ struct LbryUri: CustomStringConvertible {
         if (!(primaryClaimId ?? "").isBlank) {
             url.append("#")
             url.append(primaryClaimId ?? "")
-        }
-        if (primaryClaimSequence > 0) {
+        } else if (primaryClaimSequence > 0) {
             url.append(":")
             url.append(String(primaryClaimSequence))
-        }
-        if (primaryBidPosition > 0) {
+        } else if (primaryBidPosition > 0) {
             url.append("$")
             url.append(String(primaryBidPosition))
         }
@@ -200,12 +199,10 @@ struct LbryUri: CustomStringConvertible {
         if (!(secondaryClaimId ?? "").isBlank) {
             url.append("#")
             url.append(secondaryClaimId ?? "")
-        }
-        if (secondaryClaimSequence > 0) {
+        } else if (secondaryClaimSequence > 0) {
             url.append(":")
             url.append(String(secondaryClaimSequence))
-        }
-        if (secondaryBidPosition > 0) {
+        } else if (secondaryBidPosition > 0) {
             url.append("$")
             url.append(String(secondaryBidPosition))
         }

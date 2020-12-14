@@ -234,10 +234,10 @@ final class Lbryio {
                 }
                 
                 let response = data as! [String: Any]
-                let lbcUsdRate = response["lbc_usd"] as? Decimal
+                let lbcUsdRate = response["lbc_usd"] as? Double
                 if (lbcUsdRate != nil) {
-                    currentLbcUsdRate = lbcUsdRate
-                    completion(lbcUsdRate, nil)
+                    currentLbcUsdRate = Decimal(lbcUsdRate!)
+                    completion(currentLbcUsdRate, nil)
                     return
                 }
                 

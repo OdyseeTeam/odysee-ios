@@ -42,7 +42,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Home"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Home", AnalyticsParameterScreenClass: "HomeViewController"])
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: false)
@@ -149,12 +149,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
         
-        let transition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        transition.type = .push
-        transition.subtype = .fromTop
-        appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
+        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
         appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
     }
     

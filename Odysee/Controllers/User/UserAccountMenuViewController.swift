@@ -26,8 +26,7 @@ class UserAccountMenuViewController: UIViewController {
         signUpLoginContainer.isHidden = Lbryio.isSignedIn()
         
         userEmailLabel.isHidden = !Lbryio.isSignedIn()
-        // TODO: Keep hidden until we add the menu items (Channels, Rewards, etc.)
-        loggedInMenu.isHidden = true //!Lbryio.isSignedIn()
+        loggedInMenu.isHidden = !Lbryio.isSignedIn()
         
         if Lbryio.isSignedIn() {
             userEmailLabel.text = Lbryio.currentUser?.primaryEmail!
@@ -45,6 +44,20 @@ class UserAccountMenuViewController: UIViewController {
     @IBAction func signUpLoginTapped(_ sender: UIButton) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = self.storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        presentingViewController?.dismiss(animated: false, completion: nil)
+    }
+    
+    @IBAction func channelsTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = self.storyboard?.instantiateViewController(identifier: "channel_manager_vc") as! ChannelManagerViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        presentingViewController?.dismiss(animated: false, completion: nil)
+    }
+    
+    @IBAction func rewardsTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = self.storyboard?.instantiateViewController(identifier: "rewards_vc") as! RewardsViewController
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }

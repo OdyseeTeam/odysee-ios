@@ -80,7 +80,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Channel"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Channel", AnalyticsParameterScreenClass: "ChannelViewController"])
         
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
@@ -125,7 +125,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         let url = claimUrl!.description
         if Lbry.claimCacheByUrl[url] != nil {
             channelClaim = Lbry.claimCacheByUrl[url]
-            showClaimAndCheckFollowing()
+            DispatchQueue.main.async {
+                self.showClaimAndCheckFollowing()
+            }
             return
         }
         
@@ -360,12 +362,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
         
-        let transition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        transition.type = .push
-        transition.subtype = .fromTop
-        appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
+        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
         appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
     }
     

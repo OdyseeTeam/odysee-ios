@@ -73,11 +73,14 @@ class ClaimTableViewCell: UITableViewCell {
         if (releaseTime == 0) {
             releaseTime = Double(claim.timestamp ?? 0)
         }
-        let date: Date = NSDate(timeIntervalSince1970: releaseTime) as Date // TODO: Timezone check / conversion?
-        
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        publishTimeLabel.text = formatter.localizedString(for: date, relativeTo: Date())
+        if releaseTime > 0 {
+            let date: Date = NSDate(timeIntervalSince1970: releaseTime) as Date // TODO: Timezone check / conversion?
+            let formatter = RelativeDateTimeFormatter()
+            formatter.unitsStyle = .full
+            publishTimeLabel.text = formatter.localizedString(for: date, relativeTo: Date())
+        } else {
+            publishTimeLabel.text = "Pending"
+        }
         
         var duration: Int64 = 0
         if (claim.value?.video != nil || claim.value?.audio != nil) {

@@ -33,9 +33,11 @@ class TransactionTableViewCell: UITableViewCell {
 
     func setTransaction(transaction: Transaction) {
         tx = transaction
-        descriptionLabel.text = Helper.describeTransaction(transaction: transaction)
+        descriptionLabel.text = transaction.description
         amountLabel.text = Helper.currencyFormatter4.string(from: Decimal(string: transaction.value!)! as NSDecimalNumber)
         txidLabel.text = String(transaction.txid!.prefix(7))
+        
+        claimInfoLabel.text = transaction.claim != nil ? transaction.claim!.name : ""
         
         if (transaction.timestamp == nil) {
             dateLabel.text = String.localized("Pending")
@@ -47,9 +49,34 @@ class TransactionTableViewCell: UITableViewCell {
         }
         feeLabel.text = ""
         
+        let claimInfoTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.claimInfoTapped(_:)))
+        claimInfoLabel.addGestureRecognizer(claimInfoTapGesture)
+        
         let txidTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.txidTapped(_:)))
         txidLabel.addGestureRecognizer(txidTapGesture)
     }
+    
+    @objc func claimInfoTapped(_ sender: Any) {
+        if tx != nil && tx!.claim != nil {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let claim = tx!.claim!
+            let url = LbryUri.tryParse(url: String(format: "%@#%@", claim.name!, claim.claimId!), requireProto: false)
+            if url != nil {
+                if claim.name!.starts(with: "@") {
+                    let vc = appDelegate.mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                    vc.claimUrl = url
+                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                } else {
+                    // file claim
+                    let vc = appDelegate.mainViewController?.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                    vc.claimUrl = url
+                    appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+                    appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+                }
+            }
+        }
+    }
+
     
     @objc func txidTapped(_ sender: Any) {
         if tx != nil {

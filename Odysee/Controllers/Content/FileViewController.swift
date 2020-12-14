@@ -89,7 +89,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "File"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "File", AnalyticsParameterScreenClass: "FileViewController"])
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
@@ -151,8 +151,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         
         let url = claimUrl!.description
         if Lbry.claimCacheByUrl[url] != nil {
-            claim = Lbry.claimCacheByUrl[url]
-            showClaimAndCheckFollowing()
+            self.claim = Lbry.claimCacheByUrl[url]
+            DispatchQueue.main.async {
+                self.showClaimAndCheckFollowing()
+            }
             return
         }
         
@@ -224,6 +226,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     func displayClaim() {
         resolvingView.isHidden = true
+        print(resolvingView.isHidden)
+        
         
         titleLabel.text = claim?.value?.title
         
@@ -235,18 +239,24 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         timeAgoLabel.text = formatter.localizedString(for: date, relativeTo: Date())
         
         // publisher
+        var thumbnailUrl: URL? = nil
         publisherImageView.rounded()
         if (claim?.signingChannel != nil) {
             publisherTitleLabel.text = claim?.signingChannel?.value?.title
             publisherNameLabel.text = claim?.signingChannel?.name
             if (claim?.signingChannel?.value != nil && claim?.signingChannel?.value?.thumbnail != nil) {
-                publisherImageView.load(url: URL(string: (claim?.signingChannel?.value?.thumbnail?.url!)!)!)
+                thumbnailUrl = URL(string: (claim!.signingChannel!.value!.thumbnail!.url!))!
             }
         } else {
             publisherTitleLabel.text = String.localized("Anonymous")
+            publisherActionsArea.isHidden = true
+        }
+        
+        if thumbnailUrl != nil {
+            publisherImageView.load(url: thumbnailUrl!)
+        } else {
             publisherImageView.image = UIImage.init(named: "spaceman")
             publisherImageView.backgroundColor = Helper.lightPrimaryColor
-            publisherActionsArea.isHidden = true
         }
         
         if (claim?.value?.description ?? "").isBlank {
@@ -464,13 +474,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
-        
-        let transition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        transition.type = .push
-        transition.subtype = .fromTop
-        appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
+        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
         appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
     }
     

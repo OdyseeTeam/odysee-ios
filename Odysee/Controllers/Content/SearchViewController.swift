@@ -36,16 +36,16 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Search"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Search", AnalyticsParameterScreenClass: "SearchViewController"])
+        
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
-        
         loadingContainer.layer.cornerRadius = 20
         
         getStartedView.isHidden = false
@@ -186,13 +186,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
             // file claim
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = claim
-            
-            let transition = CATransition()
-            transition.duration = 0.3
-            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            transition.type = .push
-            transition.subtype = .fromTop
-            appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
+            appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
             appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }

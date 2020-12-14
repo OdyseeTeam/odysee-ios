@@ -21,6 +21,12 @@ class MainViewController: UIViewController {
     
     @IBOutlet weak var mainBalanceLabel: UILabel!
     
+    @IBOutlet weak var notificationBadgeView: UIView!
+    @IBOutlet weak var notificationBadgeCountLabel: UILabel!
+    @IBOutlet weak var notificationBadgeIcon: UIImageView!
+    
+    var notificationsViewActive = false
+    
     var mainNavigationController: UINavigationController!
     var walletObservers: Dictionary<String, WalletBalanceObserver> = Dictionary<String, WalletBalanceObserver>()
     var walletSyncObservers: Dictionary<String, WalletSyncObserver> = Dictionary<String, WalletSyncObserver>()
@@ -57,6 +63,8 @@ class MainViewController: UIViewController {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainViewController = self
+        
+        notificationBadgeView.layer.cornerRadius = 6
         
         // Do any additional setup after loading the view.
         startWalletBalanceTimer()
@@ -105,6 +113,17 @@ class MainViewController: UIViewController {
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
+    @IBAction func notificationsActionTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if notificationsViewActive {
+            appDelegate.mainNavigationController?.popViewController(animated: true)
+            return
+        }
+        
+        let vc = storyboard?.instantiateViewController(identifier: "notifications_vc") as! NotificationsViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+    }
+    
     @IBAction func accountActionTapped(_ sender: Any) {
         let vc = storyboard?.instantiateViewController(identifier: "ua_menu_vc") as! UserAccountMenuViewController
         vc.modalPresentationStyle = .overCurrentContext
@@ -117,12 +136,7 @@ class MainViewController: UIViewController {
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = appDelegate.currentClaim
             
-            let transition = CATransition()
-            transition.duration = 0.3
-            transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            transition.type = .push
-            transition.subtype = .fromTop
-            appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
+            appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
             appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }
@@ -137,7 +151,7 @@ class MainViewController: UIViewController {
             let playerLayer: AVPlayerLayer = AVPlayerLayer(player: appDelegate.player)
             playerLayer.frame = mediaViewLayer.bounds
             playerLayer.videoGravity = .resizeAspectFill
-            mediaViewLayer.sublayers?.popLast()
+            let _ = mediaViewLayer.sublayers?.popLast()
             mediaViewLayer.addSublayer(playerLayer)
         }
     }

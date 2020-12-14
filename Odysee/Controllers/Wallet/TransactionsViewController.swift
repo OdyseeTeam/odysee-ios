@@ -31,14 +31,14 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Transactions"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Transactions", AnalyticsParameterScreenClass: "TransactionsViewController"])
+        
+        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
 
         // Do any additional setup after loading the view.
         loadingContainer.layer.cornerRadius = 20

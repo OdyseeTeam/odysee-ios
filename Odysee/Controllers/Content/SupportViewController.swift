@@ -11,6 +11,7 @@ import UIKit
 class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource, WalletBalanceObserver {
     var channels: [Claim] = []
     var claim: Claim? = nil
+    var sendingSupport = false
     let keyBalanceObserver = "support_vc"
     let currencyFormatter = NumberFormatter()
     
@@ -39,7 +40,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Support"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Support", AnalyticsParameterScreenClass: "SupportViewController"])
     }
     
     override func viewDidLoad() {
@@ -59,10 +60,63 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             balanceUpdated(balance: Lbry.walletBalance!)
         }
         
+        loadChannels()
+    }
+    
+    func addAnonymousPlaceholder() {
         let anonymousClaim: Claim = Claim()
         anonymousClaim.name = "Anonymous"
         anonymousClaim.claimId = "anonymous"
         channels.append(anonymousClaim)
+    }
+    
+    func loadChannels() {
+        DispatchQueue.main.async {
+            self.loadingSendSupportView.isHidden = false
+            self.tipButton.isEnabled = false
+        }
+        
+        var options = Dictionary<String, Any>()
+        options["claim_type"] = ["channel"]
+        options["page"] = 1
+        options["page_size"] = 999
+        options["resolve"] = true
+        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+            guard let data = data, error == nil else {
+                self.showError(error: error)
+                return
+            }
+            
+            let result = data["result"] as? [String: Any]
+            let items = result?["items"] as? [[String: Any]]
+            if (items != nil) {
+                var loadedClaims: [Claim] = []
+                items?.forEach{ item in
+                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
+                    do {
+                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                        if (claim != nil) {
+                            loadedClaims.append(claim!)
+                        }
+                    } catch let error {
+                        print(error)
+                    }
+                }
+                self.channels.removeAll()
+                self.addAnonymousPlaceholder()
+                self.channels.append(contentsOf: loadedClaims)
+                Lbry.ownChannels = self.channels.filter { $0.claimId != "anonymous" }
+            }
+            
+            DispatchQueue.main.async {
+                self.loadingSendSupportView.isHidden = true
+                self.tipButton.isEnabled = true
+                self.channelPickerView.reloadAllComponents()
+                if self.channels.count > 1 {
+                    self.channelPickerView.selectRow(1, inComponent: 0, animated: true)
+                }
+            }
+        })
     }
     
     func registerForKeyboardNotifications() {
@@ -166,12 +220,16 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         tipButton.isEnabled = false
         loadingSendSupportView.isHidden = false
         
+        let selectedClaim: Claim = channels[channelPickerView.selectedRow(inComponent: 0)]
         var params = Dictionary<String, Any>()
         params["blocking"] = true
         params["claim_id"] = claim?.claimId!
         params["amount"] = Helper.sdkAmountFormatter.string(from: amount as NSDecimalNumber)
         params["tip"] = true
-        // TODO: params["channel_id"]
+        if selectedClaim.claimId != "anonymous" {
+            params["channel_id"] = selectedClaim.claimId
+        }
+        
         
         Lbry.apiCall(method: Lbry.methodSupportCreate, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let _ = data, error == nil else {

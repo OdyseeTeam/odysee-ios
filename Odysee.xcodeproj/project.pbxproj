@@ -33,6 +33,11 @@
 		64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 64533588257FDC6800C49BD1 /* FirebaseAnalytics */; };
 		6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6453358A257FDC6800C49BD1 /* FirebaseMessaging */; };
 		6462DABD255D3CFE001CF1E8 /* UICardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6462DABC255D3CFE001CF1E8 /* UICardView.swift */; };
+		64666AF62587290200DF4608 /* ChannelListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64666AF52587290200DF4608 /* ChannelListTableViewCell.swift */; };
+		64666AFB25872BE000DF4608 /* ChannelManagerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64666AFA25872BE000DF4608 /* ChannelManagerViewController.swift */; };
+		64666B032587378400DF4608 /* ChannelEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64666B022587378400DF4608 /* ChannelEditorViewController.swift */; };
+		646D563F2584FAD4002DB12F /* RewardsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646D563E2584FAD4002DB12F /* RewardsViewController.swift */; };
+		646D5645258587A8002DB12F /* OAuthSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 646D5644258587A8002DB12F /* OAuthSwift */; };
 		646E54D8257D40DC00BEBFBE /* ChannelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */; };
 		646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54DC257DCD6100BEBFBE /* UIPaddedLabel.swift */; };
 		646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54E1257E276400BEBFBE /* LbrySubscription.swift */; };
@@ -99,6 +104,10 @@
 		644F76AD25592F8400813451 /* FileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewController.swift; sourceTree = "<group>"; };
 		644F76B525595D4E00813451 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		6462DABC255D3CFE001CF1E8 /* UICardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICardView.swift; sourceTree = "<group>"; };
+		64666AF52587290200DF4608 /* ChannelListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelListTableViewCell.swift; sourceTree = "<group>"; };
+		64666AFA25872BE000DF4608 /* ChannelManagerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelManagerViewController.swift; sourceTree = "<group>"; };
+		64666B022587378400DF4608 /* ChannelEditorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelEditorViewController.swift; sourceTree = "<group>"; };
+		646D563E2584FAD4002DB12F /* RewardsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardsViewController.swift; sourceTree = "<group>"; };
 		646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelViewController.swift; sourceTree = "<group>"; };
 		646E54DC257DCD6100BEBFBE /* UIPaddedLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIPaddedLabel.swift; sourceTree = "<group>"; };
 		646E54E1257E276400BEBFBE /* LbrySubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbrySubscription.swift; sourceTree = "<group>"; };
@@ -138,6 +147,7 @@
 			files = (
 				6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */,
 				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
+				646D5645258587A8002DB12F /* OAuthSwift in Frameworks */,
 				6411C0B0255B35260018C3D5 /* Base58Swift in Frameworks */,
 				6484E1B62582269B00221658 /* StoreKit.framework in Frameworks */,
 			);
@@ -204,8 +214,52 @@
 				647408502577FA30008007C6 /* ChannelCollectionViewCell.swift */,
 				642B6B15257B528300F17355 /* TransactionTableViewCell.swift */,
 				646E54DC257DCD6100BEBFBE /* UIPaddedLabel.swift */,
+				64666AF52587290200DF4608 /* ChannelListTableViewCell.swift */,
 			);
 			path = UI;
+			sourceTree = "<group>";
+		};
+		64666B072587379500DF4608 /* Channel */ = {
+			isa = PBXGroup;
+			children = (
+				646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */,
+				64666AFA25872BE000DF4608 /* ChannelManagerViewController.swift */,
+				64666B022587378400DF4608 /* ChannelEditorViewController.swift */,
+			);
+			path = Channel;
+			sourceTree = "<group>";
+		};
+		64666B08258737A200DF4608 /* Content */ = {
+			isa = PBXGroup;
+			children = (
+				644F76AD25592F8400813451 /* FileViewController.swift */,
+				64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */,
+				64FBE7A025502A290082AF2E /* HomeViewController.swift */,
+				64A6CA70255DADFB00294E74 /* SearchViewController.swift */,
+				646E54E9257E565000BEBFBE /* SupportViewController.swift */,
+			);
+			path = Content;
+			sourceTree = "<group>";
+		};
+		64666B09258737BD00DF4608 /* Wallet */ = {
+			isa = PBXGroup;
+			children = (
+				642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */,
+				642B6AFC257A382900F17355 /* WalletViewController.swift */,
+				646D563E2584FAD4002DB12F /* RewardsViewController.swift */,
+				642B6B1A257B698C00F17355 /* TransactionsViewController.swift */,
+			);
+			path = Wallet;
+			sourceTree = "<group>";
+		};
+		64666B0A258737CC00DF4608 /* User */ = {
+			isa = PBXGroup;
+			children = (
+				648F320B2575D52500E2CA51 /* UserAccountViewController.swift */,
+				641614D1258077EF003A2194 /* UserAccountMenuViewController.swift */,
+				6484E1AC2582238900221658 /* NotificationsViewController.swift */,
+			);
+			path = User;
 			sourceTree = "<group>";
 		};
 		648F31F72573F75600E2CA51 /* Lbryinc */ = {
@@ -221,21 +275,13 @@
 		64A6CA6F255DADB400294E74 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				644F76AD25592F8400813451 /* FileViewController.swift */,
-				64FBE7A025502A290082AF2E /* HomeViewController.swift */,
+				64666B0A258737CC00DF4608 /* User */,
+				64666B09258737BD00DF4608 /* Wallet */,
+				64666B08258737A200DF4608 /* Content */,
+				64666B072587379500DF4608 /* Channel */,
 				641108E6255AA2BC00F0FB8A /* InitViewController.swift */,
 				6411C0B4255B94DA0018C3D5 /* MainViewController.swift */,
-				64A6CA70255DADFB00294E74 /* SearchViewController.swift */,
 				64A6CA7A255DD34700294E74 /* AppTabBarController.swift */,
-				64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */,
-				648F320B2575D52500E2CA51 /* UserAccountViewController.swift */,
-				642B6AFC257A382900F17355 /* WalletViewController.swift */,
-				642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */,
-				642B6B1A257B698C00F17355 /* TransactionsViewController.swift */,
-				646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */,
-				646E54E9257E565000BEBFBE /* SupportViewController.swift */,
-				641614D1258077EF003A2194 /* UserAccountMenuViewController.swift */,
-				6484E1AC2582238900221658 /* NotificationsViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -327,6 +373,7 @@
 				6411C0AF255B35260018C3D5 /* Base58Swift */,
 				64533588257FDC6800C49BD1 /* FirebaseAnalytics */,
 				6453358A257FDC6800C49BD1 /* FirebaseMessaging */,
+				646D5644258587A8002DB12F /* OAuthSwift */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -402,6 +449,7 @@
 			packageReferences = (
 				6411C0AE255B35260018C3D5 /* XCRemoteSwiftPackageReference "Base58Swift" */,
 				64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -452,6 +500,7 @@
 				642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */,
 				6484E1AD2582238900221658 /* NotificationsViewController.swift in Sources */,
 				641614D2258077EF003A2194 /* UserAccountMenuViewController.swift in Sources */,
+				646D563F2584FAD4002DB12F /* RewardsViewController.swift in Sources */,
 				641327492556EB3400CBB6B8 /* Lbry.swift in Sources */,
 				646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */,
 				641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */,
@@ -467,6 +516,7 @@
 				642B6B1B257B698C00F17355 /* TransactionsViewController.swift in Sources */,
 				6411C0B5255B94DA0018C3D5 /* MainViewController.swift in Sources */,
 				642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */,
+				64666B032587378400DF4608 /* ChannelEditorViewController.swift in Sources */,
 				642B6B07257A635300F17355 /* WalletSync.swift in Sources */,
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
 				641108F1255AF6CE00F0FB8A /* Helper.swift in Sources */,
@@ -476,6 +526,8 @@
 				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
 				641108E7255AA2BC00F0FB8A /* InitViewController.swift in Sources */,
+				64666AFB25872BE000DF4608 /* ChannelManagerViewController.swift in Sources */,
+				64666AF62587290200DF4608 /* ChannelListTableViewCell.swift in Sources */,
 				64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */,
 				646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
@@ -838,6 +890,14 @@
 				minimumVersion = 7.2.0;
 			};
 		};
+		646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/OAuthSwift/OAuthSwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.1.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -855,6 +915,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		646D5644258587A8002DB12F /* OAuthSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */;
+			productName = OAuthSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 

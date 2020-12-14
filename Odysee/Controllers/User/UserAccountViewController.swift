@@ -45,7 +45,7 @@ class UserAccountViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "UserAccount"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "UserAccount", AnalyticsParameterScreenClass: "UserAccountViewController"])
     }
     
     override func viewDidLoad() {

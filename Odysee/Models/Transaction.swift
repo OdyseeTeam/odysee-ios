@@ -1,5 +1,5 @@
 //
-//  Transaction.swift
+//  swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 03/12/2020.
@@ -20,6 +20,70 @@ struct Transaction: Decodable {
     var purchaseInfo: [TransactionInfo]?
     var supportInfo: [TransactionInfo]?
     var updateInfo: [TransactionInfo]?
+    
+    var description: String {
+        if let abandonInfo = abandonInfo {
+            if abandonInfo.count > 0 {
+                if abandonInfo.count == 1 {
+                    return String.localized(abandonInfo[0].balanceDelta! == abandonInfo[0].amount! ? "Unlock" : "Abandon")
+                } else {
+                    return String.localized("Unlock")
+                }
+            }
+        }
+        if let claimInfo = claimInfo {
+            if claimInfo.count > 0 {
+                return String.localized(claimInfo[0].claimName!.starts(with: "@") ? "Channel" : "Publish")
+            }
+        }
+        if let updateInfo = updateInfo {
+            if updateInfo.count > 0 {
+                return String.localized(updateInfo[0].claimName!.starts(with: "@") ? "Channel Update" : "Publish Update")
+            }
+        }
+        if let supportInfo = supportInfo {
+            if supportInfo.count > 0 {
+                return String.localized(supportInfo[0].isTip! ? "Tip" : "Support")
+            }
+        }
+        
+        return String.localized(value!.starts(with: "-") || (fee != nil && fee!.starts(with: "-")) ? "Spend" : "Receive")
+    }
+    
+    var claim: Claim? {
+        if let claimInfo = claimInfo {
+            if claimInfo.count > 0 {
+                let result = Claim()
+                result.claimId = claimInfo[0].claimId
+                result.name = claimInfo[0].claimName
+                return result
+            }
+        }
+        
+        if let updateInfo = claimInfo {
+            if updateInfo.count > 0 {
+                let result = Claim()
+                result.claimId = updateInfo[0].claimId
+                result.name = updateInfo[0].claimName
+                return result
+            }
+        }
+        if let supportInfo = supportInfo {
+            if supportInfo.count > 0 {
+                let result = Claim()
+                result.claimId = supportInfo[0].claimId
+                result.name = supportInfo[0].claimName
+                return result
+            }
+        }
+        
+        return nil
+    }
+    
+    var actualValue: String? {
+        return value
+    }
+    
     
     private enum CodingKeys: String, CodingKey {
         case confirmations, date, fee, timestamp, txid, value, abandonInfo = "abandon_info", claimInfo = "claim_info", purchaseInfo = "purchase_info", supportInfo = "support_info", updateInfo = "update_info"

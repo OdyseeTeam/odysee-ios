@@ -75,7 +75,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Subscriptions"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Subscriptions", AnalyticsParameterScreenClass: "FollowingViewController"])
         
         if (Lbryio.isSignedIn()) {
             loadRemoteSubscriptions()
@@ -346,12 +346,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
         
-        let transition = CATransition()
-        transition.duration = 0.3
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        transition.type = .push
-        transition.subtype = .fromTop
-        appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
+        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
         appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
     }
     

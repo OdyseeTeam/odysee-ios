@@ -23,6 +23,9 @@ final class Lbry {
     static let methodResolve = "resolve"
     
     static let methodAddressUnused = "address_unused"
+    static let methodChannelCreate = "channel_create"
+    static let methodChannelUpdate = "channel_update"
+    static let methodClaimList = "claim_list"
     static let methodPreferenceGet = "preference_get"
     static let methodPreferenceSet = "preference_set"
     static let methodSupportCreate = "support_create"
@@ -43,6 +46,7 @@ final class Lbry {
     
     static var claimCacheById: Dictionary<String, Claim> = Dictionary<String, Claim>()
     static var claimCacheByUrl: Dictionary<String, Claim> = Dictionary<String, Claim>()
+    static var ownChannels: [Claim] = []
     
     static func apiCall(method: String, params: Dictionary<String, Any>, connectionString: String, authToken: String? = nil, completion: @escaping ([String: Any]?, Error?) -> Void) {
         let counter = Date().timeIntervalSince1970

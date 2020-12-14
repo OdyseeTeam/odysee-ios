@@ -49,11 +49,14 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Wallet"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Wallet", AnalyticsParameterScreenClass: "WalletViewController"])
         
         if (Lbryio.isSignedIn()) {
             checkReceiveAddress()
             loadRecentTransactions()
+            if Lbry.walletBalance != nil {
+                balanceUpdated(balance: Lbry.walletBalance!)
+            }
         }
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -80,6 +83,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         displayBalance(balance: Lbry.walletBalance)
         
+        recentTransactionsListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
         registerForKeyboardNotifications()
     }
     
@@ -223,12 +227,22 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func displayBalance(balance: WalletBalance?) {
         if (balance != nil) {
             balanceLabel.text = currencyFormatter.string(from: balance!.available! as NSDecimalNumber)
-            usdBalanceLabel.text = String(format: "≈$%@", currencyFormatter.string(from: (balance!.available! * Lbryio.currentLbcUsdRate!) as NSDecimalNumber)!)
+            
+            if (Lbryio.currentLbcUsdRate ?? 0) == 0 {
+                // attempt to reload the exchange rate (if it wasn't loaded previously)
+                Lbryio.loadExchangeRate(completion: { rate, error in
+                    guard let rate = rate, error == nil else {
+                        // pass
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        self.usdBalanceLabel.text = String(format: "≈$%@", self.currencyFormatter.string(from: (balance!.available! * rate) as NSDecimalNumber)!)
+                    }
+                })
+            } else {
+                usdBalanceLabel.text = String(format: "≈$%@", currencyFormatter.string(from: (balance!.available! * Lbryio.currentLbcUsdRate!) as NSDecimalNumber)!)
+            }
         }
-    }
-    
-    func adjustRecentTransactionsListSize() {
-        recentTxListHeightConstraint.constant = recentTransactionsListView.contentSize.height + CGFloat(8 * recentTransactions.count)
     }
     
     func loadRecentTransactions() {
@@ -242,7 +256,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         recentTransactions.removeAll()
         recentTransactionsListView.reloadData()
-        adjustRecentTransactionsListSize()
         
         loadingRecentTransactions = true
         loadingRecentTransactionsView.isHidden = false
@@ -275,7 +288,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 self.loadingRecentTransactionsView.isHidden = true
                 self.noRecentTransactionsLabel.isHidden = self.recentTransactions.count > 0
                 self.recentTransactionsListView.reloadData()
-                self.adjustRecentTransactionsListSize()
             }
         })
     }
@@ -304,5 +316,14 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func showError(error: Error?) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.showError(error: error)
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "contentSize" {
+            if (change?[.newKey]) != nil {
+                let contentHeight: CGFloat = recentTransactionsListView.contentSize.height
+                recentTxListHeightConstraint.constant = contentHeight
+            }
+        }
     }
 }

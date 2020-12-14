@@ -16,7 +16,7 @@ class ChannelCollectionViewCell: UICollectionViewCell {
     func setClaim(claim: Claim) {
         if (currentClaim != nil && claim.claimId != currentClaim!.claimId) {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
-            thumbnailImageView.image = nil
+            thumbnailImageView.image = UIImage.init(named: "spaceman")
         }
         currentClaim = claim
         

@@ -30,7 +30,7 @@ class WalletSyncViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "WalletSync"])
+        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "WalletSync", AnalyticsParameterScreenClass: "WalletSyncViewController"])
     }
     
     override func viewDidLoad() {
