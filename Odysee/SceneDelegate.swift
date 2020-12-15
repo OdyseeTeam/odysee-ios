@@ -61,10 +61,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func handleLaunchUrl(url: URL) {
-        let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false)
-        if lbryUrl != nil {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            if (appDelegate.mainViewController != nil && appDelegate.mainNavigationController != nil) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if (appDelegate.mainViewController != nil && appDelegate.mainNavigationController != nil) {
+            if appDelegate.mainController.handleSpecialUrl(url: url.absoluteString) {
+                return
+            }
+            
+            let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false)
+            if lbryUrl != nil {
                 if lbryUrl!.isChannelUrl() {
                     let vc = appDelegate.mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
@@ -74,9 +78,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                     vc.claimUrl = lbryUrl
                     appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
                 }
-            } else {
-                appDelegate.pendingOpenUrl = lbryUrl
             }
+        } else {
+            appDelegate.pendingOpenUrl = url.absoluteString
         }
     }
 

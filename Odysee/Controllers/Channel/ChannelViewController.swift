@@ -67,10 +67,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         super.viewWillAppear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        
-        let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
-        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: window.frame.maxY - safeAreaFrame.maxY + 2)
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
         
         if channelClaim != nil {
             checkFollowing()

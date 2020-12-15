@@ -25,6 +25,7 @@ class MainViewController: UIViewController {
     @IBOutlet weak var notificationBadgeCountLabel: UILabel!
     @IBOutlet weak var notificationBadgeIcon: UIImageView!
     
+    var loadingNotifications = false
     var notificationsViewActive = false
     
     var mainNavigationController: UINavigationController!
@@ -43,17 +44,28 @@ class MainViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        if handleSpecialUrl(url: "lbry://?subscriptions") {
+            return
+        }
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if appDelegate.pendingOpenUrl != nil {
-            let lbryUrl = appDelegate.pendingOpenUrl
-            if lbryUrl!.isChannelUrl() {
-                let vc = storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
-                vc.claimUrl = lbryUrl
-                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
-            } else {
-                let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-                vc.claimUrl = lbryUrl
-                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            if handleSpecialUrl(url: appDelegate.pendingOpenUrl!) {
+                return
+            }
+            
+            let lbryUrl = LbryUri.tryParse(url: appDelegate.pendingOpenUrl!, requireProto: false)
+            if lbryUrl != nil {
+                if lbryUrl!.isChannelUrl() {
+                    let vc = storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                    vc.claimUrl = lbryUrl
+                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                } else {
+                    let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                    vc.claimUrl = lbryUrl
+                    appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+                    appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+                }
             }
         }
     }
@@ -69,6 +81,7 @@ class MainViewController: UIViewController {
         // Do any additional setup after loading the view.
         startWalletBalanceTimer()
         startWalletSyncTimer()
+        loadNotifications()
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -105,6 +118,9 @@ class MainViewController: UIViewController {
     @IBAction func walletBalanceActionTapped(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainTabViewController?.selectedIndex = 2
+        if notificationsViewActive {
+            appDelegate.mainNavigationController?.popViewController(animated: true)
+        }
     }
     
     @IBAction func searchActionTapped(_ sender: Any) {
@@ -138,6 +154,54 @@ class MainViewController: UIViewController {
             
             appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
             appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        }
+    }
+    
+    func loadNotifications() {
+        if loadingNotifications {
+            return
+        }
+        do {
+            try Lbryio.call(resource: "notification", action: "list", options: [:], method: Lbryio.methodPost, completion: { data, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                
+                if let items = data as? [[String: Any]] {
+                    var loadedNotifications: [LbryNotification] = []
+                    items.forEach { item in
+                        do {
+                            let jsonData = try JSONSerialization.data(withJSONObject: item as Any, options: [.prettyPrinted, .sortedKeys])
+                            let notification: LbryNotification? = try JSONDecoder().decode(LbryNotification.self, from: jsonData)
+                            if notification != nil {
+                                loadedNotifications.append(notification!)
+                            }
+                        } catch {
+                            // pass
+                        }
+                    }
+                    Lbryio.cachedNotifications.append(contentsOf: loadedNotifications)
+                    Lbryio.cachedNotifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "")! })
+                }
+                
+                self.loadingNotifications = false
+                self.updateUnseenCount()
+            })
+        } catch let error {
+            self.showError(error: error)
+        }
+    }
+    
+    func updateUnseenCount() {
+        let unseenCount = Lbryio.cachedNotifications.reduce(0) { $0 + ($1.isSeen! ? 0 : 1) }
+        DispatchQueue.main.async {
+            if unseenCount > 0 {
+                self.notificationBadgeView.isHidden = false
+                self.notificationBadgeCountLabel.text = unseenCount < 100 ? String(unseenCount) : "99+"
+            } else {
+                self.notificationBadgeView.isHidden = true
+                self.notificationBadgeCountLabel.text = ""
+            }
         }
     }
     
@@ -233,7 +297,6 @@ class MainViewController: UIViewController {
     @objc func fetchWalletBalance() {
         Lbry.apiCall(method: Lbry.methodWalletBalance, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let data = data, error == nil else {
-                print(error)
                 return
             }
             
@@ -259,6 +322,28 @@ class MainViewController: UIViewController {
                 }
             }
         })
+    }
+    
+    func handleSpecialUrl(url: String) -> Bool {
+        if url.starts(with: "lbry://?") {
+            let destination = String(url.suffix(from: url.index(url.firstIndex(of: "?")!, offsetBy: 1)))
+            
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            if destination == "subscriptions" || destination == "subscription" || destination == "following" {
+                appDelegate.mainTabViewController?.selectedIndex = 1
+            } else if destination == "rewards" {
+                let vc = self.storyboard?.instantiateViewController(identifier: "rewards_vc") as! RewardsViewController
+                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            } else if destination == "wallet" {
+                appDelegate.mainTabViewController?.selectedIndex = 2
+            }
+            
+            // TODO: invite | invites | discover | channels | library
+            
+            return true
+        }
+        
+        return false
     }
     
     /*

@@ -22,6 +22,7 @@ final class Helper {
         ["trending_group", "trending_mixed"], ["release_time"], ["effective_amount"]
     ];
     
+    static let apiDateFormatter = DateFormatter()
     static let sdkAmountFormatter = NumberFormatter()
     static let currencyFormatter = NumberFormatter()
     static let currencyFormatter4 = NumberFormatter()
@@ -45,6 +46,8 @@ final class Helper {
         sdkAmountFormatter.usesGroupingSeparator = false
         sdkAmountFormatter.numberStyle = .decimal
         sdkAmountFormatter.locale = Locale.init(identifier: "en_US")
+        
+        apiDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
     }
 
     static func isAddressValid(address: String?) -> Bool {
@@ -130,5 +133,11 @@ final class Helper {
         transition.type = .push
         transition.subtype = .fromTop
         return transition
+    }
+    
+    static func miniPlayerBottomWithoutTabBar() -> CGFloat {
+        let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
+        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
+        return CGFloat(window.frame.maxY - safeAreaFrame.maxY + 2)
     }
 }

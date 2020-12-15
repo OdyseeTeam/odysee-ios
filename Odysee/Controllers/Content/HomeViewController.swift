@@ -15,8 +15,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet weak var categoryButtonsContainer: UIStackView!
     @IBOutlet weak var noContentView: UIStackView!
     
-    var refreshControl = UIRefreshControl()
-    
+    let refreshControl = UIRefreshControl()
     let categories: [String] = ["Cheese", "Big Hits", "Gaming", "Lab", "Tech", "News", "Finance 2.0", "The Universe", "Wild West"]
     let channelIds: [[String]?] = [
         ContentSources.PrimaryChannelContentIds,
@@ -81,8 +80,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
             return
         }
         
-        noContentView.isHidden = true
-        loadingContainer.isHidden = false
+        DispatchQueue.main.async {
+            self.noContentView.isHidden = true
+            self.loadingContainer.isHidden = false
+        }
         loading = true
         
         updateClaimSearchOptions()

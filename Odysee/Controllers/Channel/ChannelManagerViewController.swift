@@ -18,6 +18,12 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     var loadingChannels = false
     var channels: [Claim] = []
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Channels", AnalyticsParameterScreenClass: "ChannelManagerViewController"])

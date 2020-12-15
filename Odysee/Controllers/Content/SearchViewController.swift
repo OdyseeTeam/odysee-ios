@@ -29,9 +29,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
-        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: window.frame.maxY - safeAreaFrame.maxY + 2)
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -50,7 +48,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         
         getStartedView.isHidden = false
         searchBar.backgroundImage = UIImage()
-        searchBar.becomeFirstResponder()
+        //searchBar.becomeFirstResponder()
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -155,7 +153,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         }
     }
     
-    @IBAction func goBack(_ sender: Any) {
+    @IBAction func backTapped(_ sender: Any) {
         self.navigationController?.popViewController(animated: true)
     }
     

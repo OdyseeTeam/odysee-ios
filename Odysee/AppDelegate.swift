@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     var player: AVPlayer?
     var currentClaim: Claim?
-    var pendingOpenUrl: LbryUri?
+    var pendingOpenUrl: String?
     
     var mainController: MainViewController {
         return mainViewController as! MainViewController
@@ -36,13 +36,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false)
-        if lbryUrl != nil {
-            pendingOpenUrl = lbryUrl
-            return true
-        }
-        
-        return false
+        pendingOpenUrl = url.absoluteString
+        return true
     }
 
     // MARK: UISceneSession Lifecycle

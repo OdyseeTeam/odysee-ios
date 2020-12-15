@@ -32,9 +32,7 @@ class RewardsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
-        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: window.frame.maxY - safeAreaFrame.maxY + 2)
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
         
         if Lbryio.isSignedIn() {
             if !Lbryio.currentUser!.isRewardApproved! {

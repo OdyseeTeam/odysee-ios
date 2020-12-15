@@ -24,8 +24,9 @@ final class Lbryio {
     static var currentLbcUsdRate: Decimal? = 0
     static var followedUrls: [String] = [] // simple cache of followed urls
     static var cachedSubscriptions: Dictionary<String, LbrySubscription> = Dictionary<String, LbrySubscription>()
+    static var cachedNotifications: [LbryNotification] = []
     
-    static func call(resource: String, action: String, options: Dictionary<String, String>?, method: String, completion: @escaping (Any?, Error?) -> Void) throws {
+    static func call(resource: String, action: String, options: Dictionary<String, String>?, method: String, authTokenOverride: String? = nil, completion: @escaping (Any?, Error?) -> Void) throws {
         let url = String(format: "%@/%@/%@", connectionString, resource, action)
         if ((authToken ?? "").isBlank && !generatingAuthToken) {
             // generate the auth token before calling this resource
@@ -52,7 +53,7 @@ final class Lbryio {
         var requestUrl = URL(string: url)
         var queryItems: [URLQueryItem] = []
         if (!(authToken ?? "").isBlank) {
-            queryItems.append(URLQueryItem(name: authTokenParam, value: authToken))
+            queryItems.append(URLQueryItem(name: authTokenParam, value: authTokenOverride ?? authToken))
         }
         if (options != nil) {
             for (name, value) in options! {
@@ -70,7 +71,7 @@ final class Lbryio {
         var req = URLRequest(url: requestUrl!)
         req.httpMethod = method
         if (method.lowercased() == methodPost.lowercased()) {
-            req.httpBody = buildQueryString(authToken: authToken, options: options).data(using: .utf8)
+            req.httpBody = buildQueryString(authToken: authTokenOverride ?? authToken, options: options).data(using: .utf8)
         }
         
         let task = session.dataTask(with: req, completionHandler: { data, response, error in
@@ -88,7 +89,7 @@ final class Lbryio {
                 
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   //print(JSONString)
+                   print(JSONString)
                 }
                 
                 if (respCode >= 200 && respCode < 300) {
