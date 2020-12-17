@@ -59,7 +59,6 @@ struct LbryUri: CustomStringConvertible {
     }
     
     static func isNameValid(_ name: String?) -> Bool {
-        print("Checking name=" + name!)
         return !(name ?? "").isBlank && regexInvalidUri.firstMatch(in: name!, options: [], range: NSRange(name!.startIndex..., in: name!)) == nil
     }
     

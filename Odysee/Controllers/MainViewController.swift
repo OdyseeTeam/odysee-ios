@@ -44,10 +44,6 @@ class MainViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        if handleSpecialUrl(url: "lbry://?subscriptions") {
-            return
-        }
-        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if appDelegate.pendingOpenUrl != nil {
             if handleSpecialUrl(url: appDelegate.pendingOpenUrl!) {
@@ -247,6 +243,14 @@ class MainViewController: UIViewController {
     func showError(error: Error?) {
         if let responseError = error as? LbryioResponseError {
             showError(message: responseError.localizedDescription)
+            return
+        }
+        if let apiError = error as? LbryApiResponseError {
+            showError(message: apiError.localizedDescription)
+            return
+        }
+        if let genericError = error as? GenericError {
+            showError(message: genericError.localizedDescription)
             return
         }
         

@@ -194,8 +194,11 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 thumbnailImageView.image = UIImage.init(named: "spaceman")
                 thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
             }
+            
             if channelClaim?.value?.cover != nil {
                 coverImageView.load(url: URL(string: (channelClaim?.value?.cover?.url)!)!)
+            } else {
+                coverImageView.image = UIImage.init(named: "spaceman_cover")
             }
             
             titleLabel.text = channelClaim?.value?.title
@@ -490,6 +493,11 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
     
     @IBAction func tipActionTapped(_ sender: Any) {
+        if !Lbryio.isSignedIn() {
+            showUAView()
+            return
+        }
+        
         let vc = storyboard?.instantiateViewController(identifier: "support_vc") as! SupportViewController
         vc.claim = channelClaim!
         vc.modalPresentationStyle = .overCurrentContext

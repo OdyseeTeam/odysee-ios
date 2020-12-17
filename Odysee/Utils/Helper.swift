@@ -140,4 +140,88 @@ final class Helper {
         let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
         return CGFloat(window.frame.maxY - safeAreaFrame.maxY + 2)
     }
+    
+    static func makeid() -> String {
+        let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        return String((0..<24).map{ _ in chars.randomElement()! })
+    }
+    
+    static func uploadImage(image: UIImage, completion: @escaping (String?, Error?) -> Void) {
+        var mimeType: String? = nil
+        var imageData: Data? = nil
+        var filename: String? = nil
+        if let pngData = image.pngData() {
+            mimeType = "image/png"
+            imageData = pngData
+            filename = "image.png"
+        } else if let jpegData = image.jpegData(compressionQuality: 0.9) {
+            mimeType = "image/jpeg"
+            imageData = jpegData
+            filename = "image.jpg"
+        }
+        if mimeType == nil || imageData == nil {
+            completion(nil, GenericError("The selcted image could not be uploaded"))
+            return
+        }
+        
+        let name = makeid()
+        let boundary = "Boundary-\(UUID().uuidString)"
+        var fieldData = "--\(boundary)\r\n"
+        fieldData.append("Content-Disposition: form-data; name=\"name\"\r\n\r\n\(name)\r\n")
+        
+        let data = NSMutableData()
+        data.append("--\(boundary)\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(filename!)\"\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append("Content-Type: \(mimeType!)\r\n\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append(imageData!)
+        data.append("\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        
+        let reqBody = NSMutableData()
+        reqBody.append(fieldData.data(using: .utf8, allowLossyConversion: false)!)
+        reqBody.append(data as Data)
+        reqBody.append("--\(boundary)--\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        
+        var req = URLRequest(url: URL(string: "https://spee.ch/api/claim/publish")!)
+        req.httpMethod = "POST"
+        req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        req.setValue(String(reqBody.count), forHTTPHeaderField: "Content-Length")
+        req.httpBody = reqBody as Data
+        
+        let task = URLSession.shared.dataTask(with: req) { data, response, error in
+            guard let data = data, error == nil else {
+                completion(nil, error)
+                return
+            }
+            
+            do {
+                let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                /*if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
+                   print(JSONString)
+                }*/
+                let success = respData?["success"] as? Bool
+                if success != nil && success! {
+                    if let responseData = respData?["data"] as? [String: Any] {
+                        completion(responseData["url"] as? String, nil)
+                        return
+                    }
+                }
+            } catch {
+                // failure condition
+            }
+            
+            completion(nil, GenericError("The image upload failed. Please try again."))
+        }
+        task.resume()
+    }
+}
+
+struct GenericError: Error {
+    let message: String
+
+    init(_ message: String) {
+        self.message = message
+    }
+    public var localizedDescription: String {
+        return message
+    }
 }

@@ -81,5 +81,9 @@
 	</array>
     <key>FirebaseAutomaticScreenReportingEnabled</key>
     <false/>
+    <key>NSCameraUsageDescription</key>
+    <string>Odysee requires access to your camera to take photos.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Odysee requires access to your photo library.</string>
 </dict>
 </plist>

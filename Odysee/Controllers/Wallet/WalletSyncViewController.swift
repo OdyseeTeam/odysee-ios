@@ -137,7 +137,11 @@ class WalletSyncViewController: UIViewController {
             appDelegate.mainController.startWalletBalanceTimer()
             
             let vcs = self.navigationController?.viewControllers;
-            let targetVc = vcs![max(0, vcs!.count - 3)];
+            let index = max(0, vcs!.count - 2)
+            var targetVc = vcs![index]
+            if targetVc == self {
+                targetVc = vcs![index - 1]
+            }
             self.navigationController?.popToViewController(targetVc, animated: true)
         }
     }

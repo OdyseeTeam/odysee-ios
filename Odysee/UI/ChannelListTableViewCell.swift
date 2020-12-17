@@ -28,10 +28,6 @@ class ChannelListTableViewCell: UITableViewCell {
 
         // Configure the view for the selected state
     }
-    
-    override func delete(_ sender: Any?) {
-        
-    }
 
     func setClaim(claim: Claim) {
         if (currentClaim != nil && claim.claimId != currentClaim!.claimId) {

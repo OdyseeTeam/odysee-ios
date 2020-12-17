@@ -420,12 +420,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
                 let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
                 do {
                     let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if (claim != nil && !(claim?.claimId ?? "").isBlank && !self.relatedContent.contains(where: { $0.claimId == claim?.claimId })) {
+                    if (claim != nil && !(claim?.claimId ?? "").isBlank && self.claim!.claimId != claim!.claimId &&
+                            !self.relatedContent.contains(where: { $0.claimId == claim?.claimId })) {
                         Lbry.addClaimToCache(claim: claim)
                         claimResults.append(claim!)
                     }
-                } catch let error {
-                    print(error)
+                } catch {
+                    // pass
                 }
             }
             self.relatedContent.append(contentsOf: claimResults)
@@ -667,6 +668,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     @IBAction func supportActionTapped(_ sender: Any) {
+        if !Lbryio.isSignedIn() {
+            showUAView()
+            return
+        }
+        
         let vc = storyboard?.instantiateViewController(identifier: "support_vc") as! SupportViewController
         vc.claim = claim!
         vc.modalPresentationStyle = .overCurrentContext

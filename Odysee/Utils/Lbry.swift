@@ -23,6 +23,7 @@ final class Lbry {
     static let methodResolve = "resolve"
     
     static let methodAddressUnused = "address_unused"
+    static let methodChannelAbandon = "channel_abandon"
     static let methodChannelCreate = "channel_create"
     static let methodChannelUpdate = "channel_update"
     static let methodClaimList = "claim_list"
@@ -83,7 +84,7 @@ final class Lbry {
             do {
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   //print(JSONString)
+                   //ooprint(JSONString)
                 }
                 
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
@@ -93,11 +94,11 @@ final class Lbry {
                     if response?["error"] == nil && response?["result"] == nil {
                         completion(nil, nil)
                     } else if (response?["error"] as? String != nil) {
-                        completion(nil, LbryApiResponseError.runtimeError(response?["error"] as! String))
+                        completion(nil, LbryApiResponseError(response?["error"] as! String))
                     } else if let errorJson = response?["error"] as? [String: Any] {
-                        completion(nil, LbryApiResponseError.runtimeError(errorJson["message"] as! String))
+                        completion(nil, LbryApiResponseError(errorJson["message"] as! String))
                     } else {
-                        completion(nil, LbryApiResponseError.runtimeError("unknown api error"))
+                        completion(nil, LbryApiResponseError("unknown api error"))
                     }
                 }
             } catch let error {
@@ -457,6 +458,12 @@ final class Lbry {
     }
 }
 
-enum LbryApiResponseError: Error {
-    case runtimeError(String)
+struct LbryApiResponseError: Error {
+    let message: String
+    init (_ message: String) {
+        self.message = message
+    }
+    public var localizedDescription: String {
+        return message
+    }
 }

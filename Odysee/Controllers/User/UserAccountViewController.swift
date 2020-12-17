@@ -37,6 +37,7 @@ class UserAccountViewController: UIViewController {
         super.viewWillAppear(animated)
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
         appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
     
@@ -73,8 +74,12 @@ class UserAccountViewController: UIViewController {
     
     @IBAction func closeButtonTapped(_ sender: Any) {
         let vcs = self.navigationController?.viewControllers;
-        let targetVc = vcs![max(0, vcs!.count - 2)];
-        if let tabVc =  targetVc as? AppTabBarController {
+        let index = max(0, vcs!.count - 2)
+        var targetVc = vcs![index]
+        if targetVc == self {
+            targetVc = vcs![index - 1]
+        }
+        if let tabVc = targetVc as? AppTabBarController {
             tabVc.selectedIndex = 0
         }
         self.navigationController?.popToViewController(targetVc, animated: true)

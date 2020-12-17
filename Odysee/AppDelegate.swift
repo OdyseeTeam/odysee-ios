@@ -11,7 +11,7 @@ import UIKit
 import CoreData
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
     weak var mainViewController: UIViewController?
     weak var mainTabViewController: UITabBarController?
@@ -28,9 +28,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        
         FirebaseApp.configure()
         Helper.initFormatters()
+        
+        
+        UNUserNotificationCenter.current().delegate = self
+        let authOptions: UNAuthorizationOptions = [.alert, .badge, .sound]
+        UNUserNotificationCenter.current().requestAuthorization(options: authOptions, completionHandler: {_, _ in })
+        application.registerForRemoteNotifications()
         
         return true
     }
@@ -98,6 +103,45 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
-
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([[.banner, .sound]])
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let userInfo = response.notification.request.content.userInfo
+        handleNotification(userInfo: userInfo)
+        completionHandler()
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        handleNotification(userInfo: userInfo)
+        completionHandler(UIBackgroundFetchResult.newData)
+    }
+    
+    func handleNotification(userInfo: [AnyHashable: Any]) {
+        let finalTarget = userInfo["target"] as! String
+        
+        if (mainViewController != nil && mainNavigationController != nil) {
+            if mainController.handleSpecialUrl(url: finalTarget) {
+                return
+            }
+            
+            let lbryUrl = LbryUri.tryParse(url: finalTarget, requireProto: false)
+            if lbryUrl != nil {
+                if lbryUrl!.isChannelUrl() {
+                    let vc = mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                    vc.claimUrl = lbryUrl
+                    mainNavigationController?.pushViewController(vc, animated: true)
+                } else {
+                    let vc = mainViewController?.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                    vc.claimUrl = lbryUrl
+                    mainNavigationController?.pushViewController(vc, animated: true)
+                }
+            }
+        } else {
+            pendingOpenUrl = finalTarget
+        }
+    }
 }
 

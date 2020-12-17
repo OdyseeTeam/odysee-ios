@@ -66,11 +66,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         channelListView.isHidden = channels.count <= 1
         noChannelsView.isHidden = true
         
-        var options = Dictionary<String, Any>()
-        options["claim_type"] = ["channel"]
-        options["page"] = 1
-        options["page_size"] = 999
-        options["resolve"] = true
+        let options: Dictionary<String, Any> = ["claim_type": "channel", "page": 1, "page_size": 999, "resolve": true]
         Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let data = data, error == nil else {
                 self.showError(error: error)
@@ -110,6 +106,16 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         })
     }
     
+    func abandonChannel(channel: Claim) {
+        let params: Dictionary<String, Any> = ["claim_id": channel.claimId!, "blocking": true]
+        Lbry.apiCall(method: Lbry.methodChannelAbandon, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+            guard let _ = data, error == nil else {
+                self.showError(error: error)
+                return
+            }
+        })
+    }
+    
     func checkNoChannels() {
         DispatchQueue.main.async {
             self.channelListView.isHidden = self.channels.count <= 1
@@ -138,6 +144,32 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             vc.currentClaim = claim
         }
         self.navigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // abandon channel
+            let claim: Claim = channels[indexPath.row]
+            if claim.claimId == "new" {
+                return
+            }
+            
+            if claim.confirmations ?? 0 == 0 {
+                // pending claim
+                self.showError(message: "You cannot remove a pending channel. Please try again later.")
+                return
+            }
+            
+            // show confirmation dialog before deleting
+            let alert = UIAlertController(title: String.localized("Abandon channel?"), message: String.localized("Are you sure you want to delete this channel?"), preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
+                self.abandonChannel(channel: claim)
+                self.channels.remove(at: indexPath.row)
+                tableView.deleteRows(at: [indexPath], with: .fade)
+            }))
+            alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+            present(alert, animated: true)
+        }
     }
     
     func showError(message: String?) {
