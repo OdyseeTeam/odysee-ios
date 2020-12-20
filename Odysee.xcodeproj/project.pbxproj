@@ -28,6 +28,7 @@
 		642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B10257B4CBC00F17355 /* Transaction.swift */; };
 		642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B15257B528300F17355 /* TransactionTableViewCell.swift */; };
 		642B6B1B257B698C00F17355 /* TransactionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B1A257B698C00F17355 /* TransactionsViewController.swift */; };
+		643382A3258DB119004B562B /* RewardTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 643382A2258DB119004B562B /* RewardTableViewCell.swift */; };
 		64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DCE25588D0C00F2D247 /* ClaimTableViewCell.swift */; };
 		64424DDA255895A500F2D247 /* ContentSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DD9255895A500F2D247 /* ContentSources.swift */; };
 		644F76AE25592F8400813451 /* FileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76AD25592F8400813451 /* FileViewController.swift */; };
@@ -54,6 +55,9 @@
 		64A6CA7B255DD34700294E74 /* AppTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA7A255DD34700294E74 /* AppTabBarController.swift */; };
 		64CB288225768A9A00FE48B3 /* Snackbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CB288125768A9A00FE48B3 /* Snackbar.swift */; };
 		64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */; };
+		64D72BB5258C54B100F5C4E3 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 64D72BB4258C54B100F5C4E3 /* Secrets.plist */; };
+		64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D72BB9258C952A00F5C4E3 /* RewardVerified.swift */; };
+		64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D72BC2258CDEC400F5C4E3 /* Reward.swift */; };
 		64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE79C25502A290082AF2E /* AppDelegate.swift */; };
 		64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE79E25502A290082AF2E /* SceneDelegate.swift */; };
 		64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7A025502A290082AF2E /* HomeViewController.swift */; };
@@ -103,6 +107,7 @@
 		642B6B10257B4CBC00F17355 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		642B6B15257B528300F17355 /* TransactionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTableViewCell.swift; sourceTree = "<group>"; };
 		642B6B1A257B698C00F17355 /* TransactionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionsViewController.swift; sourceTree = "<group>"; };
+		643382A2258DB119004B562B /* RewardTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardTableViewCell.swift; sourceTree = "<group>"; };
 		64424DCE25588D0C00F2D247 /* ClaimTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimTableViewCell.swift; sourceTree = "<group>"; };
 		64424DD9255895A500F2D247 /* ContentSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSources.swift; sourceTree = "<group>"; };
 		644F76AD25592F8400813451 /* FileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewController.swift; sourceTree = "<group>"; };
@@ -127,6 +132,10 @@
 		64A6CA7A255DD34700294E74 /* AppTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarController.swift; sourceTree = "<group>"; };
 		64CB288125768A9A00FE48B3 /* Snackbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snackbar.swift; sourceTree = "<group>"; };
 		64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingViewController.swift; sourceTree = "<group>"; };
+		64D72BB4258C54B100F5C4E3 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.plist; sourceTree = "<group>"; };
+		64D72BB9258C952A00F5C4E3 /* RewardVerified.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerified.swift; sourceTree = "<group>"; };
+		64D72BBE258CD8AE00F5C4E3 /* StoreConfig.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = StoreConfig.storekit; sourceTree = "<group>"; };
+		64D72BC2258CDEC400F5C4E3 /* Reward.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reward.swift; sourceTree = "<group>"; };
 		64FBE79925502A290082AF2E /* Odysee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Odysee.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64FBE79C25502A290082AF2E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		64FBE79E25502A290082AF2E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -220,6 +229,7 @@
 				646E54DC257DCD6100BEBFBE /* UIPaddedLabel.swift */,
 				64666AF52587290200DF4608 /* ChannelListTableViewCell.swift */,
 				640BEF332587DB5D0019B840 /* NotificationTableViewCell.swift */,
+				643382A2258DB119004B562B /* RewardTableViewCell.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -274,6 +284,8 @@
 				642B6B06257A635300F17355 /* WalletSync.swift */,
 				646E54E1257E276400BEBFBE /* LbrySubscription.swift */,
 				640BEF2E2587A8FA0019B840 /* LbryNotification.swift */,
+				64D72BB9258C952A00F5C4E3 /* RewardVerified.swift */,
+				64D72BC2258CDEC400F5C4E3 /* Reward.swift */,
 			);
 			path = Lbryinc;
 			sourceTree = "<group>";
@@ -337,6 +349,8 @@
 				64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */,
 				64FBE7AD25502A2C0082AF2E /* Info.plist */,
 				64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */,
+				64D72BB4258C54B100F5C4E3 /* Secrets.plist */,
+				64D72BBE258CD8AE00F5C4E3 /* StoreConfig.storekit */,
 			);
 			path = Odysee;
 			sourceTree = "<group>";
@@ -474,6 +488,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */,
+				64D72BB5258C54B100F5C4E3 /* Secrets.plist in Resources */,
 				641615052581267B003A2194 /* GoogleService-Info.plist in Resources */,
 				64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */,
 				64FBE7A425502A290082AF2E /* Main.storyboard in Resources */,
@@ -509,6 +524,7 @@
 				646D563F2584FAD4002DB12F /* RewardsViewController.swift in Sources */,
 				641327492556EB3400CBB6B8 /* Lbry.swift in Sources */,
 				646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */,
+				64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */,
 				641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */,
 				64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */,
 				648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */,
@@ -528,6 +544,7 @@
 				641108F1255AF6CE00F0FB8A /* Helper.swift in Sources */,
 				64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */,
 				64424DDA255895A500F2D247 /* ContentSources.swift in Sources */,
+				643382A3258DB119004B562B /* RewardTableViewCell.swift in Sources */,
 				641108EC255AA4CF00F0FB8A /* User.swift in Sources */,
 				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
@@ -537,6 +554,7 @@
 				640BEF2F2587A8FA0019B840 /* LbryNotification.swift in Sources */,
 				64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */,
 				646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */,
+				64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */,
 				640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,

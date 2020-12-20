@@ -10,7 +10,16 @@ import Foundation
 final class Lighthouse {
     static let connectionString = "https://lighthouse.lbry.com"
     
+    static var relatedContentCache: Dictionary<String, Any> = [:]
+    
     static func search(rawQuery: String, size: Int, from: Int, relatedTo: String?, completion: @escaping ([[String: Any]]?, Error?) -> Void) {
+        if !(relatedTo ?? "").isBlank {
+            if let respData = relatedContentCache[String(format: "%@:%@", relatedTo!, rawQuery)] {
+                completion(respData as? [[String: Any]], nil)
+                return
+            }
+        }
+        
         var queryItems: [URLQueryItem] = []
         queryItems.append(URLQueryItem(name: "s", value: rawQuery))
         queryItems.append(URLQueryItem(name: "size", value: String(size)))
@@ -42,6 +51,9 @@ final class Lighthouse {
                 }
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]]
                 if (respCode == 200) {
+                    if !(relatedTo ?? "").isBlank {
+                        relatedContentCache[String(format: "%@:%@", relatedTo!, rawQuery)] = respData
+                    }
                     completion(respData, nil)
                 } else {
                     completion([], nil)

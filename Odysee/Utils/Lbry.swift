@@ -84,7 +84,7 @@ final class Lbry {
             do {
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   //ooprint(JSONString)
+                   //print(JSONString)
                 }
                 
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]

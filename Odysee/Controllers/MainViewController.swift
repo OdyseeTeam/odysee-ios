@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import OAuthSwift
 import UIKit
 
 class MainViewController: UIViewController {
@@ -331,6 +332,11 @@ class MainViewController: UIViewController {
     func handleSpecialUrl(url: String) -> Bool {
         if url.starts(with: "lbry://?") {
             let destination = String(url.suffix(from: url.index(url.firstIndex(of: "?")!, offsetBy: 1)))
+            
+            if destination.starts(with: "oauthcb") {
+                OAuthSwift.handle(url: URL(string: url)!)
+                return true
+            }
             
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             if destination == "subscriptions" || destination == "subscription" || destination == "following" {

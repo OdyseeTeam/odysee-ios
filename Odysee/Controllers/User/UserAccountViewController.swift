@@ -79,6 +79,9 @@ class UserAccountViewController: UIViewController {
         if targetVc == self {
             targetVc = vcs![index - 1]
         }
+        if targetVc is NotificationsViewController {
+            targetVc = vcs![index - 1]
+        }
         if let tabVc = targetVc as? AppTabBarController {
             tabVc.selectedIndex = 0
         }

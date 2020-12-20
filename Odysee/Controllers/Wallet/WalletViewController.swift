@@ -11,7 +11,6 @@ import UIKit
 
 class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, WalletBalanceObserver {
     let keyBalanceObserver = "wallet_vc"
-    let keyReceiveAddress = "walletReceiveAddress"
     let currencyFormatter = NumberFormatter()
     
     var loadingRecentTransactions = false
@@ -108,7 +107,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func checkReceiveAddress() {
         let defaults = UserDefaults.standard
-        let receiveAddress = defaults.string(forKey: keyReceiveAddress)
+        let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
         if ((receiveAddress ?? "").isBlank) {
             getNewReceiveAddress()
             return
@@ -185,7 +184,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             let newAddress = data["result"] as! String
             DispatchQueue.main.async {
                 let defaults = UserDefaults.standard
-                defaults.setValue(newAddress, forKey: self.keyReceiveAddress)
+                defaults.setValue(newAddress, forKey: Helper.keyReceiveAddress)
                 self.receiveAddressTextField.text = newAddress
                 //self.getNewAddressButton.isEnabled = true
             }
@@ -306,16 +305,22 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     func showMessage(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showMessage(message: message)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showMessage(message: message)
+        }
     }
     func showError(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(message: message)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(message: message)
+        }
     }
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(error: error)
+        }
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {

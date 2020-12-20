@@ -67,7 +67,11 @@ final class Lbryio {
             requestUrl = urlComponents?.url!
         }
 
-        let session = URLSession.shared
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.urlCache = nil
+        
+        let session = URLSession(configuration: config)
         var req = URLRequest(url: requestUrl!)
         req.httpMethod = method
         if (method.lowercased() == methodPost.lowercased()) {
@@ -89,7 +93,7 @@ final class Lbryio {
                 
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   //print(JSONString)
+                   print(JSONString)
                 }
                 
                 if (respCode >= 200 && respCode < 300) {

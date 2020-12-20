@@ -88,6 +88,7 @@ class ChannelEditorViewController: UIViewController, UIGestureRecognizerDelegate
         }
         if currentClaim?.value!.thumbnail != nil && !(currentClaim?.value!.thumbnail!.url ?? "").isBlank {
             let thumbnailUrl = currentClaim!.value!.thumbnail!.url!
+            thumbnailImageView.backgroundColor = UIColor.clear
             thumbnailImageView.load(url: URL(string: thumbnailUrl)!)
         }
     }

@@ -26,6 +26,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     @IBOutlet weak var titleArea: UIView!
     @IBOutlet weak var publisherArea: UIView!
+    @IBOutlet weak var titleAreaIconView: UIImageView!
     @IBOutlet weak var descriptionArea: UIView!
     @IBOutlet weak var descriptionDivider: UIView!
     
@@ -226,8 +227,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     func displayClaim() {
         resolvingView.isHidden = true
-        print(resolvingView.isHidden)
-        
+        descriptionArea.isHidden = true
+        descriptionDivider.isHidden = true
+        displayRelatedPlaceholders()
         
         titleLabel.text = claim?.value?.title
         
@@ -299,6 +301,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         playerObserverAdded = true
         playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
         avpc.player?.play()
+    }
+    
+    func displayRelatedPlaceholders() {
+        relatedContent = []
+        for _ in 1...15 {
+            let placeholder = Claim()
+            placeholder.claimId = "placeholder"
+            relatedContent.append(placeholder)
+        }
+        relatedContentListView.reloadData()
     }
     
     func checkTimeToStart() {
@@ -416,6 +428,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             
             var claimResults: [Claim] = []
             let result = data["result"] as! NSDictionary
+            self.relatedContent = []
             for (_, claimData) in result {
                 let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
                 do {
@@ -471,6 +484,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = relatedContent[indexPath.row]
+        if claim.claimId == "placeholder" {
+            return
+        }
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
@@ -688,6 +704,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             let vc = SFSafariViewController(url: url)
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.present(vc, animated: true, completion: nil)
+        }
+    }
+    
+    @IBAction func titleAreaTapped(_ sender: Any) {
+        if descriptionArea.isHidden {
+            descriptionArea.isHidden = false
+            descriptionDivider.isHidden = false
+            titleAreaIconView.image = UIImage.init(systemName: "chevron.up")
+        } else {
+            descriptionArea.isHidden = true
+            descriptionDivider.isHidden = true
+            titleAreaIconView.image = UIImage.init(systemName: "chevron.down")
         }
     }
 }

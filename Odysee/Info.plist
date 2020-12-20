@@ -15,7 +15,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.0.13</string>
+	<string>0.0.14</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -32,7 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>17</string>
+	<string>18</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -79,11 +79,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-    <key>FirebaseAutomaticScreenReportingEnabled</key>
-    <false/>
-    <key>NSCameraUsageDescription</key>
-    <string>Odysee requires access to your camera to take photos.</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Odysee requires access to your photo library.</string>
+	<key>FirebaseAutomaticScreenReportingEnabled</key>
+	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>Odysee requires access to your camera to take photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Odysee requires access to your photo library.</string>
 </dict>
 </plist>

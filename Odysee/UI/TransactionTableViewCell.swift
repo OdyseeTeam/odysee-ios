@@ -11,7 +11,6 @@ import UIKit
 class TransactionTableViewCell: UITableViewCell {
     
     var tx: Transaction?
-    let txLinkPrefix = "https://explorer.lbry.com/tx"
     
     @IBOutlet weak var descriptionLabel: UILabel!
     @IBOutlet weak var amountLabel: UILabel!
@@ -76,11 +75,10 @@ class TransactionTableViewCell: UITableViewCell {
             }
         }
     }
-
     
     @objc func txidTapped(_ sender: Any) {
         if tx != nil {
-            if let url = URL(string: String(format: "%@/%@", txLinkPrefix, tx!.txid!)) {
+            if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, tx!.txid!)) {
                 let vc = SFSafariViewController(url: url)
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 appDelegate.mainController.present(vc, animated: true, completion: nil)

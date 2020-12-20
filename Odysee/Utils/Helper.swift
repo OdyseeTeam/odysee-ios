@@ -12,6 +12,8 @@ import UIKit
 final class Helper {
     static let minimumSpend: Decimal = 0.0001
     static let minimumDeposit: Decimal = 0.001
+    static let txLinkPrefix = "https://explorer.lbry.com/tx"
+    static let keyReceiveAddress = "walletReceiveAddress"
     
     static let primaryColor: UIColor = UIColor.init(red: 229.0/255.0, green: 0, blue: 84.0/255.0, alpha: 1)
     static let lightPrimaryColor: UIColor = UIColor.init(red: 250.0/255.0, green: 97.0/255.0, blue: 101.0/255.0, alpha: 1)
@@ -150,14 +152,14 @@ final class Helper {
         var mimeType: String? = nil
         var imageData: Data? = nil
         var filename: String? = nil
-        if let pngData = image.pngData() {
-            mimeType = "image/png"
-            imageData = pngData
-            filename = "image.png"
-        } else if let jpegData = image.jpegData(compressionQuality: 0.9) {
+        if let jpegData = image.jpegData(compressionQuality: 0.9) {
             mimeType = "image/jpeg"
             imageData = jpegData
             filename = "image.jpg"
+        } else if let pngData = image.pngData() {
+            mimeType = "image/png"
+            imageData = pngData
+            filename = "image.png"
         }
         if mimeType == nil || imageData == nil {
             completion(nil, GenericError("The selcted image could not be uploaded"))
@@ -195,13 +197,10 @@ final class Helper {
             
             do {
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                /*if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   print(JSONString)
-                }*/
                 let success = respData?["success"] as? Bool
                 if success != nil && success! {
                     if let responseData = respData?["data"] as? [String: Any] {
-                        completion(responseData["url"] as? String, nil)
+                        completion(responseData["serveUrl"] as? String, nil)
                         return
                     }
                 }

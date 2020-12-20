@@ -41,10 +41,22 @@ class ClaimTableViewCell: UITableViewCell {
             }
         }
         
+        thumbnailImageView.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
+        titleLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
+        publisherLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
+        publishTimeLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
+        durationView.isHidden = claim.claimId == "placeholder"
+        
+        if claim.claimId == "placeholder" {
+            titleLabel.text = " "
+            publisherLabel.text = " "
+            publishTimeLabel.text = " "
+            return
+        }
+        
         if channelImageView != nil {
             channelImageView.rounded()
         }
-        
         currentClaim = claim
         
         let isChannel = claim.name!.starts(with: "@")
