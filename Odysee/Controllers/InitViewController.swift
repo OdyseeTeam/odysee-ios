@@ -28,7 +28,11 @@ class InitViewController: UIViewController {
         }
         
         Lbryio.authToken = defaults.string(forKey: Lbryio.keyAuthToken)
-        print("********" + Lbryio.authToken!)
+        if (Lbryio.authToken == nil) {
+            print("******** No AuthToken in UserDefaults.standard")
+        } else {
+            print("********" + Lbryio.authToken!)
+        }
         
         Lbryio.loadExchangeRate(completion: { rate, error in
             // don't bother with error checks here, simply proceed to authenticate
