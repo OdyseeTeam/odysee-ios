@@ -25,6 +25,7 @@ final class Lbryio {
     static var followedUrls: [String] = [] // simple cache of followed urls
     static var cachedSubscriptions: Dictionary<String, LbrySubscription> = Dictionary<String, LbrySubscription>()
     static var cachedNotifications: [LbryNotification] = []
+    static var latestNotificationId: Int64 = 0
     
     static func call(resource: String, action: String, options: Dictionary<String, String>?, method: String, authTokenOverride: String? = nil, completion: @escaping (Any?, Error?) -> Void) throws {
         let url = String(format: "%@/%@/%@", connectionString, resource, action)

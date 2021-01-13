@@ -9,14 +9,22 @@ import UIKit
 
 class InitViewController: UIViewController {
 
+    @IBOutlet weak var errorView: UIView!
     @IBOutlet weak var errorLabel: UILabel!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+    var initErrorState = false
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if initErrorState {
+            
+        }
+    }
     
     // Init process flow
     // 1. loadExchangeRate
     // 2. loadAndCacheRemoteSubscriptions
     // 3. authenticateAndRegisterInstall
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -28,7 +36,6 @@ class InitViewController: UIViewController {
         }
         
         Lbryio.authToken = defaults.string(forKey: Lbryio.keyAuthToken)
-        print("********" + Lbryio.authToken!)
         
         Lbryio.loadExchangeRate(completion: { rate, error in
             // don't bother with error checks here, simply proceed to authenticate
@@ -41,6 +48,7 @@ class InitViewController: UIViewController {
             try Lbryio.fetchCurrentUser(completion: { user, error in
                 if (error != nil || user == nil) {
                     // show a startup error message
+                    self.initErrorState = true
                     self.showError() // TODO: Show more meaningful errors for /user/me failures?
                     return
                 }
@@ -52,6 +60,7 @@ class InitViewController: UIViewController {
         } catch {
             // user/me failed
             // show eror message
+            initErrorState = true
             showError()
         }
     }
@@ -60,7 +69,7 @@ class InitViewController: UIViewController {
         Lbryio.newInstall(completion: { error in
             if (error != nil) {
                 // show error
-                print(error!)
+                self.initErrorState = true
                 self.showError()
                 return
             }
@@ -68,9 +77,9 @@ class InitViewController: UIViewController {
             // successful authentication and install registration
             // open the main application interface
             DispatchQueue.main.async {
-                let main = self.storyboard?.instantiateViewController(identifier: "main_vc") as! UIViewController
-                main.modalPresentationStyle = .currentContext
-                self.present(main, animated: true)
+                let main = self.storyboard?.instantiateViewController(identifier: "main_vc")
+                main!.modalPresentationStyle = .currentContext
+                self.present(main!, animated: true)
             }
         })
     }
@@ -110,13 +119,28 @@ class InitViewController: UIViewController {
         }
     }
     
-    func showError() {
+    func showLoading() {
         DispatchQueue.main.async {
-            self.loadingIndicator.isHidden = true
-            self.errorLabel.isHidden = false
+            self.loadingIndicator.isHidden = false
+            self.errorView.isHidden = true
         }
     }
     
+    func showError() {
+        DispatchQueue.main.async {
+            self.loadingIndicator.isHidden = true
+            self.errorView.isHidden = false
+        }
+    }
+    
+    @IBAction func retryTapped(_ sender: UIButton) {
+        showLoading()
+        initErrorState = false
+        Lbryio.loadExchangeRate(completion: { rate, error in
+            // don't bother with error checks here, simply proceed to authenticate
+            self.loadAndCacheSubscriptions()
+        })
+    }
 
     /*
     // MARK: - Navigation

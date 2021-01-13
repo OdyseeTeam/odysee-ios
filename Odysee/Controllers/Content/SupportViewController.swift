@@ -230,7 +230,6 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             params["channel_id"] = selectedClaim.claimId
         }
         
-        
         Lbry.apiCall(method: Lbry.methodSupportCreate, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let _ = data, error == nil else {
                 self.showError(error: error)

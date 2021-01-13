@@ -21,9 +21,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var player: AVPlayer?
     var currentClaim: Claim?
     var pendingOpenUrl: String?
+    var currentFileViewController: FileViewController?
+    var playerObserverAdded: Bool = false
     
     var mainController: MainViewController {
         return mainViewController as! MainViewController
+    }
+    
+    func registerPlayerObserver() {
+        if player != nil && !playerObserverAdded {
+            player!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
+            playerObserverAdded = true
+        }
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if object as AnyObject? === player {
+            if keyPath == "timeControlStatus" && player!.timeControlStatus == .playing {
+                if currentFileViewController != nil {
+                    currentFileViewController!.checkTimeToStart()
+                }
+                return
+            }
+        }
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -142,6 +162,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         } else {
             pendingOpenUrl = finalTarget
         }
+    }
+    
+    func resetPlayerObserver() {
+        playerObserverAdded = false
     }
 }
 

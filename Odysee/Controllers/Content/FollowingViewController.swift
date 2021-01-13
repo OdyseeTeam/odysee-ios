@@ -145,7 +145,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         do {
             try Lbryio.call(resource: "subscription", action: "list", options: nil, method: Lbryio.methodGet, completion: { data, error in
                 guard let data = data, error == nil else {
-                    print(error)
+                    print(error!)
                     return
                 }
                 
@@ -210,7 +210,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         updateSuggestedClaimSearchOptions()
         Lbry.apiCall(method: Lbry.methodClaimSearch, params: suggestedClaimSearchOptions, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
                 guard let data = data, error == nil else {
-                    print(error)
+                    print(error!)
                     return
                 }
                 
@@ -450,7 +450,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             let subUrl: LbryUri = try LbryUri.parse(url: (claim?.permanentUrl!)!, requireProto: false)
             try Lbryio.call(resource: "subscription", action: unsubscribing ? "delete" : "new", options: options, method: Lbryio.methodGet, completion: { data, error in
                 guard let _ = data, error == nil else {
-                    print(error)
+                    print(error!)
                     return
                 }
 

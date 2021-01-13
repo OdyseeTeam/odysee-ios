@@ -44,11 +44,11 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(method: Lbry.methodWalletStatus, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             
             guard let data = data, error == nil else {
-                print(error)
+                print(error!)
                 return
             }
             
-            var result = data["result"] as! [String: Any]
+            let result = data["result"] as! [String: Any]
             let walletIsLocked = result["is_locked"] as! Bool
             if (walletIsLocked) {
                 self.unlockWalletForSync()
@@ -63,11 +63,11 @@ class WalletSyncViewController: UIViewController {
         params["password"] = ""
         Lbry.apiCall(method: Lbry.methodWalletUnlock, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let data = data, error == nil else {
-                print(error)
+                print(error!)
                 return
             }
             
-            var unlocked = data["result"] as! Bool
+            let unlocked = data["result"] as! Bool
             if (unlocked) {
                 self.obtainHashForSync()
             } else {
@@ -80,7 +80,7 @@ class WalletSyncViewController: UIViewController {
         // start by calling sync_hash to get hash and data
         Lbry.apiCall(method: Lbry.methodSyncHash, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let data = data, error == nil else {
-                print(error)
+                print(error!)
                 return
             }
             
@@ -136,13 +136,16 @@ class WalletSyncViewController: UIViewController {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.startWalletBalanceTimer()
             
-            let vcs = self.navigationController?.viewControllers;
-            let index = max(0, vcs!.count - 2)
-            var targetVc = vcs![index]
-            if targetVc == self {
-                targetVc = vcs![index - 1]
+            if let vcs = self.navigationController?.viewControllers {
+                let index = max(0, vcs.count - 2)
+                var targetVc = vcs[index]
+                if targetVc == self {
+                    targetVc = vcs[index - 1]
+                }
+                self.navigationController?.popToViewController(targetVc, animated: true)
+            } else {
+                self.navigationController?.popViewController(animated: true)
             }
-            self.navigationController?.popToViewController(targetVc, animated: true)
         }
     }
     
@@ -158,7 +161,7 @@ class WalletSyncViewController: UIViewController {
         // start by calling sync_hash to get hash and data
         Lbry.apiCall(method: Lbry.methodSyncApply, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let data = data, error == nil else {
-                print(error)
+                print(error!)
                 return
             }
             
@@ -167,7 +170,7 @@ class WalletSyncViewController: UIViewController {
             let walletData = result["data"] as! String
             Lbryio.syncSet(oldHash: "", newHash: hash, data: walletData, completion: { remoteHash, error in
                 guard let remoteHash = remoteHash, error == nil else {
-                    print(error)
+                    print(error!)
                     return
                 }
                 

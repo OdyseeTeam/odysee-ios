@@ -26,7 +26,9 @@ final class Lbry {
     static let methodChannelAbandon = "channel_abandon"
     static let methodChannelCreate = "channel_create"
     static let methodChannelUpdate = "channel_update"
+    static let methodCommentCreate = "comment_create"
     static let methodClaimList = "claim_list"
+    static let methodCommentList = "comment_list"
     static let methodPreferenceGet = "preference_get"
     static let methodPreferenceSet = "preference_set"
     static let methodSupportCreate = "support_create"
@@ -204,7 +206,7 @@ final class Lbry {
                 for urlString in subscriptionUrls! {
                     let url: LbryUri? = LbryUri.tryParse(url: urlString, requireProto: false)
                     if url != nil {
-                        sharedPrefSubs.append(buildSharedPreferenceSubscription(url!, following: following!))
+                        sharedPrefSubs.append(buildSharedPreferenceSubscription(url!, following: following ?? []))
                     }
                 }
                 
@@ -354,57 +356,61 @@ final class Lbry {
                 return
             }
             
-            let hash = data["result"] as! String
-            localWalletHash = hash
-            
-            Lbryio.syncGet(hash: hash, completion: { walletSync, needsNewWallet, wsError in
-                guard let walletSync = walletSync, wsError == nil else {
-                    print(wsError!)
-                    self.walletSyncInProgress = false
-                    return
-                }
-                
-                remoteWalletHash = walletSync.hash
-                if walletSync.changed! || localWalletHash != remoteWalletHash {
-                    // sync apply changes
-                    var params = Dictionary<String, Any>()
-                    params["password"] = ""
-                    params["data"] = walletSync.data
-                    params["blocking"] = true
-                    apiCall(method: methodSyncApply, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { saData, saError in
-                        guard let saData = saData, saError == nil else {
-                            print(saError!)
-                            if completion != nil {
-                                completion!(false)
-                            }
-                            self.walletSyncInProgress = false
-                            return
-                        }
-                        
-                        let result = saData["result"] as! [String: Any]
-                        let saHash = result["hash"] as! String
-                        localWalletHash = saHash
+            if let hash = data["result"] as? String {
+                localWalletHash = hash
+                Lbryio.syncGet(hash: hash, completion: { walletSync, needsNewWallet, wsError in
+                    guard let walletSync = walletSync, wsError == nil else {
+                        print(wsError!)
+                        self.walletSyncInProgress = false
+                        return
+                    }
                     
+                    remoteWalletHash = walletSync.hash
+                    if walletSync.changed! || localWalletHash != remoteWalletHash {
+                        // sync apply changes
+                        var params = Dictionary<String, Any>()
+                        params["password"] = ""
+                        params["data"] = walletSync.data
+                        params["blocking"] = true
+                        apiCall(method: methodSyncApply, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { saData, saError in
+                            guard let saData = saData, saError == nil else {
+                                print(saError!)
+                                if completion != nil {
+                                    completion!(false)
+                                }
+                                self.walletSyncInProgress = false
+                                return
+                            }
+                            
+                            let result = saData["result"] as! [String: Any]
+                            let saHash = result["hash"] as! String
+                            localWalletHash = saHash
+                        
+                            self.walletSyncInProgress = false
+                            self.loadSharedUserState(completion: { success, error in
+                                if completion != nil {
+                                    completion!(true)
+                                }
+                            })
+                            
+                            self.checkPushSyncQueue()
+                        })
+                    } else {
+                        // no changes applied
                         self.walletSyncInProgress = false
                         self.loadSharedUserState(completion: { success, error in
+                            // reload all the same
                             if completion != nil {
                                 completion!(true)
                             }
                         })
-                        
-                        self.checkPushSyncQueue()
-                    })
-                } else {
-                    // no changes applied
-                    self.walletSyncInProgress = false
-                    self.loadSharedUserState(completion: { success, error in
-                        // reload all the same
-                        if completion != nil {
-                            completion!(true)
-                        }
-                    })
-                }
-            })
+                    }
+                })
+                
+                return
+            }
+            
+            self.walletSyncInProgress = false
         })
     }
     
@@ -429,31 +435,36 @@ final class Lbry {
             guard let data = data, error == nil else {
                 self.walletSyncInProgress = false
                 self.checkPushSyncQueue()
-                print(error!)
                 return
             }
             
-            let result = data["result"] as! [String: Any]
-            let hash = result["hash"] as! String
-            let walletData = result["data"] as! String
-            
-            Lbry.localWalletHash = hash
-            Lbryio.syncSet(oldHash: remoteWalletHash!, newHash: hash, data: walletData, completion: { remoteHash, error in
-                guard let remoteHash = remoteHash, error == nil else {
-                    self.walletSyncInProgress = false
-                    self.checkPushSyncQueue()
-                    print(error!)
-                    return
-                }
+            if let result = data["result"] as? [String: Any] {
+                let hash = result["hash"] as! String
+                let walletData = result["data"] as! String
                 
-                Lbry.remoteWalletHash = remoteHash
-                if Lbry.remoteWalletHash != Lbry.localWalletHash {
-                    self.pullSyncWallet(completion: nil)
-                } else {
-                    self.walletSyncInProgress = false
-                    self.checkPushSyncQueue()
-                }
-            })
+                Lbry.localWalletHash = hash
+                Lbryio.syncSet(oldHash: remoteWalletHash!, newHash: hash, data: walletData, completion: { remoteHash, error in
+                    guard let remoteHash = remoteHash, error == nil else {
+                        self.walletSyncInProgress = false
+                        self.checkPushSyncQueue()
+                        print(error!)
+                        return
+                    }
+                    
+                    Lbry.remoteWalletHash = remoteHash
+                    if Lbry.remoteWalletHash != Lbry.localWalletHash {
+                        self.pullSyncWallet(completion: nil)
+                    } else {
+                        self.walletSyncInProgress = false
+                        self.checkPushSyncQueue()
+                    }
+                })
+                
+                return
+            }
+            
+            self.walletSyncInProgress = false
+            self.checkPushSyncQueue()
         })
     }
 }

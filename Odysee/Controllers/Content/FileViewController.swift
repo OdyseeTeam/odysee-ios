@@ -12,17 +12,7 @@ import Firebase
 import SafariServices
 import UIKit
 
-class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITableViewDelegate, UITableViewDataSource {
-    
-    var claim: Claim?
-    var claimUrl: LbryUri?
-    var subscribeUnsubscribeInProgress = false
-    var relatedContent: [Claim] = []
-    var loadingRelated = false
-    var fileViewLogged = false
-    var loggingInProgress = false
-    var playRequestTime: Int64 = 0
-    var playerObserverAdded = false
+class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
     
     @IBOutlet weak var titleArea: UIView!
     @IBOutlet weak var publisherArea: UIView!
@@ -56,6 +46,49 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var resolvingLoadingIndicator: UIActivityIndicatorView!
     @IBOutlet weak var resolvingLabel: UILabel!
     @IBOutlet weak var resolvingCloseButton: UIButton!
+
+    @IBOutlet weak var noCommentsLabel: UILabel!
+    @IBOutlet weak var relatedContentArea: UIView!
+    @IBOutlet weak var featuredCommentView: UIView!
+    @IBOutlet weak var featuredCommentThumbnail: UIImageView!
+    @IBOutlet weak var featuredCommentLabel: UILabel!
+    
+    @IBOutlet weak var commentsContainerView: UIView!
+    
+    @IBOutlet weak var fireReactionCountLabel: UILabel!
+    @IBOutlet weak var slimeReactionCountLabel: UILabel!
+    @IBOutlet weak var fireReactionImage: UIImageView!
+    @IBOutlet weak var slimeReactionImage: UIImageView!
+    
+    var commentsViewPresented = false
+    var commentAsPicker: UIPickerView!
+    var claim: Claim?
+    var claimUrl: LbryUri?
+    var subscribeUnsubscribeInProgress = false
+    var relatedContent: [Claim] = []
+    var channels: [Claim] = []
+    var loadingRelated = false
+    var fileViewLogged = false
+    var loggingInProgress = false
+    var playRequestTime: Int64 = 0
+    var playerObserverAdded: Bool = false
+    
+    
+    var commentsPageSize: Int = 50
+    var commentsCurrentPage: Int = 1
+    var commentsLastPageReached: Bool = false
+    var commentsLoading: Bool = false
+    var comments: [Comment] = []
+    var authorThumbnailMap: Dictionary<String, String> = [:]
+    
+    let reactionTypeLike = "like"
+    let reactionTypeDislike = "dislike"
+    
+    var numLikes = 0
+    var numDislikes = 0
+    var likesContent = false
+    var dislikesContent = false
+    var reacting = false
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -63,6 +96,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
         appDelegate.mainController.toggleMiniPlayer(hidden: true)
+        appDelegate.currentFileViewController = self
         
         if claim != nil {
             checkFollowing()
@@ -93,12 +127,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "File", AnalyticsParameterScreenClass: "FileViewController"])
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        
+        if claim != nil {
+            showClaimAndCheckFollowing()
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.currentClaim = claim
         appDelegate.mainController.updateMiniPlayer()
+        
+        if (appDelegate.player != nil) {
+            appDelegate.mainController.toggleMiniPlayer(hidden: false)
+        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -111,12 +154,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             }
             return
         }
-        if (appDelegate.player != nil) {
-            appDelegate.mainController.toggleMiniPlayer(hidden: false)
-            if playerObserverAdded {
-                appDelegate.player!.removeObserver(self, forKeyPath: "timeControlStatus")
-                playerObserverAdded = false
-            }
+        
+        if claim != nil {
+            showClaimAndCheckFollowing()
         }
     }
     
@@ -125,6 +165,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         
         checkRepost()
         relatedContentListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
+        featuredCommentThumbnail.rounded()
         
         // Do any additional setup after loading the view.
         if claim == nil && claimUrl != nil {
@@ -132,7 +173,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         } else if claim != nil {
             displayClaim()
             loadAndDisplayViewCount()
+            loadReactions()
             loadRelatedContent()
+            loadComments()
         } else {
             displayNothingAtLocation()
         }
@@ -141,7 +184,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     func showClaimAndCheckFollowing() {
         displayClaim()
         loadAndDisplayViewCount()
+        loadReactions()
         loadRelatedContent()
+        loadComments()
         
         checkFollowing()
         checkNotificationsDisabled()
@@ -292,15 +337,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         
         appDelegate.currentClaim = claim
         if (appDelegate.player != nil) {
-            appDelegate.player?.pause()
+            appDelegate.player!.pause()
         }
-        let videoUrl = URL(string: getStreamingUrl(claim: claim!))
+        
+        let streamingUrl = getStreamingUrl(claim: claim!)
+        let videoUrl = URL(string: streamingUrl)
+        if (videoUrl == nil) {
+            showError(message: String(format: "The streaming url could not be loaded: %@", streamingUrl))
+            return
+        }
+        appDelegate.playerObserverAdded = false
         appDelegate.player = AVPlayer(url: videoUrl!)
+        appDelegate.registerPlayerObserver()
         avpc.player = appDelegate.player
-        avpc.player!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
-        playerObserverAdded = true
         playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
-        avpc.player?.play()
+        avpc.player!.play()
     }
     
     func displayRelatedPlaceholders() {
@@ -364,27 +415,144 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     func loadAndDisplayViewCount() {
-        var options = Dictionary<String, String>()
-        options["claim_id"] = claim?.claimId
-        try! Lbryio.call(resource: "file", action: "view_count", options: options, method: Lbryio.methodGet, completion: { data, error in
-            if (error != nil) {
-                // could load the view count for display
-                DispatchQueue.main.async {
-                    self.viewCountLabel.isHidden = true
+        do {
+            let options: Dictionary<String, String> = ["claim_id": claim!.claimId!]
+            try Lbryio.call(resource: "file", action: "view_count", options: options, method: Lbryio.methodGet, completion: { data, error in
+                guard let data = data, error == nil else {
+                    // couldn't load the view count for display
+                    DispatchQueue.main.async {
+                        self.viewCountLabel.isHidden = true
+                    }
+                    return
                 }
-                return
+                DispatchQueue.main.async {
+                    let formatter = NumberFormatter()
+                    formatter.usesGroupingSeparator = true
+                    formatter.locale = Locale.current
+                    formatter.numberStyle = .decimal
+                    
+                    let viewCount = (data as! NSArray)[0] as! Int
+                    self.viewCountLabel.isHidden = false
+                    self.viewCountLabel.text = String(format: viewCount == 1 ? String.localized("%@ view") : String.localized("%@ views"), formatter.string(for: viewCount)!)
+                }
+            })
+        } catch {
+            // pass
+        }
+    }
+    
+    func loadReactions() {
+        do {
+            let claimId = claim!.claimId!
+            let options: Dictionary<String, String> = ["claim_ids": claimId]
+            try Lbryio.call(resource: "reaction", action: "list", options: options, method: Lbryio.methodPost, completion: { data, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                DispatchQueue.main.async {
+                    //let viewCount = (data as! NSArray)[0] as! Int
+                    self.numLikes = 0
+                    self.numDislikes = 0
+                    if let reactions = data as? [String: Any] {
+                        if let myReactions = reactions["my_reactions"] as? [String: Any] {
+                            let values = myReactions[claimId] as! [String: Any]
+                            let likeCount = values["like"] as? Int
+                            let dislikeCount = values["dislike"] as? Int
+                            if (likeCount ?? 0) > 0 {
+                                self.likesContent = true
+                                self.numLikes += 1
+                            }
+                            if (dislikeCount ?? 0) > 0 {
+                                self.dislikesContent = true
+                                self.numDislikes += 1
+                            }
+                        }
+                        if let othersReactions = reactions["others_reactions"] as? [String: Any] {
+                            let values = othersReactions[claimId] as! [String: Any]
+                            let likeCount = values["like"] as? Int
+                            let dislikeCount = values["dislike"] as? Int
+                            self.numLikes += likeCount ?? 0
+                            self.numDislikes += dislikeCount ?? 0
+                        }
+                    }
+                    
+                    self.displayReactionCounts()
+                    self.checkMyReactions()
+                }
+            })
+        } catch {
+            // pass
+        }
+    }
+    
+    func displayReactionCounts() {
+        let formatter = NumberFormatter()
+        formatter.usesGroupingSeparator = true
+        formatter.locale = Locale.current
+        formatter.numberStyle = .decimal
+    
+        DispatchQueue.main.async {
+            self.fireReactionCountLabel.text = formatter.string(for: self.numLikes)
+            self.slimeReactionCountLabel.text = formatter.string(for: self.numDislikes)
+        }
+    }
+    
+    func react(type: String) {
+        if reacting {
+            return
+        }
+        
+        reacting = true
+        do {
+            var remove = false
+            let claimId = claim!.claimId!
+            var options: Dictionary<String, String> = [
+                "claim_ids": claimId,
+                "type": type,
+                "clear_types": type == reactionTypeLike ? reactionTypeDislike : reactionTypeLike
+            ]
+            if (type == reactionTypeLike && likesContent) || (type == reactionTypeDislike && dislikesContent) {
+                remove = true
+                options["remove"] = "true"
             }
-            DispatchQueue.main.async {
-                let formatter = NumberFormatter()
-                formatter.usesGroupingSeparator = true
-                formatter.locale = Locale.current
-                formatter.numberStyle = .decimal
+            try Lbryio.call(resource: "reaction", action: "react", options: options, method: Lbryio.methodPost, completion: { data, error in
+                guard let _ = data, error == nil else {
+                    self.showError(error: error)
+                    return
+                }
                 
-                let viewCount = (data as! NSArray)[0] as! Int
-                self.viewCountLabel.isHidden = false
-                self.viewCountLabel.text = String(format: viewCount == 1 ? String.localized("%@ view") : String.localized("%@ views"), formatter.string(for: viewCount)!)
-            }
-        })
+                if type == self.reactionTypeLike {
+                    self.likesContent = !remove
+                    self.numLikes += (remove ? -1 : 1)
+                    if !remove && self.dislikesContent {
+                        self.numDislikes -= 1;
+                        self.dislikesContent = false
+                    }
+                }
+                if type == self.reactionTypeDislike {
+                    self.dislikesContent = !remove
+                    self.numDislikes += (remove ? -1 : 1)
+                    if !remove && self.likesContent {
+                        self.numLikes -= 1
+                        self.likesContent = false
+                    }
+                }
+                
+                self.displayReactionCounts()
+                self.checkMyReactions()
+                self.reacting = false
+            })
+        } catch let error {
+            showError(error: error)
+            self.reacting = false
+        }
+    }
+    
+    func checkMyReactions() {
+        DispatchQueue.main.async {
+            self.fireReactionImage.tintColor = self.likesContent ? Helper.fireActiveColor : UIColor.label
+            self.slimeReactionImage.tintColor = self.dislikesContent ? Helper.slimeActiveColor : UIColor.label
+        }
     }
     
     func loadRelatedContent() {
@@ -461,7 +629,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             }
         }
         if keyPath == "contentSize" {
-            if (change?[.newKey]) != nil {
+            if object as AnyObject? === relatedContentListView {
                 let contentHeight: CGFloat = relatedContentListView.contentSize.height
                 relatedContentListHeightConstraint.constant = contentHeight
             }
@@ -482,21 +650,54 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let claim: Claim = relatedContent[indexPath.row]
-        if claim.claimId == "placeholder" {
-            return
+        if tableView == relatedContentListView {
+            tableView.deselectRow(at: indexPath, animated: true)
+            let claim: Claim = relatedContent[indexPath.row]
+            if claim.claimId == "placeholder" {
+                return
+            }
+            
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+            vc.claim = claim
+            appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-        vc.claim = claim
-        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
     }
     
     @IBAction func closeTapped(_ sender: UIButton) {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    @IBAction func commentAreaTapped(_ sender: Any) {
+        if commentsViewPresented {
+            commentsContainerView.isHidden = false
+            return
+        }
+        
+        let vc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
+        vc.claimId = claim?.claimId!
+        vc.comments = comments
+        vc.authorThumbnailMap = authorThumbnailMap
+        
+        vc.willMove(toParent: self)
+        commentsContainerView.addSubview(vc.view)
+        self.addChild(vc)
+        vc.didMove(toParent: self)
+        
+        commentsContainerView.isHidden = false
+        commentsViewPresented = true
+    }
+    
+    func closeCommentsView() {
+        commentsContainerView.isHidden = true
+    }
+    
+    @IBAction func fireTapped(_ sender: Any) {
+        react(type: self.reactionTypeLike)
+    }
+    @IBAction func slimeTapped(_ sender: Any) {
+        react(type: self.reactionTypeDislike)
     }
     
     @IBAction func publisherTapped(_ sender: Any) {
@@ -658,6 +859,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         appDelegate.mainController.showError(error: error)
     }
     
+    func showError(message: String) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.showError(message: message)
+    }
+    
     func showMessage(message: String?) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.showMessage(message: message)
@@ -716,6 +922,106 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             descriptionArea.isHidden = true
             descriptionDivider.isHidden = true
             titleAreaIconView.image = UIImage.init(systemName: "chevron.down")
+        }
+    }
+    
+    func loadComments() {
+        if commentsLoading {
+            return
+        }
+        
+        commentsLoading = true
+        let params: Dictionary<String, Any> = [
+            "claim_id": claim!.claimId!,
+            "page": commentsCurrentPage,
+            "page_size": commentsPageSize,
+            "skip_validation": true,
+            "include_replies": false
+        ]
+        
+        Lbry.apiCall(method: Lbry.methodCommentList, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
+            guard let data = data, error == nil else {
+                print(error!)
+                return
+            }
+            
+            let result = data["result"] as? [String: Any]
+            if let items = result?["items"] as? [[String: Any]] {
+                if items.count < self.commentsPageSize {
+                    self.commentsLastPageReached = true
+                }
+                var loadedComments: [Comment] = []
+                items.forEach { item in
+                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
+                    do {
+                        let comment: Comment? = try JSONDecoder().decode(Comment.self, from: data)
+                        if (comment != nil && !self.comments.contains(where: { $0.commentId == comment?.commentId })) {
+                            loadedComments.append(comment!)
+                        }
+                    } catch let error {
+                        print(error)
+                    }
+                }
+                self.comments.append(contentsOf: loadedComments)
+                // resolve author map
+                if self.comments.count > 0 {
+                    self.resolveCommentAuthors(urls: loadedComments.map { $0.channelUrl! })
+                }
+                
+            }
+            
+            self.commentsLoading = false
+            DispatchQueue.main.async {
+                self.checkNoComments()
+                self.checkFeaturedComment()
+            }
+        })
+    }
+    
+    func checkFeaturedComment() {
+        DispatchQueue.main.async {
+            if self.comments.count > 0 {
+                self.featuredCommentLabel.text = self.comments[0].comment
+                if let thumbUrlStr = self.authorThumbnailMap[self.comments[0].channelUrl!] {
+                    self.featuredCommentThumbnail.backgroundColor = UIColor.clear
+                    self.featuredCommentThumbnail.load(url: URL(string: thumbUrlStr)!)
+                } else {
+                    self.featuredCommentThumbnail.image = UIImage.init(named: "spaceman")
+                    self.featuredCommentThumbnail.backgroundColor = Helper.lightPrimaryColor
+                }
+            }
+        }
+    }
+    
+    func resolveCommentAuthors(urls: [String]) {
+        let params = ["urls": urls]
+        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { [self] data, error in
+            guard let data = data, error == nil else {
+                return
+            }
+            
+            let result = data["result"] as! NSDictionary
+            for (url, claimData) in result {
+                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
+                do {
+                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                    if claim != nil && !(claim!.claimId ?? "").isBlank {
+                        if claim!.value != nil && claim!.value!.thumbnail != nil && !(claim!.value!.thumbnail!.url ?? "").isBlank {
+                            self.authorThumbnailMap[url as! String] = claim!.value!.thumbnail!.url!
+                        }
+                    }
+                } catch {
+                    // pass
+                }
+            }
+            self.checkFeaturedComment()
+        })
+    }
+    
+    func checkNoComments() {
+        DispatchQueue.main.async {
+            self.noCommentsLabel.isHidden = self.comments.count > 0
+            self.featuredCommentView.isHidden = self.comments.count == 0
         }
     }
 }

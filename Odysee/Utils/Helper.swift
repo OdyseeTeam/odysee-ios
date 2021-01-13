@@ -12,11 +12,15 @@ import UIKit
 final class Helper {
     static let minimumSpend: Decimal = 0.0001
     static let minimumDeposit: Decimal = 0.001
+    static let commentMinLength: Int = 50
+    static let commentMaxLength: Int = 2000
     static let txLinkPrefix = "https://explorer.lbry.com/tx"
     static let keyReceiveAddress = "walletReceiveAddress"
     
     static let primaryColor: UIColor = UIColor.init(red: 229.0/255.0, green: 0, blue: 84.0/255.0, alpha: 1)
     static let lightPrimaryColor: UIColor = UIColor.init(red: 250.0/255.0, green: 97.0/255.0, blue: 101.0/255.0, alpha: 1)
+    static let fireActiveColor: UIColor = UIColor.init(red: 255.0/255.0, green: 102.0/255.0, blue: 53.0/255.0, alpha: 1)
+    static let slimeActiveColor: UIColor = UIColor.init(red: 129.0/255.0, green: 197.0/255.0, blue: 84.0/255.0, alpha: 1)
     
     static let sortByItemNames = ["Trending content", "New content", "Top content"]
     static let contentFromItemNames = ["Past 24 hours", "Past week", "Past month", "Past year", "All time"]

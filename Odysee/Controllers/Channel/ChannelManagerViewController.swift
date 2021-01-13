@@ -77,10 +77,9 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             }
             
             let result = data["result"] as? [String: Any]
-            let items = result?["items"] as? [[String: Any]]
-            if (items != nil) {
+            if let items = result?["items"] as? [[String: Any]] {
                 var loadedClaims: [Claim] = []
-                items?.forEach{ item in
+                items.forEach{ item in
                     let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
                     do {
                         let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
