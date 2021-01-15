@@ -28,6 +28,7 @@ class MainViewController: UIViewController {
     
     var loadingNotifications = false
     var notificationsViewActive = false
+    var channels: [Claim] = []
     
     var mainNavigationController: UINavigationController!
     var walletObservers: Dictionary<String, WalletBalanceObserver> = Dictionary<String, WalletBalanceObserver>()
@@ -79,6 +80,10 @@ class MainViewController: UIViewController {
         startWalletBalanceTimer()
         startWalletSyncTimer()
         loadNotifications()
+        
+        if Lbryio.isSignedIn() {
+            loadChannels()
+        }
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -362,6 +367,33 @@ class MainViewController: UIViewController {
         }
         
         return false
+    }
+    
+    func loadChannels() {
+        let options: Dictionary<String, Any> = ["claim_type": "channel", "page": 1, "page_size": 999, "resolve": true]
+        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+            guard let data = data, error == nil else {
+                return
+            }
+            
+            self.channels.removeAll()
+            let result = data["result"] as? [String: Any]
+            if let items = result?["items"] as? [[String: Any]] {
+                items.forEach{ item in
+                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
+                    do {
+                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                        if (claim != nil) {
+                            self.channels.append(claim!)
+                        }
+                    } catch let error {
+                        print(error)
+                    }
+                }
+            }
+            
+            Lbry.ownChannels = self.channels
+        })
     }
     
     /*

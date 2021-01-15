@@ -21,6 +21,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     
     @IBOutlet weak var pageControl: UIPageControl!
     @IBOutlet weak var pageScrollView: UIScrollView!
+    @IBOutlet weak var channelCommunityView: UIView!
     
     @IBOutlet weak var contentListView: UITableView!
     @IBOutlet weak var contentLoadingContainer: UIView!
@@ -50,19 +51,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBOutlet weak var resolvingLabel: UILabel!
     @IBOutlet weak var resolvingCloseButton: UIButton!
     
-    @IBOutlet weak var noCommentsLabel: UILabel!
-    @IBOutlet weak var postCommentAreaView: UIView!
-    @IBOutlet weak var commentAsThumbnailView: UIImageView!
-    @IBOutlet weak var commentAsChannelLabel: UILabel!
-    @IBOutlet weak var commentLimitLabel: UILabel!
-    @IBOutlet weak var commentInput: UITextView!
-    @IBOutlet weak var commentList: UITableView!
-    @IBOutlet weak var commentListHeightConstraint: NSLayoutConstraint!
-    
     var sortByPicker: UIPickerView!
     var contentFromPicker: UIPickerView!
-    var commentAsPicker: UIPickerView!
-    
+
+    var commentsViewPresented = false
     var claimSearchOptions = Dictionary<String, Any>()
     let pageSize: Int = 20
     var currentPage: Int = 1
@@ -93,8 +85,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             checkNotificationsDisabled()
         }
         
-        postCommentAreaView.isHidden = !Lbryio.isSignedIn()
-        
         if !Lbryio.isSignedIn() && pageControl.currentPage == 2 {
             pageControl.currentPage = 1
             updateScrollViewForPage(page: pageControl.currentPage)
@@ -124,14 +114,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         followerCountLabel.textInsets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
         
         // Do any additional setup after loading the view
-        commentAsThumbnailView.rounded()
         thumbnailImageView.rounded()
-        
-        commentInput.layer.borderColor = UIColor.systemGray5.cgColor
-        commentInput.layer.borderWidth = 1
-        commentInput.layer.cornerRadius = 4
-        
-        commentList.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
         
         // TODO: If channelClaim is not set, resolve the claim url before displaying
         if channelClaim == nil && claimUrl != nil {
@@ -140,17 +123,35 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             displayClaim()
             loadAndDisplayFollowerCount()
             loadContent()
-            loadComments()
+            displayCommentsView()
         } else {
             displayNothingAtLocation()
         }
+    }
+    
+    func displayCommentsView() {
+        if commentsViewPresented {
+            return
+        }
+        
+        let vc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
+        vc.claimId = channelClaim?.claimId!
+        vc.isChannelComments = true
+        
+        vc.willMove(toParent: self)
+        channelCommunityView.addSubview(vc.view)
+        vc.view.frame = CGRect(x: 0, y: 0, width: channelCommunityView.frame.width, height: channelCommunityView.frame.height)
+        self.addChild(vc)
+        vc.didMove(toParent: self)
+    
+        commentsViewPresented = true
     }
     
     func showClaimAndCheckFollowing() {
         displayClaim()
         loadAndDisplayFollowerCount()
         loadContent()
-        loadComments()
+        displayCommentsView()
         
         checkFollowing()
         checkNotificationsDisabled()
@@ -180,17 +181,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     } catch let error {
                         print(error)
                     }
-                }
-            }
-            
-            DispatchQueue.main.async {
-                self.postCommentAreaView.isHidden = self.channels.count == 0
-                if self.currentCommentAsIndex == -1 && self.channels.count > 0 {
-                    self.currentCommentAsIndex = 0
-                    self.updateCommentAsChannel(0)
-                }
-                if self.commentAsPicker != nil {
-                    self.commentAsPicker.reloadAllComponents()
                 }
             }
         })
@@ -262,13 +252,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
-    }
-    
-    func textViewDidChange(_ textView: UITextView) {
-        if textView == commentInput {
-            let length = commentInput.text.count
-            commentLimitLabel.text = String(format: "%d / %d", length, Helper.commentMaxLength)
-        }
     }
     
     func displayClaim() {
@@ -351,13 +334,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     loadContent()
                 }
             }
-        } else if (scrollView == commentList) {
-            if (commentList.contentOffset.y >= (commentList.contentSize.height - commentList.bounds.size.height)) {
-                if (!commentsLoading && !commentsLastPageReached) {
-                    commentsCurrentPage += 1
-                    loadComments()
-                }
-            }
         }
     }
     
@@ -421,12 +397,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         noChannelContentView.isHidden = claims.count > 0
     }
     
-    func checkNoComments() {
-        DispatchQueue.main.async {
-            self.noCommentsLabel.isHidden = self.comments.count > 0
-        }
-    }
-    
     func checkUpdatedSortBy() {
         let itemName = Helper.sortByItemNames[currentSortByIndex]
         sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
@@ -440,8 +410,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == contentListView {
             return claims.count
-        } else if tableView == commentList {
-            return comments.count
         }
         
         return 0
@@ -453,14 +421,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             
             let claim: Claim = claims[indexPath.row]
             cell.setClaim(claim: claim)
-                
-            return cell
-        } else if tableView == commentList {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "comment_cell", for: indexPath) as! CommentTableViewCell
-            
-            let comment: Comment = comments[indexPath.row]
-            cell.setComment(comment: comment)
-            cell.setAuthorImageMap(map: authorThumbnailMap)
                 
             return cell
         }
@@ -491,8 +451,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return Helper.sortByItemNames.count
         } else if pickerView == contentFromPicker {
             return Helper.contentFromItemNames.count
-        } else if pickerView == commentAsPicker {
-            return self.channels.count
         }
         
         return 0
@@ -503,8 +461,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return Helper.sortByItemNames[row]
         } else if pickerView == contentFromPicker {
             return Helper.contentFromItemNames[row]
-        } else if pickerView == commentAsPicker {
-            return self.channels.map{ $0.name }[row]
         }
         
         return nil
@@ -526,68 +482,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         present(alert, animated: true, completion: {
             self.sortByPicker.selectRow(self.currentSortByIndex, inComponent: 0, animated: true)
         })
-    }
-    
-    @IBAction func postCommentTapped(_ sender: UIButton) {
-        if currentCommentAsIndex == -1 || channels.count == 0 {
-            self.showError(message: String.localized("You need to select a channel to post your comment as"))
-            return
-        }
-        if commentInput.text.count < Helper.commentMinLength {
-            self.showError(message: String.localized("Please post a meaningful comment"))
-            return
-        }
-        if commentInput.text.count > Helper.commentMaxLength {
-            self.showError(message: String.localized("Your comment is too long"))
-            return
-        }
-        
-        let params: Dictionary<String, Any> = ["claim_id": channelClaim!.claimId!, "channel_id": channels[currentCommentAsIndex].claimId!, "comment": commentInput.text!]
-        Lbry.apiCall(method: Lbry.methodCommentCreate, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let _ = data, error == nil else {
-                self.showError(error: error)
-                return
-            }
-            
-            // comment post successful
-            DispatchQueue.main.async {
-                self.commentInput.text = ""
-                self.textViewDidChange(self.commentInput)
-            }
-            self.loadComments()
-        })
-    }
-    
-    @IBAction func commentAsTapped(_ sender: Any) {
-        let (picker, alert) = Helper.buildPickerActionSheet(title: String.localized("Comment as"), dataSource: self, delegate: self, parent: self, handler: { _ in
-             let selectedIndex = self.commentAsPicker.selectedRow(inComponent: 0)
-             let prevIndex = self.currentCommentAsIndex
-             self.currentCommentAsIndex = selectedIndex
-             if (prevIndex != self.currentCommentAsIndex) {
-                self.updateCommentAsChannel(self.currentCommentAsIndex)
-             }
-         })
-         
-         commentAsPicker = picker
-         present(alert, animated: true, completion: nil)
-    }
-    
-    func updateCommentAsChannel(_ index: Int) {
-        let channel = channels[index]
-        commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), channel.name!)
-        
-        var thumbnailUrl: URL? = nil
-        if (channel.value != nil && channel.value?.thumbnail != nil) {
-            thumbnailUrl = URL(string: (channel.value!.thumbnail!.url!))!
-        }
-        
-        if thumbnailUrl != nil {
-            commentAsThumbnailView.load(url: thumbnailUrl!)
-            commentAsThumbnailView.backgroundColor = UIColor.clear
-        } else {
-            commentAsThumbnailView.image = UIImage.init(named: "spaceman")
-            commentAsThumbnailView.backgroundColor = Helper.lightPrimaryColor
-        }
     }
     
     @IBAction func closeTapped(_ sender: UIButton) {
@@ -751,19 +645,18 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 
                 self.checkFollowing()
                 self.checkNotificationsDisabled()
-                
-                if (Lbryio.isSignedIn()) {
-                    Lbry.saveSharedUserState(completion: { success, error in
-                        guard error == nil else {
-                            // pass
-                            return
-                        }
-                        if (success) {
-                            // run wallet sync
-                            Lbry.pushSyncWallet()
-                        }
-                    })
-                }
+              
+                Lbryio.subscriptionsDirty = true
+                Lbry.saveSharedUserState(completion: { success, err in
+                    guard err == nil else {
+                        // pass
+                        return
+                    }
+                    if (success) {
+                        // run wallet sync
+                        Lbry.pushSyncWallet()
+                    }
+                })
             })
         } catch let error {
             showError(error: error)
@@ -791,91 +684,19 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
-            let subToDelete = Subscription(context: context)
-            subToDelete.url = url
-            subToDelete.channelName = channelName
+            let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "url == %@", url)
+            let subs = try! context.fetch(fetchRequest)
+            for sub in subs {
+                context.delete(sub)
+            }
             
-            context.delete(subToDelete)
+            do {
+                try context.save()
+            } catch {
+                // pass
+            }
         }
-    }
-    
-    func loadComments() {
-        if commentsLoading {
-            return
-        }
-        
-        commentsLoading = true
-        let params: Dictionary<String, Any> = [
-            "claim_id": channelClaim!.claimId!,
-            "page": commentsCurrentPage,
-            "page_size": commentsPageSize,
-            "skip_validation": true,
-            "include_replies": false
-        ]
-        Lbry.apiCall(method: Lbry.methodCommentList, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                print(error!)
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            if let items = result?["items"] as? [[String: Any]] {
-                if items.count < self.commentsPageSize {
-                    self.commentsLastPageReached = true
-                }
-                var loadedComments: [Comment] = []
-                items.forEach { item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let comment: Comment? = try JSONDecoder().decode(Comment.self, from: data)
-                        if (comment != nil && !self.comments.contains(where: { $0.commentId == comment?.commentId })) {
-                            loadedComments.append(comment!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                self.comments.append(contentsOf: loadedComments)
-                // resolve author map
-                if self.comments.count > 0 {
-                    self.resolveCommentAuthors(urls: loadedComments.map { $0.channelUrl! })
-                }
-            }
-            
-            self.commentsLoading = false
-            DispatchQueue.main.async {
-                self.commentList.reloadData()
-                self.checkNoComments()
-            }
-        })
-    }
-    
-    func resolveCommentAuthors(urls: [String]) {
-        let params = ["urls": urls]
-        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { [self] data, error in
-            guard let data = data, error == nil else {
-                return
-            }
-            
-            let result = data["result"] as! NSDictionary
-            for (url, claimData) in result {
-                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
-                do {
-                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if claim != nil && !(claim!.claimId ?? "").isBlank {
-                        if claim!.value != nil && claim!.value!.thumbnail != nil && !(claim!.value!.thumbnail!.url ?? "").isBlank {
-                            self.authorThumbnailMap[url as! String] = claim!.value!.thumbnail!.url!
-                        }
-                    }
-                } catch {
-                    // pass
-                }
-            }
-            
-            DispatchQueue.main.async {
-                commentList.reloadData()
-            }
-        })
     }
     
     func showError(error: Error?) {
@@ -893,15 +714,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         appDelegate.mainController.showMessage(message: message)
     }
     
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == "contentSize" {
-            if (change?[.newKey]) != nil {
-                let contentHeight: CGFloat = commentList.contentSize.height
-                commentListHeightConstraint.constant = contentHeight
-            }
-        }
-    }
-
     /*
     // MARK: - Navigation
 

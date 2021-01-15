@@ -9,6 +9,8 @@ import UIKit
 
 class CommentsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDataSource, UIPickerViewDelegate, UITextViewDelegate {
 
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var closeButton: UIButton!
     @IBOutlet weak var noCommentsLabel: UILabel!
     @IBOutlet weak var postCommentAreaView: UIView!
     @IBOutlet weak var commentAsThumbnailView: UIImageView!
@@ -18,18 +20,25 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     @IBOutlet weak var commentList: UITableView!
     @IBOutlet weak var loadingContainer: UIView!
     @IBOutlet weak var commentListHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var contentScrollView: UIScrollView!
     @IBOutlet weak var scrollViewBottomConstraint: NSLayoutConstraint!
+    
+    @IBOutlet weak var replyToContainerView: UIView!
+    @IBOutlet weak var replyToCommentLabel: UILabel!
     
     var commentAsPicker: UIPickerView!
     var claimId: String?
     var commentsPageSize: Int = 50
     var commentsCurrentPage: Int = 1
+    var currentReplyToComment: Comment?
     var commentsLastPageReached: Bool = false
     var commentsLoading: Bool = false
     var postingComment: Bool = false
-    var channels: [Claim] = []
+    var channels: [Claim] = Lbry.ownChannels
     var comments: [Comment] = []
     var authorThumbnailMap: Dictionary<String, String> = [:]
+    var isChannelComments = false
+    var reacting = false
     
     var currentCommentAsIndex = -1
     
@@ -39,13 +48,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         if Lbryio.isSignedIn() {
             loadChannels()
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        let window = UIApplication.shared.windows.filter{ $0.isKeyWindow }.first!
-        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
-        scrollViewBottomConstraint.constant = 240 + (window.frame.maxY - safeAreaFrame.maxY) + 48 // Media View Height + Safe Area + Title Area Height
+        if comments.count == 0 && !commentsLastPageReached {
+            loadComments()
+        }
     }
     
     override func viewDidLoad() {
@@ -58,6 +63,21 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         commentInput.layer.borderColor = UIColor.systemGray5.cgColor
         commentInput.layer.borderWidth = 1
         commentInput.layer.cornerRadius = 1
+    
+        loadingContainer.layer.cornerRadius = 20
+        
+        titleLabel.text = isChannelComments ? String.localized("Community") : String.localized("Comments")
+        closeButton.isHidden = isChannelComments
+    
+        if comments.count > 0 {
+            // comments already preloaded
+            loadCommentReactions(commentIds: comments.map { $0.commentId! })
+        }
+        
+        if channels.count > 0 && currentCommentAsIndex == -1 {
+            currentCommentAsIndex = 0
+            updateCommentAsChannel(0)
+        }
     }
     
 
@@ -81,6 +101,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         let comment: Comment = comments[indexPath.row]
         cell.setComment(comment: comment)
         cell.setAuthorImageMap(map: authorThumbnailMap)
+        cell.viewController = self
             
         return cell
     }
@@ -123,6 +144,11 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     }
                 }
                 self.comments.append(contentsOf: loadedComments)
+                
+                if loadedComments.count > 0 {
+                    self.loadCommentReactions(commentIds: loadedComments.map { $0.commentId! })
+                }
+                
                 // resolve author map
                 if self.comments.count > 0 {
                     self.resolveCommentAuthors(urls: loadedComments.map { $0.channelUrl! })
@@ -194,6 +220,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 }
             }
             
+            Lbry.ownChannels = self.channels
             DispatchQueue.main.async {
                 if self.currentCommentAsIndex == -1 && self.channels.count > 0 {
                     self.currentCommentAsIndex = 0
@@ -220,6 +247,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     @IBAction func commentAsTapped(_ sender: Any) {
+        commentInput.resignFirstResponder()
+        
         let (picker, alert) = Helper.buildPickerActionSheet(title: String.localized("Comment as"), dataSource: self, delegate: self, parent: self, handler: { _ in
              let selectedIndex = self.commentAsPicker.selectedRow(inComponent: 0)
              let prevIndex = self.currentCommentAsIndex
@@ -233,7 +262,13 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
          present(alert, animated: true, completion: nil)
     }
     
+    @IBAction func anywhereTapped(_ sender: Any) {
+        commentInput.resignFirstResponder()
+    }
+    
     @IBAction func postCommentTapped(_ sender: UIButton) {
+        commentInput.resignFirstResponder()
+        
         if self.postingComment {
             return
         }
@@ -253,7 +288,14 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         
         postingComment = true
         loadingContainer.isHidden = false
-        let params: Dictionary<String, Any> = ["claim_id": claimId!, "channel_id": channels[currentCommentAsIndex].claimId!, "comment": commentInput.text!]
+        var params: Dictionary<String, Any> = [
+            "claim_id": claimId!,
+            "channel_id": channels[currentCommentAsIndex].claimId!,
+            "comment": commentInput.text!
+        ]
+        if currentReplyToComment != nil {
+            params["parent_id"] = currentReplyToComment?.commentId!
+        }
         Lbry.apiCall(method: Lbry.methodCommentCreate, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let _ = data, error == nil else {
                 self.showError(error: error)
@@ -264,10 +306,19 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             self.postingComment = false
             DispatchQueue.main.async {
                 self.commentInput.text = ""
+                self.replyToCommentLabel.text = ""
+                self.replyToContainerView.isHidden = true
                 self.loadingContainer.isHidden = true
                 self.textViewDidChange(self.commentInput)
             }
-            self.loadComments()
+            
+            if self.currentReplyToComment != nil {
+                self.loadReplies(self.currentReplyToComment!)
+            } else {
+                self.loadComments()
+            }
+            
+            self.currentReplyToComment = nil
         })
     }
     
@@ -278,7 +329,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if (commentList.contentOffset.y >= (commentList.contentSize.height - commentList.bounds.size.height)) {
+        if (contentScrollView.contentOffset.y >= (contentScrollView.contentSize.height - contentScrollView.bounds.size.height)) {
             if (!commentsLoading && !commentsLastPageReached) {
                 commentsCurrentPage += 1
                 loadComments()
@@ -293,7 +344,243 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
     }
     
+    func loadCommentReactions(commentIds: [String]) {
+        var params: Dictionary<String, Any> = ["comment_ids": commentIds.joined(separator: ",")]
+        if channels.count > 0 {
+            // for now, always pick the first channel
+            // TODO: allow the user to set a default channel
+            params["channel_id"] = channels[0].claimId!
+        }
+        
+        Lbry.apiCall(method: Lbry.methodCommentReactList, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+            guard let data = data, error == nil else {
+                print(error!)
+                return
+            }
+            
+            let result = data["result"] as? [String: Any]
+            var combined: Dictionary<String, CombinedReactionData> = [:]
+            if let othersReactions = result!["others_reactions"] as? [String: Any] {
+                for (commentId, reactionData) in othersReactions {
+                    if combined[commentId] == nil {
+                        combined[commentId] = CombinedReactionData()
+                    }
+                    combined[commentId]?.othersReactions = reactionData as? [String: Any]
+                }
+            }
+            if let myReactions = result!["my_reactions"] as? [String: Any] {
+                for (commentId, reactionData) in myReactions {
+                    if combined[commentId] == nil {
+                        combined[commentId] = CombinedReactionData()
+                        combined[commentId]?.othersReactions = [:]
+                    }
+                    combined[commentId]?.myReactions = reactionData as? [String: Any]
+                }
+            }
+            for (commentId, combined) in combined {
+                self.updateCommentReactions(commentId: commentId, otherReactionData: combined.othersReactions!, myReactionData: combined.myReactions)
+            }
+            
+            DispatchQueue.main.async {
+                self.commentList.reloadData()
+            }
+        })
+    }
+    
+    func updateCommentReactions(commentId: String, otherReactionData: [String: Any], myReactionData: [String: Any]?) {
+        for i in comments.indices {
+            if comments[i].commentId == commentId {
+                comments[i].numLikes = otherReactionData["like"] as? Int ?? 0
+                comments[i].numDislikes = otherReactionData["dislike"] as? Int ?? 0
+                if myReactionData != nil {
+                    comments[i].numLikes! += myReactionData!["like"] as! Int > 0 ? 1 : 0
+                    comments[i].numDislikes! += myReactionData!["dislike"] as! Int > 0 ? 1 : 0
+                    comments[i].isLiked = myReactionData!["like"] as! Int > 0
+                    comments[i].isDisliked = myReactionData!["dislike"] as! Int > 0
+                }
+                break
+            }
+        }
+    }
+    
+    func react(_ comment: Comment, type: String) {
+        if !Lbryio.isSignedIn() {
+            showUAView()
+            return
+        }
+        
+        if reacting {
+            return
+        }
+        
+        reacting = true
+        var remove = false
+        var params: Dictionary<String, Any> = [
+            "comment_ids": comment.commentId!,
+            "react_type": type,
+            "clear_types": type == Helper.reactionTypeLike ? Helper.reactionTypeDislike : Helper.reactionTypeLike
+        ]
+        if ((type == Helper.reactionTypeLike && (comment.isLiked ?? false)) ||
+                (type == Helper.reactionTypeDislike && (comment.isDisliked ?? false))) {
+            remove = true
+            params["remove"] = "true"
+        }
+        if channels.count > 0 {
+            // TODO: Default channel
+            params["channel_id"] = channels[0].claimId!
+        }
+        Lbry.apiCall(method: Lbry.methodCommentReact, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+            guard let data = data, error == nil else {
+                print(error!)
+                return
+            }
+            
+            let _ = data["result"] as? [String: Any]
+            var updatedComment = comment
+            if type == Helper.reactionTypeLike {
+                updatedComment.isLiked = !remove
+                updatedComment.numLikes = (updatedComment.numLikes ?? 0) + (remove ? -1 : 1)
+                if !remove && (updatedComment.isDisliked ?? false) {
+                    updatedComment.numDislikes = (updatedComment.numDislikes ?? 1) - 1;
+                    updatedComment.isDisliked = false
+                }
+            }
+            if type == Helper.reactionTypeDislike {
+                updatedComment.isDisliked = !remove
+                updatedComment.numDislikes = (updatedComment.numDislikes ?? 0) + (remove ? -1 : 1)
+                if !remove && (updatedComment.isLiked ?? false) {
+                    updatedComment.numLikes = (updatedComment.numLikes ?? 1) - 1
+                    updatedComment.isLiked = false
+                }
+            }
+            
+            self.reacting = false
+            self.updateSingleCommentReactions(updatedComment)
+        })
+    }
+    
+    func updateSingleCommentReactions(_ comment: Comment) {
+        var commentUpdated = false
+        for i in comments.indices {
+            if comments[i].commentId == comment.commentId {
+                comments[i].numLikes = comment.numLikes
+                comments[i].numDislikes = comment.numDislikes
+                comments[i].isLiked = comment.isLiked
+                comments[i].isDisliked = comment.isDisliked
+                commentUpdated = true
+                break
+            }
+        }
+        
+        if commentUpdated {
+            DispatchQueue.main.async {
+                self.commentList.reloadData()
+            }
+        }
+    }
+    
+    func loadReplies(_ parent: Comment) {
+        if commentsLoading {
+            return
+        }
+        
+        commentsLoading = true
+        loadingContainer.isHidden = false
+        let params: Dictionary<String, Any> = [
+            "claim_id": claimId!,
+            "parent_id": parent.commentId!,
+            "page": 1,
+            "page_size": 999,
+            "skip_validation": true,
+            "include_replies": true
+        ]
+        Lbry.apiCall(method: Lbry.methodCommentList, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
+            guard let data = data, error == nil else {
+                print(error!)
+                return
+            }
+            
+            let result = data["result"] as? [String: Any]
+            if let items = result?["items"] as? [[String: Any]] {
+                var loadedComments: [Comment] = []
+                items.forEach { item in
+                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
+                    do {
+                        let comment: Comment? = try JSONDecoder().decode(Comment.self, from: data)
+                        if (comment != nil && !self.comments.contains(where: { $0.commentId == comment?.commentId })) {
+                            loadedComments.append(comment!)
+                        }
+                    } catch let error {
+                        print(error)
+                    }
+                }
+                
+                let parentIndex = self.indexForComment(parent)
+                if parentIndex > -1 {
+                    self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
+                    
+                    if loadedComments.count > 0 {
+                        self.loadCommentReactions(commentIds: loadedComments.map { $0.commentId! })
+                        self.resolveCommentAuthors(urls: loadedComments.map { $0.channelUrl! })
+                    }
+                }
+            }
+            
+            self.commentsLoading = false
+            self.setCommentRepliesLoaded(parent)
+            DispatchQueue.main.async {
+                self.loadingContainer.isHidden = true
+                self.commentList.reloadData()
+            }
+        })
+    }
+    
+    func setCommentRepliesLoaded(_ comment: Comment) {
+        for i in comments.indices {
+            if comments[i].commentId == comment.commentId {
+                comments[i].repliesLoaded = true
+                break
+            }
+        }
+    }
+    
+    func indexForComment(_ comment: Comment) -> Int {
+        for i in comments.indices {
+            if comments[i].commentId == comment.commentId {
+                return i
+            }
+        }
+        return -1
+    }
+    
+    func setReplyToComment(_ comment: Comment) {
+        if (!Lbryio.isSignedIn()) {
+            showUAView()
+            return
+        }
+        
+        currentReplyToComment = comment
+        if let origin = postCommentAreaView.superview {
+            let startPoint = origin.convert(postCommentAreaView.frame.origin, to: contentScrollView)
+            contentScrollView.scrollRectToVisible(CGRect(x:0, y: startPoint.y, width: 1, height: contentScrollView.frame.height), animated: true)
+        }
+        
+        replyToCommentLabel.text = comment.comment
+        replyToContainerView.isHidden = false
+    }
+    
+    @IBAction func clearReplyToComment() {
+        currentReplyToComment = nil
+    
+        replyToContainerView.isHidden = true
+        replyToCommentLabel.text = ""
+    }
+    
     func updateCommentAsChannel(_ index: Int) {
+        if index < 0 {
+            return
+        }
+        
         let channel = channels[index]
         commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), channel.name!)
         
@@ -336,5 +623,16 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     func showMessage(message: String?) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.showMessage(message: message)
+    }
+    
+    func showUAView() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+    }
+    
+    struct CombinedReactionData {
+        var othersReactions: Dictionary<String, Any>?
+        var myReactions: Dictionary<String, Any>?
     }
 }

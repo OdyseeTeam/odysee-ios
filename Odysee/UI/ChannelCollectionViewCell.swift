@@ -28,7 +28,8 @@ class ChannelCollectionViewCell: UICollectionViewCell {
             thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
         }
         
-        
+        backgroundColor = currentClaim!.selected ? Helper.lightPrimaryColor : UIColor.clear
+        titleLabel.textColor = currentClaim!.selected ? UIColor.white : UIColor.label
         
         titleLabel.text = claim.value?.title
     }

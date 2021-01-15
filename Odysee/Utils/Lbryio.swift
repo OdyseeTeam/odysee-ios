@@ -26,6 +26,7 @@ final class Lbryio {
     static var cachedSubscriptions: Dictionary<String, LbrySubscription> = Dictionary<String, LbrySubscription>()
     static var cachedNotifications: [LbryNotification] = []
     static var latestNotificationId: Int64 = 0
+    static var subscriptionsDirty = false
     
     static func call(resource: String, action: String, options: Dictionary<String, String>?, method: String, authTokenOverride: String? = nil, completion: @escaping (Any?, Error?) -> Void) throws {
         let url = String(format: "%@/%@/%@", connectionString, resource, action)
@@ -94,7 +95,7 @@ final class Lbryio {
                 
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   print(JSONString)
+                   //print(JSONString)
                 }
                 
                 if (respCode >= 200 && respCode < 300) {

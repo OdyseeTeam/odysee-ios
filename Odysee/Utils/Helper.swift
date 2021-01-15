@@ -16,6 +16,8 @@ final class Helper {
     static let commentMaxLength: Int = 2000
     static let txLinkPrefix = "https://explorer.lbry.com/tx"
     static let keyReceiveAddress = "walletReceiveAddress"
+    static let reactionTypeLike = "like"
+    static let reactionTypeDislike = "dislike"
     
     static let primaryColor: UIColor = UIColor.init(red: 229.0/255.0, green: 0, blue: 84.0/255.0, alpha: 1)
     static let lightPrimaryColor: UIColor = UIColor.init(red: 250.0/255.0, green: 97.0/255.0, blue: 101.0/255.0, alpha: 1)

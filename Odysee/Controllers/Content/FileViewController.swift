@@ -73,16 +73,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     var playRequestTime: Int64 = 0
     var playerObserverAdded: Bool = false
     
-    
     var commentsPageSize: Int = 50
     var commentsCurrentPage: Int = 1
     var commentsLastPageReached: Bool = false
     var commentsLoading: Bool = false
     var comments: [Comment] = []
     var authorThumbnailMap: Dictionary<String, String> = [:]
-    
-    let reactionTypeLike = "like"
-    let reactionTypeDislike = "dislike"
     
     var numLikes = 0
     var numDislikes = 0
@@ -149,9 +145,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let currentVc = UIApplication.currentViewController()
         if (currentVc as? FileViewController) != nil {
-            if appDelegate.player != nil {
+            /*if appDelegate.player != nil {
                 appDelegate.player?.pause()
-            }
+            }*/
             return
         }
         
@@ -509,9 +505,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             var options: Dictionary<String, String> = [
                 "claim_ids": claimId,
                 "type": type,
-                "clear_types": type == reactionTypeLike ? reactionTypeDislike : reactionTypeLike
+                "clear_types": type == Helper.reactionTypeLike ? Helper.reactionTypeDislike : Helper.reactionTypeLike
             ]
-            if (type == reactionTypeLike && likesContent) || (type == reactionTypeDislike && dislikesContent) {
+            if (type == Helper.reactionTypeLike && likesContent) || (type == Helper.reactionTypeDislike && dislikesContent) {
                 remove = true
                 options["remove"] = "true"
             }
@@ -521,7 +517,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
                     return
                 }
                 
-                if type == self.reactionTypeLike {
+                if type == Helper.reactionTypeLike {
                     self.likesContent = !remove
                     self.numLikes += (remove ? -1 : 1)
                     if !remove && self.dislikesContent {
@@ -529,7 +525,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
                         self.dislikesContent = false
                     }
                 }
-                if type == self.reactionTypeDislike {
+                if type == Helper.reactionTypeDislike {
                     self.dislikesContent = !remove
                     self.numDislikes += (remove ? -1 : 1)
                     if !remove && self.likesContent {
@@ -678,10 +674,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         let vc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
         vc.claimId = claim?.claimId!
         vc.comments = comments
+        vc.commentsLastPageReached = commentsLastPageReached
         vc.authorThumbnailMap = authorThumbnailMap
         
         vc.willMove(toParent: self)
         commentsContainerView.addSubview(vc.view)
+        vc.view.frame = CGRect(x: 0, y: 0, width: commentsContainerView.frame.width, height: commentsContainerView.frame.height)
         self.addChild(vc)
         vc.didMove(toParent: self)
         
@@ -694,10 +692,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     @IBAction func fireTapped(_ sender: Any) {
-        react(type: self.reactionTypeLike)
+        react(type: Helper.reactionTypeLike)
     }
     @IBAction func slimeTapped(_ sender: Any) {
-        react(type: self.reactionTypeDislike)
+        react(type: Helper.reactionTypeDislike)
     }
     
     @IBAction func publisherTapped(_ sender: Any) {
@@ -819,6 +817,17 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
                 
                 self.checkFollowing()
                 self.checkNotificationsDisabled()
+                Lbryio.subscriptionsDirty = true
+                Lbry.saveSharedUserState(completion: { success, err in
+                    guard err == nil else {
+                        // pass
+                        return
+                    }
+                    if (success) {
+                        // run wallet sync
+                        Lbry.pushSyncWallet()
+                    }
+                })
             })
         } catch let error {
             showError(error: error)

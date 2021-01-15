@@ -30,6 +30,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var sortByPicker: UIPickerView!
     var contentFromPicker: UIPickerView!
     
+    var selectedChannelClaim: Claim? = nil
     var suggestedFollows: [Claim] = []
     var following: [Claim] = []
     var subscriptions: [Subscription] = []
@@ -78,7 +79,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Subscriptions", AnalyticsParameterScreenClass: "FollowingViewController"])
         
         if (Lbryio.isSignedIn()) {
-            loadRemoteSubscriptions()
+            if Lbryio.subscriptionsDirty {
+                loadLocalSubscriptions(true)
+            } else {
+                loadRemoteSubscriptions()
+            }
             
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.toggleHeaderVisibility(hidden: false)
@@ -87,10 +92,37 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
     }
     
+    func checkSelectedChannel() {
+        DispatchQueue.main.async {
+            if self.selectedChannelClaim != nil {
+                for i in self.following.indices {
+                    if self.following[i].claimId == self.selectedChannelClaim?.claimId {
+                        self.following[i].selected = true
+                        self.channelListView.reloadItems(at: [IndexPath(item: i, section: 0)])
+                        break
+                    }
+                }
+            }
+        }
+    }
+    
+    func indexForSelectedChannelClaim() -> Int {
+        if selectedChannelClaim != nil {
+            for i in self.following.indices {
+                if self.following[i].claimId == selectedChannelClaim?.claimId {
+                    return i
+                }
+            }
+        }
+        
+        return -1
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         loadingContainer.layer.cornerRadius = 20
         suggestedFollowsView.allowsMultipleSelection = true
+        channelListView.allowsMultipleSelection = false
     }
     
     func updateClaimSearchOptions() {
@@ -111,7 +143,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         let asyncFetchRequest = NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { asyncFetchResult in
             guard let subscriptions = asyncFetchResult.finalResult as? [Subscription] else { return }
             self.subscriptions = subscriptions
-            
             if (self.subscriptions.count == 0) {
                 // load remote
                 self.loadRemoteSubscriptions()
@@ -386,24 +417,26 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             // TODO: Refresh claim search with selected channel ids
             let prevSelectedChannelIds = selectedChannelIds
             selectedChannelIds.removeAll()
+            
             let claim = following[indexPath.row]
-            let cell = collectionView.cellForItem(at: indexPath) as? ChannelCollectionViewCell
-            if (cell?.backgroundColor == Helper.lightPrimaryColor) {
-                cell?.backgroundColor = UIColor.clear
-                cell?.titleLabel.textColor = UIColor.label
-                collectionView.deselectItem(at: indexPath, animated: true)
+            deselectChannels(except: claim)
+            if (claim.selected) {
+                claim.selected = false
+                selectedChannelClaim = nil
             } else {
-                cell?.backgroundColor = Helper.lightPrimaryColor
-                cell?.titleLabel.textColor = UIColor.white
+                claim.selected = true
                 if (!selectedChannelIds.contains(claim.claimId!)) {
                     selectedChannelIds.append(claim.claimId!)
                 }
+                selectedChannelClaim = claim
             }
             
             if (prevSelectedChannelIds != selectedChannelIds) {
                 resetSubscriptionContent()
                 loadSubscriptionContent()
             }
+            
+            collectionView.reloadItems(at: [indexPath])
         }
     }
     
@@ -562,12 +595,32 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             }
             
             DispatchQueue.main.async {
+                self.checkSelectedChannel()
                 self.channelListView.reloadData()
                 self.contentListView.reloadData()
             }
             
+            if Lbryio.subscriptionsDirty {
+                self.loadingContent = false
+                self.resetSubscriptionContent()
+                let index = self.indexForSelectedChannelClaim()
+                if index == -1 {
+                    self.selectedChannelIds = []
+                }
+                Lbryio.subscriptionsDirty = false
+            }
             self.loadSubscriptionContent()
         })
+    }
+
+    func deselectChannels(except: Claim) {
+        for i in following.indices {
+            if except.claimId == following[i].claimId {
+                continue
+            }
+            following[i].selected = false
+            channelListView.reloadItems(at: [IndexPath(item: i, section: 0)])
+        }
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -594,7 +647,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         currentPage = 1
         lastPageReached = false
         claims.removeAll()
-        contentListView.reloadData()
+        DispatchQueue.main.async {
+            self.contentListView.reloadData()
+        }
     }
     
     func checkUpdatedSortBy() {

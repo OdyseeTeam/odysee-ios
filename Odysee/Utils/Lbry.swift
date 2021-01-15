@@ -29,6 +29,8 @@ final class Lbry {
     static let methodCommentCreate = "comment_create"
     static let methodClaimList = "claim_list"
     static let methodCommentList = "comment_list"
+    static let methodCommentReact = "comment_react"
+    static let methodCommentReactList = "comment_react_list"
     static let methodPreferenceGet = "preference_get"
     static let methodPreferenceSet = "preference_set"
     static let methodSupportCreate = "support_create"
