@@ -51,6 +51,13 @@ class UserAccountViewController: UIViewController {
 
         // Do any additional setup after loading the view.
         registerForKeyboardNotifications()
+        emailField.layer.cornerRadius = 16
+        emailField.layer.masksToBounds = true
+        passwordField.layer.cornerRadius = 16
+        passwordField.layer.masksToBounds = true
+        
+        defaultActionButton.layer.masksToBounds = true
+        defaultActionButton.layer.cornerRadius = 16
     }
     
     func registerForKeyboardNotifications() {

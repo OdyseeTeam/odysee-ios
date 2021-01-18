@@ -855,11 +855,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
-            let subToDelete = Subscription(context: context)
-            subToDelete.url = url
-            subToDelete.channelName = channelName
+            let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "url == %@", url)
+            let subs = try! context.fetch(fetchRequest)
+            for sub in subs {
+                context.delete(sub)
+            }
             
-            context.delete(subToDelete)
+            do {
+                try context.save()
+            } catch {
+                // pass
+            }
         }
     }
     

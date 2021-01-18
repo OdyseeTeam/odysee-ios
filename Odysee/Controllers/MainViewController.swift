@@ -86,6 +86,33 @@ class MainViewController: UIViewController {
         }
     }
     
+    func stopAllTimers() {
+        walletBalanceTimer.invalidate()
+        walletSyncTimer.invalidate()
+    }
+    
+    func resetUserAndViews() {
+        Lbryio.cachedSubscriptions = [:]
+        Lbryio.cachedNotifications = []
+        Lbry.walletBalance = WalletBalance()
+        
+        self.mainBalanceLabel.text = "0"
+        self.notificationBadgeView.isHidden = true
+        self.notificationBadgeCountLabel.text = ""
+        
+        // remove the auth token so that a new one will be generated upon the next init
+        let defaults = UserDefaults.standard
+        defaults.removeObject(forKey: Lbryio.keyAuthToken)
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainNavigationController?.popToRootViewController(animated: false)
+        if let initvc = self.presentingViewController as? InitViewController {
+            initvc.dismiss(animated: true, completion: {
+                initvc.runInit()
+            })
+        }
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "main_nav" {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate

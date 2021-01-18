@@ -61,6 +61,13 @@ class UserAccountMenuViewController: UIViewController {
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
+    
+    @IBAction func signOutTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        presentingViewController?.dismiss(animated: false, completion: nil)
+        appDelegate.mainController.stopAllTimers()
+        appDelegate.mainController.resetUserAndViews()
+    }
 
     /*
     // MARK: - Navigation

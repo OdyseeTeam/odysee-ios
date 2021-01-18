@@ -22,6 +22,7 @@
 		641614D2258077EF003A2194 /* UserAccountMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641614D1258077EF003A2194 /* UserAccountMenuViewController.swift */; };
 		641615052581267B003A2194 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 641615042581267B003A2194 /* GoogleService-Info.plist */; };
 		641682D825ACBA7800BCDC3A /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641682D725ACBA7800BCDC3A /* CommentsViewController.swift */; };
+		641AFAE925B606E000218BD9 /* UAButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641AFAE825B606E000218BD9 /* UAButton.swift */; };
 		642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6AFC257A382900F17355 /* WalletViewController.swift */; };
 		642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */; };
 		642B6B07257A635300F17355 /* WalletSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B06257A635300F17355 /* WalletSync.swift */; };
@@ -104,6 +105,7 @@
 		641614D1258077EF003A2194 /* UserAccountMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountMenuViewController.swift; sourceTree = "<group>"; };
 		641615042581267B003A2194 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		641682D725ACBA7800BCDC3A /* CommentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
+		641AFAE825B606E000218BD9 /* UAButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAButton.swift; sourceTree = "<group>"; };
 		642B6AFC257A382900F17355 /* WalletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletViewController.swift; sourceTree = "<group>"; };
 		642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSyncViewController.swift; sourceTree = "<group>"; };
 		642B6B06257A635300F17355 /* WalletSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSync.swift; sourceTree = "<group>"; };
@@ -238,6 +240,7 @@
 				640BEF332587DB5D0019B840 /* NotificationTableViewCell.swift */,
 				643382A2258DB119004B562B /* RewardTableViewCell.swift */,
 				646E4A63259CF5380008C9C8 /* CommentTableViewCell.swift */,
+				641AFAE825B606E000218BD9 /* UAButton.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -568,6 +571,7 @@
 				646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */,
 				64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */,
 				640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */,
+				641AFAE925B606E000218BD9 /* UAButton.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
 				6413273E2556E86000CBB6B8 /* Claim.swift in Sources */,

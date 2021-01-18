@@ -14,20 +14,11 @@ class InitViewController: UIViewController {
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
     var initErrorState = false
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        if initErrorState {
-            
-        }
-    }
-    
     // Init process flow
     // 1. loadExchangeRate
     // 2. loadAndCacheRemoteSubscriptions
     // 3. authenticateAndRegisterInstall
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
+    func runInit() {
         let defaults = UserDefaults.standard
         Lbry.installationId = defaults.string(forKey: Lbry.keyInstallationId)
         if ((Lbry.installationId ?? "").isBlank) {
@@ -41,6 +32,11 @@ class InitViewController: UIViewController {
             // don't bother with error checks here, simply proceed to authenticate
             self.loadAndCacheSubscriptions()
         })
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.runInit()
     }
     
     func authenticateAndRegisterInstall() {

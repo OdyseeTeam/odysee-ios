@@ -541,15 +541,23 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
-            let subToDelete = Subscription(context: context)
-            subToDelete.url = url
-            subToDelete.channelName = channelName
+            let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "url == %@", url)
+            let subs = try! context.fetch(fetchRequest)
             
-            self.subscriptions = self.subscriptions.filter { $0 != subToDelete }
-            context.delete(subToDelete)
+            if subs.count > 0 {
+                let subToDelete = subs[0]
+                context.delete(subToDelete)
+                self.subscriptions = self.subscriptions.filter { $0 != subToDelete }
+            }
+            
+            do {
+                try context.save()
+            } catch {
+                // pass
+            }
         }
         
-        // TODO: wallet sync
         loadLocalSubscriptions()
     }
     
@@ -705,8 +713,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         do {
             let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
             try context.execute(deleteRequest)
-        } catch let error {
-            print(error)
+        } catch {
             // pass
             return
         }

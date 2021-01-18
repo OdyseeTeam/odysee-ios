@@ -23,6 +23,8 @@ final class Helper {
     static let lightPrimaryColor: UIColor = UIColor.init(red: 250.0/255.0, green: 97.0/255.0, blue: 101.0/255.0, alpha: 1)
     static let fireActiveColor: UIColor = UIColor.init(red: 255.0/255.0, green: 102.0/255.0, blue: 53.0/255.0, alpha: 1)
     static let slimeActiveColor: UIColor = UIColor.init(red: 129.0/255.0, green: 197.0/255.0, blue: 84.0/255.0, alpha: 1)
+    static let uaGradientStartColor: UIColor = UIColor.init(red: 244.0/255.0, green: 93.0/255.0, blue: 72.0/255.0, alpha: 1)
+    static let uaGradientEndColor: UIColor = UIColor.init(red: 242.0/255.0, green: 58.0/255.0, blue: 92.0/255.0, alpha: 1)
     
     static let sortByItemNames = ["Trending content", "New content", "Top content"]
     static let contentFromItemNames = ["Past 24 hours", "Past week", "Past month", "Past year", "All time"]
