@@ -253,7 +253,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
                         do {
                             let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                            if (claim != nil && !self.suggestedFollows.contains(where: { $0.claimId == claim?.claimId })) {
+                            if (claim != nil && !self.suggestedFollows.contains(where: { $0.claimId == claim?.claimId }) && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
                                 Lbry.addClaimToCache(claim: claim)
                                 loadedClaims.append(claim!)
                             }
@@ -306,7 +306,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
                         do {
                             let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                            if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId })) {
+                            if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId }) && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
                                 loadedClaims.append(claim!)
                             }
                         } catch let error {

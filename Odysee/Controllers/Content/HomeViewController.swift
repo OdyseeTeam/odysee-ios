@@ -8,12 +8,15 @@
 import Firebase
 import UIKit
 
-class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource {
 
     @IBOutlet weak var loadingContainer: UIView!
     @IBOutlet weak var claimListView: UITableView!
     @IBOutlet weak var categoryButtonsContainer: UIStackView!
     @IBOutlet weak var noContentView: UIStackView!
+    
+    @IBOutlet weak var sortByLabel: UILabel!
+    @IBOutlet weak var contentFromLabel: UILabel!
     
     let refreshControl = UIRefreshControl()
     let categories: [String] = ["Cheese", "Big Hits", "Gaming", "Lab", "Tech", "News", "Finance 2.0", "The Universe", "Wild West"]
@@ -38,6 +41,12 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     var lastPageReached: Bool = false
     var loading: Bool = false
     var claims: [Claim] = []
+    
+    var sortByPicker: UIPickerView!
+    var contentFromPicker: UIPickerView!
+    
+    var currentSortByIndex = 0 // default to Trending content
+    var currentContentFromIndex = 1 // default to Past week
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -72,7 +81,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     func updateClaimSearchOptions() {
         let isWildWest = currentCategoryIndex == wildWestCategoryIndex
-        options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["trending_group", "trending_mixed"] : ["release_time"], releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) : nil, maxDuration: nil, limitClaimsPerChannel: 5, page: currentPage, pageSize: pageSize)
+        let orderByValue = Helper.sortByItemValues[currentSortByIndex]
+        let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : Helper.releaseTime6Months()
+        
+        options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["trending_group", "trending_mixed"] : orderByValue, releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) : releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: 5, page: currentPage, pageSize: pageSize)
     }
     
     func loadClaims() {
@@ -106,7 +118,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                     let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
                     do {
                         let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId })) {
+                        if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId }) && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
                             loadedClaims.append(claim!)
                         }
                     } catch let error {
@@ -212,6 +224,72 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     func checkNoContent() {
         DispatchQueue.main.async {
             self.noContentView.isHidden = self.claims.count > 0
+        }
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func checkUpdatedSortBy() {
+        let itemName = Helper.sortByItemNames[currentSortByIndex]
+        sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
+        contentFromLabel.isHidden = currentSortByIndex != 2
+    }
+    
+    func checkUpdatedContentFrom() {
+        contentFromLabel.text = String(format: "%@ ▾", String(Helper.contentFromItemNames[currentContentFromIndex]))
+    }
+    
+    @IBAction func sortByLabelTapped(_ sender: Any) {
+       let (picker, alert) = Helper.buildPickerActionSheet(title: String.localized("Sort content by"), dataSource: self, delegate: self, parent: self, handler: { _ in
+            let selectedIndex = self.sortByPicker.selectedRow(inComponent: 0)
+            let prevIndex = self.currentSortByIndex
+            self.currentSortByIndex = selectedIndex
+            if (prevIndex != self.currentSortByIndex) {
+                self.checkUpdatedSortBy()
+                self.resetContent()
+                self.loadClaims()
+            }
+        })
+        
+        sortByPicker = picker
+        present(alert, animated: true, completion: {
+            self.sortByPicker.selectRow(self.currentSortByIndex, inComponent: 0, animated: true)
+        })
+    }
+    
+    @IBAction func contentFromLabelTapped(_ sender: Any) {
+        let (picker, alert) = Helper.buildPickerActionSheet(title: String.localized("Content from"), dataSource: self, delegate: self, parent: self, handler: { _ in
+            let selectedIndex = self.contentFromPicker.selectedRow(inComponent: 0)
+            let prevIndex = self.currentContentFromIndex
+            self.currentContentFromIndex = selectedIndex
+            if (prevIndex != self.currentContentFromIndex) {
+                self.checkUpdatedContentFrom()
+                self.resetContent()
+                self.loadClaims()
+            }
+        })
+        
+        contentFromPicker = picker
+        present(alert, animated: true, completion: {
+            self.contentFromPicker.selectRow(self.currentContentFromIndex, inComponent: 0, animated: true)
+        })
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if (pickerView == sortByPicker) {
+            return Helper.sortByItemNames.count
+        } else {
+            return Helper.contentFromItemNames.count
+        }
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        if (pickerView == sortByPicker) {
+            return Helper.sortByItemNames[row]
+        } else {
+            return Helper.contentFromItemNames[row]
         }
     }
     

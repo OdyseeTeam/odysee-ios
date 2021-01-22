@@ -28,6 +28,12 @@ final class Lbryio {
     static var latestNotificationId: Int64 = 0
     static var subscriptionsDirty = false
     
+    static var filteredOutpoints: [String] = []
+    static var blockedOutpoints: [String] = []
+    
+    static var cachedTwitterOauthToken: String? = nil
+    static var cachedTwitterOauthTokenSecret: String? = nil
+    
     static func call(resource: String, action: String, options: Dictionary<String, String>?, method: String, authTokenOverride: String? = nil, completion: @escaping (Any?, Error?) -> Void) throws {
         let url = String(format: "%@/%@/%@", connectionString, resource, action)
         if ((authToken ?? "").isBlank && !generatingAuthToken) {
@@ -333,6 +339,13 @@ final class Lbryio {
         }
         
         return true
+    }
+    
+    static func isClaimFiltered(_ claim: Claim) -> Bool {
+        return filteredOutpoints.contains(String(format: "%@:%d", claim.txid!, claim.nout!))
+    }
+    static func isClaimBlocked(_ claim: Claim) -> Bool {
+        return blockedOutpoints.contains(String(format: "%@:%d", claim.txid!, claim.nout!))
     }
 }
 

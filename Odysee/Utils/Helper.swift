@@ -79,6 +79,12 @@ final class Helper {
         return true
     }
     
+    static func releaseTime6Months() -> String {
+        var time = Int64(Date().timeIntervalSince1970)
+        time = time - (60 * 60 * 24 * 180)
+        return String(format: ">%d", time)
+    }
+    
     static func buildReleaseTime(contentFrom: String?) -> String? {
         if (contentFrom == contentFromItemNames[4]) {
             return nil

@@ -167,25 +167,33 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         if claim == nil && claimUrl != nil {
             resolveAndDisplayClaim()
         } else if claim != nil {
-            displayClaim()
-            loadAndDisplayViewCount()
-            loadReactions()
-            loadRelatedContent()
-            loadComments()
+            if Lbryio.isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!)) {
+                displayClaimBlocked()
+            } else {
+                displayClaim()
+                loadAndDisplayViewCount()
+                loadReactions()
+                loadRelatedContent()
+                loadComments()
+            }
         } else {
             displayNothingAtLocation()
         }
     }
     
     func showClaimAndCheckFollowing() {
-        displayClaim()
-        loadAndDisplayViewCount()
-        loadReactions()
-        loadRelatedContent()
-        loadComments()
-        
-        checkFollowing()
-        checkNotificationsDisabled()
+        if Lbryio.isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!)) {
+            displayClaimBlocked()
+        } else {
+            displayClaim()
+            loadAndDisplayViewCount()
+            loadReactions()
+            loadRelatedContent()
+            loadComments()
+            
+            checkFollowing()
+            checkNotificationsDisabled()
+        }
     }
     
     func resolveAndDisplayClaim() {
@@ -248,6 +256,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             self.resolvingLoadingIndicator.isHidden = true
             self.resolvingImageView.image = UIImage.init(named: "spaceman_sad")
             self.resolvingLabel.text = String.localized("There's nothing at this location.")
+            self.resolvingCloseButton.isHidden = false
+        }
+    }
+    
+    func displayClaimBlocked() {
+        DispatchQueue.main.async {
+            self.resolvingView.isHidden = false
+            self.resolvingLoadingIndicator.isHidden = true
+            self.resolvingImageView.image = UIImage.init(named: "spaceman_sad")
+            self.resolvingLabel.text = String.localized("In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications.")
             self.resolvingCloseButton.isHidden = false
         }
     }
@@ -692,9 +710,17 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     @IBAction func fireTapped(_ sender: Any) {
+        if !Lbryio.isSignedIn() {
+            showUAView()
+            return
+        }
         react(type: Helper.reactionTypeLike)
     }
     @IBAction func slimeTapped(_ sender: Any) {
+        if !Lbryio.isSignedIn() {
+            showUAView()
+            return
+        }
         react(type: Helper.reactionTypeDislike)
     }
     

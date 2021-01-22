@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 09/12/2020.
 //
 
+import SafariServices
 import UIKit
 
 class UserAccountMenuViewController: UIViewController {
@@ -14,6 +15,11 @@ class UserAccountMenuViewController: UIViewController {
     @IBOutlet weak var loggedInMenu: UIView!
     @IBOutlet weak var userEmailLabel: UILabel!
     @IBOutlet weak var signUpLoginContainer: UIView!
+    
+    @IBOutlet weak var channelsLabel: UILabel!
+    @IBOutlet weak var rewardsLabel: UILabel!
+    @IBOutlet weak var invitesLabel: UILabel!
+    @IBOutlet weak var signOutLabel: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,7 +32,10 @@ class UserAccountMenuViewController: UIViewController {
         signUpLoginContainer.isHidden = Lbryio.isSignedIn()
         
         userEmailLabel.isHidden = !Lbryio.isSignedIn()
-        loggedInMenu.isHidden = !Lbryio.isSignedIn()
+        channelsLabel.isHidden = !Lbryio.isSignedIn()
+        rewardsLabel.isHidden = !Lbryio.isSignedIn()
+        invitesLabel.isHidden = !Lbryio.isSignedIn()
+        signOutLabel.isHidden = !Lbryio.isSignedIn()
         
         if Lbryio.isSignedIn() {
             userEmailLabel.text = Lbryio.currentUser?.primaryEmail!
@@ -67,6 +76,28 @@ class UserAccountMenuViewController: UIViewController {
         presentingViewController?.dismiss(animated: false, completion: nil)
         appDelegate.mainController.stopAllTimers()
         appDelegate.mainController.resetUserAndViews()
+    }
+    
+    @IBAction func communityGuidelinesTapped(_ sender: Any) {
+        // Open the web page for now until we support displaying text content
+        
+        // https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c
+        if let url = URL(string: "https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c") {
+            let vc = SFSafariViewController(url: url)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            presentingViewController?.dismiss(animated: false, completion: nil)
+            appDelegate.mainController.present(vc, animated: true, completion: nil)
+        }
+    }
+    
+    @IBAction func helpAndSupportTapped(_ sender: Any) {
+        // https://odysee.com/@OdyseeHelp:b?view=about
+        if let url = URL(string: "https://odysee.com/@OdyseeHelp:b?view=about") {
+            let vc = SFSafariViewController(url: url)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            presentingViewController?.dismiss(animated: false, completion: nil)
+            appDelegate.mainController.present(vc, animated: true, completion: nil)
+        }
     }
 
     /*

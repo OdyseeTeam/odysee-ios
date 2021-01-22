@@ -8,7 +8,7 @@
 import Firebase
 import UIKit
 
-class ChannelEditorViewController: UIViewController, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     @IBOutlet weak var coverImageView: UIImageView!
     @IBOutlet weak var thumbnailImageView: UIImageView!
@@ -338,6 +338,11 @@ class ChannelEditorViewController: UIViewController, UIGestureRecognizerDelegate
             self.selectingCover = false
             self.selectingThumbnail = false
         })
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
     
     func showMessage(message: String?) {

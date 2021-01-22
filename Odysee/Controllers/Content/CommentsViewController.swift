@@ -409,6 +409,11 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
         
+        if channels.count == 0 {
+            showMessage(message: String.localized("You need to create a channel before you can react to comments"))
+            return
+        }
+        
         if reacting {
             return
         }

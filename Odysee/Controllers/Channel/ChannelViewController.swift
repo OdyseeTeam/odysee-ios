@@ -372,7 +372,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
                     do {
                         let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId })) {
+                        if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId }) && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
                             loadedClaims.append(claim!)
                         }
                     } catch let error {

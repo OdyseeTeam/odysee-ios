@@ -104,6 +104,10 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         
             self.rewardVerificationPathsView.isHidden = false
             self.closeVerificationButton.isHidden = false
+            
+            // don't show the purchase option for now
+            self.skipQueueOptionButton.isHidden = true
+            
             self.mainRewardsView.isHidden = true
         }
     }
@@ -268,6 +272,12 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             secrets = NSDictionary(contentsOfFile: path)
         }
         
+        startProcessing()
+        if !(Lbryio.cachedTwitterOauthToken ?? "").isBlank && !(Lbryio.cachedTwitterOauthTokenSecret ?? "").isBlank {
+            self.twitterVerifyWithOauthToken(oauthToken: Lbryio.cachedTwitterOauthToken!, oauthTokenSecret: Lbryio.cachedTwitterOauthTokenSecret!)
+            return
+        }
+            
         // request for sign in url
         oauthSwift = OAuth1Swift(
             consumerKey: secrets?.value(forKey: "TwitterConsumerKey") as! String,
@@ -280,54 +290,59 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         oauthAuthorizeHandler.delegate = self
         oauthSwift!.authorizeURLHandler = oauthAuthorizeHandler
         
-        startProcessing()
         let _ = oauthSwift!.authorize(withCallbackURL: "lbry://?oauthcb") { result in
             switch result {
                 case .success(let (credential, _, _)):
                     // send twitter_verify request
-                    let options: Dictionary<String, String> = [
-                        "oauth_token": credential.oauthToken,
-                        "oauth_token_secret": credential.oauthTokenSecret,
-                        "domain": "odysee.com"
-                    ]
-                    do {
-                        try Lbryio.call(resource: "verification", action: "twitter_verify", options: options, method: Lbryio.methodPost, completion: { data, error in
-                            guard let data = data, error == nil else {
-                                self.stopProcessing()
-                                self.showError(error: error)
-                                return
-                            }
-                            
-                            do {
-                                let jsonData = try! JSONSerialization.data(withJSONObject: data, options: [.prettyPrinted, .sortedKeys])
-                                let rewardVerified = try JSONDecoder().decode(RewardVerified.self, from: jsonData)
-                                if rewardVerified.isRewardApproved ?? false {
-                                    // successful reward verification, show the rewards page
-                                    DispatchQueue.main.async {
-                                        self.showRewardsList()
-                                        self.stopProcessing()
-                                        return
-                                    }
-                                }
-                            } catch let error {
-                                self.stopProcessing()
-                                self.showError(error: error)
-                            }
-                            
-                            // error state
-                            self.stopProcessing()
-                            self.showError(message: "You could not be verified for rewards at this time. Please try again later.")
-                        })
-                    } catch let error {
-                        self.stopProcessing()
-                        self.showError(error: error)
-                    }
+                    Lbryio.cachedTwitterOauthToken = credential.oauthToken
+                    Lbryio.cachedTwitterOauthTokenSecret = credential.oauthTokenSecret
+                    self.twitterVerifyWithOauthToken(oauthToken: credential.oauthToken, oauthTokenSecret: credential.oauthTokenSecret)
                     break
                 case .failure(let error):
                     self.stopProcessing()
                     self.showError(message: String(format: "An error occurred while processing the Twitter verification request: %@", error.localizedDescription))
                     break
             }
+        }
+    }
+    
+    func twitterVerifyWithOauthToken(oauthToken: String, oauthTokenSecret: String) {
+        let options: Dictionary<String, String> = [
+            "oauth_token": oauthToken,
+            "oauth_token_secret": oauthTokenSecret,
+            "domain": "odysee.com"
+        ]
+        do {
+            try Lbryio.call(resource: "verification", action: "twitter_verify", options: options, method: Lbryio.methodPost, completion: { data, error in
+                guard let data = data, error == nil else {
+                    self.stopProcessing()
+                    self.showError(error: error)
+                    return
+                }
+                
+                do {
+                    let jsonData = try! JSONSerialization.data(withJSONObject: data, options: [.prettyPrinted, .sortedKeys])
+                    let rewardVerified = try JSONDecoder().decode(RewardVerified.self, from: jsonData)
+                    if rewardVerified.isRewardApproved ?? false {
+                        // successful reward verification, show the rewards page
+                        DispatchQueue.main.async {
+                            self.showRewardsList()
+                            self.stopProcessing()
+                            return
+                        }
+                    }
+                } catch let error {
+                    self.stopProcessing()
+                    self.showError(error: error)
+                }
+                
+                // error state
+                self.stopProcessing()
+                self.showError(message: "You could not be verified for rewards at this time. Please try again later.")
+            })
+        } catch let error {
+            self.stopProcessing()
+            self.showError(error: error)
         }
     }
     

@@ -121,6 +121,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
             DispatchQueue.main.async {
                 self.loadingContainer.isHidden = true
                 self.checkNoResults()
+                self.searchBar.resignFirstResponder()
                 self.resultsListView.reloadData()
             }
         })
@@ -195,6 +196,14 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
                 search(query: currentQuery, from: currentFrom + pageSize)
             }
         }
+    }
+    
+    func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar)  {
+        searchBar.resignFirstResponder()
     }
     
 

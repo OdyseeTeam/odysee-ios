@@ -80,6 +80,8 @@ class MainViewController: UIViewController {
         startWalletBalanceTimer()
         startWalletSyncTimer()
         loadNotifications()
+        loadBlockedOutpoints()
+        loadFilteredOutpoints()
         
         if Lbryio.isSignedIn() {
             loadChannels()
@@ -187,6 +189,43 @@ class MainViewController: UIViewController {
             appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }
+    
+    func loadFilteredOutpoints() {
+        do {
+            try Lbryio.call(resource: "file", action: "list_filtered", options: [:], method: Lbryio.methodGet, completion: { data, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                
+                if let result = data as? [String: Any] {
+                    if let outpoints = result["outpoints"] as? [String] {
+                        Lbryio.filteredOutpoints = outpoints
+                    }
+                }
+            })
+        } catch {
+            // pass
+        }
+    }
+    
+    func loadBlockedOutpoints() {
+        do {
+            try Lbryio.call(resource: "file", action: "list_blocked", options: [:], method: Lbryio.methodGet, completion: { data, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                
+                if let result = data as? [String: Any] {
+                    if let outpoints = result["outpoints"] as? [String] {
+                        Lbryio.blockedOutpoints = outpoints
+                    }
+                }
+            })
+        } catch {
+            // pass
+        }
+    }
+    
     
     func loadNotifications() {
         if loadingNotifications {

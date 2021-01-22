@@ -31,6 +31,8 @@ class SuggestedChannelCollectionViewCell: UICollectionViewCell {
         }
         
         titleLabel.text = claim.value?.title
+        
+        tagLabel.isHidden = true
         tagLabel.text = ""
         if (claim.value?.tags != nil && claim.value?.tags!.count ?? 0 > 0) {
             tagLabel.text = claim.value?.tags![0]
