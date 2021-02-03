@@ -101,7 +101,7 @@ final class Lbryio {
                 
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   //print(JSONString)
+                   print(JSONString)
                 }
                 
                 if (respCode >= 200 && respCode < 300) {

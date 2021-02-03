@@ -91,7 +91,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
                     }
                 }
                 self.channels.removeAll()
-                self.addNewPlaceholder()
+                //self.addNewPlaceholder()
                 self.channels.append(contentsOf: loadedClaims)
                 Lbry.ownChannels = self.channels.filter { $0.claimId != "new" }
             }

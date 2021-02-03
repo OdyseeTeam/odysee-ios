@@ -30,7 +30,7 @@ struct Reward: Decodable {
             return String(rewardRange!.split(separator: "-")[1])
         }
         if rewardAmount ?? 0 > 0 {
-            return String(describing: rewardAmount!)
+            return Helper.currencyFormatter.string(for: rewardAmount!)!
         }
         
         return "?"

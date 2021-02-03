@@ -12,10 +12,36 @@ final class Lighthouse {
     
     static var relatedContentCache: Dictionary<String, Any> = [:]
     
+    static let keywordsForEmptyResults = [
+        "corona",
+        "coronavirus",
+        "corona virus",
+        "sars-cov-2",
+        "sars cov 2",
+        "sarscov2",
+        "sars",
+        "covid",
+        "covid-19",
+        "covid19",
+        "covid 19"
+    ]
+    
     static func search(rawQuery: String, size: Int, from: Int, relatedTo: String?, completion: @escaping ([[String: Any]]?, Error?) -> Void) {
         if !(relatedTo ?? "").isBlank {
             if let respData = relatedContentCache[String(format: "%@:%@", relatedTo!, rawQuery)] {
                 completion(respData as? [[String: Any]], nil)
+                return
+            }
+        }
+        
+        for keyword in keywordsForEmptyResults {
+            let trimmedQuery = rawQuery.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedQuery.contains(keyword) || trimmedQuery == keyword {
+                completion([], nil)
+                return
+            }
+            if relatedTo != nil && (relatedTo!.contains(keyword) || relatedTo == keyword) {
+                completion([], nil)
                 return
             }
         }
@@ -26,6 +52,7 @@ final class Lighthouse {
         queryItems.append(URLQueryItem(name: "from", value: String(from)))
         queryItems.append(URLQueryItem(name: "nsfw", value: "false"))
         queryItems.append(URLQueryItem(name: "free_only", value: "true"))
+        queryItems.append(URLQueryItem(name: "filters", value: "ios"))
         if (!(relatedTo ?? "").isBlank) {
             queryItems.append(URLQueryItem(name: "related_to", value: String(relatedTo!)))
         }
