@@ -172,7 +172,18 @@ struct ContentSources {
         "fa7c7ef9d487341f806fc5a150486e14565f4706",
         "8bce07cc60bba1aff1eb250701cd67eb7b349f3f",
         "7566c26e4b0e51d84900b8f153fc6f069ad09ef7",
-        "21c90d16875689f7f8f2ab74158df02dcc340c4d"
+        "21c90d16875689f7f8f2ab74158df02dcc340c4d",
+        "ead2a1cbe71522fbc97e7c8ceee4b82ff5ca678e",
+        "0c1f43f2b478261c7bdf92b48e37f318eab78343",
+        "5e59c434b5633b0c3b20062c312e58935724ae2e",
+        "5909ff98ca17534d1d99e7f1cbbdc4f380038016",
+        "6b51154f8be5ac72e5348a17f358e66ce59f8e29",
+        "5f869581d7d6444381310b45c211196b4348c985",
+        "a663899ab9369fec8efecfde4d11618a9f1f9467",
+        "c93267be27d3670fe09f9212e9412c9da432caec",
+        "5b0b41c364c89c5cb13f011823e0d6ee9b89af26",
+        "a87ee0c50662b13f11b6fdd3eefd4cee17930599",
+        "77aacb120e1e6fd2d7e7092adce4862eaa0c9965",
     ]
     
     static let BigHitsChannelIds: [String] = [
@@ -369,7 +380,20 @@ struct ContentSources {
         "5d964c8e345e054e270680bd41acaecf4db676be",
         "b95b8055287ffd42b64aaad7129badd0b039be0f",
         "818d6976d3c388e8740ba9dcbe90dcb1dbae32c5",
-        "855ff371255cd7ab4958bcfc374c8f2d9ef24671"
+        "855ff371255cd7ab4958bcfc374c8f2d9ef24671",
+        "6c169583c11d49965dbda5bd5e6a53fc28e33a3b",
+        "8418759644fbee548c6040c12a2df89173dc50ed",
+        "0c1f43f2b478261c7bdf92b48e37f318eab78343",
+        "eb9099da7abbb25a4648de3b5a97ad56defeef90",
+        "ec6eacb38ed0a1e2a5e8722eb0be6d54f16ec71e",
+        "3fec094c5937e9eb4e8f5e71e4ca430e8a993d03",
+        "50c2bc91e7fc106aec7eb4f006f7e315bac52c72",
+        "48126ba71a4c776e366be8e92a2805723a04bf52",
+        "213df91f570859904fa0829541eb5914a918c54f",
+        "2e4717926929bfa29f96e6ddb9da3b0d83d211f9",
+        "42876d14d3e4be2e26a0e8ea142f890f26b0487c",
+        "289dd3b0343db9412eeaa30b3023cec3b20a9499",
+        "deed21cf85c453e074b95949098fcd0c3dc65d69",
     ]
     
     static let GamingChannelIds: [String] = [
