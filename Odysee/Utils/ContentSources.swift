@@ -1091,7 +1091,7 @@ struct ContentSources {
         "a96f6c5e5ac3cf02406e02282e9838efa4a40c0a",
         "ee453f8e3b92124c8fdbe7ece735cece47d2a538",
         "4c5229af2548a1f5f77ce9ce408b85dc1532f96f",
-        "9ec3e7af22b15925d06eeecc95ef3cfff4e33934",
+        "9ec3e7af22b15925d06eeecc95ef3cfff4e33934"
     ]
     
     static let FinanceChannelIds: [String] = [

@@ -137,7 +137,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
             self?.search(query: searchText, from: 0)
         }
         self.searchTask = task
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 0.5, execute: task)
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1.5, execute: task)
     }
     
     func resetSearch() {

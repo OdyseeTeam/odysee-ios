@@ -63,7 +63,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         
         loadingChannels = true
         loadingContainer.isHidden = false
-        //channelListView.isHidden = channels.count <= 1
+        channelListView.isHidden = channels.count <= 1
         noChannelsView.isHidden = true
         
         let options: Dictionary<String, Any> = ["claim_type": "channel", "page": 1, "page_size": 999, "resolve": true]
@@ -91,7 +91,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
                     }
                 }
                 self.channels.removeAll()
-                //self.addNewPlaceholder()
+                self.addNewPlaceholder()
                 self.channels.append(contentsOf: loadedClaims)
                 Lbry.ownChannels = self.channels.filter { $0.claimId != "new" }
             }
@@ -117,8 +117,8 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     
     func checkNoChannels() {
         DispatchQueue.main.async {
-            self.channelListView.isHidden = self.channels.count < 1
-            self.noChannelsView.isHidden = self.channels.count > 0
+            self.channelListView.isHidden = self.channels.count <= 1
+            self.noChannelsView.isHidden = self.channels.count >= 1
         }
     }
     
@@ -138,16 +138,16 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = channels[indexPath.row]
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        /*let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
         vc.channelClaim = claim
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)*/
         
-        /*let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
+        let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
         if claim.claimId != "new" {
             vc.currentClaim = claim
         }
-        self.navigationController?.pushViewController(vc, animated: true)*/
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {

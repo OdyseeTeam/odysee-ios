@@ -6,6 +6,7 @@
 //
 
 import AVFoundation
+import MediaPlayer
 import Firebase
 import UIKit
 import CoreData
@@ -78,7 +79,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
+    
     // MARK: - Core Data stack
 
     lazy var persistentContainer: NSPersistentContainer = {
@@ -107,6 +108,59 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         })
         return container
     }()
+    
+    func setupRemoteTransportControls() {
+        // Get the shared MPRemoteCommandCenter
+        print("****Command center setup?!")
+        UIApplication.shared.beginReceivingRemoteControlEvents()
+        let commandCenter = MPRemoteCommandCenter.shared()
+        setupNowPlaying()
+
+        // Add handler for Play / Pause Command
+        commandCenter.togglePlayPauseCommand.isEnabled = true
+        commandCenter.togglePlayPauseCommand.addTarget { [unowned self] event in
+            if self.player != nil {
+                if self.player!.rate == 0.0 {
+                    self.player!.play()
+                } else {
+                    self.player!.pause()
+                }
+                return .success
+            }
+            return .commandFailed
+        }
+    }
+    
+    func setupNowPlaying() {
+        // Define Now Playing Info
+        if currentFileViewController != nil && player != nil {
+            if let claim = currentFileViewController?.claim {
+                var nowPlayingInfo = [String : Any]()
+                nowPlayingInfo[MPMediaItemPropertyTitle] = claim.value?.title!
+                nowPlayingInfo[MPMediaItemPropertyArtist] = claim.signingChannel != nil ?
+                    (claim.signingChannel!.value?.title ?? claim.signingChannel!.name) : String.localized("Anonymous")
+                nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = ""
+                
+                if let image = UIImage(named: "lockscreen") {
+                    nowPlayingInfo[MPMediaItemPropertyArtwork] =
+                        MPMediaItemArtwork(boundsSize: image.size) { size in
+                            return image
+                    }
+                }
+                let playerItem = player?.currentItem!
+                nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playerItem!.currentTime().seconds
+                nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playerItem!.asset.duration.seconds
+                nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player!.rate
+
+
+                // Set the metadata
+                print("********")
+                print(nowPlayingInfo)
+                print("We are now playing?")
+                MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+            }
+        }
+    }
 
     // MARK: - Core Data Saving support
 
