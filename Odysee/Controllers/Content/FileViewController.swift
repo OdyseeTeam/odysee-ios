@@ -314,14 +314,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             descriptionLabel.text = claim?.value?.description
         }
         
-        do {
-            // enable audio in silent mode
-            try AVAudioSession.sharedInstance().setCategory(.playback)
-            try AVAudioSession.sharedInstance().setActive(true, options: [])
-        } catch let error {
-            // pass
-        }
-        
         avpc = AVPlayerViewController()
         avpc.allowsPictureInPicturePlayback = true
         
@@ -331,6 +323,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         avpc.didMove(toParent: self)
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        avpc.delegate = appDelegate.mainController
         if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId) {
             avpc.player = appDelegate.player
             return
