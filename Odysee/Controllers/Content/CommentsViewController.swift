@@ -56,7 +56,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        // Do any additional setup after loading the view
+        registerForKeyboardNotifications()
+        
         commentAsThumbnailView.rounded()
         commentList.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
         
@@ -78,6 +80,25 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             currentCommentAsIndex = 0
             updateCommentAsChannel(0)
         }
+    }
+    
+    func registerForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        let info = notification.userInfo
+        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+        let contentInsets = UIEdgeInsets.init(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+        contentScrollView.contentInset = contentInsets
+        contentScrollView.scrollIndicatorInsets = contentInsets
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        let contentInsets = UIEdgeInsets.zero
+        contentScrollView.contentInset = contentInsets
+        contentScrollView.scrollIndicatorInsets = contentInsets
     }
     
 
