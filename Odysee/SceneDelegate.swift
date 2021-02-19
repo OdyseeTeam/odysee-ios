@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 02/11/2020.
 //
 
+import AVFoundation
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -17,6 +18,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let _ = (scene as? UIWindowScene) else { return }
+        
+        print("****scenWillConnectTo")
+        UIApplication.shared.beginReceivingRemoteControlEvents()
         
         if let urlContext = connectionOptions.urlContexts.first {
             let url = urlContext.url
@@ -44,18 +48,39 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillResignActive(_ scene: UIScene) {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if appDelegate.currentFileViewController != nil && appDelegate.player != nil {
+            appDelegate.currentFileViewController?.disconnectPlayer()
+            let tracks = appDelegate.player!.currentItem!.tracks
+            for playerItemTrack in tracks {
+                if playerItemTrack.assetTrack!.hasMediaCharacteristic(AVMediaCharacteristic.visual) {
+                    playerItemTrack.isEnabled = false
+                }
+            }
+            appDelegate.setupRemoteTransportControls()
+        }
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
-        // Use this method to undo the changes made on entering the background.
+        // Use this method to undo the changes made on entering the background.        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if appDelegate.currentFileViewController != nil {
+            let tracks = appDelegate.player!.currentItem!.tracks
+            for playerItemTrack in tracks {
+                if playerItemTrack.assetTrack!.hasMediaCharacteristic(AVMediaCharacteristic.visual) {
+                    playerItemTrack.isEnabled = true
+                }
+            }
+            appDelegate.currentFileViewController?.connectPlayer()
+        }
     }
 
     func sceneDidEnterBackground(_ scene: UIScene) {
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
-
+        
         // Save changes in the application's managed object context when the application transitions to the background.
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }

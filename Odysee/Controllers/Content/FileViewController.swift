@@ -60,7 +60,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var fireReactionImage: UIImageView!
     @IBOutlet weak var slimeReactionImage: UIImageView!
     
-    var commentsViewPresented = false
+    var avpc: AVPlayerViewController!
+    
+    var commentsViewPresented = false  
     var commentAsPicker: UIPickerView!
     var claim: Claim?
     var claimUrl: LbryUri?
@@ -137,22 +139,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         
         if (appDelegate.player != nil) {
             appDelegate.mainController.toggleMiniPlayer(hidden: false)
-        }
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let currentVc = UIApplication.currentViewController()
-        if (currentVc as? FileViewController) != nil {
-            /*if appDelegate.player != nil {
-                appDelegate.player?.pause()
-            }*/
-            return
-        }
-        
-        if claim != nil {
-            showClaimAndCheckFollowing()
         }
     }
     
@@ -327,21 +313,22 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             // details
             descriptionLabel.text = claim?.value?.description
         }
-            
-        // display video content
-        let avpc: AVPlayerViewController = AVPlayerViewController()
-        self.addChild(avpc)
-        avpc.view.frame = self.mediaView.bounds
-        self.mediaView.addSubview(avpc.view)
-        avpc.didMove(toParent: self)
         
         do {
             // enable audio in silent mode
             try AVAudioSession.sharedInstance().setCategory(.playback)
-        } catch {
+            try AVAudioSession.sharedInstance().setActive(true, options: [])
+        } catch let error {
             // pass
         }
         
+        avpc = AVPlayerViewController()
+        avpc.allowsPictureInPicturePlayback = true
+        
+        self.addChild(avpc)
+        avpc.view.frame = self.mediaView.bounds
+        self.mediaView.addSubview(avpc.view)
+        avpc.didMove(toParent: self)
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId) {
@@ -365,6 +352,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         appDelegate.registerPlayerObserver()
         avpc.player = appDelegate.player
         playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
+        
         avpc.player!.play()
     }
     
@@ -394,6 +382,17 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         ])
      
         logFileView(url: url, timeToStart: timeToStartMs)
+    }
+    
+    func disconnectPlayer() {
+        avpc.player = nil
+    }
+    
+    func connectPlayer() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if appDelegate.player != nil {
+            avpc.player = appDelegate.player
+        }
     }
     
     func logFileView(url: String, timeToStart: Int64) {

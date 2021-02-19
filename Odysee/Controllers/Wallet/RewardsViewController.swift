@@ -106,7 +106,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             self.closeVerificationButton.isHidden = false
             
             // don't show the purchase option for now
-            self.skipQueueOptionButton.isHidden = true
+            //self.skipQueueOptionButton.isHidden = true
             
             self.mainRewardsView.isHidden = true
         }
@@ -356,7 +356,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         if lbrySkipProduct == nil {
             // IAP not available
             DispatchQueue.main.async {
-                self.skipQueueOptionButton.isHidden = true
+                //self.skipQueueOptionButton.isHidden = true
             }
             return
         }
@@ -375,7 +375,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         
         // product not available
         DispatchQueue.main.async {
-            self.skipQueueOptionButton.isHidden = true
+            //self.skipQueueOptionButton.isHidden = true
         }
     }
     
