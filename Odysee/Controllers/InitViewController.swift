@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 10/11/2020.
 //
 
+import CoreData
 import UIKit
 
 class InitViewController: UIViewController {
@@ -83,6 +84,10 @@ class InitViewController: UIViewController {
     // we only want to cache the URLs for followed channels (both local and remote) here
     func loadAndCacheSubscriptions() {
         do {
+            // load local subscriptions
+            loadLocalSubscriptions()
+            
+            // check if there are remote subscriptions and load them too
             try Lbryio.call(resource: "subscription", action: "list", options: nil, method: Lbryio.methodGet, completion: { data, error in
                 guard let data = data, error == nil else {
                     self.authenticateAndRegisterInstall()
@@ -107,11 +112,36 @@ class InitViewController: UIViewController {
                         }
                     }
                 }
+                
                 self.authenticateAndRegisterInstall()
             })
         } catch {
             // simply continue if it fails
             authenticateAndRegisterInstall()
+        }
+    }
+    
+    func loadLocalSubscriptions() {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Subscription")
+        fetchRequest.returnsObjectsAsFaults = false
+        let asyncFetchRequest = NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { asyncFetchResult in
+            guard let subscriptions = asyncFetchResult.finalResult as? [Subscription] else { return }
+            for sub in subscriptions {
+                let cacheSub = LbrySubscription.fromLocalSubscription(subscription: sub)
+                if !(cacheSub.claimId ?? "").isBlank {
+                    Lbryio.addSubscription(sub: cacheSub, url: sub.url)
+                }
+            }
+        }
+        
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let context = appDelegate.persistentContainer.newBackgroundContext()
+            do {
+                try context.execute(asyncFetchRequest)
+            } catch {
+                // pass
+            }
         }
     }
     
