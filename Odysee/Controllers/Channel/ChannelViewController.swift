@@ -512,6 +512,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     
     @IBAction func pageChanged(_ sender: UIPageControl) {
         let page = sender.currentPage
+        self.view.endEditing(true)
         updateScrollViewForPage(page: page)
     }
     

@@ -699,6 +699,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     func closeCommentsView() {
         commentsContainerView.isHidden = true
+        self.view.endEditing(true)
     }
     
     @IBAction func fireTapped(_ sender: Any) {
