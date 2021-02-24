@@ -77,6 +77,23 @@ class UserAccountMenuViewController: UIViewController {
         appDelegate.mainController.resetUserAndViews()
     }
     
+    @IBAction func youTubeSyncTapped(_ sender: Any) {
+        let defaults = UserDefaults.standard
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        
+        var vc: UIViewController!
+        let ytSyncConnected = defaults.bool(forKey: Lbryio.keyYouTubeSyncConnected)
+        if ytSyncConnected {
+            vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_status_vc") as! YouTubeSyncStatusViewController
+        } else {
+            vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
+        }
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        presentingViewController?.dismiss(animated: false, completion: nil)
+        
+        
+    }
+    
     @IBAction func communityGuidelinesTapped(_ sender: Any) {
         // Open the web page for now until we support displaying text content
         

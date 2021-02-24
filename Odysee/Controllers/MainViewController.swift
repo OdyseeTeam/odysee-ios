@@ -116,6 +116,8 @@ class MainViewController: UIViewController {
         // remove the auth token so that a new one will be generated upon the next init
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: Lbryio.keyAuthToken)
+        defaults.removeObject(forKey: Lbryio.keyYouTubeSyncDone)
+        defaults.removeObject(forKey: Lbryio.keyYouTubeSyncConnected)
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainNavigationController?.popToRootViewController(animated: false)
