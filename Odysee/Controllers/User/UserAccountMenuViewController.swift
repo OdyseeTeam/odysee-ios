@@ -28,7 +28,6 @@ class UserAccountMenuViewController: UIViewController {
         contentView.layer.cornerRadius = 16
         signUpLoginButton.layer.cornerRadius = 16
         
-        
         signUpLoginContainer.isHidden = Lbryio.isSignedIn()
         
         userEmailLabel.isHidden = !Lbryio.isSignedIn()

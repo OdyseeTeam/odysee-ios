@@ -31,6 +31,7 @@ class UserAccountViewController: UIViewController {
     var currentEmail: String? = nil
     var emailVerified = false
     var emailSignInChecked = false
+    var finishWalletSyncStarted = false
     var emailVerificationTimer: Timer = Timer()
     
     override func viewWillAppear(_ animated: Bool) {
@@ -422,6 +423,11 @@ class UserAccountViewController: UIViewController {
     }
     
     func finishWithWalletSync() {
+        if finishWalletSyncStarted {
+            return
+        }
+        
+        finishWalletSyncStarted = true
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = self.storyboard?.instantiateViewController(identifier: "wallet_sync_vc") as! WalletSyncViewController

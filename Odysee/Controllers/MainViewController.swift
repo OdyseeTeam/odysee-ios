@@ -85,10 +85,18 @@ class MainViewController: UIViewController {
         
         if Lbryio.isSignedIn() {
             loadChannels()
+            checkAndShowYouTubeSync()
         }
-        
-        let vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func checkAndShowYouTubeSync() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let defaults = UserDefaults.standard
+        let ytSyncDone = defaults.bool(forKey: Lbryio.keyYouTubeSyncDone)
+        if !ytSyncDone {
+            let vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     func stopAllTimers() {
