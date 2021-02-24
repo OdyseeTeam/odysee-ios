@@ -6,10 +6,11 @@
 //
 
 import AVFoundation
+import AVKit
 import OAuthSwift
 import UIKit
 
-class MainViewController: UIViewController {
+class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
 
     @IBOutlet weak var headerArea: UIView!
     @IBOutlet weak var headerAreaHeightConstraint: NSLayoutConstraint!
@@ -70,6 +71,14 @@ class MainViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        do {
+            // enable audio in silent mode
+            try AVAudioSession.sharedInstance().setCategory(.playback)
+            try AVAudioSession.sharedInstance().setActive(true, options: [])
+        } catch let error {
+            // pass
+        }
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainViewController = self
@@ -473,6 +482,21 @@ class MainViewController: UIViewController {
             
             Lbry.ownChannels = self.channels
         })
+    }
+    
+    @IBAction func brandTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if appDelegate.mainTabViewController != nil && appDelegate.mainTabViewController?.selectedIndex != 0 {
+            appDelegate.mainTabViewController?.selectedIndex = 0
+        }
+    }
+    
+    func playerViewControllerShouldAutomaticallyDismissAtPictureInPictureStart(_ playerViewController: AVPlayerViewController) -> Bool {
+        return false
+    }
+    
+    func playerViewController(_ playerViewController: AVPlayerViewController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+        completionHandler(true)
     }
     
     /*

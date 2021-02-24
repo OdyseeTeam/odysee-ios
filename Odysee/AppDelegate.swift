@@ -154,9 +154,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
 
                 // Set the metadata
-                print("********")
-                print(nowPlayingInfo)
-                print("We are now playing?")
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
             }
         }

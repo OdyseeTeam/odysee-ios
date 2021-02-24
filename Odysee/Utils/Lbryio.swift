@@ -143,7 +143,7 @@ final class Lbryio {
                 qs.append(delim)
                 qs.append(name)
                 qs.append("=")
-                qs.append(value.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!.replacingOccurrences(of: "+", with: "%2B"))
+                qs.append(value.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!.replacingOccurrences(of: "+", with: "%2B").replacingOccurrences(of: "&", with: "%26").replacingOccurrences(of: "?", with: "%3F"))
                 delim = "&"
             }
         }

@@ -50,12 +50,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if appDelegate.currentFileViewController != nil && appDelegate.player != nil {
             appDelegate.currentFileViewController?.disconnectPlayer()
-            let tracks = appDelegate.player!.currentItem!.tracks
+            /*let tracks = appDelegate.player!.currentItem!.tracks
             for playerItemTrack in tracks {
                 if playerItemTrack.assetTrack!.hasMediaCharacteristic(AVMediaCharacteristic.visual) {
                     playerItemTrack.isEnabled = false
                 }
-            }
+            }*/
             appDelegate.setupRemoteTransportControls()
         }
     }
@@ -65,12 +65,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to undo the changes made on entering the background.        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if appDelegate.currentFileViewController != nil {
-            let tracks = appDelegate.player!.currentItem!.tracks
+            /*let tracks = appDelegate.player!.currentItem!.tracks
             for playerItemTrack in tracks {
                 if playerItemTrack.assetTrack!.hasMediaCharacteristic(AVMediaCharacteristic.visual) {
                     playerItemTrack.isEnabled = true
                 }
-            }
+            }*/
             appDelegate.currentFileViewController?.connectPlayer()
         }
     }
