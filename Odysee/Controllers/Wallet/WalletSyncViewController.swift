@@ -143,9 +143,25 @@ class WalletSyncViewController: UIViewController {
                     targetVc = vcs[index - 1]
                 }
                 self.navigationController?.popToViewController(targetVc, animated: true)
+                self.checkAndShowYouTubeSync(popViewController: false)
             } else {
-                self.navigationController?.popViewController(animated: true)
+                self.checkAndShowYouTubeSync(popViewController: true)
             }
+        }
+    }
+    
+    func checkAndShowYouTubeSync(popViewController: Bool) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if (popViewController) {
+            appDelegate.mainNavigationController?.popViewController(animated: false)
+        }
+        
+        
+        let defaults = UserDefaults.standard
+        let ytSyncDone = defaults.bool(forKey: Lbryio.keyYouTubeSyncDone)
+        if !ytSyncDone {
+            let vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
     

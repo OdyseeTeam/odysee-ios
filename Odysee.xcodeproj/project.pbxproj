@@ -35,6 +35,7 @@
 		64424DDA255895A500F2D247 /* ContentSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DD9255895A500F2D247 /* ContentSources.swift */; };
 		644F76AE25592F8400813451 /* FileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76AD25592F8400813451 /* FileViewController.swift */; };
 		644F76B625595D4E00813451 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76B525595D4E00813451 /* Cache.swift */; };
+		6451659625DEA8B2009FAC39 /* YouTubeSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6451659525DEA8B2009FAC39 /* YouTubeSyncViewController.swift */; };
 		64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 64533588257FDC6800C49BD1 /* FirebaseAnalytics */; };
 		6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6453358A257FDC6800C49BD1 /* FirebaseMessaging */; };
 		6462DABD255D3CFE001CF1E8 /* UICardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6462DABC255D3CFE001CF1E8 /* UICardView.swift */; };
@@ -57,6 +58,7 @@
 		64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA70255DADFB00294E74 /* SearchViewController.swift */; };
 		64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA75255DB5B200294E74 /* Lighthouse.swift */; };
 		64A6CA7B255DD34700294E74 /* AppTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA7A255DD34700294E74 /* AppTabBarController.swift */; };
+		64A8B65125E671AC00F06D74 /* YouTubeSyncStatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A8B65025E671AC00F06D74 /* YouTubeSyncStatusViewController.swift */; };
 		64CB288225768A9A00FE48B3 /* Snackbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CB288125768A9A00FE48B3 /* Snackbar.swift */; };
 		64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */; };
 		64D72BB5258C54B100F5C4E3 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 64D72BB4258C54B100F5C4E3 /* Secrets.plist */; };
@@ -118,6 +120,7 @@
 		64424DD9255895A500F2D247 /* ContentSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSources.swift; sourceTree = "<group>"; };
 		644F76AD25592F8400813451 /* FileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewController.swift; sourceTree = "<group>"; };
 		644F76B525595D4E00813451 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
+		6451659525DEA8B2009FAC39 /* YouTubeSyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncViewController.swift; sourceTree = "<group>"; };
 		6462DABC255D3CFE001CF1E8 /* UICardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICardView.swift; sourceTree = "<group>"; };
 		64666AF52587290200DF4608 /* ChannelListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelListTableViewCell.swift; sourceTree = "<group>"; };
 		64666AFA25872BE000DF4608 /* ChannelManagerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelManagerViewController.swift; sourceTree = "<group>"; };
@@ -138,6 +141,7 @@
 		64A6CA70255DADFB00294E74 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64A6CA75255DB5B200294E74 /* Lighthouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lighthouse.swift; sourceTree = "<group>"; };
 		64A6CA7A255DD34700294E74 /* AppTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarController.swift; sourceTree = "<group>"; };
+		64A8B65025E671AC00F06D74 /* YouTubeSyncStatusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncStatusViewController.swift; sourceTree = "<group>"; };
 		64CB288125768A9A00FE48B3 /* Snackbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snackbar.swift; sourceTree = "<group>"; };
 		64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingViewController.swift; sourceTree = "<group>"; };
 		64D72BB4258C54B100F5C4E3 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.plist; sourceTree = "<group>"; };
@@ -285,6 +289,8 @@
 				648F320B2575D52500E2CA51 /* UserAccountViewController.swift */,
 				641614D1258077EF003A2194 /* UserAccountMenuViewController.swift */,
 				6484E1AC2582238900221658 /* NotificationsViewController.swift */,
+				6451659525DEA8B2009FAC39 /* YouTubeSyncViewController.swift */,
+				64A8B65025E671AC00F06D74 /* YouTubeSyncStatusViewController.swift */,
 			);
 			path = User;
 			sourceTree = "<group>";
@@ -535,6 +541,7 @@
 				641614D2258077EF003A2194 /* UserAccountMenuViewController.swift in Sources */,
 				646D563F2584FAD4002DB12F /* RewardsViewController.swift in Sources */,
 				641327492556EB3400CBB6B8 /* Lbry.swift in Sources */,
+				6451659625DEA8B2009FAC39 /* YouTubeSyncViewController.swift in Sources */,
 				646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */,
 				64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */,
 				641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */,
@@ -560,6 +567,7 @@
 				64424DDA255895A500F2D247 /* ContentSources.swift in Sources */,
 				643382A3258DB119004B562B /* RewardTableViewCell.swift in Sources */,
 				641108EC255AA4CF00F0FB8A /* User.swift in Sources */,
+				64A8B65125E671AC00F06D74 /* YouTubeSyncStatusViewController.swift in Sources */,
 				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
 				641108E7255AA2BC00F0FB8A /* InitViewController.swift in Sources */,

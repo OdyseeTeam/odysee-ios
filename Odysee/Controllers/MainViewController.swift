@@ -94,6 +94,17 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         
         if Lbryio.isSignedIn() {
             loadChannels()
+            checkAndShowYouTubeSync()
+        }
+    }
+    
+    func checkAndShowYouTubeSync() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let defaults = UserDefaults.standard
+        let ytSyncDone = defaults.bool(forKey: Lbryio.keyYouTubeSyncDone)
+        if !ytSyncDone {
+            let vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
     
@@ -114,6 +125,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         // remove the auth token so that a new one will be generated upon the next init
         let defaults = UserDefaults.standard
         defaults.removeObject(forKey: Lbryio.keyAuthToken)
+        defaults.removeObject(forKey: Lbryio.keyYouTubeSyncDone)
+        defaults.removeObject(forKey: Lbryio.keyYouTubeSyncConnected)
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainNavigationController?.popToRootViewController(animated: false)

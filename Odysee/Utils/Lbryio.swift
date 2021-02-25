@@ -17,6 +17,8 @@ final class Lbryio {
     static let wsConnectionBaseUrl = "wss://api.lbry.com/subscribe?auth_token="
     static let authTokenParam = "auth_token"
     static var authToken: String? = nil
+    static let keyYouTubeSyncDone: String = "YouTubeSyncDone"
+    static let keyYouTubeSyncConnected: String = "YouTubeSyncConnected"
     
     static let keyAuthToken = "AuthToken"
     static var currentUser: User? = nil
@@ -101,7 +103,7 @@ final class Lbryio {
                 
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   //print(JSONString)
+                   print(JSONString)
                 }
                 
                 if (respCode >= 200 && respCode < 300) {
