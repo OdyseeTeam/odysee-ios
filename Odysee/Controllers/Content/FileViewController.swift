@@ -408,10 +408,37 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
                 // no need to check for errors here
                 self.loggingInProgress = false
                 self.fileViewLogged = true
+                self.claimDailyView()
             })
         } catch {
             // pass
         }
+    }
+    
+    func claimDailyView() -> Void {
+        let defaults = UserDefaults.standard
+        let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
+        if ((receiveAddress ?? "").isBlank) {
+            Lbry.apiCall(method: Lbry.methodAddressUnused, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                
+                let newAddress = data["result"] as! String
+                DispatchQueue.main.async {
+                    let defaults = UserDefaults.standard
+                    defaults.setValue(newAddress, forKey: Helper.keyReceiveAddress)
+                }
+                
+                Lbryio.claimReward(type: "daily_view", walletAddress: newAddress, completion: { data, error in })
+            })
+            
+            return
+        }
+        
+        Lbryio.claimReward(type: "daily_view", walletAddress: receiveAddress!, completion: { data, error in
+            // don't do anything here
+        })
     }
     
     func getStreamingUrl(claim: Claim) -> String {

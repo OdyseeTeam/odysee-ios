@@ -17,6 +17,8 @@ final class Lbryio {
     static let wsConnectionBaseUrl = "wss://api.lbry.com/subscribe?auth_token="
     static let authTokenParam = "auth_token"
     static var authToken: String? = nil
+    
+    static let keyEmailRewardClaimed: String = "EmailRewardClaimed"
     static let keyYouTubeSyncDone: String = "YouTubeSyncDone"
     static let keyYouTubeSyncConnected: String = "YouTubeSyncConnected"
     
@@ -238,6 +240,22 @@ final class Lbryio {
                 completion(error)
             }
         })
+    }
+    
+    static func claimReward(type: String, walletAddress: String, completion: @escaping(Bool?, Error?) -> Void) {
+        let options: Dictionary<String, String> = ["reward_type": type, "wallet_address": walletAddress]
+        do {
+            try call(resource: "reward", action: "claim", options: options, method: methodPost, completion: { data, error in
+                if (error != nil) {
+                    completion(false, error)
+                    return
+                }
+                // successful
+                completion(true, nil)
+            })
+        } catch let error {
+            completion(false, error)
+        }
     }
     
     static func loadExchangeRate(completion: @escaping(Decimal?, Error?) -> Void) {

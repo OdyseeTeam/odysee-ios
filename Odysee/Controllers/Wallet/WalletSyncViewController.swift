@@ -134,6 +134,7 @@ class WalletSyncViewController: UIViewController {
         DispatchQueue.main.async {
             // sync_apply was successful, we can proceed
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.checkAndClaimEmailReward()
             appDelegate.mainController.startWalletBalanceTimer()
             
             if let vcs = self.navigationController?.viewControllers {

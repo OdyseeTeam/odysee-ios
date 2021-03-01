@@ -93,9 +93,46 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         loadFilteredOutpoints()
         
         if Lbryio.isSignedIn() {
-            loadChannels()
+            checkAndClaimEmailReward()
             checkAndShowYouTubeSync()
+            loadChannels()
         }
+    }
+    
+    func checkAndClaimEmailReward() {
+        let defaults = UserDefaults.standard
+        let emailRewardClaimed = defaults.bool(forKey: Lbryio.keyEmailRewardClaimed)
+        if !emailRewardClaimed {
+            let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
+            if ((receiveAddress ?? "").isBlank) {
+                Lbry.apiCall(method: Lbry.methodAddressUnused, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+                    guard let data = data, error == nil else {
+                        return
+                    }
+                    
+                    let newAddress = data["result"] as! String
+                    DispatchQueue.main.async {
+                        let defaults = UserDefaults.standard
+                        defaults.setValue(newAddress, forKey: Helper.keyReceiveAddress)
+                    }
+                    
+                    self.claimEmailReward(walletAddress: newAddress)
+                })
+
+                return
+            }
+            
+            claimEmailReward(walletAddress: receiveAddress!)
+        }
+    }
+        
+    func claimEmailReward(walletAddress: String) {
+        Lbryio.claimReward(type: "email_provided", walletAddress: walletAddress, completion: { data, error in
+            DispatchQueue.main.async {
+                let defaults = UserDefaults.standard
+                defaults.setValue(true, forKey: Lbryio.keyEmailRewardClaimed)
+            }
+        })
     }
     
     func checkAndShowYouTubeSync() {
