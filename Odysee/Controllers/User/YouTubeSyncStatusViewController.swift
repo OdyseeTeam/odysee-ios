@@ -22,6 +22,13 @@ class YouTubeSyncStatusViewController: UIViewController {
     @IBOutlet weak var claimHandleLabel: UILabel!
     @IBOutlet weak var syncVideoStat: UILabel!
     
+    @IBOutlet weak var statusInfoLabel: UILabel!
+    @IBOutlet weak var preTransferView: UIView!
+    @IBOutlet weak var readyForTransferView: UIView!
+    
+    @IBOutlet weak var ytChannelNameLabel: UILabel!
+    @IBOutlet weak var channelNameUploadsLabel: UILabel!
+    
     var timer: Timer = Timer()
     var currentChannel: String? = nil
     let timerInterval: Double = 60 // 1 minute
@@ -151,9 +158,13 @@ class YouTubeSyncStatusViewController: UIViewController {
     
     @objc func fetchSyncStatus() {
         do {
+            claimChannelButton.isHidden = true
+            exploreOdyseeButton.isHidden = true
+            loadingIndicator.isHidden = false
             try Lbryio.call(resource: "yt", action: "transfer", options: [:], method: Lbryio.methodPost, completion: { data, error in
                 guard let data = data, error == nil else {
                     //self.showError(error: error)
+                    self.restoreButtons()
                     return
                 }
                 
@@ -165,21 +176,29 @@ class YouTubeSyncStatusViewController: UIViewController {
                         }
                     }
                 }
+                self.restoreButtons()
             })
         } catch let error {
             self.showError(error: error)
+            self.restoreButtons()
         }
     }
     
     func updateSyncStatus(_ channelData: [String: Any]) {
         DispatchQueue.main.async {
-            //let ytChannelName = channelData["yt_channel_name"] as? String
+            let ytChannelName = channelData["yt_channel_name"] as? String
             let lbryChannelName = channelData["lbry_channel_name"] as? String
             let totalSubs = channelData["total_subs"] as? Int
             let totalVideos = channelData["total_videos"] as? Int
             let transferState = channelData["transfer_state"] as? String
-            //let transferable = channelData["transferable"] as? Bool
+            let transferable = channelData["transferable"] as? Bool
             let syncStatus = channelData["sync_status"] as? String
+            
+            self.preTransferView.isHidden = transferable ?? false
+            self.readyForTransferView.isHidden = !(transferable ?? false)
+            
+            self.ytChannelNameLabel.text = ytChannelName
+            self.channelNameUploadsLabel.text = String(format: String.localized(totalVideos == 1 ? "%@  %d upload" : "%@  %d uploads"), lbryChannelName!, totalVideos ?? 0)
             
             self.currentChannel = lbryChannelName
             self.claimHandleLabel.text = String(format: String.localized("Claim your handle %@"), lbryChannelName ?? "")
@@ -189,9 +208,13 @@ class YouTubeSyncStatusViewController: UIViewController {
             self.cmStatusAgreeToSync.image = UIImage.init(systemName: "checkmark.circle")
             if syncStatus == "synced" {
                 self.cmStatusWaitForVideos.image = UIImage.init(systemName: "checkmark.circle")
-                //if transferable ?? false && transferState != "transferred" {
-                self.claimChannelButton.isEnabled = true
-                //}
+                if transferable ?? false && transferState != "transferred" {
+                    self.claimChannelButton.isEnabled = true
+                }
+            }
+            
+            if transferable ?? false {
+                self.statusInfoLabel.text = String.localized("Your videos are ready to be transferred.")
             }
             
             if transferState == "transferred" {
