@@ -19,7 +19,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     @IBOutlet weak var contentFromLabel: UILabel!
     
     let refreshControl = UIRefreshControl()
-    let categories: [String] = ["Cheese", "Big Hits", "Gaming", "Lab", "Tech", "News", "Finance 2.0", "The Universe", "Wild West"]
+    let categories: [String] = ["Cheese", "Big Hits", "Gaming", "Lab", "Tech", "News", "Finance 2.0", "The Universe", "Movies", "Wild West"]
     let channelIds: [[String]?] = [
         ContentSources.PrimaryChannelContentIds,
         ContentSources.BigHitsChannelIds,
@@ -29,9 +29,11 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         ContentSources.NewsChannelIds,
         ContentSources.FinanceChannelIds,
         ContentSources.TheUniverseChannelIds,
+        ContentSources.MoviesChannelIds,
         ContentSources.PrimaryChannelContentIds
     ]
-    let wildWestCategoryIndex: Int = 8
+    let moviesCategoryIndex: Int = 8
+    let wildWestCategoryIndex: Int = 9
     var currentCategoryIndex: Int = 0
     var categoryButtons: [UIButton] = []
     var options = Dictionary<String, Any>()
@@ -84,7 +86,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         let orderByValue = Helper.sortByItemValues[currentSortByIndex]
         let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : Helper.releaseTime6Months()
         
-        options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["trending_group", "trending_mixed"] : orderByValue, releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) : releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: 5, page: currentPage, pageSize: pageSize)
+        options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["trending_group", "trending_mixed"] : orderByValue, releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) : releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: currentCategoryIndex == moviesCategoryIndex ? 20 : 5, page: currentPage, pageSize: pageSize)
     }
     
     func loadClaims() {

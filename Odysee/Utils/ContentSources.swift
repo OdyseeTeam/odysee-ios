@@ -1206,4 +1206,15 @@ struct ContentSources {
         "2585698b3dbac857c43ec9aec8345cd71dad68e8",
         "83a8331b9b1fe009f90a6672aac969d05aec48c2"
     ]
+    
+    static let MoviesChannelIds = [
+        "2e815e638b0cd7ed86bcb0d544b3dc0f03c82eb5",
+        "fc598d2e94e20c796445edcddcd466925e791a0d",
+        "a8c2e42f80361353b8440c990ac7d3fbf4cf5a59",
+        "e9e142141e466003c6c48a0357b3572e64d7d2ff",
+        "d19b91e9d0cc4963e9c2be2a46c102883f81edf9",
+        "44cd42ae8c0f797a4943e0c889a827756dcee355",
+        "db577020be5e127a894bae7ce1865bb86552c133",
+        "a68e2f8fcf4a2e201bdc700fedcfcd0eb429bb7f"
+    ]
 }
