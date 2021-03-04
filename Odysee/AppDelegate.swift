@@ -48,7 +48,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         
         if keyPath == "playbackLikelyToKeepUp" && player != nil {
-            player?.play()
+            if !(currentFileViewController?.playerConnected ?? false) {
+                player?.play()
+            }
         }
     }
 
@@ -120,18 +122,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let commandCenter = MPRemoteCommandCenter.shared()
 
         // Add handler for Play / Pause Command
-        commandCenter.togglePlayPauseCommand.isEnabled = true
-        commandCenter.togglePlayPauseCommand.addTarget { [unowned self] event in
+        commandCenter.playCommand.isEnabled = true
+        commandCenter.playCommand.addTarget { [unowned self] event in
             if self.player != nil {
-                if self.player!.rate == 0.0 {
-                    self.player!.play()
-                } else {
-                    self.player!.pause()
-                }
+                self.player!.play()
                 return .success
             }
+            
             return .commandFailed
         }
+        commandCenter.pauseCommand.isEnabled = true
+        commandCenter.pauseCommand.addTarget { [unowned self] event in
+            if self.player != nil {
+                self.player!.pause()
+                return .success
+            }
+            
+            return .commandFailed
+        }
+
         
         setupNowPlaying()
     }
