@@ -316,6 +316,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         
         avpc = AVPlayerViewController()
         avpc.allowsPictureInPicturePlayback = true
+        avpc.updatesNowPlayingInfoCenter = false
         
         self.addChild(avpc)
         avpc.view.frame = self.mediaView.bounds
