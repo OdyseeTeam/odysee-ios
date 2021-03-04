@@ -32,7 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func registerPlayerObserver() {
         if player != nil && !playerObserverAdded {
             player!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
-            player!.currentItem!.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: [.old, .new], context: nil)
+            player!.currentItem!.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: [.new], context: nil)
             playerObserverAdded = true
         }
     }
