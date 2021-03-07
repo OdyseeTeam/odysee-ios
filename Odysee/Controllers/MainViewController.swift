@@ -27,6 +27,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     @IBOutlet weak var notificationBadgeCountLabel: UILabel!
     @IBOutlet weak var notificationBadgeIcon: UIImageView!
     
+    @IBOutlet weak var uploadButtonView: UIView!
+    
     var loadingNotifications = false
     var notificationsViewActive = false
     var channels: [Claim] = []
@@ -46,6 +48,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        checkUploadButton()
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if appDelegate.pendingOpenUrl != nil {
@@ -207,6 +210,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         appDelegate.currentClaim = nil
     }
     
+    @IBAction func uploadTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+    }
+    
     @IBAction func walletBalanceActionTapped(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainTabViewController?.selectedIndex = 2
@@ -247,6 +256,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
             appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
+    }
+    
+    func checkUploadButton() {
+        uploadButtonView.isHidden = !Lbryio.isSignedIn()
     }
     
     func loadFilteredOutpoints() {
