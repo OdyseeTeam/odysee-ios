@@ -15,6 +15,8 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     @IBOutlet weak var noChannelsView: UIView!
     @IBOutlet weak var newChannelButton: UIButton!
     
+    var longPressGestureRecognizer: UILongPressGestureRecognizer!
+    
     var loadingChannels = false
     var channels: [Claim] = []
     
@@ -44,6 +46,9 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         loadingContainer.layer.cornerRadius = 20
         channelListView.tableFooterView = UIView()
         loadChannels()
+        
+        longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleChannelCellLongPress))
+        channelListView.addGestureRecognizer(longPressGestureRecognizer)
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -138,16 +143,29 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = channels[indexPath.row]
-        /*let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if claim.claimId == "new" {
+            let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
+            self.navigationController?.pushViewController(vc, animated: true)
+            return
+        }
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
         vc.channelClaim = claim
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)*/
-        
-        let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
-        if claim.claimId != "new" {
-            vc.currentClaim = claim
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+    }
+    
+    @objc func handleChannelCellLongPress(sender: UILongPressGestureRecognizer){
+        if longPressGestureRecognizer.state == .began {
+            let touchPoint = longPressGestureRecognizer.location(in: channelListView)
+            if let indexPath = channelListView.indexPathForRow(at: touchPoint) {
+                let claim: Claim = channels[indexPath.row]
+                let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
+                if claim.claimId != "new" {
+                    vc.currentClaim = claim
+                }
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
         }
-        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {

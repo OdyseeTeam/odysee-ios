@@ -87,6 +87,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     var likesContent = false
     var dislikesContent = false
     var reacting = false
+    var playerConnected = false
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -316,6 +317,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         
         avpc = AVPlayerViewController()
         avpc.allowsPictureInPicturePlayback = true
+        avpc.updatesNowPlayingInfoCenter = false
         
         self.addChild(avpc)
         avpc.view.frame = self.mediaView.bounds
@@ -326,6 +328,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         avpc.delegate = appDelegate.mainController
         if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId) {
             avpc.player = appDelegate.player
+            playerConnected = true
             return
         }
         
@@ -340,10 +343,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             showError(message: String(format: "The streaming url could not be loaded: %@", streamingUrl))
             return
         }
+        
         appDelegate.playerObserverAdded = false
         appDelegate.player = AVPlayer(url: videoUrl!)
         appDelegate.registerPlayerObserver()
         avpc.player = appDelegate.player
+        playerConnected = true
         playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
         
         avpc.player!.play()
@@ -379,6 +384,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     func disconnectPlayer() {
         avpc.player = nil
+        playerConnected = false
     }
     
     func connectPlayer() {
@@ -386,6 +392,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         if appDelegate.player != nil {
             avpc.player = appDelegate.player
         }
+        playerConnected = true
     }
     
     func logFileView(url: String, timeToStart: Int64) {

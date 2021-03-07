@@ -32,6 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func registerPlayerObserver() {
         if player != nil && !playerObserverAdded {
             player!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
+            player!.currentItem!.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: [.new], context: nil)
             playerObserverAdded = true
         }
     }
@@ -43,6 +44,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     currentFileViewController!.checkTimeToStart()
                 }
                 return
+            }
+        }
+        
+        if keyPath == "playbackLikelyToKeepUp" && player != nil {
+            if !(currentFileViewController?.playerConnected ?? false) {
+                player?.play()
             }
         }
     }
@@ -111,24 +118,31 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func setupRemoteTransportControls() {
         // Get the shared MPRemoteCommandCenter
-        print("****Command center setup?!")
         UIApplication.shared.beginReceivingRemoteControlEvents()
         let commandCenter = MPRemoteCommandCenter.shared()
-        setupNowPlaying()
 
         // Add handler for Play / Pause Command
-        commandCenter.togglePlayPauseCommand.isEnabled = true
-        commandCenter.togglePlayPauseCommand.addTarget { [unowned self] event in
+        commandCenter.playCommand.isEnabled = true
+        commandCenter.playCommand.addTarget { [unowned self] event in
             if self.player != nil {
-                if self.player!.rate == 0.0 {
-                    self.player!.play()
-                } else {
-                    self.player!.pause()
-                }
+                self.player!.play()
                 return .success
             }
+            
             return .commandFailed
         }
+        commandCenter.pauseCommand.isEnabled = true
+        commandCenter.pauseCommand.addTarget { [unowned self] event in
+            if self.player != nil {
+                self.player!.pause()
+                return .success
+            }
+            
+            return .commandFailed
+        }
+
+        
+        setupNowPlaying()
     }
     
     func setupNowPlaying() {
@@ -141,18 +155,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     (claim.signingChannel!.value?.title ?? claim.signingChannel!.name) : String.localized("Anonymous")
                 nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = ""
                 
-                if let image = UIImage(named: "lockscreen") {
-                    nowPlayingInfo[MPMediaItemPropertyArtwork] =
-                        MPMediaItemArtwork(boundsSize: image.size) { size in
-                            return image
+                var image: UIImage? = nil
+                if let thumbnailUrl = claim.value?.thumbnail?.url {
+                    if let cacheData = Cache.getImage(url: thumbnailUrl) {
+                        image = UIImage(data: cacheData)
+                    } else if let data = try? Data(contentsOf: URL(string: thumbnailUrl)!) {
+                        image = UIImage(data: data)
+                        if (image != nil) {
+                            Cache.putImage(url: thumbnailUrl, image: data)
+                        }
                     }
                 }
-                let playerItem = player?.currentItem!
-                nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playerItem!.currentTime().seconds
-                nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playerItem!.asset.duration.seconds
-                nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = player!.rate
-
-
+                
+                let playerItem = self.player!.currentItem!
+                nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playerItem.currentTime().seconds
+                nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playerItem.asset.duration.seconds
+                nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.player!.rate
+                if image != nil {
+                    nowPlayingInfo[MPMediaItemPropertyArtwork] =
+                        MPMediaItemArtwork(boundsSize: image!.size) { size in
+                            return image!
+                    }
+                }
+                
                 // Set the metadata
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
             }
