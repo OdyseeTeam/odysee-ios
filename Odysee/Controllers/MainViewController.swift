@@ -211,6 +211,11 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     @IBAction func uploadTapped(_ sender: Any) {
+        let currentVc = UIApplication.currentViewController()
+        if (currentVc as? PublishViewController) != nil {
+            return
+        }
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
