@@ -223,6 +223,9 @@ class UserAccountViewController: UIViewController {
                     DispatchQueue.main.async {
                         Analytics.logEvent("email_verified", parameters: ["email": self.currentEmail!])
                         
+                        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                        appDelegate.mainController.checkUploadButton()
+                        
                         // after email verification, finish with wallet sync
                         self.finishWithWalletSync()
                     }
