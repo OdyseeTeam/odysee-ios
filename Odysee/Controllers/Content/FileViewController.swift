@@ -462,7 +462,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     func getStreamingUrl(claim: Claim) -> String {
         let claimName: String = claim.name!
         let claimId: String = claim.claimId!
-        return String(format: "https://cdn.lbryplayer.xyz/content/claims/%@/%@/stream", claimName, claimId);
+        return String(format: "https://cdn.lbryplayer.xyz/content/claims/%@/%@/stream", claimName.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!, claimId);
     }
     
     func loadAndDisplayViewCount() {
