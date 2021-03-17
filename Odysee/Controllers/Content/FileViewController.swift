@@ -53,6 +53,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var featuredCommentThumbnail: UIImageView!
     @IBOutlet weak var featuredCommentLabel: UILabel!
     
+    @IBOutlet weak var commentExpandView: UIImageView!
     @IBOutlet weak var commentsContainerView: UIView!
     
     @IBOutlet weak var fireReactionCountLabel: UILabel!
@@ -62,6 +63,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     var avpc: AVPlayerViewController!
     
+    var commentsDisabled = false
     var commentsViewPresented = false  
     var commentAsPicker: UIPickerView!
     var claim: Claim?
@@ -276,6 +278,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         descriptionArea.isHidden = true
         descriptionDivider.isHidden = true
         displayRelatedPlaceholders()
+        
+        commentsDisabled = Helper.claimContainsTag(claim: claim!, tag: Helper.tagDisableComments) ||
+            (claim?.signingChannel != nil && Helper.claimContainsTag(claim: claim!.signingChannel!, tag: Helper.tagDisableComments))
+        if commentsDisabled {
+            commentExpandView.isHidden = true
+            noCommentsLabel.isHidden = false
+            noCommentsLabel.text = String.localized("Comments are disabled.")
+            featuredCommentView.isHidden = true
+        }
         
         titleLabel.text = claim?.value?.title
         
@@ -710,6 +721,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     @IBAction func commentAreaTapped(_ sender: Any) {
+        if commentsDisabled {
+            return
+        }
+        
         if commentsViewPresented {
             commentsContainerView.isHidden = false
             return
@@ -717,6 +732,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         
         let vc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
         vc.claimId = claim?.claimId!
+        vc.commentsDisabled = commentsDisabled
         vc.comments = comments
         vc.commentsLastPageReached = commentsLastPageReached
         vc.authorThumbnailMap = authorThumbnailMap
@@ -995,7 +1011,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     func loadComments() {
-        if commentsLoading {
+        if commentsDisabled || commentsLoading {
             return
         }
         

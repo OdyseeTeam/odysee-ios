@@ -63,6 +63,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var claims: [Claim] = []
     var channels: [Claim] = []
     
+    var commentsDisabled = false
     var commentsPageSize: Int = 50
     var commentsCurrentPage: Int = 1
     var commentsLastPageReached: Bool = false
@@ -136,6 +137,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         
         let vc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
         vc.claimId = channelClaim?.claimId!
+        vc.commentsDisabled = commentsDisabled
         vc.isChannelComments = true
         
         vc.willMove(toParent: self)
@@ -258,6 +260,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         resolvingView.isHidden = true
         
         if channelClaim?.value != nil {
+            commentsDisabled = Helper.claimContainsTag(claim: channelClaim!, tag: Helper.tagDisableComments)
+            
             if channelClaim?.value?.thumbnail != nil {
                 thumbnailImageView.load(url: URL(string: (channelClaim?.value?.thumbnail?.url)!)!)
             } else {
@@ -270,6 +274,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             } else {
                 coverImageView.image = UIImage.init(named: "spaceman_cover")
             }
+
             
             titleLabel.text = channelClaim?.value?.title
             
@@ -293,7 +298,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 noAboutContentView.isHidden = true
             }
         }
-        
     }
     
     func loadAndDisplayFollowerCount() {

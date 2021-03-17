@@ -26,6 +26,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     @IBOutlet weak var replyToContainerView: UIView!
     @IBOutlet weak var replyToCommentLabel: UILabel!
     
+    var commentsDisabled: Bool = false
     var commentAsPicker: UIPickerView!
     var claimId: String?
     var commentsPageSize: Int = 50
@@ -48,7 +49,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         if Lbryio.isSignedIn() {
             loadChannels()
         }
-        if comments.count == 0 && !commentsLastPageReached {
+        if comments.count == 0 && !commentsLastPageReached && !commentsDisabled {
             loadComments()
         }
     }
@@ -71,6 +72,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         titleLabel.text = isChannelComments ? String.localized("Community") : String.localized("Comments")
         closeButton.isHidden = isChannelComments
     
+        if commentsDisabled {
+            noCommentsLabel.text = String.localized("Comments are disabled.")
+            noCommentsLabel.isHidden = false
+            commentList.isHidden = true
+        }
+        
         if comments.count > 0 {
             // comments already preloaded
             loadCommentReactions(commentIds: comments.map { $0.commentId! })
