@@ -48,6 +48,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        checkAndShowFirstRun()
         checkUploadButton()
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -79,7 +80,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             // enable audio in silent mode
             try AVAudioSession.sharedInstance().setCategory(.playback)
             try AVAudioSession.sharedInstance().setActive(true, options: [])
-        } catch let error {
+        } catch {
             // pass
         }
         
@@ -136,6 +137,14 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                 defaults.setValue(true, forKey: Lbryio.keyEmailRewardClaimed)
             }
         })
+    }
+    
+    func checkAndShowFirstRun() {
+        if !AppDelegate.hasCompletedFirstRun() {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let vc = self.storyboard?.instantiateViewController(identifier: "fr_vc") as! FirstRunViewController
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        }
     }
     
     func checkAndShowYouTubeSync() {

@@ -26,6 +26,8 @@ class UserAccountViewController: UIViewController {
     @IBOutlet weak var magicLinkButton: UIButton!
     @IBOutlet weak var verificationActionsView: UIView!
     
+    var frDelegate: FirstRunDelegate?
+    var firstRunFlow = false
     var signInMode = false
     var waitingForVerification = false
     var currentEmail: String? = nil
@@ -33,6 +35,7 @@ class UserAccountViewController: UIViewController {
     var emailSignInChecked = false
     var finishWalletSyncStarted = false
     var emailVerificationTimer: Timer = Timer()
+    var requestInProgress: Bool = false
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -59,6 +62,10 @@ class UserAccountViewController: UIViewController {
         
         defaultActionButton.layer.masksToBounds = true
         defaultActionButton.layer.cornerRadius = 16
+        
+        if firstRunFlow {
+            closeButton.isHidden = true
+        }
     }
     
     func registerForKeyboardNotifications() {
@@ -117,6 +124,10 @@ class UserAccountViewController: UIViewController {
     }
     
     func handleUserSignUp() {
+        if requestInProgress {
+            return
+        }
+        
         // check email and password fields are valid
         let email = emailField.text
         let password = passwordField.text
@@ -129,6 +140,8 @@ class UserAccountViewController: UIViewController {
         
         // disable the button
         defaultActionButton.isEnabled = false
+        self.requestInProgress = true
+        frDelegate?.requestStarted()
         
         do {
             var options = Dictionary<String, String>()
@@ -141,6 +154,8 @@ class UserAccountViewController: UIViewController {
                 
                 guard let data = data, error == nil else {
                     self.showError(error: error)
+                    self.requestInProgress = false
+                    self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
                     return
                 }
                 
@@ -151,14 +166,19 @@ class UserAccountViewController: UIViewController {
                         
                         // display waiting for email verification view
                         self.waitForVerification()
+                        self.requestInProgress = false
                         return
                     }
                 }
                 
                 // possible invalid state
+                self.requestInProgress = false
+                self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
                 self.showError(message: String.localized("An unknown error occurred. Please try again."))
             })
         } catch let error {
+            self.requestInProgress = false
+            self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
             self.showError(error: error)
         }
     }
@@ -194,6 +214,7 @@ class UserAccountViewController: UIViewController {
     func waitForVerification() {
         DispatchQueue.main.async { [self] in
             self.waitingForVerification = true
+            self.frDelegate?.requestStarted()
             
             self.controlsStackView.isHidden = true
             self.haveAccountLabel.isHidden = true
@@ -251,6 +272,10 @@ class UserAccountViewController: UIViewController {
     }
     
     func handleUserSignIn() {
+        if requestInProgress {
+            return
+        }
+        
         let email = emailField.text
         
         if (email ?? "").isBlank {
@@ -261,12 +286,13 @@ class UserAccountViewController: UIViewController {
         
         if (!emailSignInChecked) {
             do {
+                requestInProgress = true
+                self.frDelegate?.requestStarted()
                 var options = Dictionary<String, String>()
                 options["email"] = email
                 try Lbryio.call(resource: "user", action: "exists", options: options, method: Lbryio.methodPost, completion: { data, error in
                     guard let data = data, error == nil else {
                         if let responseError = error as? LbryioResponseError {
-                            print(responseError.code)
                             if responseError.code == 412 {
                                 // old email verification flow
                                 self.currentEmail = email
@@ -279,6 +305,8 @@ class UserAccountViewController: UIViewController {
                                 self.showError(error: error)
                             }
                         }
+                        self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
+                        self.requestInProgress = false
                         return
                     }
                     
@@ -302,9 +330,13 @@ class UserAccountViewController: UIViewController {
                         
                         self.emailField.resignFirstResponder()
                         self.passwordField.resignFirstResponder()
+                        self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
+                        self.requestInProgress = false
                     }
                 })
             } catch let error {
+                self.requestInProgress = false
+                self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
                 self.showError(error: error)
             }
             
@@ -321,6 +353,8 @@ class UserAccountViewController: UIViewController {
         options["email"] = email
         options["password"] = passwordField.text!
         do {
+            self.requestInProgress = true
+            self.frDelegate?.requestStarted()
             try Lbryio.call(resource: "user", action: "signin", options: options, method: Lbryio.methodPost, completion: { data, error in
                 DispatchQueue.main.async {
                     self.defaultActionButton.isEnabled = true
@@ -328,12 +362,15 @@ class UserAccountViewController: UIViewController {
                 
                 guard let data = data, error == nil else {
                     if let responseError = error as? LbryioResponseError {
+                        self.requestInProgress = false
                         if responseError.code == 409 {
                             self.handleEmailVerificationFlow(email: email)
                             return
                         }
                     }
                     
+                    self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
+                    self.requestInProgress = false
                     self.showError(error: error)
                     return
                 }
@@ -347,6 +384,8 @@ class UserAccountViewController: UIViewController {
                             "user_id": user!.id!,
                             "user_email": user!.primaryEmail ?? ""
                         ])
+                        
+                        self.requestInProgress = false
                         self.finishWithWalletSync()
                         return
                     }
@@ -355,9 +394,13 @@ class UserAccountViewController: UIViewController {
                 }
                 
                 // possible invalid state
+                self.requestInProgress = false
+                self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
                 self.showError(message: String.localized("An unknown error occurred. Please try again."))
             })
         } catch let error {
+            self.requestInProgress = false
+            self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
             self.showError(error: error)
         }
     }
@@ -411,13 +454,14 @@ class UserAccountViewController: UIViewController {
         emailVerificationTimer.invalidate()
         currentEmail = nil
         waitingForVerification = false
+        self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
         
         emailField.text = ""
         passwordField.text = ""
         
         controlsStackView.isHidden = false
         haveAccountLabel.isHidden = false
-        closeButton.isHidden = false
+        closeButton.isHidden = firstRunFlow
         verificationLabel.isHidden = true
         verificationActionsView.isHidden = true
         
@@ -434,8 +478,16 @@ class UserAccountViewController: UIViewController {
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = self.storyboard?.instantiateViewController(identifier: "wallet_sync_vc") as! WalletSyncViewController
-            appDelegate.mainNavigationController?.popViewController(animated: false)
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            vc.firstRunFlow = self.firstRunFlow
+            vc.frDelegate = self.frDelegate
+            
+            if self.firstRunFlow {
+                self.frDelegate?.requestStarted()
+                self.frDelegate?.showViewController(vc)
+            } else {
+                appDelegate.mainNavigationController?.popViewController(animated: false)
+                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            }
         }
     }
     

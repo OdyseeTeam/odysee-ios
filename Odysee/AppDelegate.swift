@@ -53,6 +53,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
     }
+    
+    static func completeFirstRun() {
+        let defaults = UserDefaults.standard
+        defaults.setValue(true, forKey: Helper.keyFirstRunCompleted)
+    }
+    
+    static func hasCompletedFirstRun() -> Bool {
+        let defaults = UserDefaults.standard
+        return (defaults.value(forKey: Helper.keyFirstRunCompleted) as? Bool ?? false)
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
