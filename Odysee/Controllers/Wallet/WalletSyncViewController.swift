@@ -11,7 +11,9 @@ import UIKit
 // initial wallet sync processing after sign in / sign up
 class WalletSyncViewController: UIViewController {
 
+    var firstRunFlow = false
     var currentWalletSync: WalletSync? = nil
+    var frDelegate: FirstRunDelegate?
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -137,16 +139,21 @@ class WalletSyncViewController: UIViewController {
             appDelegate.mainController.checkAndClaimEmailReward()
             appDelegate.mainController.startWalletBalanceTimer()
             
-            if let vcs = self.navigationController?.viewControllers {
-                let index = max(0, vcs.count - 2)
-                var targetVc = vcs[index]
-                if targetVc == self {
-                    targetVc = vcs[index - 1]
-                }
-                self.navigationController?.popToViewController(targetVc, animated: true)
-                self.checkAndShowYouTubeSync(popViewController: false)
+            if self.firstRunFlow {
+                self.frDelegate?.requestFinished(showSkip: true, showContinue: true)
+                self.frDelegate?.nextStep()
             } else {
-                self.checkAndShowYouTubeSync(popViewController: true)
+                if let vcs = self.navigationController?.viewControllers {
+                    let index = max(0, vcs.count - 2)
+                    var targetVc = vcs[index]
+                    if targetVc == self {
+                        targetVc = vcs[index - 1]
+                    }
+                    self.navigationController?.popToViewController(targetVc, animated: true)
+                    self.checkAndShowYouTubeSync(popViewController: false)
+                } else {
+                    self.checkAndShowYouTubeSync(popViewController: true)
+                }
             }
         }
     }

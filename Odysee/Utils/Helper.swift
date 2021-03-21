@@ -16,6 +16,7 @@ final class Helper {
     static let commentMaxLength: Int = 2000
     static let txLinkPrefix = "https://explorer.lbry.com/tx"
     static let keyReceiveAddress = "walletReceiveAddress"
+    static let keyFirstRunCompleted = "firstRunCompleted"
     static let reactionTypeLike = "like"
     static let reactionTypeDislike = "dislike"
     static let tagDisableComments = "disable-comments"

@@ -16,6 +16,9 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
     let discordLink = "https://discordapp.com/invite/Z3bERWA"
     var lbrySkipProduct: SKProduct?
     
+    var frDelegate: FirstRunDelegate?
+    var firstRunFlow = false
+    
     @IBOutlet weak var closeVerificationButton: UIButton!
     @IBOutlet weak var twitterOptionButton: UIButton!
     @IBOutlet weak var skipQueueOptionButton: UIButton!
@@ -31,6 +34,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
     
     @IBOutlet weak var noRewardsView: UIView!
     @IBOutlet weak var loadingContainer: UIView!
+    @IBOutlet weak var rewardEligibleView: UIView!
     
     var claimInProgress = false
     var currentTag = 0
@@ -53,7 +57,8 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             if !Lbryio.currentUser!.isRewardApproved! {
                 fetchUserAndCheckRewardStatus()
             } else {
-                showRewardsList()
+                showRewardEligibleView()
+                self.frDelegate?.requestFinished(showSkip: false, showContinue: true)
             }
         }
     }
@@ -63,14 +68,17 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         do {
             try Lbryio.fetchCurrentUser(completion: { user, error in
                 if user == nil || !user!.isRewardApproved! {
+                    self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
                     self.showVerificationPaths()
                     self.fetchIAPProduct()
                 } else {
-                    self.showRewardsList()
+                    self.frDelegate?.requestFinished(showSkip: false, showContinue: true)
+                    self.showRewardEligibleView()
                 }
             })
         } catch {
             // pass
+            self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
             self.showVerificationPaths()
             self.fetchIAPProduct()
         }
@@ -85,6 +93,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        closeVerificationButton.isHidden = self.firstRunFlow
         loadingContainer.layer.cornerRadius = 20
         rewardsList.tableFooterView = UIView()
     }
@@ -99,24 +108,42 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
     
     func showVerificationPaths() {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+            if !self.firstRunFlow {
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+            }
         
             self.rewardVerificationPathsView.isHidden = false
-            self.closeVerificationButton.isHidden = false
+            self.closeVerificationButton.isHidden = self.firstRunFlow
             
             // don't show the purchase option for now
             //self.skipQueueOptionButton.isHidden = true
             
+            self.rewardEligibleView.isHidden = true
             self.mainRewardsView.isHidden = true
+        }
+    }
+    
+    func showRewardEligibleView() {
+        DispatchQueue.main.async {
+            if !self.firstRunFlow {
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+            }
+            
+            self.rewardVerificationPathsView.isHidden = true
+            self.mainRewardsView.isHidden = true
+            self.rewardEligibleView.isHidden = false
         }
     }
     
     func showRewardsList() {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-            
+            if !self.firstRunFlow {
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                appDelegate.mainController.toggleHeaderVisibility(hidden: false)
+            }
+                
             self.rewardVerificationPathsView.isHidden = true
             self.closeVerificationButton.isHidden = true
             self.mainRewardsView.isHidden = false
@@ -261,7 +288,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         DispatchQueue.main.async {
             self.pathOptionsView.isHidden = false
             self.optionsScrollView.isHidden = false
-            self.closeVerificationButton.isHidden = false
+            self.closeVerificationButton.isHidden = self.firstRunFlow
             self.processingIndicator.isHidden = true
         }
     }
@@ -326,7 +353,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                     if rewardVerified.isRewardApproved ?? false {
                         // successful reward verification, show the rewards page
                         DispatchQueue.main.async {
-                            self.showRewardsList()
+                            self.showRewardEligibleView()
                             self.stopProcessing()
                             return
                         }
