@@ -157,9 +157,9 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             return
         }
         
+        let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
+        vc.currentClaim = claim
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-        vc.claim = claim
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
@@ -168,11 +168,10 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             let touchPoint = longPressGestureRecognizer.location(in: uploadsListView)
             if let indexPath = uploadsListView.indexPathForRow(at: touchPoint) {
                 let claim: Claim = uploads[indexPath.row]
-                let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
-                if claim.claimId != "new" {
-                    vc.currentClaim = claim
-                }
-                self.navigationController?.pushViewController(vc, animated: true)
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                vc.claim = claim
+                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
             }
         }
     }

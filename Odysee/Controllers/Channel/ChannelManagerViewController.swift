@@ -148,10 +148,12 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             self.navigationController?.pushViewController(vc, animated: true)
             return
         }
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
-        vc.channelClaim = claim
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
+        if claim.claimId != "new" {
+            vc.currentClaim = claim
+        }
+        self.navigationController?.pushViewController(vc, animated: true)
+        
     }
     
     @objc func handleUploadCellLongPress(sender: UILongPressGestureRecognizer){
@@ -159,11 +161,10 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             let touchPoint = longPressGestureRecognizer.location(in: channelListView)
             if let indexPath = channelListView.indexPathForRow(at: touchPoint) {
                 let claim: Claim = channels[indexPath.row]
-                let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
-                if claim.claimId != "new" {
-                    vc.currentClaim = claim
-                }
-                self.navigationController?.pushViewController(vc, animated: true)
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                vc.channelClaim = claim
+                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
             }
         }
     }

@@ -153,6 +153,28 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             thumbnailImageView.load(url: URL(string: thumbnailUrl)!)
         }
         
+        if currentClaim?.signingChannel != nil {
+            let channelClaimId = currentClaim!.signingChannel!.claimId!
+            if let index = channels.firstIndex(where: { $0.claimId == channelClaimId }) {
+                self.channelPickerView.selectRow(Int(index), inComponent: 0, animated: true)
+            }
+        }
+        
+        if currentClaim?.value != nil {
+            if let languages = currentClaim?.value?.languages {
+                if languages.count > 0 {
+                    if let index = Predefined.publishLanguages.firstIndex(where: { $0.code == languages[0] }) {
+                        self.languagePickerView.selectRow(Int(index), inComponent: 0, animated: true)
+                    }
+                }
+            }
+            if let license = currentClaim?.value?.license {
+                if let index = Predefined.licenses.firstIndex(where: { $0.name == license }) {
+                    self.licensePickerView.selectRow(Int(index), inComponent: 0, animated: true)
+                }
+            }
+        }
+        
         uploadButton.setTitle("Update", for: .normal)
     }
         
@@ -329,7 +351,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         var releaseTimeSet = false
         if currentClaim != nil  {
             if !(currentClaim!.value?.releaseTime ?? "").isBlank {
-                params["release_time"] = currentClaim!.value!.releaseTime!
+                params["release_time"] = Int64(currentClaim!.value!.releaseTime!) ?? Int64(Date().timeIntervalSince1970)
                 releaseTimeSet = true
             } else if currentClaim!.timestamp! > 0 {
                 params["release_time"] = currentClaim!.timestamp!
