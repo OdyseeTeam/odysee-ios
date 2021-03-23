@@ -21,12 +21,14 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     @IBOutlet weak var namePrefixLabel: UILabel!
     @IBOutlet weak var depositField: UITextField!
     @IBOutlet weak var videoNameField: UITextField!
+    @IBOutlet weak var selectVideoArea: UIView!
     
     @IBOutlet weak var thumbnailImageView: UIImageView!
     @IBOutlet weak var channelPickerView: UIPickerView!
     @IBOutlet weak var languagePickerView: UIPickerView!
     @IBOutlet weak var licensePickerView: UIPickerView!
     
+    @IBOutlet weak var generateThumbnailButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var uploadButton: UIButton!
     @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
@@ -65,6 +67,8 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         descriptionField.layer.borderWidth = 1
         descriptionField.layer.cornerRadius = 4
         
+        uploadingIndicator.layer.cornerRadius = 16
+        
         loadChannels()
     }
     
@@ -91,6 +95,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         options["resolve"] = true
         Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let data = data, error == nil else {
+                self.restoreButtons()
                 self.showError(error: error)
                 return
             }
@@ -123,10 +128,34 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                     self.channelPickerView.selectRow(1, inComponent: 0, animated: true)
                     self.namePrefixLabel.text = String(format: self.namePrefixFormat, self.channels[1].name! + "/")
                 }
+                self.populateFieldsForEdit()
             }
         })
     }
     
+    func populateFieldsForEdit() {
+        if currentClaim == nil {
+            return
+        }
+        
+        generateThumbnailButton.isHidden = true
+        nameField.isEnabled = false
+        nameField.text = currentClaim?.name
+        titleField.text = currentClaim?.value!.title ?? ""
+        descriptionField.text = currentClaim?.value!.description ?? ""
+        depositField.text = currentClaim?.amount!
+        selectVideoArea.isHidden = true
+        
+        if currentClaim?.value!.thumbnail != nil && !(currentClaim?.value!.thumbnail!.url ?? "").isBlank {
+            let thumbnailUrl = currentClaim!.value!.thumbnail!.url!
+            self.currentThumbnailUrl = thumbnailUrl
+            thumbnailImageView.backgroundColor = UIColor.clear
+            thumbnailImageView.load(url: URL(string: thumbnailUrl)!)
+        }
+        
+        uploadButton.setTitle("Update", for: .normal)
+    }
+        
     func startLoading() {
         DispatchQueue.main.async {
             self.loadingIndicator.isHidden = false
@@ -197,7 +226,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                     self.thumbnailImageView.image = thumbnail
                 }
                 
-                //self.uploadThumbnail(image: thumbnail, generated: true)
+                self.uploadThumbnail(image: thumbnail, generated: true)
             } catch {
                 self.showError(message: "A thumbnail could not be generated for the selected video")
                 return
@@ -207,11 +236,13 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     
     func uploadThumbnail(image: UIImage, generated: Bool = false) {
         thumbnailUploadInProgress = true
-        uploadingIndicator.isHidden = false
+        DispatchQueue.main.async {
+            self.uploadingIndicator.isHidden = false
+        }
         Helper.uploadImage(image: image, completion: { imageUrl, error in
             guard let imageUrl = imageUrl, error == nil else {
                 DispatchQueue.main.async {
-                    //self.uploadingIndicator.isHidden = true
+                    self.uploadingIndicator.isHidden = true
                 }
                 
                 self.thumbnailUploadInProgress = false
@@ -221,6 +252,9 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             
             if generated {
                 self.thumbnailGenerated = true
+            }
+            DispatchQueue.main.async {
+                self.uploadingIndicator.isHidden = true
             }
             self.thumbnailUploadInProgress = false
             self.currentThumbnailUrl = imageUrl
@@ -253,8 +287,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             showError(message: String.localized("Please provide a title for your content"))
             return
         }
-        
-        
+
         if deposit == nil {
             showError(message: String.localized("Please enter a valid deposit amount"))
             return
@@ -270,24 +303,27 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             return
         }
         
-        if selectedVideoUrl == nil {
+        if !editMode && selectedVideoUrl == nil {
             showError(message: "Please select a video to upload")
             return
         }
         
         var params: Dictionary<String, Any> = [
             "blocking": true,
-            "name": name!,
             "bid": Helper.sdkAmountFormatter.string(from: deposit! as NSDecimalNumber)!,
             "title": (title ?? ""),
             "description": (descriptionField.text ?? ""),
             "thumbnail_url": (currentThumbnailUrl ?? "")
         ]
         
+        if !editMode {
+            params["name"] = name!
+        }
+        
         let selectedChannelIndex: Int = channelPickerView.selectedRow(inComponent: 0)
         if selectedChannelIndex > 0 {
             // not anonymous
-            params["channel_id"] = channels[selectedChannelIndex]
+            params["channel_id"] = channels[selectedChannelIndex].claimId
         }
         
         var releaseTimeSet = false
@@ -305,21 +341,55 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             params["release_time"] = Int(Date().timeIntervalSince1970)
         }
         
+        let language = Predefined.publishLanguages[languagePickerView.selectedRow(inComponent: 0)]
+        params["languages"] = [language.code!]
+        
+        let license = Predefined.licenses[licensePickerView.selectedRow(inComponent: 0)]
+        params["license"] = license.name
+        if !(license.url ?? "").isBlank {
+            params["license_url"] = license.url!
+        }
+        // TODO: License url input field?
+        
         saveInProgress = true
         startLoading()
-        uploadVideo(filename: selectedVideoUrl.lastPathComponent, params: params, completion: { data, error in
-            guard let data = data, error == nil else {
+        if editMode {
+            params["claim_id"] = currentClaim?.claimId
+
+            Lbry.apiCall(method: Lbry.methodStreamUpdate, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+                guard let _ = data, error == nil else {
+                    self.saveInProgress = false
+                    self.restoreButtons()
+                    self.showError(error: error)
+                    return
+                }
+                
+                self.showMessage(message: String.localized("Your content was successfully updated. Changes will show up in a few minutes."))
+                DispatchQueue.main.async {
+                    self.navigationController?.popViewController(animated: true)
+                }
+            })
+        } else {
+            uploadVideo(filename: selectedVideoUrl.lastPathComponent, params: params, completion: { data, error in
+                guard let _ = data, error == nil else {
+                    self.saveInProgress = false
+                    self.restoreButtons()
+                    self.showError(error: error)
+                    return
+                }
+                
                 self.saveInProgress = false
                 self.restoreButtons()
-                self.showError(error: error)
-                return
-            }
-            
-            
-            self.saveInProgress = false
-            self.restoreButtons()
-            // show a message upon successful upload and then dismiss
-        })
+                
+                // show a message upon successful upload and then dismiss
+                self.showMessage(message: String.localized("Your video was successfully uploaded. It will be available in a few minutes."))
+                DispatchQueue.main.async {
+                    self.navigationController?.popViewController(animated: true)
+                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                    appDelegate.mainTabViewController?.selectedIndex = 3
+                }
+            })
+        }
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
@@ -435,6 +505,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
         if pickerView == channelPickerView {
             return channels.count
+        } else if pickerView == languagePickerView {
+            return Predefined.publishLanguages.count
+        } else if pickerView == licensePickerView {
+            return Predefined.licenses.count
         }
         
         return 0
@@ -443,6 +517,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         if pickerView == channelPickerView {
             return channels[row].name
+        } else if pickerView == languagePickerView {
+            return Predefined.publishLanguages[row].localizedName
+        } else if pickerView == licensePickerView {
+            return Predefined.licenses[row].localizedName
         }
         
         return nil
@@ -479,7 +557,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         }
         // reset thumbnail generated state here because the user selected a different image as a thumbnail
         thumbnailGenerated = false
-        //uploadThumbnail(image: image)
+        DispatchQueue.main.async {
+            self.thumbnailImageView.image = image
+        }
+        uploadThumbnail(image: image)
     }
     
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {

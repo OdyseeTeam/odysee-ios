@@ -45,12 +45,20 @@ class ClaimTableViewCell: UITableViewCell {
         titleLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
         publisherLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
         publishTimeLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
-        durationView.isHidden = claim.claimId == "placeholder"
+        durationView.isHidden = claim.claimId == "placeholder" || claim.claimId == "new"
         
         if claim.claimId == "placeholder" {
             titleLabel.text = " "
             publisherLabel.text = " "
             publishTimeLabel.text = " "
+            return
+        }
+        
+        if claim.claimId == "new" {
+            titleLabel.text = String.localized("New Upload")
+            publisherLabel.text = " "
+            publishTimeLabel.text = " "
+            thumbnailImageView.image = UIImage.init(named: "spaceman")
             return
         }
         

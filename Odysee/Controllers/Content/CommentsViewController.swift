@@ -45,7 +45,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        postCommentAreaView.isHidden = !Lbryio.isSignedIn()
+        postCommentAreaView.isHidden = !Lbryio.isSignedIn() || commentsDisabled
         if Lbryio.isSignedIn() {
             loadChannels()
         }

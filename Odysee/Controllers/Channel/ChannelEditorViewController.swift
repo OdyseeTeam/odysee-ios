@@ -75,6 +75,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         }
         
         nameField.isEnabled = false
+        nameField.text = currentClaim?.name
         titleField.text = currentClaim?.value!.title ?? ""
         nameField.text = currentClaim?.name!
         depositField.text = currentClaim?.amount!

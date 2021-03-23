@@ -739,7 +739,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         
         vc.willMove(toParent: self)
         commentsContainerView.addSubview(vc.view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: commentsContainerView.frame.width, height: commentsContainerView.frame.height)
+        vc.view.frame = CGRect(x: 0, y: 0, width: commentsContainerView.bounds.width, height: commentsContainerView.bounds.height)
         self.addChild(vc)
         vc.didMove(toParent: self)
         

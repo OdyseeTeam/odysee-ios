@@ -47,7 +47,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         channelListView.tableFooterView = UIView()
         loadChannels()
         
-        longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleChannelCellLongPress))
+        longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleUploadCellLongPress))
         channelListView.addGestureRecognizer(longPressGestureRecognizer)
     }
     
@@ -154,7 +154,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
-    @objc func handleChannelCellLongPress(sender: UILongPressGestureRecognizer){
+    @objc func handleUploadCellLongPress(sender: UILongPressGestureRecognizer){
         if longPressGestureRecognizer.state == .began {
             let touchPoint = longPressGestureRecognizer.location(in: channelListView)
             if let indexPath = channelListView.indexPathForRow(at: touchPoint) {

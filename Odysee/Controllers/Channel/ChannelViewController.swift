@@ -142,7 +142,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         
         vc.willMove(toParent: self)
         channelCommunityView.addSubview(vc.view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: channelCommunityView.frame.width, height: channelCommunityView.frame.height)
+        vc.view.frame = CGRect(x: 0, y: 0, width: channelCommunityView.bounds.width, height: channelCommunityView.bounds.height)
         self.addChild(vc)
         vc.didMove(toParent: self)
     
