@@ -15,4 +15,5 @@ protocol FirstRunDelegate {
     func showViewController(_ vc: UIViewController)
     func updateFirstChannelName(_ name: String)
     func nextStep()
+    func continueProcess()
 }

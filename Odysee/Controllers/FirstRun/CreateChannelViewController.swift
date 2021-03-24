@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CreateChannelViewController: UIViewController {
+class CreateChannelViewController: UIViewController, UITextFieldDelegate {
     
     var frDelegate: FirstRunDelegate?
     var firstRunFlow: Bool = false
@@ -91,5 +91,13 @@ class CreateChannelViewController: UIViewController {
     
     @IBAction func channelNameFieldChanged(_ sender: UITextField) {
         frDelegate?.updateFirstChannelName(sender.text!)
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        if !(textField.text ?? "").isBlank {
+            frDelegate?.continueProcess()
+        }
+        return true
     }
 }

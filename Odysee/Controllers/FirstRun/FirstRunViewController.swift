@@ -13,7 +13,9 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     @IBOutlet weak var skipButton: UIButton!
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var pageControl: UIPageControl!
+    @IBOutlet weak var bottomConstraint: NSLayoutConstraint!
     
+    var currentVc: UIViewController!
     var firstChannelVc: CreateChannelViewController!
     var creatingChannel: Bool = false
     
@@ -40,6 +42,8 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
+        registerForKeyboardNotifications()
+        
         let defaults = UserDefaults.standard
         //defaults.setValue(1, forKey: keyFirstRunStep)
         currentStep = defaults.value(forKey: keyFirstRunStep) as? Int ?? FirstRunViewController.stepUserAccount
@@ -51,6 +55,23 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
             case FirstRunViewController.stepRewardVerification: showRewardVerificationView()
             default: showUserAccountView()
         }
+    }
+    
+    func registerForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        let info = notification.userInfo
+        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+        bottomConstraint.constant = -kbSize.height
+        currentVc.view.frame = CGRect(x: 0, y: 0, width: viewContainer.bounds.width, height: viewContainer.bounds.height)
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        bottomConstraint.constant = 0
+        currentVc.view.frame = CGRect(x: 0, y: 0, width: viewContainer.bounds.width, height: viewContainer.bounds.height)
     }
     
     func showUserAccountView() {
@@ -89,6 +110,8 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         vc.view.frame = CGRect(x: 0, y: 0, width: viewContainer.bounds.width, height: viewContainer.bounds.height)
         self.addChild(vc)
         vc.didMove(toParent: self)
+        
+        currentVc = vc
     }
     
     /*
@@ -103,6 +126,8 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     
 
     @IBAction func skipTapped(_ sender: UIButton) {
+        self.view.endEditing(true)
+        
         if currentStep == FirstRunViewController.stepUserAccount {
             // user skipped sign in, so skipp all other steps
             AppDelegate.completeFirstRun()
@@ -118,6 +143,11 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     }
     
     @IBAction func continueTapped(_ sender: UIButton) {
+        self.view.endEditing(true)
+        continueProcess()
+    }
+    
+    func continueProcess() {
         if currentStep == FirstRunViewController.stepCreateChannel {
             // handle chnanel creation
             handleCreateFirstChannel()

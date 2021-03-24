@@ -11,10 +11,11 @@ import Photos
 import PhotosUI
 import UIKit
 
-class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate, PHPickerViewControllerDelegate {
+class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, PHPickerViewControllerDelegate {
 
     var saveInProgress: Bool = false
     
+    @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var titleField: UITextField!
     @IBOutlet weak var descriptionField: UITextView!
     @IBOutlet weak var nameField: UITextField!
@@ -47,7 +48,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     var thumbnailUploadInProgress: Bool = false
     
     let namePrefixFormat = "odysee.com/%@"
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "PublishForm", AnalyticsParameterScreenClass: "PublishViewController"])
@@ -59,10 +60,16 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        self.view.endEditing(true)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
+        registerForKeyboardNotifications()
         descriptionField.layer.borderColor = UIColor.systemGray5.cgColor
         descriptionField.layer.borderWidth = 1
         descriptionField.layer.cornerRadius = 4
@@ -74,6 +81,25 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+    
+    func registerForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        let info = notification.userInfo
+        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+        let contentInsets = UIEdgeInsets.init(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+        scrollView.contentInset = contentInsets
+        scrollView.scrollIndicatorInsets = contentInsets
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        let contentInsets = UIEdgeInsets.zero
+        scrollView.contentInset = contentInsets
+        scrollView.scrollIndicatorInsets = contentInsets
     }
     
     func addAnonymousPlaceholder() {
@@ -196,6 +222,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     
     
     @IBAction func backTapped(_ sender: Any) {
+        self.view.endEditing(true)
         if saveInProgress {
             return
         }
@@ -203,14 +230,17 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     }
     
     @IBAction func selectVideoTapped(_ sender: UIButton) {
+        self.view.endEditing(true)
         showVideoPicker()
     }
     
     @IBAction func selectImageTapped(_ sender: UIButton) {
+        self.view.endEditing(true)
         showImagePicker()
     }
     
     @IBAction func generateThumbnailTapped(_ sender: UIButton) {
+        self.view.endEditing(true)
         generateThumbnailForVideo()
     }
     
@@ -284,6 +314,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     }
     
     @IBAction func cancelTapped(_ sender: UIButton) {
+        self.view.endEditing(true)
         if saveInProgress {
             return
         }
@@ -291,6 +322,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     }
     
     @IBAction func uploadTapped(_ sender: UIButton) {
+        self.view.endEditing(true)
         let name = nameField.text
         let deposit = Decimal(string: depositField.text!)
         let title = titleField.text
@@ -600,6 +632,11 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 }
             }
         }
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
     
     func showMessage(message: String?) {

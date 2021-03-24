@@ -1201,10 +1201,10 @@
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="notification_cell" id="CBC-yc-Lg6" customClass="NotificationTableViewCell" customModule="Odysee" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="414" height="125.5"/>
+                                        <rect key="frame" x="0.0" y="28" width="414" height="126"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="CBC-yc-Lg6" id="CyX-RZ-AKz">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="125.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="126"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nec-jl-R4W">
@@ -1236,7 +1236,7 @@
                                                     </constraints>
                                                 </view>
                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="Rkn-qw-1Ja">
-                                                    <rect key="frame" x="72" y="12" width="298" height="101.5"/>
+                                                    <rect key="frame" x="72" y="12" width="298" height="102"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E1P-Ch-8kS">
                                                             <rect key="frame" x="0.0" y="0.0" width="298" height="0.0"/>
@@ -1251,7 +1251,7 @@
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KCt-HX-Xa4">
-                                                            <rect key="frame" x="0.0" y="6" width="298" height="95.5"/>
+                                                            <rect key="frame" x="0.0" y="6" width="298" height="96"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -2852,7 +2852,7 @@
                                                                         <textInputTraits key="textInputTraits"/>
                                                                         <connections>
                                                                             <action selector="titleChanged:" destination="ZpA-3Q-B8s" eventType="editingChanged" id="7d0-Xq-vnw"/>
-                                                                            <outlet property="delegate" destination="ZpA-3Q-B8s" id="wXv-kV-Rak"/>
+                                                                            <outlet property="delegate" destination="Msd-wJ-nEU" id="BJG-Ec-Iyu"/>
                                                                         </connections>
                                                                     </textField>
                                                                 </subviews>
@@ -2881,7 +2881,7 @@
                                                                 <textInputTraits key="textInputTraits"/>
                                                                 <connections>
                                                                     <action selector="titleChanged:" destination="ZpA-3Q-B8s" eventType="editingChanged" id="ljS-tb-OAl"/>
-                                                                    <outlet property="delegate" destination="ZpA-3Q-B8s" id="uHX-Gb-wS2"/>
+                                                                    <outlet property="delegate" destination="Msd-wJ-nEU" id="3BZ-eq-GU2"/>
                                                                 </connections>
                                                             </textField>
                                                         </subviews>
@@ -3233,6 +3233,7 @@
                         <outlet property="loadingIndicator" destination="vbh-az-QtK" id="uaC-1h-0VJ"/>
                         <outlet property="nameField" destination="Rxg-Cs-CLK" id="j0E-CT-n0U"/>
                         <outlet property="namePrefixLabel" destination="xUS-Xi-t5E" id="p84-Hw-nOc"/>
+                        <outlet property="scrollView" destination="3wx-yg-s99" id="sF0-Yw-eGS"/>
                         <outlet property="selectVideoArea" destination="Yrc-eH-HDp" id="Alr-97-vgE"/>
                         <outlet property="thumbnailImageView" destination="7bS-GP-EdN" id="fN6-O1-Poy"/>
                         <outlet property="titleField" destination="Nyx-vN-Bmz" id="BNB-nB-Vec"/>
@@ -6418,6 +6419,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="bottomConstraint" destination="IG3-IK-Jgm" id="HId-dX-H7W"/>
                         <outlet property="continueButton" destination="wUv-bo-aEk" id="ywX-zH-1kJ"/>
                         <outlet property="pageControl" destination="Oke-Hz-pnK" id="gN2-aW-vAW"/>
                         <outlet property="skipButton" destination="G0b-wY-woZ" id="o4p-8n-K3P"/>
@@ -6469,11 +6471,11 @@
                                     <constraint firstItem="efl-bt-wWO" firstAttribute="centerX" secondItem="JE2-rM-9bJ" secondAttribute="centerX" id="pEB-WN-1eb"/>
                                 </constraints>
                             </view>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ke0-lV-lo4">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ke0-lV-lo4">
                                 <rect key="frame" x="0.0" y="44" width="414" height="818"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ayo-L7-aj5">
-                                        <rect key="frame" x="0.0" y="0.0" width="414" height="535.5"/>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ayo-L7-aj5">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="397"/>
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="odysee_logo" translatesAutoresizingMaskIntoConstraints="NO" id="AwA-ab-76Y">
                                                 <rect key="frame" x="167" y="32" width="80" height="80"/>
@@ -6494,27 +6496,14 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="MrG-cq-U8d">
-                                                <rect key="frame" x="16" y="226" width="382" height="59"/>
-                                                <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your Odysee channel name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eVP-wF-iVe">
-                                                        <rect key="frame" x="0.0" y="0.0" width="382" height="17"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="mychannel" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="V1u-7f-M8p">
-                                                        <rect key="frame" x="0.0" y="25" width="382" height="34"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                        <textInputTraits key="textInputTraits"/>
-                                                        <connections>
-                                                            <action selector="channelNameFieldChanged:" destination="Zhc-4w-h8B" eventType="editingChanged" id="kS8-uz-C4P"/>
-                                                        </connections>
-                                                    </textField>
-                                                </subviews>
-                                            </stackView>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your Odysee channel name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eVP-wF-iVe">
+                                                <rect key="frame" x="16" y="238" width="382" height="17"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="OPj-Wj-0OJ" userLabel="Action Buttons">
-                                                <rect key="frame" x="16" y="317" width="382" height="44"/>
+                                                <rect key="frame" x="16" y="345" width="382" height="44"/>
                                                 <subviews>
                                                     <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="tdT-AX-1iS">
                                                         <rect key="frame" x="181" y="12" width="20" height="20"/>
@@ -6528,22 +6517,37 @@
                                                     <constraint firstAttribute="bottom" secondItem="tdT-AX-1iS" secondAttribute="bottom" constant="12" id="gct-25-e4a"/>
                                                 </constraints>
                                             </view>
+                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="mychannel" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="V1u-7f-M8p">
+                                                <rect key="frame" x="16" y="263" width="382" height="34"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <textInputTraits key="textInputTraits"/>
+                                                <connections>
+                                                    <action selector="channelNameFieldChanged:" destination="Zhc-4w-h8B" eventType="editingChanged" id="kS8-uz-C4P"/>
+                                                    <outlet property="delegate" destination="Zhc-4w-h8B" id="Kb4-xo-uOr"/>
+                                                </connections>
+                                            </textField>
                                         </subviews>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <constraints>
                                             <constraint firstItem="AwA-ab-76Y" firstAttribute="centerX" secondItem="ayo-L7-aj5" secondAttribute="centerX" id="05B-c0-0Vg"/>
+                                            <constraint firstItem="eVP-wF-iVe" firstAttribute="top" secondItem="tjw-TM-aVD" secondAttribute="bottom" constant="36" id="1PM-NQ-HxK"/>
+                                            <constraint firstAttribute="trailing" secondItem="OPj-Wj-0OJ" secondAttribute="trailing" constant="16" id="2fR-ZR-FFJ"/>
+                                            <constraint firstAttribute="bottom" secondItem="OPj-Wj-0OJ" secondAttribute="bottom" constant="8" id="3dl-N4-IPE"/>
+                                            <constraint firstItem="OPj-Wj-0OJ" firstAttribute="top" secondItem="V1u-7f-M8p" secondAttribute="bottom" constant="48" id="4qR-pP-uW0"/>
                                             <constraint firstItem="OPj-Wj-0OJ" firstAttribute="leading" secondItem="ayo-L7-aj5" secondAttribute="leading" constant="16" id="9su-qz-CVp"/>
-                                            <constraint firstItem="OPj-Wj-0OJ" firstAttribute="top" secondItem="MrG-cq-U8d" secondAttribute="bottom" constant="32" id="BLT-Us-jak"/>
+                                            <constraint firstItem="V1u-7f-M8p" firstAttribute="top" secondItem="eVP-wF-iVe" secondAttribute="bottom" constant="8" id="Cad-0y-pMs"/>
                                             <constraint firstItem="tjw-TM-aVD" firstAttribute="top" secondItem="fCy-64-CXX" secondAttribute="bottom" constant="4" id="FO3-Xk-LRc"/>
-                                            <constraint firstItem="MrG-cq-U8d" firstAttribute="leading" secondItem="ayo-L7-aj5" secondAttribute="leading" constant="16" id="OvF-tb-pHC"/>
+                                            <constraint firstItem="OPj-Wj-0OJ" firstAttribute="leading" secondItem="ayo-L7-aj5" secondAttribute="leading" constant="16" id="Keq-4G-459"/>
                                             <constraint firstItem="AwA-ab-76Y" firstAttribute="top" secondItem="ayo-L7-aj5" secondAttribute="top" constant="32" id="YER-5h-NoR"/>
+                                            <constraint firstItem="eVP-wF-iVe" firstAttribute="leading" secondItem="ayo-L7-aj5" secondAttribute="leading" constant="16" id="Z7Y-UV-FrH"/>
+                                            <constraint firstAttribute="trailing" secondItem="V1u-7f-M8p" secondAttribute="trailing" constant="16" id="bTA-AU-srw"/>
                                             <constraint firstItem="fCy-64-CXX" firstAttribute="top" secondItem="AwA-ab-76Y" secondAttribute="bottom" constant="32" id="brd-2U-L6I"/>
+                                            <constraint firstAttribute="trailing" secondItem="eVP-wF-iVe" secondAttribute="trailing" constant="16" id="cjX-IB-ReC"/>
                                             <constraint firstAttribute="trailing" secondItem="fCy-64-CXX" secondAttribute="trailing" constant="16" id="fjn-1u-6zo"/>
                                             <constraint firstAttribute="trailing" secondItem="tjw-TM-aVD" secondAttribute="trailing" constant="16" id="hUD-1H-dVt"/>
                                             <constraint firstAttribute="trailing" secondItem="OPj-Wj-0OJ" secondAttribute="trailing" constant="16" id="hYM-0A-3uQ"/>
                                             <constraint firstItem="fCy-64-CXX" firstAttribute="leading" secondItem="ayo-L7-aj5" secondAttribute="leading" constant="16" id="j7x-bH-ZfT"/>
-                                            <constraint firstItem="MrG-cq-U8d" firstAttribute="top" secondItem="tjw-TM-aVD" secondAttribute="bottom" constant="24" id="rsT-YC-fLv"/>
-                                            <constraint firstAttribute="trailing" secondItem="MrG-cq-U8d" secondAttribute="trailing" constant="16" id="tZh-RY-r4q"/>
+                                            <constraint firstItem="V1u-7f-M8p" firstAttribute="leading" secondItem="ayo-L7-aj5" secondAttribute="leading" constant="16" id="mQu-SN-ZmH"/>
                                             <constraint firstItem="tjw-TM-aVD" firstAttribute="leading" secondItem="ayo-L7-aj5" secondAttribute="leading" constant="16" id="zqi-aW-ogZ"/>
                                         </constraints>
                                     </view>
