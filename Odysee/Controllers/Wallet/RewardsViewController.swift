@@ -70,7 +70,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                 if user == nil || !user!.isRewardApproved! {
                     self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
                     self.showVerificationPaths()
-                    self.fetchIAPProduct()
+                    //self.fetchIAPProduct()
                 } else {
                     self.frDelegate?.requestFinished(showSkip: false, showContinue: true)
                     self.showRewardEligibleView()
@@ -80,7 +80,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             // pass
             self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
             self.showVerificationPaths()
-            self.fetchIAPProduct()
+            //self.fetchIAPProduct()
         }
     }
     
@@ -117,7 +117,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             self.closeVerificationButton.isHidden = self.firstRunFlow
             
             // don't show the purchase option for now
-            //self.skipQueueOptionButton.isHidden = true
+            self.skipQueueOptionButton.isHidden = true
             
             self.rewardEligibleView.isHidden = true
             self.mainRewardsView.isHidden = true
