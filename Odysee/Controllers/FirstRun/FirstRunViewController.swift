@@ -128,8 +128,8 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     @IBAction func skipTapped(_ sender: UIButton) {
         self.view.endEditing(true)
         
-        if currentStep == FirstRunViewController.stepUserAccount {
-            // user skipped sign in, so skipp all other steps
+        if currentStep == FirstRunViewController.stepUserAccount || currentStep == FirstRunViewController.stepRewardVerification {
+            // user skipped sign in, so skip all other steps (or we're at the final step)
             AppDelegate.completeFirstRun()
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainNavigationController?.popViewController(animated: true)
