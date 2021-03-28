@@ -70,7 +70,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                 if user == nil || !user!.isRewardApproved! {
                     self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
                     self.showVerificationPaths()
-                    //self.fetchIAPProduct()
+                    self.fetchIAPProduct()
                 } else {
                     self.frDelegate?.requestFinished(showSkip: false, showContinue: true)
                     self.showRewardEligibleView()
@@ -80,7 +80,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             // pass
             self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
             self.showVerificationPaths()
-            //self.fetchIAPProduct()
+            self.fetchIAPProduct()
         }
     }
     
@@ -117,7 +117,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             self.closeVerificationButton.isHidden = self.firstRunFlow
             
             // don't show the purchase option for now
-            self.skipQueueOptionButton.isHidden = true
+            //self.skipQueueOptionButton.isHidden = true
             
             self.rewardEligibleView.isHidden = true
             self.mainRewardsView.isHidden = true
@@ -383,7 +383,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         if lbrySkipProduct == nil {
             // IAP not available
             DispatchQueue.main.async {
-                //self.skipQueueOptionButton.isHidden = true
+                self.skipQueueOptionButton.isHidden = true
             }
             return
         }
@@ -394,16 +394,51 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         
         if let product = response.products.first {
             lbrySkipProduct = product
-            /*print(product.localizedTitle)
-            print(product.localizedDescription)
-            print(product.price)*/
             return
         }
         
         // product not available
         DispatchQueue.main.async {
-            //self.skipQueueOptionButton.isHidden = true
+            self.skipQueueOptionButton.isHidden = true
         }
+    }
+    
+    func checkReceipt(completion: @escaping (Bool?, Error?) -> Void) {
+        if let appStoreReceiptURL = Bundle.main.appStoreReceiptURL, FileManager.default.fileExists(atPath: appStoreReceiptURL.path) {
+            do {
+                let receiptData = try Data(contentsOf: appStoreReceiptURL, options: .alwaysMapped)
+                let base64ReceiptString = receiptData.base64EncodedString(options: [])
+             
+                let options: Dictionary<String, String> = ["receipt": base64ReceiptString]
+                try Lbryio.call(resource: "verification", action: "ios_purchase", options: options, method: Lbryio.methodPost, completion: { data, error in
+                    guard let data = data, error == nil else {
+                        completion(nil, error)
+                        return
+                    }
+                    
+                    do {
+                        let jsonData = try! JSONSerialization.data(withJSONObject: data, options: [.prettyPrinted, .sortedKeys])
+                        let rewardVerified = try JSONDecoder().decode(RewardVerified.self, from: jsonData)
+                        if let isRewardApproved = rewardVerified.isRewardApproved {
+                            completion(isRewardApproved, nil)
+                            return
+                        }
+                    } catch let error {
+                        completion(nil, error)
+                        return
+                    }
+                    
+                    // error state
+                    completion(nil, GenericError("You could not be verified for rewards at this time. Please try again later."))
+                })
+            } catch {
+                completion(nil, GenericError("Your payment could not be verified at this time. Please try again later."))
+            }
+            
+            return
+        }
+        
+        completion(nil, GenericError("Invalid transaction state. Please try again."))
     }
     
     func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
@@ -413,10 +448,23 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                     break
                 case .purchased, .restored:
                     // TODO: Send transactionIdentifier to server for remote validation
-                    
-                    stopProcessing()
                     SKPaymentQueue.default().finishTransaction(transaction)
                     SKPaymentQueue.default().remove(self)
+                    
+                    checkReceipt(completion: { rewardVerified, error in
+                        guard let rewardVerified = rewardVerified, error == nil else {
+                            self.showError(error: error)
+                            self.stopProcessing()
+                            return
+                        }
+                        
+                        self.stopProcessing()
+                        if rewardVerified {
+                            self.showRewardEligibleView()
+                        } else {
+                            self.showError(message: "Your transaction could not be verified at this time. Please try again later.")
+                        }
+                    })
                     break
                 case .failed, .deferred:
                 

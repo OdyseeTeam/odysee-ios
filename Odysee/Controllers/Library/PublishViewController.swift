@@ -476,7 +476,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 do {
                     let jsonData = try! JSONSerialization.data(withJSONObject: jsonPayload, options: .prettyPrinted)
                     let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)
-                    print(jsonString!)
                     
                     var mimeType = "application/octet-stream"
                     let pathExt = videoUrl.pathExtension
@@ -521,7 +520,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                         do {
                             // TODO: remove
                             if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                               print(JSONString)
+                               //print(JSONString)
                             }
                             
                             let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
