@@ -83,6 +83,7 @@
 		64FF82002604748E009B7A3B /* FirstRunViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF81FF2604748E009B7A3B /* FirstRunViewController.swift */; };
 		64FF820F2604FB0B009B7A3B /* FirstRunDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF820E2604FB0B009B7A3B /* FirstRunDelegate.swift */; };
 		64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF8219260507D2009B7A3B /* CreateChannelViewController.swift */; };
+		B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -183,6 +184,7 @@
 		64FF81FF2604748E009B7A3B /* FirstRunViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstRunViewController.swift; sourceTree = "<group>"; };
 		64FF820E2604FB0B009B7A3B /* FirstRunDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstRunDelegate.swift; sourceTree = "<group>"; };
 		64FF8219260507D2009B7A3B /* CreateChannelViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateChannelViewController.swift; sourceTree = "<group>"; };
+		B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -190,6 +192,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */,
 				6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */,
 				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
 				646D5645258587A8002DB12F /* OAuthSwift in Frameworks */,
@@ -218,6 +221,7 @@
 		6411C0A0255B31C00018C3D5 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */,
 				6484E1B52582269B00221658 /* StoreKit.framework */,
 			);
 			name = Frameworks;

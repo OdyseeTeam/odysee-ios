@@ -196,6 +196,7 @@ class UserAccountViewController: UIViewController {
         titleLabel.text = String.localized("Log In to Odysee")
         defaultActionButton.setTitle(String.localized("Continue"), for: .normal)
         
+        passwordField.textContentType = .password
         passwordField.isHidden = true
         agreementLabel.isHidden = true
         signInMode = true
@@ -206,6 +207,7 @@ class UserAccountViewController: UIViewController {
         titleLabel.text = String.localized("Join Odysee")
         defaultActionButton.setTitle(String.localized("Sign Up"), for: .normal)
         
+        passwordField.textContentType = .newPassword
         passwordField.isHidden = false
         agreementLabel.isHidden = false
         signInMode = false
