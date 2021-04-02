@@ -12,8 +12,10 @@ import UIKit
 import CoreData
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, UITabBarControllerDelegate {
 
+    static let keyLastTabIndex = "lastTabIndex"
+    
     weak var mainViewController: UIViewController?
     weak var mainTabViewController: UITabBarController?
     weak var mainNavigationController: UINavigationController?
@@ -252,6 +254,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     
     func resetPlayerObserver() {
         playerObserverAdded = false
+    }
+    
+    func tabBarController(_ tabBarController: UITabBarController, didSelect viewController: UIViewController) {
+        let index = tabBarController.selectedIndex
+        let defaults = UserDefaults.standard
+        defaults.setValue(index, forKey: AppDelegate.keyLastTabIndex)
     }
 }
 
