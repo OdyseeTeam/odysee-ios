@@ -57,7 +57,8 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             if !Lbryio.currentUser!.isRewardApproved! {
                 fetchUserAndCheckRewardStatus()
             } else {
-                showRewardEligibleView()
+                //showRewardEligibleView()
+                showRewardsList()
                 self.frDelegate?.requestFinished(showSkip: false, showContinue: true)
             }
         }
@@ -73,7 +74,8 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                     self.fetchIAPProduct()
                 } else {
                     self.frDelegate?.requestFinished(showSkip: false, showContinue: true)
-                    self.showRewardEligibleView()
+                    //self.showRewardEligibleView()
+                    self.showRewardsList()
                 }
             })
         } catch {
@@ -353,8 +355,9 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                     if rewardVerified.isRewardApproved ?? false {
                         // successful reward verification, show the rewards page
                         DispatchQueue.main.async {
-                            self.showRewardEligibleView()
+                            //self.showRewardEligibleView()
                             self.stopProcessing()
+                            self.showRewardsList()
                             return
                         }
                     }
@@ -460,7 +463,8 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                         
                         self.stopProcessing()
                         if rewardVerified {
-                            self.showRewardEligibleView()
+                            //self.showRewardEligibleView()
+                            self.showRewardsList()
                         } else {
                             self.showError(message: "Your transaction could not be verified at this time. Please try again later.")
                         }
@@ -526,7 +530,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                 appDelegate.mainController.present(vc, animated: true, completion: nil)
             }
         } else if !reward.claimed {
-            attemptRewardClaim(reward: reward)
+            //attemptRewardClaim(reward: reward)
         }
     }
     
