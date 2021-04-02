@@ -46,7 +46,7 @@
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
+		<true/>
 		<key>UISceneConfigurations</key>
 		<dict>
 			<key>UIWindowSceneSessionRoleApplication</key>
@@ -76,6 +76,8 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIRequiresFullScreen</key>
+	<false/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
