@@ -73,7 +73,8 @@ final class Lbryio {
             }
         }
         var urlComponents = URLComponents(string: url)
-        urlComponents?.queryItems = queryItems
+        urlComponents!.queryItems = queryItems
+        urlComponents!.percentEncodedQuery = urlComponents!.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         
         if (method.lowercased() == methodGet.lowercased()) {
             requestUrl = urlComponents?.url!
@@ -150,6 +151,7 @@ final class Lbryio {
             }
         }
         
+        print(qs)
         return qs
     }
     
