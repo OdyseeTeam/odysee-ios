@@ -4346,8 +4346,15 @@
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You are reward eligible. Claim your rewards on the Odysee web site." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ygs-mt-oXy">
-                                        <rect key="frame" x="32" y="149.5" width="350" height="36"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="spaceman_happy" translatesAutoresizingMaskIntoConstraints="NO" id="U0j-HX-U6R">
+                                        <rect key="frame" x="107" y="197.5" width="200" height="200"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="200" id="OY3-G8-Hsq"/>
+                                            <constraint firstAttribute="width" constant="200" id="OpH-La-8kW"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Congratulations! You are reward eligible. Available rewards can be viewed and claimed on the Odysee web site." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ygs-mt-oXy">
+                                        <rect key="frame" x="32" y="429.5" width="350" height="54"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
@@ -4368,10 +4375,12 @@
                                     <constraint firstItem="Ygs-mt-oXy" firstAttribute="leading" secondItem="z8a-nY-gHE" secondAttribute="leading" constant="32" id="AOb-ac-zKM"/>
                                     <constraint firstItem="eNQ-QN-Hn2" firstAttribute="leading" secondItem="z8a-nY-gHE" secondAttribute="leading" constant="32" id="CQg-fR-mYk"/>
                                     <constraint firstItem="eNQ-QN-Hn2" firstAttribute="width" secondItem="eNQ-QN-Hn2" secondAttribute="height" multiplier="15:8" id="GpK-s6-Fqc"/>
+                                    <constraint firstItem="U0j-HX-U6R" firstAttribute="centerX" secondItem="z8a-nY-gHE" secondAttribute="centerX" id="NgD-X7-a9o"/>
                                     <constraint firstItem="eNQ-QN-Hn2" firstAttribute="top" secondItem="z8a-nY-gHE" secondAttribute="top" constant="48" id="ZDP-M3-cuF"/>
                                     <constraint firstAttribute="trailing" secondItem="43u-ib-fIy" secondAttribute="trailing" constant="32" id="gfk-AP-rvO"/>
-                                    <constraint firstItem="Ygs-mt-oXy" firstAttribute="top" secondItem="43u-ib-fIy" secondAttribute="bottom" constant="16" id="goN-Ju-jBn"/>
+                                    <constraint firstItem="Ygs-mt-oXy" firstAttribute="top" secondItem="U0j-HX-U6R" secondAttribute="bottom" constant="32" id="goN-Ju-jBn"/>
                                     <constraint firstItem="eNQ-QN-Hn2" firstAttribute="width" secondItem="eNQ-QN-Hn2" secondAttribute="height" multiplier="15:8" id="oM2-kV-Ubt"/>
+                                    <constraint firstItem="U0j-HX-U6R" firstAttribute="top" secondItem="43u-ib-fIy" secondAttribute="bottom" constant="64" id="wjs-ZM-o3h"/>
                                 </constraints>
                             </view>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="a4E-H0-Fw3">
