@@ -10,15 +10,20 @@ import AVFoundation
 import CoreData
 import Firebase
 import SafariServices
+import Starscream
 import UIKit
 
-class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
+class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, WebSocketDelegate {
     
     @IBOutlet weak var titleArea: UIView!
     @IBOutlet weak var publisherArea: UIView!
     @IBOutlet weak var titleAreaIconView: UIImageView!
     @IBOutlet weak var descriptionArea: UIView!
     @IBOutlet weak var descriptionDivider: UIView!
+    @IBOutlet weak var detailsScrollView: UIScrollView!
+    @IBOutlet weak var livestreamChatView: UIView!
+    @IBOutlet weak var livestreamOfflinePlaceholder: UIImageView!
+    @IBOutlet weak var livestreamerArea: UIView!
     
     @IBOutlet weak var mediaView: UIView!
     
@@ -30,6 +35,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var publisherImageView: UIImageView!
     @IBOutlet weak var publisherTitleLabel: UILabel!
     @IBOutlet weak var publisherNameLabel: UILabel!
+    
+    @IBOutlet weak var livestreamerActionsArea: UIView!
+    @IBOutlet weak var livestreamerImageView: UIImageView!
+    @IBOutlet weak var livestreamerTitleLabel: UILabel!
+    @IBOutlet weak var livestreamerNameLabel: UILabel!
+    
+    @IBOutlet weak var chatInputField: UITextField!
+    @IBOutlet weak var chatListView: UITableView!
+    
     @IBOutlet weak var descriptionLabel: UILabel!
     
     @IBOutlet weak var followLabel: UILabel!
@@ -90,6 +104,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     var dislikesContent = false
     var reacting = false
     var playerConnected = false
+    var isLivestream = false
+    var isLive = false
+    
+    var loadingChannels = false
+    var messages: [Comment] = []
+    var chatConnected = false
+    var chatWebsocket: WebSocket? = nil
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -143,6 +164,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         if (appDelegate.player != nil) {
             appDelegate.mainController.toggleMiniPlayer(hidden: false)
         }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        disconnectChatSocket()
     }
     
     override func viewDidLoad() {
@@ -273,11 +299,64 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     */
     
+    func loadLivestream() {
+        if !isLivestream {
+            return
+        }
+        
+        let url = URL(string: String(format: "https://api.bitwave.tv/v1/odysee/live/%@", claim!.claimId!))
+        let session = URLSession.shared
+        var req = URLRequest(url: url!)
+        req.httpMethod = "GET"
+        
+        let task = session.dataTask(with: req, completionHandler: { data, response, error in
+            guard let data = data, error == nil else {
+                // handle error
+                self.showError(message: "The livestream could not be loaded right now. Please try again later.")
+                return
+            }
+            do {
+                let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                if let livestreamData = response?["data"] as? [String: Any] {
+                    self.isLive = livestreamData["live"] as? Bool ?? false
+                    if !self.isLive {
+                        self.displayLivestreamOffline()
+                        return
+                    }
+                    
+                    if let streamUrl = livestreamData["url"] as? String {
+                        let headers: Dictionary<String, String> = [
+                            "Referer": "https://bitwave.tv"
+                        ]
+                        self.initializePlayerWithUrl(sourceUrl: streamUrl, headers: headers)
+                    }
+                }
+            } catch {
+                self.showError(message: "The livestream could not be loaded right now. Please try again later.")
+                self.isLive = false
+            }
+        });
+        task.resume();
+    }
+    
+    func displayLivestreamOffline() {
+        DispatchQueue.main.async {
+            self.livestreamOfflinePlaceholder.isHidden = false
+            let text = String(format: String.localized("%@ isn't live right now. Check back later to watch the stream."), self.claim!.signingChannel!.name!)
+        }
+    }
+    
     func displayClaim() {
+        isLivestream = claim?.value?.source == nil
+        detailsScrollView.isHidden = isLivestream
+        livestreamChatView.isHidden = !isLivestream
+        
         resolvingView.isHidden = true
         descriptionArea.isHidden = true
         descriptionDivider.isHidden = true
         displayRelatedPlaceholders()
+        
+        connectChatSocket()
         
         commentsDisabled = Helper.claimContainsTag(claim: claim!, tag: Helper.tagDisableComments) ||
             (claim?.signingChannel != nil && Helper.claimContainsTag(claim: claim!.signingChannel!, tag: Helper.tagDisableComments))
@@ -300,9 +379,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         // publisher
         var thumbnailUrl: URL? = nil
         publisherImageView.rounded()
+        livestreamerImageView.rounded()
         if (claim?.signingChannel != nil) {
-            publisherTitleLabel.text = claim?.signingChannel?.value?.title
-            publisherNameLabel.text = claim?.signingChannel?.name
+            if !isLivestream {
+                publisherTitleLabel.text = claim?.signingChannel?.value?.title
+                publisherNameLabel.text = claim?.signingChannel?.name
+            } else {
+                livestreamerTitleLabel.text = claim?.signingChannel?.value?.title
+                livestreamerNameLabel.text = claim?.signingChannel?.name
+                
+            }
             if (claim?.signingChannel?.value != nil && claim?.signingChannel?.value?.thumbnail != nil) {
                 thumbnailUrl = URL(string: (claim!.signingChannel!.value!.thumbnail!.url!))!
             }
@@ -312,10 +398,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         }
         
         if thumbnailUrl != nil {
-            publisherImageView.load(url: thumbnailUrl!)
+            if !isLivestream {
+                publisherImageView.load(url: thumbnailUrl!)
+            } else {
+                livestreamerImageView.load(url: thumbnailUrl!)
+            }
         } else {
-            publisherImageView.image = UIImage.init(named: "spaceman")
-            publisherImageView.backgroundColor = Helper.lightPrimaryColor
+            if !isLivestream {
+                publisherImageView.image = UIImage.init(named: "spaceman")
+                publisherImageView.backgroundColor = Helper.lightPrimaryColor
+            } else {
+                livestreamerImageView.image = UIImage.init(named: "spaceman")
+                livestreamerImageView.backgroundColor = Helper.lightPrimaryColor
+            }
         }
         
         if (claim?.value?.description ?? "").isBlank {
@@ -326,46 +421,68 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             descriptionLabel.text = claim?.value?.description
         }
         
-        avpc = AVPlayerViewController()
-        avpc.allowsPictureInPicturePlayback = true
-        avpc.updatesNowPlayingInfoCenter = false
-        
-        self.addChild(avpc)
-        avpc.view.frame = self.mediaView.bounds
-        self.mediaView.addSubview(avpc.view)
-        avpc.didMove(toParent: self)
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        avpc.delegate = appDelegate.mainController
-        if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId) {
-            avpc.player = appDelegate.player
-            playerConnected = true
-            return
+        if isLivestream {
+            loadLivestream()
+        } else {
+            initializePlayerWithUrl(sourceUrl: getStreamingUrl(claim: claim!))
         }
+    }
+    
+    func initializePlayerWithUrl(sourceUrl: String, headers: Dictionary<String, String> = [:]) {
+        DispatchQueue.main.async {
+            self.livestreamOfflinePlaceholder.isHidden = true
+            
+            self.avpc = AVPlayerViewController()
+            self.avpc.allowsPictureInPicturePlayback = true
+            self.avpc.updatesNowPlayingInfoCenter = false
+            
+            self.addChild(self.avpc)
+            self.avpc.view.frame = self.mediaView.bounds
+            self.mediaView.addSubview(self.avpc.view)
+            self.avpc.didMove(toParent: self)
+            
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            self.avpc.delegate = appDelegate.mainController
+            if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == self.claim?.claimId) {
+                self.avpc.player = appDelegate.player
+                self.playerConnected = true
+                return
+            }
+            
+            appDelegate.currentClaim = self.claim
+            if (appDelegate.player != nil) {
+                appDelegate.player!.pause()
+            }
         
-        appDelegate.currentClaim = claim
-        if (appDelegate.player != nil) {
-            appDelegate.player!.pause()
+            let videoUrl = URL(string: sourceUrl)
+            if (videoUrl == nil) {
+                self.showError(message: String(format: "The streaming url could not be loaded: %@", sourceUrl))
+                return
+            }
+            
+            appDelegate.playerObserverAdded = false
+            
+            if headers.keys.count > 0 {
+                let asset = AVURLAsset(url: videoUrl!, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
+                let playerItem = AVPlayerItem(asset: asset)
+                appDelegate.player = AVPlayer(playerItem: playerItem)
+            } else {
+                appDelegate.player = AVPlayer(url: videoUrl!)
+            }
+            appDelegate.registerPlayerObserver()
+            self.avpc.player = appDelegate.player
+            self.playerConnected = true
+            self.playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
+            
+            self.avpc.player!.play()
         }
-        
-        let streamingUrl = getStreamingUrl(claim: claim!)
-        let videoUrl = URL(string: streamingUrl)
-        if (videoUrl == nil) {
-            showError(message: String(format: "The streaming url could not be loaded: %@", streamingUrl))
-            return
-        }
-        
-        appDelegate.playerObserverAdded = false
-        appDelegate.player = AVPlayer(url: videoUrl!)
-        appDelegate.registerPlayerObserver()
-        avpc.player = appDelegate.player
-        playerConnected = true
-        playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
-        
-        avpc.player!.play()
     }
     
     func displayRelatedPlaceholders() {
+        if isLivestream {
+            return
+        }
+        
         relatedContent = []
         for _ in 1...15 {
             let placeholder = Claim()
@@ -466,6 +583,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     func loadAndDisplayViewCount() {
+        if isLivestream {
+            return
+        }
+        
         do {
             let options: Dictionary<String, String> = ["claim_id": claim!.claimId!]
             try Lbryio.call(resource: "file", action: "view_count", options: options, method: Lbryio.methodGet, completion: { data, error in
@@ -493,6 +614,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     func loadReactions() {
+        if isLivestream {
+            return
+        }
+        
         do {
             let claimId = claim!.claimId!
             let options: Dictionary<String, String> = ["claim_ids": claimId]
@@ -607,7 +732,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     func loadRelatedContent() {
-        if (loadingRelated) {
+        if (loadingRelated || isLivestream) {
             return
         }
         
@@ -688,16 +813,33 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return relatedContent.count
+        if tableView == relatedContentListView {
+            return relatedContent.count
+        }
+        
+        if tableView == chatListView {
+            return messages.count
+        }
+        
+        return 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
+        if tableView == relatedContentListView {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
+            let claim: Claim = relatedContent[indexPath.row]
+            cell.setClaim(claim: claim)
+            return cell
+        }
         
-        let claim: Claim = relatedContent[indexPath.row]
-        cell.setClaim(claim: claim)
-            
-        return cell
+        if tableView == chatListView {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "chat_message_cell", for: indexPath) as! ChatMessageTableViewCell
+            let comment: Comment = messages[indexPath.row]
+            cell.setComment(comment: comment)
+            return cell
+        }
+        
+        return UITableViewCell()
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -713,6 +855,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             vc.claim = claim
             appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
             appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        }
+        
+        if tableView == chatListView {
+            tableView.deselectRow(at: indexPath, animated: true)
         }
     }
     
@@ -1011,7 +1157,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     func loadComments() {
-        if commentsDisabled || commentsLoading {
+        if commentsDisabled || commentsLoading || isLivestream {
             return
         }
         
@@ -1107,6 +1253,113 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         DispatchQueue.main.async {
             self.noCommentsLabel.isHidden = self.comments.count > 0
             self.featuredCommentView.isHidden = self.comments.count == 0
+        }
+    }
+    
+    func loadChannels() {
+        if loadingChannels {
+            return
+        }
+        
+        loadingChannels = true
+        let options: Dictionary<String, Any> = ["claim_type": "channel", "page": 1, "page_size": 999, "resolve": true]
+        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+            guard let data = data, error == nil else {
+                return
+            }
+            
+            let result = data["result"] as? [String: Any]
+            let items = result?["items"] as? [[String: Any]]
+            if (items != nil) {
+                var loadedClaims: [Claim] = []
+                items?.forEach{ item in
+                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
+                    do {
+                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                        if (claim != nil) {
+                            loadedClaims.append(claim!)
+                        }
+                    } catch let error {
+                        print(error)
+                    }
+                }
+                self.channels.removeAll()
+                self.channels.append(contentsOf: loadedClaims)
+                Lbry.ownChannels = self.channels.filter { $0.claimId != "anonymous" }
+            }
+            
+            self.loadingChannels = false
+        })
+    }
+    
+    func connectChatSocket() {
+        if isLivestream {
+            let url = URL(string: String(format: "%@%@", Lbryio.wsCommmentBaseUrl, claim!.claimId!))
+            chatWebsocket = WebSocket(request: URLRequest(url: url!))
+            chatWebsocket!.delegate = self
+            chatWebsocket?.connect()
+        }
+    }
+    
+    func handleChatMessageReceived(data: [String: Any]) {
+        var comment = Comment()
+        comment.comment = data["comment"] as? String
+        comment.channelName = data["channel_name"] as? String
+        messages.append(comment)
+        
+        DispatchQueue.main.async {
+            self.chatListView.reloadData()
+            let indexPath = IndexPath(row: self.messages.count - 1, section: 0)
+            self.chatListView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+        }
+    }
+    
+    func didReceive(event: WebSocketEvent, client: WebSocket) {
+        switch (event) {
+        case .connected(_):
+            chatConnected = true
+            break
+        case .disconnected(_, _):
+            chatConnected = false
+            break
+        case .text(let string):
+            
+            do {
+                if let jsonData = string.data(using: .utf8, allowLossyConversion: false) {
+                    if let response = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
+                        if response["type"] as? String == "delta" {
+                            if let chatData = response["data"] as? [String: Any] {
+                                self.handleChatMessageReceived(data: chatData)
+                            }
+                        }
+                    }
+                }
+            } catch {
+                // pass
+            }
+            break
+        case .binary(_):
+            break
+        case .ping(_):
+            break
+        case .pong(_):
+            break
+        case .viabilityChanged(_):
+            break
+        case .reconnectSuggested(_):
+            break
+        case .cancelled:
+            chatConnected = false
+            break
+        case .error(_):
+            chatConnected = false
+            break
+        }
+    }
+    
+    func disconnectChatSocket() {
+        if chatWebsocket != nil && chatConnected {
+            chatWebsocket?.disconnect()
         }
     }
 }

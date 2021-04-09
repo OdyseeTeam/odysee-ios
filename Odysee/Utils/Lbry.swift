@@ -142,6 +142,7 @@ final class Lbry {
         releaseTime: String?,
         maxDuration: Int64?,
         limitClaimsPerChannel: Int,
+        hasNoSource: Bool? = false,
         page: Int,
         pageSize: Int) -> Dictionary<String, Any> {
         var options: Dictionary<String, Any> = [String: Any]()
@@ -161,6 +162,8 @@ final class Lbry {
         if (limitClaimsPerChannel > 0) {
             options["limit_claims_per_channel"] = limitClaimsPerChannel
         }
+        
+        options["has_no_source"] = hasNoSource
         
         addClaimSearchListOption(key: "any_tags", list: anyTags, options: &options)
         addClaimSearchListOption(key: "not_tags", list: notTags, options: &options)

@@ -41,6 +41,8 @@
 		6451659625DEA8B2009FAC39 /* YouTubeSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6451659525DEA8B2009FAC39 /* YouTubeSyncViewController.swift */; };
 		64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 64533588257FDC6800C49BD1 /* FirebaseAnalytics */; };
 		6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6453358A257FDC6800C49BD1 /* FirebaseMessaging */; };
+		6459121D2620745D00B2ABA5 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 6459121C2620745D00B2ABA5 /* Starscream */; };
+		645912222620789E00B2ABA5 /* ChatMessageTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 645912212620789E00B2ABA5 /* ChatMessageTableViewCell.swift */; };
 		6462DABD255D3CFE001CF1E8 /* UICardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6462DABC255D3CFE001CF1E8 /* UICardView.swift */; };
 		64666AF62587290200DF4608 /* ChannelListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64666AF52587290200DF4608 /* ChannelListTableViewCell.swift */; };
 		64666AFB25872BE000DF4608 /* ChannelManagerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64666AFA25872BE000DF4608 /* ChannelManagerViewController.swift */; };
@@ -135,6 +137,7 @@
 		644F76AD25592F8400813451 /* FileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewController.swift; sourceTree = "<group>"; };
 		644F76B525595D4E00813451 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		6451659525DEA8B2009FAC39 /* YouTubeSyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncViewController.swift; sourceTree = "<group>"; };
+		645912212620789E00B2ABA5 /* ChatMessageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageTableViewCell.swift; sourceTree = "<group>"; };
 		6462DABC255D3CFE001CF1E8 /* UICardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICardView.swift; sourceTree = "<group>"; };
 		64666AF52587290200DF4608 /* ChannelListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelListTableViewCell.swift; sourceTree = "<group>"; };
 		64666AFA25872BE000DF4608 /* ChannelManagerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelManagerViewController.swift; sourceTree = "<group>"; };
@@ -192,6 +195,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6459121D2620745D00B2ABA5 /* Starscream in Frameworks */,
 				B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */,
 				6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */,
 				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
@@ -273,6 +277,7 @@
 				646E4A63259CF5380008C9C8 /* CommentTableViewCell.swift */,
 				641AFAE825B606E000218BD9 /* UAButton.swift */,
 				647EB3F125F54EB1003AA76B /* UIStackCardView.swift */,
+				645912212620789E00B2ABA5 /* ChatMessageTableViewCell.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -462,6 +467,7 @@
 				64533588257FDC6800C49BD1 /* FirebaseAnalytics */,
 				6453358A257FDC6800C49BD1 /* FirebaseMessaging */,
 				646D5644258587A8002DB12F /* OAuthSwift */,
+				6459121C2620745D00B2ABA5 /* Starscream */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -538,6 +544,7 @@
 				6411C0AE255B35260018C3D5 /* XCRemoteSwiftPackageReference "Base58Swift" */,
 				64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */,
+				6459121B2620745C00B2ABA5 /* XCRemoteSwiftPackageReference "Starscream" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -593,6 +600,7 @@
 				641327492556EB3400CBB6B8 /* Lbry.swift in Sources */,
 				6451659625DEA8B2009FAC39 /* YouTubeSyncViewController.swift in Sources */,
 				646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */,
+				645912222620789E00B2ABA5 /* ChatMessageTableViewCell.swift in Sources */,
 				64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */,
 				64BAFBB22609ED5900BD4B9A /* LibraryViewController.swift in Sources */,
 				641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */,
@@ -1002,6 +1010,14 @@
 				minimumVersion = 7.2.0;
 			};
 		};
+		6459121B2620745C00B2ABA5 /* XCRemoteSwiftPackageReference "Starscream" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/daltoniam/Starscream.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.0.4;
+			};
+		};
 		646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/OAuthSwift/OAuthSwift.git";
@@ -1027,6 +1043,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
+		};
+		6459121C2620745D00B2ABA5 /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6459121B2620745C00B2ABA5 /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
 		};
 		646D5644258587A8002DB12F /* OAuthSwift */ = {
 			isa = XCSwiftPackageProductDependency;
