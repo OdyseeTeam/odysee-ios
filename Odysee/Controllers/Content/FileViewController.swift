@@ -1323,13 +1323,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             chatConnected = false
             break
         case .text(let string):
-            
             do {
                 if let jsonData = string.data(using: .utf8, allowLossyConversion: false) {
                     if let response = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
                         if response["type"] as? String == "delta" {
-                            if let chatData = response["data"] as? [String: Any] {
-                                self.handleChatMessageReceived(data: chatData)
+                            if let data = response["data"] as? [String: Any] {
+                                if let commentData = data["comment"] as? [String: Any] {
+                                    self.handleChatMessageReceived(data: commentData)
+                                }
                             }
                         }
                     }

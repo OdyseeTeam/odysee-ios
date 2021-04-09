@@ -32,6 +32,7 @@ class ChatMessageTableViewCell: UITableViewCell {
         }
      
         nameLabel.text = comment.channelName
+        nameLabel.sizeToFit()
         messageLabel.text = comment.comment
     }
 }
