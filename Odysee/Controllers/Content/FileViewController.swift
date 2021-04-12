@@ -13,7 +13,7 @@ import SafariServices
 import Starscream
 import UIKit
 
-class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, WebSocketDelegate {
+class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, WebSocketDelegate {
     
     @IBOutlet weak var titleArea: UIView!
     @IBOutlet weak var publisherArea: UIView!
@@ -69,6 +69,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     @IBOutlet weak var commentExpandView: UIImageView!
     @IBOutlet weak var commentsContainerView: UIView!
+    @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var fireReactionCountLabel: UILabel!
     @IBOutlet weak var slimeReactionCountLabel: UILabel!
@@ -108,6 +109,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     var isLive = false
     
     var loadingChannels = false
+    var postingChat = false
     var messages: [Comment] = []
     var chatConnected = false
     var chatWebsocket: WebSocket? = nil
@@ -173,10 +175,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        registerForKeyboardNotifications()
         
         checkRepost()
         relatedContentListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
         featuredCommentThumbnail.rounded()
+        
+        loadChannels()
         
         // Do any additional setup after loading the view.
         if claim == nil && claimUrl != nil {
@@ -194,6 +199,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         } else {
             displayNothingAtLocation()
         }
+    }
+    
+    func registerForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        let info = notification.userInfo
+        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+        bottomLayoutConstraint.constant = kbSize.height - 36
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        bottomLayoutConstraint.constant = 0
     }
     
     func showClaimAndCheckFollowing() {
@@ -1362,5 +1382,60 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         if chatWebsocket != nil && chatConnected {
             chatWebsocket?.disconnect()
         }
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == chatInputField {
+            textField.resignFirstResponder()
+            if postingChat {
+                return false
+            }
+            
+            let text = textField.text
+            if (text ?? "").isBlank {
+                showError(message: String.localized("Please enter a chat message"))
+                return false
+            }
+            
+            if loadingChannels {
+                showError(message: String.localized("Please wait while we load your channels"))
+                return false
+            }
+            if channels.count == 0 {
+                showError(message: String.localized("Please create a channel before sending chat messages"))
+                return false
+            }
+            
+            let commentAsChannel = channels[0]
+            DispatchQueue.main.async {
+                self.chatInputField.isEnabled = false
+            }
+            
+            let params: Dictionary<String, Any> = [
+                "claim_id": claim!.claimId!,
+                "channel_id": commentAsChannel.claimId!,
+                "comment": chatInputField.text!
+            ]
+            Lbry.apiCall(method: Lbry.methodCommentCreate, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+                guard let _ = data, error == nil else {
+                    self.showError(error: error)
+                    self.postingChat = false
+                    DispatchQueue.main.async {
+                        self.chatInputField.isEnabled = true
+                    }
+                    return
+                }
+                
+                // comment post successful
+                self.postingChat = false
+                DispatchQueue.main.async {
+                    self.chatInputField.text = ""
+                    self.chatInputField.isEnabled = true
+                }
+            })
+            
+            return true
+        }
+        return false
     }
 }
