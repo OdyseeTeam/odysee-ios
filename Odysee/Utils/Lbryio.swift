@@ -15,6 +15,7 @@ final class Lbryio {
     static var generatingAuthToken: Bool = false
     static let connectionString = "https://api.lbry.com"
     static let wsConnectionBaseUrl = "wss://api.lbry.com/subscribe?auth_token="
+    static let wsCommmentBaseUrl = "wss://comments.lbry.com/api/v2/live-chat/subscribe?subscription_id="
     static let authTokenParam = "auth_token"
     static var authToken: String? = nil
     
@@ -150,8 +151,7 @@ final class Lbryio {
                 delim = "&"
             }
         }
-        
-        print(qs)
+
         return qs
     }
     
