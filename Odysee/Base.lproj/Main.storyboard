@@ -5551,13 +5551,34 @@
                                     <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="streaming_odysee" translatesAutoresizingMaskIntoConstraints="NO" id="b5M-lr-1ir">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="240"/>
                                     </imageView>
+                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DED-pq-EGI">
+                                        <rect key="frame" x="4" y="212" width="406" height="24"/>
+                                        <subviews>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8PH-TD-6Ni">
+                                                <rect key="frame" x="8" y="4" width="390" height="16"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.80000000000000004" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                        <constraints>
+                                            <constraint firstItem="8PH-TD-6Ni" firstAttribute="leading" secondItem="DED-pq-EGI" secondAttribute="leading" constant="8" id="C3R-KQ-YAS"/>
+                                            <constraint firstAttribute="bottom" secondItem="8PH-TD-6Ni" secondAttribute="bottom" constant="4" id="j3I-8b-POC"/>
+                                            <constraint firstItem="8PH-TD-6Ni" firstAttribute="top" secondItem="DED-pq-EGI" secondAttribute="top" constant="4" id="la5-n5-WSE"/>
+                                            <constraint firstAttribute="trailing" secondItem="8PH-TD-6Ni" secondAttribute="trailing" constant="8" id="qdx-p6-ELv"/>
+                                        </constraints>
+                                    </view>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="b5M-lr-1ir" secondAttribute="trailing" id="TB8-l9-6yZ"/>
                                     <constraint firstAttribute="height" constant="240" id="UmT-3v-Pm5"/>
+                                    <constraint firstItem="DED-pq-EGI" firstAttribute="leading" secondItem="hZs-fq-qQ6" secondAttribute="leading" constant="4" id="gcr-ZF-nlb"/>
                                     <constraint firstAttribute="bottom" secondItem="b5M-lr-1ir" secondAttribute="bottom" id="jQE-2s-9PI"/>
                                     <constraint firstItem="b5M-lr-1ir" firstAttribute="leading" secondItem="hZs-fq-qQ6" secondAttribute="leading" id="kY6-bO-YRj"/>
+                                    <constraint firstAttribute="trailing" secondItem="DED-pq-EGI" secondAttribute="trailing" constant="4" id="l3K-bN-L5v"/>
+                                    <constraint firstAttribute="bottom" secondItem="DED-pq-EGI" secondAttribute="bottom" constant="4" id="li7-Qa-GjR"/>
                                     <constraint firstItem="b5M-lr-1ir" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="top" id="qHw-zN-XLw"/>
                                 </constraints>
                             </view>
@@ -5708,14 +5729,14 @@
                                                         <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="6Gt-5s-q9m">
                                                             <rect key="frame" x="0.0" y="0.0" width="414" height="54"/>
                                                             <subviews>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W6P-tC-ZQy">
-                                                                    <rect key="frame" x="16" y="2" width="189" height="50"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="1000" verticalHuggingPriority="251" horizontalCompressionResistancePriority="250" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="W6P-tC-ZQy">
+                                                                    <rect key="frame" x="16" y="2" width="100" height="50"/>
                                                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="12"/>
                                                                     <nil key="textColor"/>
                                                                     <nil key="highlightedColor"/>
                                                                 </label>
-                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gXR-KC-oh4">
-                                                                    <rect key="frame" x="209" y="2" width="189" height="50"/>
+                                                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gXR-KC-oh4">
+                                                                    <rect key="frame" x="120" y="2" width="278" height="50"/>
                                                                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                                                     <nil key="textColor"/>
                                                                     <nil key="highlightedColor"/>
@@ -6509,6 +6530,8 @@
                         <outlet property="followLabel" destination="VJr-LQ-OQt" id="pE9-sr-1n2"/>
                         <outlet property="followUnfollowIconView" destination="Nmg-EU-mTn" id="I4l-d8-cFv"/>
                         <outlet property="livestreamChatView" destination="J4Z-JJ-JZs" id="op0-PM-jS1"/>
+                        <outlet property="livestreamOfflineLabel" destination="8PH-TD-6Ni" id="rPA-QY-sKG"/>
+                        <outlet property="livestreamOfflineMessageView" destination="DED-pq-EGI" id="VIp-dI-jKP"/>
                         <outlet property="livestreamOfflinePlaceholder" destination="b5M-lr-1ir" id="Kua-WA-hRC"/>
                         <outlet property="livestreamerActionsArea" destination="nNF-Ha-rzf" id="02P-JX-K6S"/>
                         <outlet property="livestreamerArea" destination="kiy-8R-Tvl" id="1Co-ez-hKZ"/>

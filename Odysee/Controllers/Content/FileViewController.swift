@@ -23,6 +23,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var detailsScrollView: UIScrollView!
     @IBOutlet weak var livestreamChatView: UIView!
     @IBOutlet weak var livestreamOfflinePlaceholder: UIImageView!
+    @IBOutlet weak var livestreamOfflineMessageView: UIView!
+    @IBOutlet weak var livestreamOfflineLabel: UILabel!
     @IBOutlet weak var livestreamerArea: UIView!
     
     @IBOutlet weak var mediaView: UIView!
@@ -180,6 +182,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         checkRepost()
         relatedContentListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
         featuredCommentThumbnail.rounded()
+        livestreamOfflineMessageView.layer.cornerRadius = 8
         
         loadChannels()
         
@@ -362,7 +365,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     func displayLivestreamOffline() {
         DispatchQueue.main.async {
             self.livestreamOfflinePlaceholder.isHidden = false
-            let text = String(format: String.localized("%@ isn't live right now. Check back later to watch the stream."), self.claim!.signingChannel!.name!)
+            self.livestreamOfflineMessageView.isHidden = false
+            self.livestreamOfflineLabel.text = String(format: String.localized("%@ isn't live right now. Check back later to watch the stream."), self.claim!.signingChannel!.name!)
         }
     }
     
