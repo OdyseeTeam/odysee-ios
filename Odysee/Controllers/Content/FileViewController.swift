@@ -327,7 +327,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
             return
         }
         
-        let url = URL(string: String(format: "https://api.bitwave.tv/v1/odysee/live/%@", claim!.claimId!))
+        let url = URL(string: String(format: "https://api.bitwave.tv/v1/odysee/live/%@", claim!.signingChannel!.claimId!))
         let session = URLSession.shared
         var req = URLRequest(url: url!)
         req.httpMethod = "GET"
