@@ -21,6 +21,14 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var balanceLabel: UILabel!
     @IBOutlet weak var usdBalanceLabel: UILabel!
     
+    @IBOutlet weak var immediatelySpendableLabel: UILabel!
+    @IBOutlet weak var boostingContentLabel: UILabel!
+    @IBOutlet weak var tipsLabel: UILabel!
+    @IBOutlet weak var initialPublishesLabel: UILabel!
+    @IBOutlet weak var supportingContentLabel: UILabel!
+    @IBOutlet weak var boostingMoreLabel: UILabel!
+    @IBOutlet weak var boostingContentBreakdownView: UIView!
+    
     @IBOutlet weak var receiveAddressTextField: UITextField!
     //@IBOutlet weak var getNewAddressButton: UIButton!
     
@@ -32,6 +40,8 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var recentTransactionsListView: UITableView!
     @IBOutlet weak var noRecentTransactionsLabel: UILabel!
     @IBOutlet weak var loadingRecentTransactionsView: UIActivityIndicatorView!
+    
+    var boostingBreakdownVisible = false
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -149,6 +159,12 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
+    @IBAction func boostingMoreTapped(_ sender: Any) {
+        boostingBreakdownVisible = !boostingBreakdownVisible
+        boostingContentBreakdownView.isHidden = !boostingBreakdownVisible
+        boostingMoreLabel.text = boostingBreakdownVisible ? "less" : "more"
+    }
+    
     func confirmSendCredits(recipientAddress: String, amount: String) {
         var params = Dictionary<String, Any>()
         params["addresses"] = [recipientAddress]
@@ -225,7 +241,12 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func displayBalance(balance: WalletBalance?) {
         if (balance != nil) {
-            balanceLabel.text = currencyFormatter.string(from: balance!.available! as NSDecimalNumber)
+            balanceLabel.text = currencyFormatter.string(from: balance!.total! as NSDecimalNumber)
+            immediatelySpendableLabel.text = currencyFormatter.string(from: balance!.available! as NSDecimalNumber)
+            boostingContentLabel.text = currencyFormatter.string(from: balance!.reserved! as NSDecimalNumber)
+            tipsLabel.text = currencyFormatter.string(from: balance!.tips! as NSDecimalNumber)
+            initialPublishesLabel.text = currencyFormatter.string(from: balance!.claims! as NSDecimalNumber)
+            supportingContentLabel.text = currencyFormatter.string(from: balance!.supports! as NSDecimalNumber)
             
             if (Lbryio.currentLbcUsdRate ?? 0) == 0 {
                 // attempt to reload the exchange rate (if it wasn't loaded previously)
@@ -235,11 +256,11 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
                         return
                     }
                     DispatchQueue.main.async {
-                        self.usdBalanceLabel.text = String(format: "≈$%@", self.currencyFormatter.string(from: (balance!.available! * rate) as NSDecimalNumber)!)
+                        self.usdBalanceLabel.text = String(format: "≈$%@", self.currencyFormatter.string(from: (balance!.total! * rate) as NSDecimalNumber)!)
                     }
                 })
             } else {
-                usdBalanceLabel.text = String(format: "≈$%@", currencyFormatter.string(from: (balance!.available! * Lbryio.currentLbcUsdRate!) as NSDecimalNumber)!)
+                usdBalanceLabel.text = String(format: "≈$%@", currencyFormatter.string(from: (balance!.total! * Lbryio.currentLbcUsdRate!) as NSDecimalNumber)!)
             }
         }
     }

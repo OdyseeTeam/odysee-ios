@@ -473,17 +473,19 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             let result = data["result"] as! [String: Any]
             
             var balance = WalletBalance()
-            balance.available = Decimal(string: result["available"] as! String)
-            balance.reserved = Decimal(string: result["reserved"] as! String)
-            balance.total = Decimal(string: result["total"] as! String)
+            balance.available = Decimal(string: result["available"] as? String ?? "0")
+            balance.reserved = Decimal(string: result["reserved"] as? String ?? "0")
+            balance.total = Decimal(string: result["total"] as? String ?? "0")
             
-            let reservedSubtotals = data["reserved_subtotals"] as? [String: Any]
-            if (reservedSubtotals != nil) {
-                balance.claims = Decimal(string: reservedSubtotals!["claims"] as! String)
-                balance.supports = Decimal(string: reservedSubtotals!["supports"] as! String)
-                balance.tips = Decimal(string: reservedSubtotals!["tips"] as! String)
+            if let reservedSubtotals = result["reserved_subtotals"] as? [String: Any] {
+                balance.claims = Decimal(string: reservedSubtotals["claims"] as? String ?? "0")
+                balance.supports = Decimal(string: reservedSubtotals["supports"] as? String ?? "0")
+                balance.tips = Decimal(string: reservedSubtotals["tips"] as? String ?? "0")
+            } else {
+                balance.claims = Decimal(0)
+                balance.supports = Decimal(0)
+                balance.tips = Decimal(0)
             }
-            
             Lbry.walletBalance = balance
             DispatchQueue.main.async {
                 self.mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.available)
