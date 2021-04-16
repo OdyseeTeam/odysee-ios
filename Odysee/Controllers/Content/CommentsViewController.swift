@@ -305,10 +305,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             self.showError(message: String.localized("You need to select a channel to post your comment as"))
             return
         }
-        if commentInput.text.count < Helper.commentMinLength {
-            self.showError(message: String.localized("Please post a meaningful comment"))
-            return
-        }
+
         if commentInput.text.count > Helper.commentMaxLength {
             self.showError(message: String.localized("Your comment is too long"))
             return
