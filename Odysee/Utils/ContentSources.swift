@@ -222,7 +222,24 @@ struct ContentSources {
         "60a3fae23e73c566fbd6cad622a74aa6977eec5f",
         "54808df261e5b67f6f9b89af910a894dfaf3aa25",
         "ccd3fb748971f78c24a041e185249a9cffe88a4c",
-        "a157cb04b654955eb4b96d91ac392ed71b77ab3d"
+        "a157cb04b654955eb4b96d91ac392ed71b77ab3d",
+        "250650fa496eff51c2a6bb42e71a63bb285252bf",
+        "d6f5521d37c24f55967e9a15aea8ce8609b749c7",
+        "58ff572db7c8dfbb30d0dbb81717b9641c453a58",
+        "b8a34909a98ed62bcb1b63a81a2aac09c461479b",
+        "7fa2caefeabb57cf090a2fc3e6eda3a3ce1b8a55",
+        "3ddc1090db671fe0ef11769a2e21e5557c0f865a",
+        "9c1f46a30fffcf614d2ec57ce7857a829bbe8878",
+        "5af95fa4195d82b4207df9e5fc2b31f5656be6fc",
+        "b8be0e93b423dad221abe29545fbe8ec36e806bc",
+        "b3e262ab07aee0062d7a8b1385d1edf7c926c5bd",
+        "f77a89cd31769d34731ad06cd0c965557826dc25",
+        "f3e79bf8229736a9f3ae208725574436e9d4ac03",
+        "3b1f439733ab2b517bd7065f28b8c888bbbfd170",
+        "0f1e4e91598af7d14ca447b9563e7730a8dd36ac",
+        "8b01f8fd69743b0cfa4b611bf8d58a4a60c46183",
+        "b0a25c726258a200f6e8588c402d6bb3d756347e",
+        "695bf734b23fccc50c4a21d9f450c62035b93a16"
     ]
     
     static let BigHitsChannelIds: [String] = [
@@ -475,7 +492,26 @@ struct ContentSources {
         "d31e47347f6590f36bab24f29a7017d731e83b28",
         "db484184599838b0be7d1ce2e92c574f2747c7bc",
         "9190e94b95323e663ea99af67d35d0527c578ac7",
-        "3b33cd8fe8f2035987f80044b8cdde3df09c41ec"
+        "3b33cd8fe8f2035987f80044b8cdde3df09c41ec",
+        "571c74d6d786c47b4e2cd1ac9e3a0aab76c1e502",
+        "58ff572db7c8dfbb30d0dbb81717b9641c453a58",
+        "f51e07bc92130eda56a013f018abc077de069d34",
+        "380066bbf6bb1dbba68a9409063c6fcf45eee19a",
+        "205d804ea2932b0834a5c8bc8664d2256c374d42",
+        "1b877661d373a7b943f64460f687c2b40710f369",
+        "b805863fab03ba14f625a97cc625733def2f3eee",
+        "482a436607eef839361cbe9ad1a6e702505c067e",
+        "b3e262ab07aee0062d7a8b1385d1edf7c926c5bd",
+        "a0b4f6245ee98b6a30139217873587887a3b0e64",
+        "7772ed2cfd57e7dd3ca09a857e95a2f55f2f3196",
+        "d5153808ca1eaaf008e876d76ad2022bd490183a",
+        "64cff119b0487ce2b3e83fb8f96a3d977c9b69c9",
+        "6bc8f637ebaa42e3aa6f230cbe29156502650654",
+        "c8ae70f6790fb1c396003cd2aee4f6780dc1aea8",
+        "5a9bba4eb7ca103989b83f0ff79e4ef0a78ea331",
+        "b0a25c726258a200f6e8588c402d6bb3d756347e",
+        "e838f9f25e0bd455dadb56dfd3655f3ac199b32e",
+        "118d5abf71473407d12eed67802daa3193d4b330"
         
     ]
     
@@ -665,7 +701,13 @@ struct ContentSources {
         "ad5bc51e5eddc16bb6d6fc6cd456a55600d83553",
         "6a99cef1b67c7f54ec6b3d43d2602972baf7416b",
         "a5741bc6ed3f91b072431aecf8c43630b3bdfdd4",
-        "60a3fae23e73c566fbd6cad622a74aa6977eec5f"
+        "60a3fae23e73c566fbd6cad622a74aa6977eec5f",
+        "b8a34909a98ed62bcb1b63a81a2aac09c461479b",
+        "cee81f35be92728b2a520c7b6cfa3b1352ed1aea",
+        "dff7a83b477ba1bf1ef572e0709e05e489b2e8ca",
+        "bc65458c8254087e9706764907c875afb5ddbe06",
+        "64081b73087e8eb6c804b9f30199e8904fb7ba74",
+        "c768b69d8db0063fa4c0e9b12431eef845504063"
     ]
     
     static let TheUniverseChannelIds: [String] = [
@@ -921,7 +963,25 @@ struct ContentSources {
         "5c9884083722915beaadfa2911d0adfc9d44b090",
         "9176e6a8ce7854b7639f5e657cb48d3ef0e11063",
         "30ab4ecaf43d5171e1fac6fef47b139972b38e97",
-        "a157cb04b654955eb4b96d91ac392ed71b77ab3d"
+        "a157cb04b654955eb4b96d91ac392ed71b77ab3d",
+        "571c74d6d786c47b4e2cd1ac9e3a0aab76c1e502",
+        "861815b212e8f1c79aeed5c40a3346f2209c0cd7",
+        "051fb22d6f6b008bb7ee2a5609b0ecce6ed3b7b7",
+        "966d1d6fda9409157bc0bcb9c74ebf18372a5826",
+        "370c1f5dc00485c574e9e12c2e8318aef756e14c",
+        "82429e3fb5b02a1b0491fdfe8c8a5a19b542e8d8",
+        "fafbe9cfa04debc35bcb337d85bac37d8de77cfa",
+        "16cc3ad216d0343fea30fad1853582ca452b5c51",
+        "b8be0e93b423dad221abe29545fbe8ec36e806bc",
+        "dbd0f5680d4ccc11165eb6382e46aef891bbdef4",
+        "3e0238cc18967b3aedb5888e4e1ca58d98af1b38",
+        "0f1e4e91598af7d14ca447b9563e7730a8dd36ac",
+        "6bc8f637ebaa42e3aa6f230cbe29156502650654",
+        "8b01f8fd69743b0cfa4b611bf8d58a4a60c46183",
+        "a80aca4893d042b438bb6cc7241c9f7ccfd73009",
+        "f6190681f20cbb905f5ff7d58e568603f81de8ba",
+        "772a859c56a72f12284240b66a3d3bbc6fd9e1d0",
+        "5c24c8e4cfdb5ab232fa37c3b9218fdd7742fabf"
     ]
     
     static let TechnologyChannelIds: [String] = [
@@ -1058,7 +1118,15 @@ struct ContentSources {
         "fb1e219c94eb83197a63658244925c0027a3a972",
         "f1dff225e758dd5bc8ab8b91894096215297b2be",
         "169fcdb06aac97392e54cfd5d3c0a752eba3e112",
-        "7d2808c83ece919fd5482bcdc364705953fbfe8a"
+        "7d2808c83ece919fd5482bcdc364705953fbfe8a",
+        "250650fa496eff51c2a6bb42e71a63bb285252bf",
+        "ecd1338cfc1470d9c0b946e1c371cc61f1e8789c",
+        "d6f5521d37c24f55967e9a15aea8ce8609b749c7",
+        "0a60026345d27058f970d5918a7b7b23a8ca4c43",
+        "aa2609e3ac8ab5f21e28414c305ad60e4c31756e",
+        "a656fed1f0494f5ebaa582be8d3b9a1f610cd8a3",
+        "d52994c8e4a83767d789ddc361961c399b31efa9",
+        "118d5abf71473407d12eed67802daa3193d4b330"
     ]
     
     static let ScienceChannelIds: [String] = [
@@ -1142,7 +1210,10 @@ struct ContentSources {
         "8e316448fc6bfcbef657930a1eda64be39e5eb69",
         "6d3b901c2de1026b688cf2b367f2b341c18955ed",
         "54808df261e5b67f6f9b89af910a894dfaf3aa25",
-        "8c6cb32ae6b4d357ff126b952f1eb4fea81ab6ab"
+        "8c6cb32ae6b4d357ff126b952f1eb4fea81ab6ab",
+        "0962a13f9355ac1b6535e0d48e35b6f27033b6cf",
+        "5ee0394d2c7ecaa0b2e37b74009255ad7820be57",
+        "d52994c8e4a83767d789ddc361961c399b31efa9"
     ]
     
     static let NewsChannelIds: [String] = [
@@ -1228,7 +1299,13 @@ struct ContentSources {
         "12f1522d55c06b9dacc4b69b9622c297ff2cdac8",
         "aee8476d102b3495be88dcd8a400d661eae9e42c",
         "ac23da30ec37a7b87ef70fcb21777b8e0d8dbc13",
-        "9176e6a8ce7854b7639f5e657cb48d3ef0e11063"
+        "9176e6a8ce7854b7639f5e657cb48d3ef0e11063",
+        "9a1cdaeee5d42f39a26cd2e1aebb838988881edb",
+        "7e02fae42691cd75409c28382638f6a614e54e8f",
+        "29531b013aaee87b5b38557cadd56f84bf025372",
+        "6382292613cc86893a9c2d949c394ef70fd3e072",
+        "42e0913aacb8769fddb2bfaa3790c24e0aa6a43c",
+        "f456460846ee417b9d8d333a5d71a5bd7867cc61"
     ]
     
     static let FinanceChannelIds: [String] = [
@@ -1337,6 +1414,13 @@ struct ContentSources {
         "167fd6456ddfb967498d1b216da8ba894738ddcb",
         "2feae5c0e5c62d5533e0dd78e58a7684ca94f215",
         "2c088e04540d47e1550785f8ac97d8b614b014f9",
+        "f5c02d8484646df941e704c72cce9104cbf88184",
+        "fb09f85e5397252c655681f8f49346c479539121",
+        "cf68e70f2e29bbb357d64df38c412f9fa28978e5",
+        "e7a50eddb56adcce86cb21c43977ba77c7bf5350",
+        "4d43672f087bca1532e0020a9f6417134926c950",
+        "ab0e2651ba05affb70baea9aa8975cf5f0fa4fce",
+        "a9cf992aaa2e519a1eb76c27851ff85e2d031444"
     ]
     
     static let MoviesChannelIds = [
