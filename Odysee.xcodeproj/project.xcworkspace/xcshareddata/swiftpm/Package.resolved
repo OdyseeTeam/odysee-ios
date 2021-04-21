@@ -92,6 +92,15 @@
         }
       },
       {
+        "package": "HaishinKit",
+        "repositoryURL": "https://github.com/shogo4405/HaishinKit.swift",
+        "state": {
+          "branch": null,
+          "revision": "2a49a2ed6edbe80f9ef462b14f5b75187ff01b0d",
+          "version": "1.1.4"
+        }
+      },
+      {
         "package": "Kanna",
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {
@@ -107,6 +116,15 @@
           "branch": null,
           "revision": "fa1f25f296a766e5a789c4dacd4798dea798b2c2",
           "version": "1.22.1"
+        }
+      },
+      {
+        "package": "Logboard",
+        "repositoryURL": "https://github.com/shogo4405/Logboard.git",
+        "state": {
+          "branch": null,
+          "revision": "8cc7656b07e4d327fae42e1320e2e48b8868e3f6",
+          "version": "2.2.2"
         }
       },
       {
