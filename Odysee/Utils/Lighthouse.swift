@@ -26,6 +26,16 @@ final class Lighthouse {
         "covid 19"
     ]
     
+    static func containsFilteredKeyword(_ query: String) -> Bool {
+        for keyword in keywordsForEmptyResults {
+            let trimmedQuery = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmedQuery.contains(keyword) || trimmedQuery == keyword {
+                return true
+            }
+        }
+        return false
+    }
+    
     static func search(rawQuery: String, size: Int, from: Int, relatedTo: String?, completion: @escaping ([[String: Any]]?, Error?) -> Void) {
         if !(relatedTo ?? "").isBlank {
             if let respData = relatedContentCache[String(format: "%@:%@", relatedTo!, rawQuery)] {

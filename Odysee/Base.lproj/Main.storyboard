@@ -1481,10 +1481,10 @@
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="notification_cell" id="CBC-yc-Lg6" customClass="NotificationTableViewCell" customModule="Odysee" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="414" height="129.5"/>
+                                        <rect key="frame" x="0.0" y="28" width="414" height="130"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="CBC-yc-Lg6" id="CyX-RZ-AKz">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="129.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="130"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nec-jl-R4W">
@@ -1516,7 +1516,7 @@
                                                     </constraints>
                                                 </view>
                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="Rkn-qw-1Ja">
-                                                    <rect key="frame" x="72" y="12" width="298" height="105.5"/>
+                                                    <rect key="frame" x="72" y="12" width="298" height="106"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E1P-Ch-8kS">
                                                             <rect key="frame" x="0.0" y="0.0" width="298" height="0.0"/>
@@ -1531,7 +1531,7 @@
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KCt-HX-Xa4">
-                                                            <rect key="frame" x="0.0" y="6" width="298" height="99.5"/>
+                                                            <rect key="frame" x="0.0" y="6" width="298" height="100"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -7417,6 +7417,10 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="0WJ-Op-jy7" appends="YES" id="K5L-27-fdL"/>
+                                </connections>
                             </stackView>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XFM-dL-0Qf">
                                 <rect key="frame" x="175" y="416" width="64" height="64"/>
@@ -7456,6 +7460,7 @@
                     <connections>
                         <outlet property="getStartedView" destination="dgc-bS-LCm" id="jOx-47-uto"/>
                         <outlet property="loadingContainer" destination="XFM-dL-0Qf" id="DPI-6q-0DM"/>
+                        <outlet property="noResultsLabel" destination="JbM-iD-e2H" id="Hs0-BK-QCR"/>
                         <outlet property="noResultsView" destination="nRQ-3W-FNu" id="FpK-ek-8hq"/>
                         <outlet property="resultsListView" destination="vI9-g9-FJ7" id="0iO-uC-lbY"/>
                         <outlet property="searchBar" destination="CLn-VR-8NN" id="Lrn-Xo-vbL"/>
@@ -7465,6 +7470,11 @@
                 <tapGestureRecognizer id="QOJ-p2-3zL" userLabel="Go Back Tap Gesture">
                     <connections>
                         <action selector="backTapped:" destination="ZK9-XQ-4P5" id="qVY-L4-PXy"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="0WJ-Op-jy7" userLabel="Web Search Tap Gesture Recognizer">
+                    <connections>
+                        <action selector="noResultsViewTapped:" destination="ZK9-XQ-4P5" id="F6g-eV-kzV"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>

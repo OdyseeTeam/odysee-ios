@@ -6,6 +6,7 @@
 //
 
 import Firebase
+import SafariServices
 import UIKit
 
 class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource {
@@ -13,6 +14,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var getStartedView: UIStackView!
     @IBOutlet weak var noResultsView: UIStackView!
+    @IBOutlet weak var noResultsLabel: UILabel!
     
     @IBOutlet weak var resultsListView: UITableView!
     @IBOutlet weak var loadingContainer: UIView!
@@ -151,6 +153,19 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         DispatchQueue.main.async {
             self.loadingContainer.isHidden = true
             self.noResultsView.isHidden = self.claims.count > 0
+            self.noResultsLabel.text = Lighthouse.containsFilteredKeyword(self.currentQuery!) ?
+                String.localized("This search term is disabled to comply with iOS content guidelines. View this search on the web at odysee.com") :
+                String.localized("Oops! We could not find any content matching your search term. Please try again with something different.")
+        }
+    }
+    
+    @IBAction func noResultsViewTapped(_ sender: Any) {
+        if Lighthouse.containsFilteredKeyword(currentQuery!) {
+            if let url = URL(string: String(format: "https://odysee.com/$/search?q=%@", currentQuery!)) {
+                let vc = SFSafariViewController(url: url)
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                appDelegate.mainController.present(vc, animated: true, completion: nil)
+            }
         }
     }
     
