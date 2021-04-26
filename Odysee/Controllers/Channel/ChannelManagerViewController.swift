@@ -123,7 +123,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     func checkNoChannels() {
         DispatchQueue.main.async {
             self.channelListView.isHidden = self.channels.count <= 1
-            self.noChannelsView.isHidden = self.channels.count >= 1
+            self.noChannelsView.isHidden = self.channels.count > 1
         }
     }
     
