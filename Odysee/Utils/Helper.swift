@@ -11,6 +11,7 @@ import UIKit
 
 final class Helper {
     static let minimumSpend: Decimal = 0.0001
+    static let minimumDepositString: String = "0.001"
     static let minimumDeposit: Decimal = 0.001
     static let commentMinLength: Int = 50
     static let commentMaxLength: Int = 2000

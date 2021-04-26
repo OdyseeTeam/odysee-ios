@@ -76,6 +76,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         
         uploadingIndicator.layer.cornerRadius = 16
         
+        self.depositField.text = Helper.minimumDepositString
         loadChannels()
     }
     
