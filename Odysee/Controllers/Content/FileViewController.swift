@@ -53,6 +53,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var bellView: UIView!
     @IBOutlet weak var bellIconView: UIImageView!
     
+    @IBOutlet weak var streamerAreaActionsView: UIView!
+    @IBOutlet weak var streamerFollowLabel: UILabel!
+    @IBOutlet weak var streamerFollowUnfollowIconView: UIImageView!
+    @IBOutlet weak var streamerBellView: UIView!
+    @IBOutlet weak var streamerBellIconView: UIImageView!
+    
     @IBOutlet weak var loadingRelatedView: UIActivityIndicatorView!
     @IBOutlet weak var relatedContentListView: UITableView!
     @IBOutlet weak var relatedContentListHeightConstraint: NSLayoutConstraint!
@@ -72,6 +78,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var commentExpandView: UIImageView!
     @IBOutlet weak var commentsContainerView: UIView!
     @IBOutlet weak var bottomLayoutConstraint: NSLayoutConstraint!
+    @IBOutlet weak var streamerAreaHeightConstraint: NSLayoutConstraint!
     
     @IBOutlet weak var fireReactionCountLabel: UILabel!
     @IBOutlet weak var slimeReactionCountLabel: UILabel!
@@ -212,11 +219,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @objc func keyboardWillShow(notification: NSNotification) {
         let info = notification.userInfo
         let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        bottomLayoutConstraint.constant = kbSize.height - 36
+        bottomLayoutConstraint.constant = kbSize.height
+        streamerAreaHeightConstraint.constant = 0
+        livestreamerArea.isHidden = true
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
         bottomLayoutConstraint.constant = 0
+        streamerAreaHeightConstraint.constant = 56
+        livestreamerArea.isHidden = false
     }
     
     func showClaimAndCheckFollowing() {
@@ -993,11 +1004,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
                 self.bellView.isHidden = false
                 self.followUnfollowIconView.image = UIImage.init(systemName: "heart.slash.fill")
                 self.followUnfollowIconView.tintColor = UIColor.label
+                
+                self.streamerFollowLabel.isHidden = true
+                self.streamerBellView.isHidden = false
+                self.streamerFollowUnfollowIconView.image = UIImage.init(systemName: "heart.slash.fill")
+                self.streamerFollowUnfollowIconView.tintColor = UIColor.label
             } else {
                 self.followLabel.isHidden = false
                 self.bellView.isHidden = true
                 self.followUnfollowIconView.image = UIImage.init(systemName: "heart")
                 self.followUnfollowIconView.tintColor = UIColor.systemRed
+                
+                self.streamerFollowLabel.isHidden = false
+                self.streamerBellView.isHidden = true
+                self.streamerFollowUnfollowIconView.image = UIImage.init(systemName: "heart")
+                self.streamerFollowUnfollowIconView.tintColor = UIColor.systemRed
             }
         }
     }
