@@ -65,6 +65,7 @@
 		648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F320B2575D52500E2CA51 /* UserAccountViewController.swift */; };
 		648F70D226307BC700885A2F /* HaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 648F70D126307BC700885A2F /* HaishinKit */; };
 		648F70D726307BF900885A2F /* GoLiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F70D626307BF900885A2F /* GoLiveViewController.swift */; };
+		649EA90626528D8D00F45129 /* launch_screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 649EA90526528D8D00F45129 /* launch_screen.png */; };
 		64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA70255DADFB00294E74 /* SearchViewController.swift */; };
 		64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA75255DB5B200294E74 /* Lighthouse.swift */; };
 		64A6CA7B255DD34700294E74 /* AppTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA7A255DD34700294E74 /* AppTabBarController.swift */; };
@@ -161,6 +162,7 @@
 		648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedChannelCollectionViewCell.swift; sourceTree = "<group>"; };
 		648F320B2575D52500E2CA51 /* UserAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountViewController.swift; sourceTree = "<group>"; };
 		648F70D626307BF900885A2F /* GoLiveViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoLiveViewController.swift; sourceTree = "<group>"; };
+		649EA90526528D8D00F45129 /* launch_screen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = launch_screen.png; sourceTree = "<group>"; };
 		64A6CA70255DADFB00294E74 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64A6CA75255DB5B200294E74 /* Lighthouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lighthouse.swift; sourceTree = "<group>"; };
 		64A6CA7A255DD34700294E74 /* AppTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarController.swift; sourceTree = "<group>"; };
@@ -383,6 +385,7 @@
 		64FBE79025502A290082AF2E = {
 			isa = PBXGroup;
 			children = (
+				649EA90526528D8D00F45129 /* launch_screen.png */,
 				64FBE79B25502A290082AF2E /* Odysee */,
 				64FBE7B525502A2D0082AF2E /* OdyseeTests */,
 				64FBE7C025502A2D0082AF2E /* OdyseeUITests */,
@@ -569,6 +572,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				649EA90626528D8D00F45129 /* launch_screen.png in Resources */,
 				64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */,
 				64D72BB5258C54B100F5C4E3 /* Secrets.plist in Resources */,
 				641615052581267B003A2194 /* GoogleService-Info.plist in Resources */,
