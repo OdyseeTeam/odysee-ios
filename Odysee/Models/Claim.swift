@@ -16,6 +16,7 @@ class Claim: Decodable, Equatable  {
     var confirmations: Int?
     var height: Int?
     var isChannelSignatureValid: Bool?
+    var meta: Meta?
     var name: String?
     var normalizedName: String?
     var nout: Int?
@@ -32,7 +33,7 @@ class Claim: Decodable, Equatable  {
     
     private enum CodingKeys: String, CodingKey {
         case address, amount, canonicalUrl = "canonical_url", claimId = "claim_id", claimOp = "claim_op", confirmations,
-             height, isChannelSignatureValid = "is_channel_signature_valid", name, normalizedName = "normalized_name",
+             height, isChannelSignatureValid = "is_channel_signature_valid", meta, name, normalizedName = "normalized_name",
              nout, permanentUrl = "permanent_url", shortUrl = "short_url", signingChannel = "signing_channel",
              repostedClaim = "reposted_claim", timestamp, txid, value, valueType = "value_type"
     }
@@ -99,6 +100,13 @@ class Claim: Decodable, Equatable  {
         var height: Int64?
         var width: Int64?
         var os: String?
+    }
+    struct Meta: Decodable {
+        var effectiveAmount: String?
+        
+        private enum CodingKeys: String, CodingKey {
+            case effectiveAmount = "effective_amount"
+        }
     }
     
     static func ==(lhs:Claim, rhs:Claim) -> Bool {

@@ -29,6 +29,8 @@ final class Lbry {
     static let methodCommentCreate = "comment_create"
     static let methodStreamAbandon = "stream_abandon"
     static let methodStreamUpdate = "stream_update"
+    static let methodChannelSign = "channel_sign"
+    static let methodPublish = "publish"
     static let methodClaimList = "claim_list"
     static let methodCommentList = "comment_list"
     static let methodCommentReact = "comment_react"
@@ -91,7 +93,7 @@ final class Lbry {
             do {
                 // TODO: remove
                 if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   //print(JSONString)
+                   print(JSONString)
                 }
                 
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]

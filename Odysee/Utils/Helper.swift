@@ -233,6 +233,11 @@ final class Helper {
         return claim.value != nil && claim.value!.tags != nil &&
             claim.value!.tags!.filter{ $0.lowercased() == tag.lowercased() }.count > 0
     }
+    
+    static func strToHex(_ str: String) -> String {
+        let data = Data(str.utf8)
+        return data.map{ String(format: "%02x", $0) }.joined()
+    }
 }
 
 struct GenericError: Error {
