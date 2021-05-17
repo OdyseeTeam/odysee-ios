@@ -16,6 +16,7 @@ class UserAccountMenuViewController: UIViewController {
     @IBOutlet weak var userEmailLabel: UILabel!
     @IBOutlet weak var signUpLoginContainer: UIView!
     
+    @IBOutlet weak var goLiveLabel: UILabel!
     @IBOutlet weak var channelsLabel: UILabel!
     @IBOutlet weak var rewardsLabel: UILabel!
     @IBOutlet weak var invitesLabel: UILabel!
@@ -30,6 +31,7 @@ class UserAccountMenuViewController: UIViewController {
         
         signUpLoginContainer.isHidden = Lbryio.isSignedIn()
         
+        goLiveLabel.isHidden = !Lbryio.isSignedIn()
         userEmailLabel.isHidden = !Lbryio.isSignedIn()
         channelsLabel.isHidden = !Lbryio.isSignedIn()
         rewardsLabel.isHidden = !Lbryio.isSignedIn()
@@ -52,6 +54,13 @@ class UserAccountMenuViewController: UIViewController {
     @IBAction func signUpLoginTapped(_ sender: UIButton) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = self.storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        presentingViewController?.dismiss(animated: false, completion: nil)
+    }
+    
+    @IBAction func goLiveTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = self.storyboard?.instantiateViewController(identifier: "go_live_vc") as! GoLiveViewController
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }

@@ -63,6 +63,8 @@
 		6484E1B62582269B00221658 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6484E1B52582269B00221658 /* StoreKit.framework */; };
 		648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */; };
 		648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F320B2575D52500E2CA51 /* UserAccountViewController.swift */; };
+		648F70D226307BC700885A2F /* HaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 648F70D126307BC700885A2F /* HaishinKit */; };
+		648F70D726307BF900885A2F /* GoLiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F70D626307BF900885A2F /* GoLiveViewController.swift */; };
 		64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA70255DADFB00294E74 /* SearchViewController.swift */; };
 		64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA75255DB5B200294E74 /* Lighthouse.swift */; };
 		64A6CA7B255DD34700294E74 /* AppTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA7A255DD34700294E74 /* AppTabBarController.swift */; };
@@ -158,6 +160,7 @@
 		6484E1B52582269B00221658 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedChannelCollectionViewCell.swift; sourceTree = "<group>"; };
 		648F320B2575D52500E2CA51 /* UserAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountViewController.swift; sourceTree = "<group>"; };
+		648F70D626307BF900885A2F /* GoLiveViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoLiveViewController.swift; sourceTree = "<group>"; };
 		64A6CA70255DADFB00294E74 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64A6CA75255DB5B200294E74 /* Lighthouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lighthouse.swift; sourceTree = "<group>"; };
 		64A6CA7A255DD34700294E74 /* AppTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarController.swift; sourceTree = "<group>"; };
@@ -201,6 +204,7 @@
 				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
 				646D5645258587A8002DB12F /* OAuthSwift in Frameworks */,
 				6411C0B0255B35260018C3D5 /* Base58Swift in Frameworks */,
+				648F70D226307BC700885A2F /* HaishinKit in Frameworks */,
 				6484E1B62582269B00221658 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -334,6 +338,7 @@
 				646F1F7525F0D67A00F75F3B /* PublishesViewController.swift */,
 				646F1F7D25F0D6BE00F75F3B /* PublishViewController.swift */,
 				64BAFBB12609ED5900BD4B9A /* LibraryViewController.swift */,
+				648F70D626307BF900885A2F /* GoLiveViewController.swift */,
 			);
 			path = Library;
 			sourceTree = "<group>";
@@ -468,6 +473,7 @@
 				6453358A257FDC6800C49BD1 /* FirebaseMessaging */,
 				646D5644258587A8002DB12F /* OAuthSwift */,
 				6459121C2620745D00B2ABA5 /* Starscream */,
+				648F70D126307BC700885A2F /* HaishinKit */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -545,6 +551,7 @@
 				64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */,
 				6459121B2620745C00B2ABA5 /* XCRemoteSwiftPackageReference "Starscream" */,
+				648F70D026307BC700885A2F /* XCRemoteSwiftPackageReference "HaishinKit" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -611,6 +618,7 @@
 				64FF820F2604FB0B009B7A3B /* FirstRunDelegate.swift in Sources */,
 				648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */,
 				64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */,
+				648F70D726307BF900885A2F /* GoLiveViewController.swift in Sources */,
 				6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */,
 				64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */,
 				648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */,
@@ -1026,6 +1034,14 @@
 				minimumVersion = 2.1.2;
 			};
 		};
+		648F70D026307BC700885A2F /* XCRemoteSwiftPackageReference "HaishinKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/shogo4405/HaishinKit.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.4;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1053,6 +1069,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */;
 			productName = OAuthSwift;
+		};
+		648F70D126307BC700885A2F /* HaishinKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 648F70D026307BC700885A2F /* XCRemoteSwiftPackageReference "HaishinKit" */;
+			productName = HaishinKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 
