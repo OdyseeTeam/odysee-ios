@@ -72,7 +72,7 @@ class ClaimTableViewCell: UITableViewCell {
         
         titleLabel.text = isChannel ? claim.name : claim.value?.title
         publisherLabel.text = isChannel ? claim.name : (claim.signingChannel != nil ? claim.signingChannel?.name : "")
-        if claim.value?.source == nil {
+        if claim.value?.source == nil  && !isChannel {
             publisherLabel.text = "LIVE"
         }
         // load thumbnail url
