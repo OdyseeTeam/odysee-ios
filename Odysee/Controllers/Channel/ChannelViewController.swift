@@ -15,6 +15,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var channelClaim: Claim?
     var claimUrl: LbryUri?
     var subscribeUnsubscribeInProgress = false
+    var livestreamTimer: Timer = Timer()
+    let livestreamTimerInterval: Double = 60 // 1 minute
     
     @IBOutlet weak var thumbnailImageView: UIImageView!
     @IBOutlet weak var coverImageView: UIImageView!
@@ -298,6 +300,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 noAboutContentView.isHidden = true
             }
         }
+        
+        // schedule livestream timer
+        livestreamTimer = Timer.scheduledTimer(timeInterval: livestreamTimerInterval, target: self, selector: #selector(self.checkLivestream), userInfo: nil, repeats: true)
     }
     
     func loadAndDisplayFollowerCount() {
@@ -347,6 +352,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         claims.removeAll()
         contentListView.reloadData()
     }
+    
     func loadContent() {
         if (loadingContent) {
             return
@@ -361,6 +367,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         updateClaimSearchOptions()
         Lbry.apiCall(method: Lbry.methodClaimSearch, params: claimSearchOptions, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
             guard let data = data, error == nil else {
+                self.loadingContent = false
                 print(error!)
                 return
             }
@@ -393,8 +400,84 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 self.checkNoContent()
                 self.contentListView.reloadData()
                 //self.refreshControl.endRefreshing()
+                
+                self.checkLivestream()
             }
         })
+    }
+    
+    @objc func checkLivestream() {
+        if (loadingContent) {
+            return
+        }
+        
+        loadingContent = true
+        
+        let channelIds: [String] = [channelClaim?.claimId ?? ""]
+        let hasNoSourceOptions = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds, notChannelIds: nil, claimIds: nil, orderBy: Helper.sortByItemValues[1], releaseTime: nil, maxDuration: nil, limitClaimsPerChannel: 0, hasNoSource: true, page: 1, pageSize: pageSize)
+        Lbry.apiCall(method: Lbry.methodClaimSearch, params: hasNoSourceOptions, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
+            guard let data = data, error == nil else {
+                self.loadingContent = false
+                print(error!)
+                return
+            }
+            
+            let result = data["result"] as? [String: Any]
+            let items = result?["items"] as? [[String: Any]]
+            if (items != nil) {
+                var loadedClaims: [Claim] = []
+                items?.forEach{ item in
+                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
+                    do {
+                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                        if (claim != nil && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
+                            loadedClaims.append(claim!)
+                        }
+                    } catch let error {
+                        print(error)
+                    }
+                }
+                
+                if loadedClaims.count > 0 {
+                    self.checkChannelIsLive(claim: loadedClaims[0])
+                }
+            }
+            self.loadingContent = false
+        })
+    }
+    
+    func checkChannelIsLive(claim: Claim?) {
+        let url = URL(string: String(format: "https://api.bitwave.tv/v1/odysee/live/%@", channelClaim!.claimId!))
+        let session = URLSession.shared
+        var req = URLRequest(url: url!)
+        req.httpMethod = "GET"
+        
+        let task = session.dataTask(with: req, completionHandler: { data, response, error in
+            guard let data = data, error == nil else {
+                // handle error
+                return
+            }
+            do {
+                let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                if let livestreamData = response?["data"] as? [String: Any] {
+                    let isLive = livestreamData["live"] as? Bool ?? false
+                    if isLive {
+                        // only show the livestream claim at the top if the channel is actually live
+                        if !self.claims.contains(where: { $0.claimId == claim?.claimId }) {
+                            self.claims.insert(claim!, at: 0)
+                        }
+                        DispatchQueue.main.async {
+                            self.contentListView.reloadData()
+                        }
+                        
+                        return
+                    }
+                }
+            } catch {
+                // pass
+            }
+        });
+        task.resume();
     }
     
     func checkNoContent() {

@@ -143,6 +143,10 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             showError(message: String.localized("Please enter valid amount"))
             return
         }
+        if amount! > (Lbry.walletBalance?.available)! {
+            showError(message: String.localized("Insufficient funds"))
+            return
+        }
 
         let alert = UIAlertController(title: String.localized("Send credits?"), message: String.localized(String(format: "Are you sure you want to send credits to %@?", recipientAddress!)), preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
@@ -176,6 +180,10 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         Lbry.apiCall(method: Lbry.methodWalletSend, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
             guard let _ = data, error == nil else {
                 self.showError(error: error)
+                DispatchQueue.main.async {
+                    self.loadingSendView.isHidden = true
+                    self.sendButton.isEnabled = true
+                }
                 return
             }
             
