@@ -13,7 +13,7 @@ import SafariServices
 import Starscream
 import UIKit
 
-class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, WebSocketDelegate {
+class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, WebSocketDelegate {
     
     @IBOutlet weak var titleArea: UIView!
     @IBOutlet weak var publisherArea: UIView!
@@ -85,6 +85,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     @IBOutlet weak var fireReactionImage: UIImageView!
     @IBOutlet weak var slimeReactionImage: UIImageView!
     
+    @IBOutlet weak var dismissPanRecognizer: UIPanGestureRecognizer!
+
     var avpc: AVPlayerViewController!
     
     var commentsDisabled = false
@@ -320,6 +322,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer == dismissPanRecognizer {
+            let translation = dismissPanRecognizer.translation(in: self.view)
+            return abs(translation.y) > abs(translation.x)
+        }
         return true
     }
     
@@ -1156,6 +1162,43 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         self.navigationController?.popViewController(animated: false)
     }
     
+    var interactiveDismiss: UIPercentDrivenInteractiveTransition?
+    @IBAction func dismissFileViewPanned(_ sender: Any) {
+        assert(sender as? NSObject == dismissPanRecognizer)
+        switch dismissPanRecognizer.state {
+        case .began:
+            interactiveDismiss = UIPercentDrivenInteractiveTransition()
+            navigationController?.delegate = self
+            navigationController?.popViewController(animated: true)
+        case .changed:
+            let percentComplete = dismissPanRecognizer.translation(in: self.view).y / self.view.bounds.size.height
+            interactiveDismiss?.update(percentComplete)
+        case .cancelled:
+            interactiveDismiss?.cancel()
+            interactiveDismiss = nil
+        case .ended:
+            if (dismissPanRecognizer?.velocity(in: self.view).y ?? 0) > 0 {
+                interactiveDismiss?.finish()
+            } else {
+                interactiveDismiss?.cancel()
+            }
+            interactiveDismiss = nil
+        case .failed, .recognized, .possible: ()
+        @unknown default: ()
+        }
+    }
+
+    func navigationController(_ navigationController: UINavigationController, animationControllerFor operation: UINavigationController.Operation, from fromVC: UIViewController, to toVC: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        if interactiveDismiss != nil {
+            return FileDismissAnimationController()
+        }
+        return nil
+    }
+
+    func navigationController(_ navigationController: UINavigationController, interactionControllerFor animationController: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
+        return interactiveDismiss
+    }
+
     @IBAction func shareActionTapped(_ sender: Any) {
         let url = LbryUri.tryParse(url: claim!.shortUrl!, requireProto: false)
         if (url != nil) {

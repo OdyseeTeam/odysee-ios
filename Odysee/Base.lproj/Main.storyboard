@@ -5990,6 +5990,9 @@
                                     <constraint firstAttribute="bottom" secondItem="DED-pq-EGI" secondAttribute="bottom" constant="4" id="li7-Qa-GjR"/>
                                     <constraint firstItem="b5M-lr-1ir" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="top" id="qHw-zN-XLw"/>
                                 </constraints>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="0h5-cd-N4G" appends="YES" id="5GF-En-P9U"/>
+                                </connections>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="J4Z-JJ-JZs" userLabel="Livestream Chat View">
                                 <rect key="frame" x="0.0" y="284" width="414" height="578"/>
@@ -7003,6 +7006,12 @@
                         <action selector="dismissFileViewTapped:" destination="Wx8-f6-Mvh" id="ghM-u3-c7H"/>
                     </connections>
                 </tapGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="0h5-cd-N4G" userLabel="Dismiss File View Pan Gesture Recognizer">
+                    <connections>
+                        <action selector="dismissFileViewPanned:" destination="Wx8-f6-Mvh" id="sQh-s2-xP7"/>
+                        <outlet property="delegate" destination="Wx8-f6-Mvh" id="g21-gP-ub4"/>
+                    </connections>
+                </panGestureRecognizer>
                 <tapGestureRecognizer id="7Pw-Pg-maN" userLabel="Share Action Tap Gesture Recognizer">
                     <connections>
                         <action selector="shareActionTapped:" destination="Wx8-f6-Mvh" id="9J8-YN-0fs"/>
