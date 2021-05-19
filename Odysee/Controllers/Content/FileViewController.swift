@@ -832,7 +832,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UITable
         let params = ["urls" : urls]
         
         Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString) { data, error in
-            let newClaims = data.flatMap(FileViewController.parseRelatedContent)
+            let newClaims = error != nil ? nil : data.flatMap(FileViewController.parseRelatedContent)
             DispatchQueue.main.async {
                 self.handleNewRelatedContentOnMain(newClaims: newClaims, error: error)
             }
