@@ -87,7 +87,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     @IBOutlet weak var dismissPanRecognizer: UIPanGestureRecognizer!
 
-    var avpc: AVPlayerViewController!
+    let avpc = AVPlayerViewController()
     
     var commentsDisabled = false
     var commentsViewPresented = false  
@@ -186,6 +186,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        avpc.allowsPictureInPicturePlayback = true
+        avpc.updatesNowPlayingInfoCenter = false
+
+        addChild(avpc)
+        avpc.view.frame = mediaView.bounds
+        mediaView.addSubview(avpc.view)
+        avpc.didMove(toParent: self)
+
         registerForKeyboardNotifications()
         
         checkRepost()
@@ -364,11 +373,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         return
                     }
                     
-                    if let streamUrl = livestreamData["url"] as? String {
+                    if let streamUrl = (livestreamData["url"] as? String).flatMap(URL.init) {
                         let headers: Dictionary<String, String> = [
                             "Referer": "https://bitwave.tv"
                         ]
-                        self.initializePlayerWithUrl(sourceUrl: streamUrl, headers: headers)
+                        DispatchQueue.main.async {
+                            self.initializePlayerWithUrl(sourceUrl: streamUrl, headers: headers)
+                        }
                     }
                 }
             } catch {
@@ -469,54 +480,34 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
     
-    func initializePlayerWithUrl(sourceUrl: String, headers: Dictionary<String, String> = [:]) {
-        DispatchQueue.main.async {
-            self.livestreamOfflinePlaceholder.isHidden = true
-            
-            self.avpc = AVPlayerViewController()
-            self.avpc.allowsPictureInPicturePlayback = true
-            self.avpc.updatesNowPlayingInfoCenter = false
-            
-            self.addChild(self.avpc)
-            self.avpc.view.frame = self.mediaView.bounds
-            self.mediaView.addSubview(self.avpc.view)
-            self.avpc.didMove(toParent: self)
-            
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            self.avpc.delegate = appDelegate.mainController
-            if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == self.claim?.claimId) {
-                self.avpc.player = appDelegate.player
-                self.playerConnected = true
-                return
-            }
-            
-            appDelegate.currentClaim = self.claim
-            if (appDelegate.player != nil) {
-                appDelegate.player!.pause()
-            }
+    func initializePlayerWithUrl(sourceUrl: URL, headers: Dictionary<String, String> = [:]) {
+        assert(Thread.isMainThread)
         
-            let videoUrl = URL(string: sourceUrl)
-            if (videoUrl == nil) {
-                self.showError(message: String(format: "The streaming url could not be loaded: %@", sourceUrl))
-                return
-            }
-            
-            appDelegate.playerObserverAdded = false
-            
-            if headers.keys.count > 0 {
-                let asset = AVURLAsset(url: videoUrl!, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
-                let playerItem = AVPlayerItem(asset: asset)
-                appDelegate.player = AVPlayer(playerItem: playerItem)
-            } else {
-                appDelegate.player = AVPlayer(url: videoUrl!)
-            }
-            appDelegate.registerPlayerObserver()
-            self.avpc.player = appDelegate.player
-            self.playerConnected = true
-            self.playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
-            
-            self.avpc.player!.play()
+        livestreamOfflinePlaceholder.isHidden = true
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        avpc.delegate = appDelegate.mainController
+        if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId) {
+            avpc.player = appDelegate.player
+            playerConnected = true
+            return
         }
+        
+        appDelegate.currentClaim = self.claim
+        appDelegate.player?.pause()
+        
+        appDelegate.playerObserverAdded = false
+        
+        let asset = AVURLAsset(url: sourceUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
+        let playerItem = AVPlayerItem(asset: asset)
+        appDelegate.player = AVPlayer(playerItem: playerItem)
+
+        appDelegate.registerPlayerObserver()
+        avpc.player = appDelegate.player
+        playerConnected = true
+        playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
+        
+        avpc.player!.play()
     }
     
     func displayRelatedPlaceholders() {
@@ -617,10 +608,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         })
     }
     
-    func getStreamingUrl(claim: Claim) -> String {
+    func getStreamingUrl(claim: Claim) -> URL {
         let claimName: String = claim.name!
         let claimId: String = claim.claimId!
-        return String(format: "https://cdn.lbryplayer.xyz/content/claims/%@/%@/stream", claimName.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!, claimId);
+        let str = String(format: "https://cdn.lbryplayer.xyz/content/claims/%@/%@/stream", claimName.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!, claimId)
+        return URL(string: str)!
     }
     
     func loadAndDisplayViewCount() {
