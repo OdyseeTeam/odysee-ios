@@ -89,6 +89,7 @@
 		64FF820F2604FB0B009B7A3B /* FirstRunDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF820E2604FB0B009B7A3B /* FirstRunDelegate.swift */; };
 		64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF8219260507D2009B7A3B /* CreateChannelViewController.swift */; };
 		B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */; };
+		CC97807926549867009F580E /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC97807826549867009F580E /* Log.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -193,6 +194,7 @@
 		64FF820E2604FB0B009B7A3B /* FirstRunDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstRunDelegate.swift; sourceTree = "<group>"; };
 		64FF8219260507D2009B7A3B /* CreateChannelViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateChannelViewController.swift; sourceTree = "<group>"; };
 		B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
+		CC97807826549867009F580E /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,6 +258,7 @@
 			children = (
 				641327432556EB2200CBB6B8 /* LbryUri.swift */,
 				641327482556EB3400CBB6B8 /* Lbry.swift */,
+				CC97807826549867009F580E /* Log.swift */,
 				6413274D2557D89200CBB6B8 /* Extensions.swift */,
 				64424DD9255895A500F2D247 /* ContentSources.swift */,
 				644F76B525595D4E00813451 /* Cache.swift */,
@@ -661,6 +664,7 @@
 				641AFAE925B606E000218BD9 /* UAButton.swift in Sources */,
 				641E7EC12608BE0C00A79CD3 /* Language.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
+				CC97807926549867009F580E /* Log.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
 				6413273E2556E86000CBB6B8 /* Claim.swift in Sources */,
 				642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */,

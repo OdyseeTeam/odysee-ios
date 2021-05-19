@@ -7,7 +7,8 @@
 
 import Foundation
 import Firebase
- 
+import os
+
 final class Lbryio {
     static let methodGet = "GET"
     static let methodPost = "POST"
@@ -105,10 +106,7 @@ final class Lbryio {
                 }
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 
-                // TODO: remove
-                if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                   //print(JSONString)
-                }
+                os_log(.debug, log: Log.verboseJSON, "\(String(data: data, encoding: .utf8)!)")
                 
                 if (respCode >= 200 && respCode < 300) {
                     if (respData?["data"] == nil) {

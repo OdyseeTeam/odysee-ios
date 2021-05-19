@@ -7,6 +7,7 @@
 
 import MobileCoreServices
 import Firebase
+import os
 import Photos
 import PhotosUI
 import UIKit
@@ -519,10 +520,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                         }
                         
                         do {
-                            // TODO: remove
-                            if let JSONString = String(data: data, encoding: String.Encoding.utf8) {
-                               //print(JSONString)
-                            }
+                            os_log(.debug, log: Log.verboseJSON, "\(String(data: data, encoding: .utf8)!)")
                             
                             let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                             if (response?["result"] != nil) {
