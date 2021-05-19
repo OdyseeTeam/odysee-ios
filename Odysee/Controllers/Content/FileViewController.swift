@@ -798,43 +798,51 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             self.resolveAndDisplayRelatedContent(urls: resolveUrls)
         })
     }
+
+    // Off-main thread handler for parsing related content. Static so that we don't touch
+    // view-controller instance data.
+    static func parseRelatedContent(data: [String: Any]) -> [Claim] {
+        assert(!Thread.isMainThread)
+        guard let results = data["result"] as? [String: Any] else {
+            assertionFailure()
+            return []
+        }
+        return results.compactMap { _, claimData in
+            // TODO: Remove this re-serialization step. Either leave the source data unparsed or
+            // make the apiCall function aware of the expected result type and parse it.
+            if let data = try? JSONSerialization.data(withJSONObject: claimData),
+               let claim = try? JSONDecoder().decode(Claim.self, from: data), !(claim.claimId?.isBlank ?? true) {
+                Lbry.addClaimToCache(claim: claim)
+                return claim
+            }
+            return nil
+        }
+    }
     
+    // The main-thread part of the related content loading flow, at the end.
+    func handleNewRelatedContentOnMain(newClaims: [Claim]?, error: Error?) {
+        assert(Thread.isMainThread)
+        if let newClaims = newClaims {
+            // Filter out self.claim && existing related content.
+            relatedContent = newClaims.filter { testClaim in
+                let testID = testClaim.claimId
+                return testID != self.claim?.claimId && !relatedContent.contains { testID == $0.claimId }
+            }
+            relatedContentListView.reloadData()
+        }
+        loadingRelated = false
+        loadingRelatedView.isHidden = true
+    }
+
     func resolveAndDisplayRelatedContent(urls: [String]) {
-        var params: Dictionary<String, Any> = Dictionary<String, Any>()
-        params["urls"] = urls
+        let params = ["urls" : urls]
         
-        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                // display no results
-                self.loadingRelatedView.isHidden = true
-                //self.checkNoResults()
-                return
-            }
-            
-            var claimResults: [Claim] = []
-            let result = data["result"] as! NSDictionary
-            self.relatedContent = []
-            for (_, claimData) in result {
-                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
-                do {
-                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if (claim != nil && !(claim?.claimId ?? "").isBlank && self.claim!.claimId != claim!.claimId &&
-                            !self.relatedContent.contains(where: { $0.claimId == claim?.claimId })) {
-                        Lbry.addClaimToCache(claim: claim)
-                        claimResults.append(claim!)
-                    }
-                } catch {
-                    // pass
-                }
-            }
-            self.relatedContent.append(contentsOf: claimResults)
-            self.loadingRelated = false
-            
+        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString) { data, error in
+            let newClaims = error != nil ? nil : data.flatMap(FileViewController.parseRelatedContent)
             DispatchQueue.main.async {
-                self.loadingRelatedView.isHidden = true
-                self.relatedContentListView.reloadData()
+                self.handleNewRelatedContentOnMain(newClaims: newClaims, error: error)
             }
-        })
+        }
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
