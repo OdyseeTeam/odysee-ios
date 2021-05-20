@@ -13,7 +13,8 @@ import Foundation
 
 final class Lbry {
     static let ttlCLaimSearchValue = 120000
-    static let lbrytvConnectionString = "https://api.lbry.tv/api/v1/proxy"
+    static let lbrytvURL = URL(string: "https://api.lbry.tv/api/v1/proxy")!
+    static let lbrytvConnectionString = lbrytvURL.absoluteString
     static let keyShared = "shared"
     static let sharedPreferenceVersion = "0.1"
     
@@ -59,9 +60,11 @@ final class Lbry {
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
     
-    static func apiCall(method: String, params: Dictionary<String, Any>, connectionString: String, authToken: String? = nil, completion: @escaping ([String: Any]?, Error?) -> Void) {
+    static private func apiRequest(method: String,
+                                   params: [String: Any],
+                                   url: URL,
+                                   authToken: String?) -> URLRequest {
         let counter = Date().timeIntervalSince1970
-        let url = URL(string: connectionString)!
         let body: Dictionary<String, Any> = [
             "jsonrpc": "2.0",
             "method": method,
@@ -69,23 +72,82 @@ final class Lbry {
             "counter": counter
         ];
         
-        let session = URLSession.shared
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
-        do {
-            req.httpBody = try JSONSerialization.data(withJSONObject: body, options: .prettyPrinted)
-        } catch let error {
-            completion(nil, error)
-            return
-        }
-        
+        req.httpBody = try! JSONSerialization.data(withJSONObject: body, options: .prettyPrinted)
         req.addValue("application/json", forHTTPHeaderField: "Content-Type")
         req.addValue("application/json", forHTTPHeaderField: "Accept")
-        if (!(authToken ?? "").isBlank) {
-            req.addValue(authToken!, forHTTPHeaderField: "X-Lbry-Auth-Token")
+        if let authToken = authToken, !authToken.isBlank {
+            req.addValue(authToken, forHTTPHeaderField: "X-Lbry-Auth-Token")
+        }
+        return req
+    }
+
+    private struct APIError: Decodable {
+        var message: String?
+        enum CodingKeys: String, CodingKey {
+            case message
         }
         
-        let task = session.dataTask(with: req, completionHandler: { data, response, error in
+        // Some API errors have a {message: ""} dict, some are just strings.
+        init(from decoder: Decoder) {
+            if let str = try? decoder.singleValueContainer().decode(String.self) {
+                message = str
+            } else if let dict = try? decoder.container(keyedBy: CodingKeys.self) {
+                message = try? dict.decodeIfPresent(String.self, forKey: .message)
+            }
+        }
+    }
+    
+    private struct APIResponse<Wrapped: Decodable>: Decodable {
+        var error: APIError?
+        var result: Wrapped?
+    }
+    
+    // Delivers the parsed Result on the main thread.
+    static func apiCall<Value: Decodable>(method: String,
+                                          params: [String: Any],
+                                          url: URL,
+                                          authToken: String? = nil,
+                                          completion: @escaping (Result<Value, Error>) -> Void) {
+        let req = apiRequest(method: method, params: params, url: url, authToken: authToken)
+        let task = URLSession.shared.dataTask(with: req) { dataResult in
+            // Do the parse, compute the result here on network thread.
+            let result: Result<Value, Error> = dataResult.flatMap { success in
+                Result {
+                    os_log(.debug, log: Log.verboseJSON, "\(String(data: success.data, encoding: .utf8)!)")
+
+                    let response = try JSONDecoder().decode(APIResponse<Value>.self, from: success.data)
+
+                    // no result inside response
+                    guard let result = response.result else {
+                        throw LbryApiResponseError(response.error?.message ?? "unknown api error")
+                    }
+                    
+                    // If we're loading claims, put them in the cache.
+                    if let claimDict = result as? [String: Claim] {
+                        for claim in claimDict.values {
+                            Lbry.addClaimToCache(claim: claim)
+                        }
+                    }
+                    
+                    return result
+                }
+            }
+
+            // Then deliver it to main.
+            DispatchQueue.main.async {
+                completion(result)
+            }
+        }
+        task.resume()
+    }
+    
+    // Delivers the result on a background thread as a [String: Any].
+    // New code should migrate to the version above that delivers on main.
+    static func apiCall(method: String, params: Dictionary<String, Any>, connectionString: String, authToken: String? = nil, completion: @escaping ([String: Any]?, Error?) -> Void) {
+        let req = apiRequest(method: method, params: params, url: URL(string: connectionString)!, authToken: authToken)
+        let task = URLSession.shared.dataTask(with: req, completionHandler: { data, response, error in
             guard let data = data, error == nil else {
                 // handle error
                 completion(nil, error)

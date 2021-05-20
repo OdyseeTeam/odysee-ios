@@ -11,7 +11,7 @@ import UIKit
 
 extension String {
     var isBlank: Bool {
-        return self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        return !contains { !$0.isWhitespace && !$0.isNewline }
     }
 
     subscript (bounds: CountableClosedRange<Int>) -> String {
@@ -60,5 +60,30 @@ extension UIApplication {
             return currentViewController(presented)
         }
         return viewController
+    }
+}
+
+extension URLSession {
+    struct DataTaskSuccess {
+        var data: Data
+        var response: URLResponse
+    }
+
+    // A convenience wrapper for dataTask() that gives a Result instead of three optionals.
+    func dataTask(with request: URLRequest,
+                  completionHandler: @escaping (Result<DataTaskSuccess, Error>) -> Void) -> URLSessionDataTask {
+        return self.dataTask(with: request) { data, response, error in
+            let result = Result<DataTaskSuccess, Error> {
+                if let error = error {
+                    throw error
+                }
+                guard let data = data, let response = response else {
+                    assertionFailure()
+                    throw GenericError("no error but no data and/or no response: '\(data.debugDescription)' '\(response.debugDescription)")
+                }
+                return DataTaskSuccess(data: data, response: response)
+            }
+            completionHandler(result)
+        }
     }
 }
