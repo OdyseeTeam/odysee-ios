@@ -6938,6 +6938,7 @@
                         <outlet property="descriptionDivider" destination="0Bk-Nb-7Gz" id="fL0-eJ-l40"/>
                         <outlet property="descriptionLabel" destination="Ay4-T6-Be4" id="irQ-kF-VfK"/>
                         <outlet property="detailsScrollView" destination="hSv-c7-vMI" id="lXK-nk-sFo"/>
+                        <outlet property="dismissPanRecognizer" destination="0h5-cd-N4G" id="HWX-3w-AZS"/>
                         <outlet property="featuredCommentLabel" destination="7Zg-ZZ-Hpb" id="8jH-Wt-QMB"/>
                         <outlet property="featuredCommentThumbnail" destination="Asy-44-nhW" id="UeI-Ld-4A9"/>
                         <outlet property="featuredCommentView" destination="le9-MM-eZn" id="RY8-XC-NJU"/>
