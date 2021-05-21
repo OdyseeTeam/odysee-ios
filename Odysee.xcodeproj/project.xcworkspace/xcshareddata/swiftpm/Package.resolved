@@ -119,6 +119,15 @@
         }
       },
       {
+        "package": "libwebp",
+        "repositoryURL": "https://github.com/SDWebImage/libwebp-Xcode",
+        "state": {
+          "branch": null,
+          "revision": "289862b9466243cdec407997d4cb8ba529359a99",
+          "version": "1.2.0"
+        }
+      },
+      {
         "package": "Logboard",
         "repositoryURL": "https://github.com/shogo4405/Logboard.git",
         "state": {
@@ -143,6 +152,33 @@
           "branch": null,
           "revision": "fde77955e6983fbfaabd491709d52b8a82fda4d0",
           "version": "2.1.2"
+        }
+      },
+      {
+        "package": "PINCache",
+        "repositoryURL": "https://github.com/pinterest/PINCache.git",
+        "state": {
+          "branch": null,
+          "revision": "875c654984fb52b47ca65ae70d24852b0003ccd9",
+          "version": "3.0.3"
+        }
+      },
+      {
+        "package": "PINOperation",
+        "repositoryURL": "https://github.com/pinterest/PINOperation.git",
+        "state": {
+          "branch": null,
+          "revision": "44d8ca154a4e75a028a5548c31ff3a53b90cef15",
+          "version": "1.2.1"
+        }
+      },
+      {
+        "package": "PINRemoteImage",
+        "repositoryURL": "https://github.com/pinterest/PINRemoteImage",
+        "state": {
+          "branch": null,
+          "revision": "93428e8b6e797d27d1f57425937c0e094d0f4ad8",
+          "version": null
         }
       },
       {
