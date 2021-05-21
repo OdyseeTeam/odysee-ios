@@ -31,7 +31,7 @@ class UserAccountMenuViewController: UIViewController {
         
         signUpLoginContainer.isHidden = Lbryio.isSignedIn()
         
-        goLiveLabel.isHidden = !Lbryio.isSignedIn()
+        goLiveLabel.isHidden =  !Lbryio.isSignedIn()
         userEmailLabel.isHidden = !Lbryio.isSignedIn()
         channelsLabel.isHidden = !Lbryio.isSignedIn()
         rewardsLabel.isHidden = !Lbryio.isSignedIn()
