@@ -426,7 +426,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 }
             })
         } else {
-            uploadVideo(filename: selectedVideoUrl.lastPathComponent, params: params, completion: { data, error in
+            uploadVideo(params: params, completion: { data, error in
                 guard let _ = data, error == nil else {
                     self.saveInProgress = false
                     self.restoreButtons()
@@ -459,95 +459,116 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         }
     }
     
-    func uploadVideo(filename: String, params: Dictionary<String, Any>, completion: @escaping ([String: Any]?, Error?) -> Void) {
-        if selectedItemProvider != nil {
-            selectedItemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier, completionHandler: { url, error in
-                guard let videoUrl = url, error == nil else {
-                    completion(nil, GenericError("The selected video could not be uploaded."))
-                    return
-                }
-                
-                let jsonPayload: Dictionary<String, Any> = [
-                    "jsonrpc": "2.0",
-                    "method": "publish",
-                    "params": params,
-                    "counter": Date().timeIntervalSince1970
-                ];
-                
-                
-                do {
-                    let jsonData = try! JSONSerialization.data(withJSONObject: jsonPayload, options: .prettyPrinted)
-                    let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)
-                    
-                    var mimeType = "application/octet-stream"
-                    let pathExt = videoUrl.pathExtension
-                    if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExt as NSString, nil)?.takeRetainedValue() {
-                        if let mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() {
-                            mimeType = mimetype as String
-                        }
-                    }
-                    
-                    let boundary = "Boundary-\(UUID().uuidString)"
-                    var fieldData = "--\(boundary)\r\n"
-                    fieldData.append("Content-Disposition: form-data; name=\"json_payload\"\r\n\r\n\(jsonString!)\r\n")
-                    
-                    let videoData = try Data(contentsOf: videoUrl)
-                    let data = NSMutableData()
-                    data.append("--\(boundary)\r\n".data(using: .utf8, allowLossyConversion: false)!)
-                    data.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(filename)\"\r\n".data(using: .utf8, allowLossyConversion: false)!)
-                    data.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8, allowLossyConversion: false)!)
-                    data.append(videoData)
-                    data.append("\r\n".data(using: .utf8, allowLossyConversion: false)!)
-                    
-                    let reqBody = NSMutableData()
-                    reqBody.append(fieldData.data(using: .utf8, allowLossyConversion: false)!)
-                    reqBody.append(data as Data)
-                    reqBody.append("--\(boundary)--\r\n".data(using: .utf8, allowLossyConversion: false)!)
-                    
-                    var req = URLRequest(url: URL(string: Lbry.lbrytvConnectionString)!)
-                    req.httpMethod = "POST"
-                    req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-                    req.setValue(String(reqBody.count), forHTTPHeaderField: "Content-Length")
-                    if (!(Lbryio.authToken ?? "").isBlank) {
-                        req.addValue(Lbryio.authToken!, forHTTPHeaderField: "X-Lbry-Auth-Token")
-                    }
-                    req.httpBody = reqBody as Data
-                    
-                    let task = URLSession.shared.dataTask(with: req) { data, response, error in
-                        guard let data = data, error == nil else {
-                            completion(nil, error)
-                            return
-                        }
-                        
-                        do {
-                            os_log(.debug, log: Log.verboseJSON, "\(String(data: data, encoding: .utf8)!)")
-                            
-                            let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                            if (response?["result"] != nil) {
-                                completion(response, nil)
-                            } else {
-                                if response?["error"] == nil && response?["result"] == nil {
-                                    completion(nil, nil)
-                                } else if (response?["error"] as? String != nil) {
-                                    completion(nil, LbryApiResponseError(response?["error"] as! String))
-                                } else if let errorJson = response?["error"] as? [String: Any] {
-                                    completion(nil, LbryApiResponseError(errorJson["message"] as! String))
-                                } else {
-                                    completion(nil, LbryApiResponseError("unknown api error"))
-                                }
-                            }
-                        } catch let error {
-                            completion(nil, error)
-                        }
-                    }
-                    
-                    task.resume()
-                } catch let error {
-                    print(error)
-                    completion(nil, GenericError("An error occurred trying to upload the video. Please try again."))
-                }
-            })
+    func uploadVideo(params: Dictionary<String, Any>, completion: @escaping ([String: Any]?, Error?) -> Void) {
+        guard let selectedItemProvider = selectedItemProvider else {
+            return
         }
+        selectedItemProvider.loadInPlaceFileRepresentation(forTypeIdentifier: UTType.movie.identifier, completionHandler: { url, inPlace, error in
+            guard let videoUrl = url, error == nil else {
+                completion(nil, GenericError("The selected video could not be uploaded."))
+                return
+            }
+            
+            let jsonPayload: Dictionary<String, Any> = [
+                "jsonrpc": "2.0",
+                "method": "publish",
+                "params": params,
+                "counter": Date().timeIntervalSince1970
+            ];
+            
+            do {
+                let jsonData = try JSONSerialization.data(withJSONObject: jsonPayload, options: .prettyPrinted)
+                let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
+                os_log(.debug, log: Log.verboseJSON, "\(jsonString)")
+                
+                var mimeType = "application/octet-stream"
+                let pathExt = videoUrl.pathExtension
+                if let uti = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExt as NSString, nil)?.takeRetainedValue() {
+                    if let mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() {
+                        mimeType = mimetype as String
+                    }
+                }
+                
+                let boundary = "Boundary-\(UUID().uuidString)"
+                
+                let header = """
+                --\(boundary)\r
+                Content-Disposition: form-data; name=\"json_payload\"\r
+                \r
+                \(jsonString)\r
+                --\(boundary)\r
+                Content-Disposition: form-data; name=\"file\"; filename=\"\(videoUrl.lastPathComponent)\"\r
+                Content-Type: \(mimeType)\r
+                \r
+                
+                """
+                let headerData = header.data(using: .utf8)!
+                let headerStream = InputStream(data: headerData)
+                headerStream.open()
+                
+                var fileError: NSError?
+                var fileStream: InputStream!
+                NSFileCoordinator().coordinate(readingItemAt: videoUrl, options: .forUploading, error: &fileError) { fileURL in
+                    // Per the docs, with the .forUploading option, you can use the file outside of this
+                    // accessor block, but you need to open a file-descriptor to it inside. So that's what we do.
+                    fileStream = InputStream(fileAtPath: fileURL.path)!
+                    fileStream.open()
+                }
+                if let fe = fileError {
+                    assertionFailure()
+                    throw fe
+                }
+
+                let footer = "\r\n--\(boundary)--\r\n"
+                let footerData = footer.data(using: .utf8)!
+                let footerStream = InputStream(data: footerData)
+                footerStream.open()
+                let videoSize = try FileManager.default.attributesOfItem(atPath: videoUrl.path)[.size] as! Int
+                let contentLength = headerData.count + videoSize + footerData.count
+                
+                var req = URLRequest(url: URL(string: Lbry.lbrytvConnectionString)!)
+                req.httpMethod = "POST"
+                req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+                req.setValue(String(contentLength), forHTTPHeaderField: "Content-Length")
+                if (!(Lbryio.authToken ?? "").isBlank) {
+                    req.addValue(Lbryio.authToken!, forHTTPHeaderField: "X-Lbry-Auth-Token")
+                }
+                req.httpBodyStream = Multistream(streams: [headerStream, fileStream, footerStream])
+                
+                let task = URLSession.shared.dataTask(with: req) { data, response, error in
+                    guard let data = data, error == nil else {
+                        completion(nil, error)
+                        return
+                    }
+                    
+                    do {
+                        os_log(.debug, log: Log.verboseJSON, "\(String(data: data, encoding: .utf8)!)")
+                        
+                        let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                        if (response?["result"] != nil) {
+                            completion(response, nil)
+                        } else {
+                            if response?["error"] == nil && response?["result"] == nil {
+                                completion(nil, nil)
+                            } else if (response?["error"] as? String != nil) {
+                                completion(nil, LbryApiResponseError(response?["error"] as! String))
+                            } else if let errorJson = response?["error"] as? [String: Any] {
+                                completion(nil, LbryApiResponseError(errorJson["message"] as! String))
+                            } else {
+                                completion(nil, LbryApiResponseError("unknown api error"))
+                            }
+                        }
+                    } catch let error {
+                        completion(nil, error)
+                    }
+                }
+                
+                task.resume()
+            } catch let error {
+                print(error)
+                completion(nil, GenericError("An error occurred trying to upload the video. Please try again."))
+            }
+        })
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
