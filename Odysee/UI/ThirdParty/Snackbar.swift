@@ -93,7 +93,7 @@ class Snackbar: NSObject {
     private func setupSnackbarView(){
         window.addSubview(snackbarView)
         
-        snackbarView.frame = CGRect(x: 0, y: window.frame.height, width: window.frame.width, height: snackbarHeight)
+        snackbarView.frame = CGRect(x: 0, y: window.bounds.height, width: window.frame.width, height: snackbarHeight)
         snackbarView.backgroundColor = self.backgroundColor
     }
     
@@ -102,7 +102,7 @@ class Snackbar: NSObject {
     fileprivate func animateBar(_ timerLength: Float){
         
         UIView.animate(withDuration: 0.4, animations: {
-            self.snackbarView.frame = CGRect(x: 0, y: self.window.frame.height - self.snackbarHeight, width: self.window.frame.width, height: self.snackbarHeight)
+            self.snackbarView.frame = CGRect(x: 0, y: self.window.bounds.height - self.snackbarHeight, width: self.window.frame.width, height: self.snackbarHeight)
             
             Timer.scheduledTimer(timeInterval: TimeInterval(timerLength), target: self, selector: #selector(self.hide), userInfo: nil, repeats: false)
         })
