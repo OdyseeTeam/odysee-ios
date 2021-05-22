@@ -42,9 +42,7 @@ class TransactionTableViewCell: UITableViewCell {
             dateLabel.text = String.localized("Pending")
         } else {
             let date: Date = NSDate(timeIntervalSince1970: Double(transaction.timestamp!)) as Date
-            let formatter = RelativeDateTimeFormatter()
-            formatter.unitsStyle = .short
-            dateLabel.text = formatter.localizedString(for: date, relativeTo: Date())
+            dateLabel.text = Helper.shortRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
         }
         feeLabel.text = ""
         

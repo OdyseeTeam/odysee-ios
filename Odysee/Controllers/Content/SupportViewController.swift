@@ -13,7 +13,6 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     var claim: Claim? = nil
     var sendingSupport = false
     let keyBalanceObserver = "support_vc"
-    let currencyFormatter = NumberFormatter()
     
     @IBOutlet weak var walletBalanceLabel: UILabel!
     @IBOutlet weak var contentView: UIView!
@@ -46,13 +45,6 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        
-        currencyFormatter.roundingMode = .up
-        currencyFormatter.maximumFractionDigits = 2
-        currencyFormatter.usesGroupingSeparator = true
-        currencyFormatter.numberStyle = .decimal
-        currencyFormatter.locale = Locale.current
-        
         registerForKeyboardNotifications()
         checkCreditAmount()
     
@@ -169,6 +161,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             return
         }
         
+        let currencyFormatter = Helper.currencyFormatter
         tipButton.setTitle(String(format: String.localized("Tip %@ credits"), currencyFormatter.string(for: tipCreditAmount as NSDecimalNumber)!), for: .normal)
     }
     
@@ -179,6 +172,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         
         let inputAmount = Decimal(string: tipValueField.text!)
         if inputAmount != nil {
+            let currencyFormatter = Helper.currencyFormatter
             tipButton.setTitle(String(format: String.localized(inputAmount == 1 ? "Tip %@ credit" : "Tip %@ credits"), currencyFormatter.string(for: inputAmount as NSDecimalNumber?)!), for: .normal)
         }
     }

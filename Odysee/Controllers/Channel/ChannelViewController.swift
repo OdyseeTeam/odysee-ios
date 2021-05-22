@@ -313,11 +313,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 return
             }
             DispatchQueue.main.async {
-                let formatter = NumberFormatter()
-                formatter.usesGroupingSeparator = true
-                formatter.locale = Locale.current
-                formatter.numberStyle = .decimal
-                
+                let formatter = Helper.interactionCountFormatter
                 let followerCount = (data as! NSArray)[0] as! Int
                 self.followerCountLabel.isHidden = false
                 self.followerCountLabel.text = String(format: followerCount == 1 ? String.localized("%@ follower") : String.localized("%@ followers"), formatter.string(for: followerCount)!)

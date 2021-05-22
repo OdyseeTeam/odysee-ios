@@ -81,9 +81,7 @@ class NotificationTableViewCell: UITableViewCell {
         titleView.text = notification.title ?? ""
         bodyView.text = notification.text ?? ""
         if let date = Helper.apiDateFormatter.date(from: notification.createdAt ?? "") {
-            let formatter = RelativeDateTimeFormatter()
-            formatter.unitsStyle = .full
-            timeView.text = formatter.localizedString(for: date, relativeTo: Date())
+            timeView.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
         }
     }
 
