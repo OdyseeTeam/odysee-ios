@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import PINRemoteImage
 import UIKit
 
 extension String {
@@ -31,24 +32,7 @@ extension String {
 
 extension UIImageView {
     func load(url: URL) {
-        DispatchQueue.global().async { [weak self] in
-            DispatchQueue.main.async {
-                self?.image = nil
-            }
-            
-            var image: UIImage? = nil
-            if let cacheData = Cache.getImage(url: url.absoluteString) {
-                image = UIImage(data: cacheData)
-            } else if let data = try? Data(contentsOf: url) {
-                image = UIImage(data: data)
-                if (image != nil) {
-                    Cache.putImage(url: url.absoluteString, image: data)
-                }
-            }
-            DispatchQueue.main.async {
-                self?.image = image
-            }
-        }
+        self.pin_setImage(from: url)
     }
     
     func rounded() {

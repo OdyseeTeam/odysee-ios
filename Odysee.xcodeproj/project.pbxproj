@@ -91,6 +91,7 @@
 		B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */; };
 		CC97807926549867009F580E /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC97807826549867009F580E /* Log.swift */; };
 		CCDDA9172655C1340006035F /* FileDismissAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA9162655C1340006035F /* FileDismissAnimationController.swift */; };
+		CCDDA929265861AF0006035F /* PINRemoteImage in Frameworks */ = {isa = PBXBuildFile; productRef = CCDDA928265861AF0006035F /* PINRemoteImage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -211,6 +212,7 @@
 				646D5645258587A8002DB12F /* OAuthSwift in Frameworks */,
 				6411C0B0255B35260018C3D5 /* Base58Swift in Frameworks */,
 				648F70D226307BC700885A2F /* HaishinKit in Frameworks */,
+				CCDDA929265861AF0006035F /* PINRemoteImage in Frameworks */,
 				6484E1B62582269B00221658 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -483,6 +485,7 @@
 				646D5644258587A8002DB12F /* OAuthSwift */,
 				6459121C2620745D00B2ABA5 /* Starscream */,
 				648F70D126307BC700885A2F /* HaishinKit */,
+				CCDDA928265861AF0006035F /* PINRemoteImage */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -561,6 +564,7 @@
 				646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */,
 				6459121B2620745C00B2ABA5 /* XCRemoteSwiftPackageReference "Starscream" */,
 				648F70D026307BC700885A2F /* XCRemoteSwiftPackageReference "HaishinKit" */,
+				CCDDA927265861AF0006035F /* XCRemoteSwiftPackageReference "PINRemoteImage" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -1054,6 +1058,14 @@
 				minimumVersion = 1.1.4;
 			};
 		};
+		CCDDA927265861AF0006035F /* XCRemoteSwiftPackageReference "PINRemoteImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pinterest/PINRemoteImage";
+			requirement = {
+				kind = revision;
+				revision = 93428e8b6e797d27d1f57425937c0e094d0f4ad8;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1086,6 +1098,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 648F70D026307BC700885A2F /* XCRemoteSwiftPackageReference "HaishinKit" */;
 			productName = HaishinKit;
+		};
+		CCDDA928265861AF0006035F /* PINRemoteImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCDDA927265861AF0006035F /* XCRemoteSwiftPackageReference "PINRemoteImage" */;
+			productName = PINRemoteImage;
 		};
 /* End XCSwiftPackageProductDependency section */
 
