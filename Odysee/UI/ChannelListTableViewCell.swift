@@ -59,9 +59,7 @@ class ChannelListTableViewCell: UITableViewCell {
         }
         if releaseTime > 0 {
             let date: Date = NSDate(timeIntervalSince1970: releaseTime) as Date // TODO: Timezone check / conversion?
-            let formatter = RelativeDateTimeFormatter()
-            formatter.unitsStyle = .full
-            publishTimeLabel.text = formatter.localizedString(for: date, relativeTo: Date())
+            publishTimeLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
         } else {
             publishTimeLabel.text = "Pending"
         }

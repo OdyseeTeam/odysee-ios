@@ -97,10 +97,8 @@ class ClaimTableViewCell: UITableViewCell {
             releaseTime = Double(claim.timestamp ?? 0)
         }
         if releaseTime > 0 {
-            let date: Date = NSDate(timeIntervalSince1970: releaseTime) as Date // TODO: Timezone check / conversion?
-            let formatter = RelativeDateTimeFormatter()
-            formatter.unitsStyle = .full
-            publishTimeLabel.text = formatter.localizedString(for: date, relativeTo: Date())
+            let date = Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
+            publishTimeLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
         } else {
             publishTimeLabel.text = "Pending"
         }
@@ -116,10 +114,7 @@ class ClaimTableViewCell: UITableViewCell {
             if (duration < 60) {
                 durationLabel.text = String(format: "0:%02d", duration)
             } else {
-                let formatter = DateComponentsFormatter()
-                formatter.allowedUnits = [.hour, .minute, .second]
-                formatter.unitsStyle = .positional
-                durationLabel.text = formatter.string(from: TimeInterval(duration))
+                durationLabel.text = Helper.durationFormatter.string(from: TimeInterval(duration))
             }
         }
         

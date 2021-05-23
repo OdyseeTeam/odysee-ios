@@ -11,7 +11,6 @@ import UIKit
 
 class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate, WalletBalanceObserver {
     let keyBalanceObserver = "wallet_vc"
-    let currencyFormatter = NumberFormatter()
     
     var loadingRecentTransactions = false
     var recentTransactions: [Transaction] = []
@@ -82,13 +81,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        currencyFormatter.roundingMode = .down
-        currencyFormatter.minimumFractionDigits = 2
-        currencyFormatter.maximumFractionDigits = 2
-        currencyFormatter.usesGroupingSeparator = true
-        currencyFormatter.numberStyle = .decimal
-        currencyFormatter.locale = Locale.current
         
         displayBalance(balance: Lbry.walletBalance)
         
@@ -248,6 +240,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     func displayBalance(balance: WalletBalance?) {
+        let currencyFormatter = Helper.currencyFormatter
         if (balance != nil) {
             balanceLabel.text = currencyFormatter.string(from: balance!.total! as NSDecimalNumber)
             immediatelySpendableLabel.text = currencyFormatter.string(from: balance!.available! as NSDecimalNumber)
@@ -264,7 +257,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
                         return
                     }
                     DispatchQueue.main.async {
-                        self.usdBalanceLabel.text = String(format: "≈$%@", self.currencyFormatter.string(from: (balance!.total! * rate) as NSDecimalNumber)!)
+                        self.usdBalanceLabel.text = String(format: "≈$%@", currencyFormatter.string(from: (balance!.total! * rate) as NSDecimalNumber)!)
                     }
                 })
             } else {

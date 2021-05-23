@@ -424,9 +424,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let releaseTime: Double = Double(claim?.value?.releaseTime ?? "0")!
         let date: Date = NSDate(timeIntervalSince1970: releaseTime) as Date // TODO: Timezone check / conversion?
         
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .full
-        timeAgoLabel.text = formatter.localizedString(for: date, relativeTo: Date())
+        timeAgoLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
         
         // publisher
         var thumbnailUrl: URL? = nil
@@ -631,11 +629,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     return
                 }
                 DispatchQueue.main.async {
-                    let formatter = NumberFormatter()
-                    formatter.usesGroupingSeparator = true
-                    formatter.locale = Locale.current
-                    formatter.numberStyle = .decimal
-                    
+                    let formatter = Helper.interactionCountFormatter
                     let viewCount = (data as! NSArray)[0] as! Int
                     self.viewCountLabel.isHidden = false
                     self.viewCountLabel.text = String(format: viewCount == 1 ? String.localized("%@ view") : String.localized("%@ views"), formatter.string(for: viewCount)!)
@@ -695,12 +689,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     func displayReactionCounts() {
-        let formatter = NumberFormatter()
-        formatter.usesGroupingSeparator = true
-        formatter.locale = Locale.current
-        formatter.numberStyle = .decimal
-    
         DispatchQueue.main.async {
+            let formatter = Helper.interactionCountFormatter
             self.fireReactionCountLabel.text = formatter.string(for: self.numLikes)
             self.slimeReactionCountLabel.text = formatter.string(for: self.numDislikes)
         }

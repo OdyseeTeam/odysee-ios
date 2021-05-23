@@ -35,33 +35,63 @@ final class Helper {
         ["trending_group", "trending_mixed"], ["release_time"], ["effective_amount"]
     ];
     
-    static let apiDateFormatter = DateFormatter()
-    static let sdkAmountFormatter = NumberFormatter()
-    static let currencyFormatter = NumberFormatter()
-    static let currencyFormatter4 = NumberFormatter()
-    static func initFormatters() {
-        currencyFormatter.roundingMode = .down
-        currencyFormatter.minimumFractionDigits = 2
-        currencyFormatter.maximumFractionDigits = 2
-        currencyFormatter.usesGroupingSeparator = true
-        currencyFormatter.numberStyle = .decimal
-        currencyFormatter.locale = Locale.current
-        
-        currencyFormatter4.roundingMode = .up
-        currencyFormatter4.minimumFractionDigits = 4
-        currencyFormatter4.maximumFractionDigits = 4
-        currencyFormatter4.usesGroupingSeparator = true
-        currencyFormatter4.numberStyle = .decimal
-        currencyFormatter4.locale = Locale.current
-        
-        sdkAmountFormatter.minimumFractionDigits = 2
-        sdkAmountFormatter.maximumFractionDigits = 8
-        sdkAmountFormatter.usesGroupingSeparator = false
-        sdkAmountFormatter.numberStyle = .decimal
-        sdkAmountFormatter.locale = Locale.init(identifier: "en_US")
-        
-        apiDateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
-    }
+    static let apiDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+        return f
+    }()
+    static let sdkAmountFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.minimumFractionDigits = 2
+        f.maximumFractionDigits = 8
+        f.usesGroupingSeparator = false
+        f.numberStyle = .decimal
+        f.locale = Locale.init(identifier: "en_US")
+        return f
+    }()
+    static let currencyFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.roundingMode = .down
+        f.minimumFractionDigits = 2
+        f.maximumFractionDigits = 2
+        f.usesGroupingSeparator = true
+        f.numberStyle = .decimal
+        f.locale = Locale.current
+        return f
+    }()
+    static let currencyFormatter4: NumberFormatter = {
+        let f = NumberFormatter()
+        f.roundingMode = .up
+        f.minimumFractionDigits = 4
+        f.maximumFractionDigits = 4
+        f.usesGroupingSeparator = true
+        f.numberStyle = .decimal
+        f.locale = Locale.current
+        return f
+    }()
+    static let fullRelativeDateFormatter: RelativeDateTimeFormatter = {
+        let f = RelativeDateTimeFormatter()
+        f.unitsStyle = .full
+        return f
+    }()
+    static let shortRelativeDateFormatter: RelativeDateTimeFormatter = {
+        let f = RelativeDateTimeFormatter()
+        f.unitsStyle = .short
+        return f
+    }()
+    static let durationFormatter: DateComponentsFormatter = {
+        let f = DateComponentsFormatter()
+        f.allowedUnits = [.hour, .minute, .second]
+        f.unitsStyle = .positional
+        return f
+    }()
+    static let interactionCountFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.usesGroupingSeparator = true
+        f.locale = Locale.current
+        f.numberStyle = .decimal
+        return f
+    }()
 
     static func isAddressValid(address: String?) -> Bool {
         if (address ?? "").isBlank {
