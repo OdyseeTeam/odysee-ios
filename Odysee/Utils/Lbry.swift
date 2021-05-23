@@ -84,22 +84,12 @@ final class Lbry {
     }
 
     private struct APIError: Decodable {
-        var message: String?
-        enum CodingKeys: String, CodingKey {
-            case message
-        }
-        
-        // Some API errors have a {message: ""} dict, some are just strings.
-        init(from decoder: Decoder) {
-            if let str = try? decoder.singleValueContainer().decode(String.self) {
-                message = str
-            } else if let dict = try? decoder.container(keyedBy: CodingKeys.self) {
-                message = try? dict.decodeIfPresent(String.self, forKey: .message)
-            }
-        }
+        var code: Int
+        var message: String
     }
     
     private struct APIResponse<Wrapped: Decodable>: Decodable {
+        var jsonrpc: String
         var error: APIError?
         var result: Wrapped?
     }
@@ -111,13 +101,15 @@ final class Lbry {
                                           authToken: String? = nil,
                                           completion: @escaping (Result<Value, Error>) -> Void) {
         let req = apiRequest(method: method, params: params, url: url, authToken: authToken)
-        let task = URLSession.shared.dataTask(with: req) { dataResult in
+        let task = URLSession.shared.dataTask(with: req) { taskResult in
             // Do the parse, compute the result here on network thread.
-            let result: Result<Value, Error> = dataResult.flatMap { success in
+            let result: Result<Value, Error> = taskResult.flatMap { rawResponse in
                 Result {
-                    os_log(.debug, log: Log.verboseJSON, "\(String(data: success.data, encoding: .utf8)!)")
+                    os_log(.debug, log: Log.verboseJSON,
+                           "Response to `\(method)`: \(String(data: rawResponse.data, encoding: .utf8)!)")
 
-                    let response = try JSONDecoder().decode(APIResponse<Value>.self, from: success.data)
+                    let response = try JSONDecoder().decode(APIResponse<Value>.self, from: rawResponse.data)
+                    assert(response.jsonrpc == "2.0")
 
                     // no result inside response
                     guard let result = response.result else {
@@ -133,6 +125,10 @@ final class Lbry {
                     
                     return result
                 }
+            }
+
+            if case let .failure(e as DecodingError) = result {
+                assertionFailure("Decode error \(e)")
             }
 
             // Then deliver it to main.
@@ -154,7 +150,7 @@ final class Lbry {
                 return
             }
             do {
-                os_log(.debug, log: Log.verboseJSON, "\(String(data: data, encoding: .utf8)!)")
+                os_log(.debug, log: Log.verboseJSON, "Response to `\(method)`: \(String(data: data, encoding: .utf8)!)")
                 
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 if (response?["result"] != nil) {
