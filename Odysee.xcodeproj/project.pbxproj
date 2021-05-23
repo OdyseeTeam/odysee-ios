@@ -91,6 +91,8 @@
 		B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */; };
 		CC97807926549867009F580E /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC97807826549867009F580E /* Log.swift */; };
 		CCDDA9172655C1340006035F /* FileDismissAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA9162655C1340006035F /* FileDismissAnimationController.swift */; };
+		CCDDA921265852920006035F /* Multistream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA920265852910006035F /* Multistream.swift */; };
+		CCDDA9232658529C0006035F /* MultistreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA9222658529C0006035F /* MultistreamTests.swift */; };
 		CCDDA929265861AF0006035F /* PINRemoteImage in Frameworks */ = {isa = PBXBuildFile; productRef = CCDDA928265861AF0006035F /* PINRemoteImage */; };
 /* End PBXBuildFile section */
 
@@ -198,6 +200,8 @@
 		B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
 		CC97807826549867009F580E /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		CCDDA9162655C1340006035F /* FileDismissAnimationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileDismissAnimationController.swift; sourceTree = "<group>"; };
+		CCDDA920265852910006035F /* Multistream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Multistream.swift; sourceTree = "<group>"; };
+		CCDDA9222658529C0006035F /* MultistreamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultistreamTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -269,6 +273,7 @@
 				641108DB255A8D7D00F0FB8A /* Lbryio.swift */,
 				641108F0255AF6CD00F0FB8A /* Helper.swift */,
 				64A6CA75255DB5B200294E74 /* Lighthouse.swift */,
+				CCDDA920265852910006035F /* Multistream.swift */,
 				641E7EB82608BDB100A79CD3 /* Predefined.swift */,
 			);
 			path = Utils;
@@ -438,6 +443,7 @@
 			isa = PBXGroup;
 			children = (
 				64FBE7B625502A2D0082AF2E /* OdyseeTests.swift */,
+				CCDDA9222658529C0006035F /* MultistreamTests.swift */,
 				64FBE7B825502A2D0082AF2E /* Info.plist */,
 			);
 			path = OdyseeTests;
@@ -658,6 +664,7 @@
 				643382A3258DB119004B562B /* RewardTableViewCell.swift in Sources */,
 				641108EC255AA4CF00F0FB8A /* User.swift in Sources */,
 				64A8B65125E671AC00F06D74 /* YouTubeSyncStatusViewController.swift in Sources */,
+				CCDDA921265852920006035F /* Multistream.swift in Sources */,
 				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
 				641108E7255AA2BC00F0FB8A /* InitViewController.swift in Sources */,
@@ -688,6 +695,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				64FBE7B725502A2D0082AF2E /* OdyseeTests.swift in Sources */,
+				CCDDA9232658529C0006035F /* MultistreamTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
