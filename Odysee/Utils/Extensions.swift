@@ -79,7 +79,7 @@ extension URLSession {
                 }
                 guard let data = data, let response = response else {
                     assertionFailure()
-                    throw GenericError("no error but no data and/or no response: '\(data.debugDescription)' '\(response.debugDescription)")
+                    throw GenericError("no error but no data and/or no response")
                 }
                 return DataTaskSuccess(data: data, response: response)
             }
