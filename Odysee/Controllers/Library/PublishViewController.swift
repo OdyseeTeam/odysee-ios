@@ -383,11 +383,14 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             showError(message: String.localized("Please enter a valid deposit amount"))
             return
         }
+        
         if deposit! < Helper.minimumDeposit {
             showError(message: String(format: String.localized("The minimum allowed deposit amount is %@"),
                                       Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber)!))
             return
         }
+        
+        // prev deposit only set when it's edit mode
         let prevDeposit: Decimal? = currentClaim != nil ? Decimal(string: currentClaim!.amount!) : 0
         if Lbry.walletBalance == nil || deposit! - (prevDeposit ?? 0) > Lbry.walletBalance!.available! {
             showError(message: "Deposit cannot be higher than your wallet balance")
