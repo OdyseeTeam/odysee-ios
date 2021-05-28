@@ -37,6 +37,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     @IBOutlet weak var uploadingIndicator: UIView!
     
     var channels: [Claim] = []
+    var uploads: [Claim] = []
     var currentClaim: Claim?
     var selectedVideoUrl: URL!
     var selectedItemProvider: NSItemProvider!
@@ -79,6 +80,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         
         self.depositField.text = Helper.minimumDepositString
         loadChannels()
+        loadUploads()
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -109,6 +111,34 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         anonymousClaim.name = "Anonymous"
         anonymousClaim.claimId = "anonymous"
         channels.append(anonymousClaim)
+    }
+    
+    func loadUploads() {
+        let options: Dictionary<String, Any> = ["claim_type": "stream", "page": 1, "page_size": 999, "resolve": true]
+        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
+            guard let data = data, error == nil else {
+                // pass
+                return
+            }
+            
+            let result = data["result"] as? [String: Any]
+            if let items = result?["items"] as? [[String: Any]] {
+                var loadedClaims: [Claim] = []
+                items.forEach{ item in
+                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
+                    do {
+                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                        if (claim != nil && !self.uploads.contains(where: { $0.claimId == claim?.claimId })) {
+                            loadedClaims.append(claim!)
+                        }
+                    } catch let error {
+                        print(error)
+                    }
+                }
+                self.uploads.append(contentsOf: loadedClaims)
+                Lbry.ownUploads = self.uploads.filter { $0.claimId != "new" }
+            }
+        })
     }
     
     func loadChannels() {
@@ -339,10 +369,15 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             showError(message: String.localized("Please enter a valid name for the content URL"))
             return
         }
+        if self.uploads.contains(where: { $0.name!.lowercased() == name!.lowercased() }) {
+            showError(message: String(format: String.localized("You have already uploaded a claim with the name: %@. Please use a different name."), name!))
+            return
+        }
         if (title ?? "").isBlank {
             showError(message: String.localized("Please provide a title for your content"))
             return
         }
+        
 
         if deposit == nil {
             showError(message: String.localized("Please enter a valid deposit amount"))
