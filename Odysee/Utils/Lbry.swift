@@ -94,11 +94,13 @@ final class Lbry {
         var result: Wrapped?
     }
     
+    // `transform` is run off-main before completion to do things like sorting/filtering. Be cafeful!
     // Delivers the parsed Result on the main thread.
     static func apiCall<Value: Decodable>(method: String,
                                           params: [String: Any],
                                           url: URL,
                                           authToken: String? = nil,
+                                          transform: ((inout Value) throws -> ())? = nil,
                                           completion: @escaping (Result<Value, Error>) -> Void) {
         let req = apiRequest(method: method, params: params, url: url, authToken: authToken)
         let task = URLSession.shared.dataTask(with: req) { taskResult in
@@ -112,17 +114,10 @@ final class Lbry {
                     assert(response.jsonrpc == "2.0")
 
                     // no result inside response
-                    guard let result = response.result else {
+                    guard var result = response.result else {
                         throw LbryApiResponseError(response.error?.message ?? "unknown api error")
                     }
-                    
-                    // If we're loading claims, put them in the cache.
-                    if let claimDict = result as? [String: Claim] {
-                        for claim in claimDict.values {
-                            Lbry.addClaimToCache(claim: claim)
-                        }
-                    }
-                    
+                    try transform?(&result)
                     return result
                 }
             }
