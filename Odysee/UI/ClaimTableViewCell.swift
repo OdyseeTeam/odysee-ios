@@ -9,36 +9,35 @@ import UIKit
 
 class ClaimTableViewCell: UITableViewCell {
 
-    @IBOutlet weak var channelImageView: UIImageView!
-    @IBOutlet weak var thumbnailImageView: UIImageView!
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var publisherLabel: UILabel!
-    @IBOutlet weak var publishTimeLabel: UILabel!
-    @IBOutlet weak var durationView: UIView!
-    @IBOutlet weak var durationLabel: UILabel!
+    static let nib = UINib(nibName: "ClaimTableViewCell", bundle: nil)
+    static let spacemanImage = UIImage(named: "spaceman")
+
+    @IBOutlet var channelImageView: UIImageView!
+    @IBOutlet var thumbnailImageView: UIImageView!
+    @IBOutlet var titleLabel: UILabel!
+    @IBOutlet var publisherLabel: UILabel!
+    @IBOutlet var publishTimeLabel: UILabel!
+    @IBOutlet var durationView: UIView!
+    @IBOutlet var durationLabel: UILabel!
     
     var currentClaim: Claim?
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+        let publisherTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.publisherTapped(_:)))
+        publisherLabel.addGestureRecognizer(publisherTapGesture)
+        channelImageView.rounded()
+        channelImageView.backgroundColor = Helper.lightPrimaryColor
+        thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
     }
     
     func setClaim(claim: Claim) {
         if (currentClaim != nil && claim.claimId != currentClaim!.claimId) {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
             thumbnailImageView.image = nil
-            thumbnailImageView.backgroundColor = UIColor.clear
-            if channelImageView != nil {
-                channelImageView.image = nil
-                channelImageView.backgroundColor = UIColor.clear
-            }
+            thumbnailImageView.backgroundColor = nil
+            channelImageView.image = nil
+            channelImageView.backgroundColor = nil
         }
         
         thumbnailImageView.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
@@ -48,46 +47,44 @@ class ClaimTableViewCell: UITableViewCell {
         durationView.isHidden = claim.claimId == "placeholder" || claim.claimId == "new"
         
         if claim.claimId == "placeholder" {
-            titleLabel.text = " "
-            publisherLabel.text = " "
-            publishTimeLabel.text = " "
+            titleLabel.text = nil
+            publisherLabel.text = nil
+            publishTimeLabel.text = nil
             return
         }
         
         if claim.claimId == "new" {
             titleLabel.text = String.localized("New Upload")
-            publisherLabel.text = " "
-            publishTimeLabel.text = " "
-            thumbnailImageView.image = UIImage.init(named: "spaceman")
+            publisherLabel.text = nil
+            publishTimeLabel.text = nil
+            thumbnailImageView.image = Self.spacemanImage
             return
         }
         
-        if channelImageView != nil {
-            channelImageView.rounded()
-        }
         currentClaim = claim
         
         let isChannel = claim.name!.starts(with: "@")
-        thumbnailImageView.layer.opacity = isChannel ? 0 : 1
+        channelImageView.isHidden = !isChannel
+        thumbnailImageView.isHidden = isChannel
         
         titleLabel.text = isChannel ? claim.name : claim.value?.title
-        publisherLabel.text = isChannel ? claim.name : (claim.signingChannel != nil ? claim.signingChannel?.name : "")
+        publisherLabel.text = isChannel ? claim.name : claim.signingChannel?.name
         if claim.value?.source == nil  && !isChannel {
             publisherLabel.text = "LIVE"
         }
         // load thumbnail url
-        if (claim.value?.thumbnail != nil && claim.value?.thumbnail?.url != nil) {
-            let thumbnailUrl = URL(string: (claim.value?.thumbnail?.url)!)!
-            if channelImageView != nil && isChannel {
+        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
+            if isChannel {
                 channelImageView.load(url: thumbnailUrl)
             } else {
                 thumbnailImageView.load(url: thumbnailUrl)
             }
         } else {
-            thumbnailImageView.image = UIImage.init(named: "spaceman")
-            thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
-            if channelImageView != nil {
-                channelImageView.image = UIImage.init(named: "spaceman")
+            if isChannel {
+                thumbnailImageView.image = Self.spacemanImage
+                thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
+            } else {
+                channelImageView.image = Self.spacemanImage
                 channelImageView.backgroundColor = Helper.lightPrimaryColor
             }
         }
@@ -100,12 +97,12 @@ class ClaimTableViewCell: UITableViewCell {
             let date = Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
             publishTimeLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
         } else {
-            publishTimeLabel.text = "Pending"
+            publishTimeLabel.text = String.localized("Pending")
         }
         
         var duration: Int64 = 0
         if (claim.value?.video != nil || claim.value?.audio != nil) {
-            let streamInfo: Claim.StreamInfo? = claim.value?.video != nil ? claim.value?.video : claim.value?.audio
+            let streamInfo = claim.value?.video ?? claim.value?.audio
             duration = streamInfo?.duration ?? 0
         }
         
@@ -117,9 +114,6 @@ class ClaimTableViewCell: UITableViewCell {
                 durationLabel.text = Helper.durationFormatter.string(from: TimeInterval(duration))
             }
         }
-        
-        let publisherTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.publisherTapped(_:)))
-        publisherLabel.addGestureRecognizer(publisherTapGesture)
     }
     
     @objc func publisherTapped(_ sender: Any) {

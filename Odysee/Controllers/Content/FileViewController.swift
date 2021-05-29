@@ -189,6 +189,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         
         avpc.allowsPictureInPicturePlayback = true
         avpc.updatesNowPlayingInfoCenter = false
+        relatedContentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
 
         addChild(avpc)
         avpc.view.frame = mediaView.bounds

@@ -123,6 +123,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         loadingContainer.layer.cornerRadius = 20
         suggestedFollowsView.allowsMultipleSelection = true
         channelListView.allowsMultipleSelection = false
+        contentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
     }
     
     func updateClaimSearchOptions() {

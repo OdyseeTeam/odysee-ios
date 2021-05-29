@@ -93,6 +93,7 @@ class Claim: Decodable, Equatable  {
         var country: String?
     }
     struct Resource: Decodable {
+        // TODO: make this `URL?`
         var url: String?
     }
     struct StreamInfo: Decodable {
