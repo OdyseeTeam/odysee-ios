@@ -92,14 +92,14 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         var items: [Claim]
         // Temporary place for the number of items before we filtered.
         // Set during the transform.
-        var originalItemCount: Int?
+        var unfilteredItemCount: Int?
     }
 
     func didLoadClaims(_ result: Result<ClaimSearchResult, Error>) {
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
         if case let .success(payload) = result {
-            lastPageReached = payload.originalItemCount! < pageSize
+            lastPageReached = payload.unfilteredItemCount! < pageSize
             UIView.performWithoutAnimation {
                 claimListView.performBatchUpdates({
                     let oldCount = claims.count
@@ -131,15 +131,13 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
                      params: buildClaimSearchOptions(),
                      url: Lbry.lbrytvURL,
                      transform: { payload in
-            assert(!Thread.isMainThread)
-            payload.originalItemCount = payload.items.count
-            payload.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) }
-            if category != HomeViewController.wildWestCategoryIndex {
-                payload.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
-            }
-                        for claim in payload.items {
-                            Lbry.addClaimToCache(claim: claim)
+                        assert(!Thread.isMainThread)
+                        payload.unfilteredItemCount = payload.items.count
+                        payload.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) }
+                        if category != HomeViewController.wildWestCategoryIndex {
+                            payload.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
                         }
+                        payload.items.forEach(Lbry.addClaimToCache)
         }, completion: didLoadClaims)
     }
 
