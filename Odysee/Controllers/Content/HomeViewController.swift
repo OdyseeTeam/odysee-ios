@@ -101,12 +101,12 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         if case let .success(payload) = result {
             lastPageReached = payload.unfilteredItemCount! < pageSize
             UIView.performWithoutAnimation {
-                claimListView.performBatchUpdates({
+                claimListView.performBatchUpdates {
                     let oldCount = claims.count
                     claims.append(contentsOf: payload.items)
                     let indexPaths = (oldCount..<claims.count).map { IndexPath(item: $0, section: 0) }
                     claimListView.insertRows(at: indexPaths, with: .automatic)
-                }, completion: nil)
+                }
             }
         }
         loadingContainer.isHidden = true
