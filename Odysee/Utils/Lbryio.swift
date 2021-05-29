@@ -106,7 +106,7 @@ final class Lbryio {
                 }
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 
-                os_log(.debug, log: Log.verboseJSON, "\(String(data: data, encoding: .utf8)!)")
+                Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
                 
                 if (respCode >= 200 && respCode < 300) {
                     if (respData?["data"] == nil) {

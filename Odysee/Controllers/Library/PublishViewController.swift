@@ -517,7 +517,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: jsonPayload, options: .prettyPrinted)
                 let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
-                os_log(.debug, log: Log.verboseJSON, "\(jsonString)")
+                Log.verboseJSON.logIfEnabled(.debug, jsonString)
                 
                 var mimeType = "application/octet-stream"
                 let pathExt = videoUrl.pathExtension
@@ -580,7 +580,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                     }
                     
                     do {
-                        os_log(.debug, log: Log.verboseJSON, "\(String(data: data, encoding: .utf8)!)")
+                        Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
                         
                         let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                         if (response?["result"] != nil) {
