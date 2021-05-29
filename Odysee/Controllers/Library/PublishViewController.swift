@@ -12,7 +12,7 @@ import Photos
 import PhotosUI
 import UIKit
 
-class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate, PHPickerViewControllerDelegate {
+class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPickerViewDelegate, UIPickerViewDataSource, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UITextFieldDelegate {
 
     var saveInProgress: Bool = false
     
@@ -39,9 +39,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     var channels: [Claim] = []
     var uploads: [Claim] = []
     var currentClaim: Claim?
-    var selectedVideoUrl: URL!
-    var selectedItemProvider: NSItemProvider!
-    var selectingVideo: Bool = false
+    let videoPickerController = makeVideoPickerController()
     var selectingThumbnail: Bool = false
     
     var currentThumbnailImage: UIImage!
@@ -263,7 +261,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     
     @IBAction func selectVideoTapped(_ sender: UIButton) {
         self.view.endEditing(true)
-        showVideoPicker()
+        videoPickerController.pickVideo(from: self, completion: didPickVideo)
     }
     
     @IBAction func selectImageTapped(_ sender: UIButton) {
@@ -283,46 +281,39 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             return
         }
         
-        if selectedItemProvider == nil {
-            showError(message: "Please select a video first")
-            return
-        }
         if thumbnailUploadInProgress {
             showError(message: "Please wait for the current thumbnail upload to finish")
             return
         }
         
-        selectedItemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier, completionHandler: { url, error in
-            guard let url = url, error == nil else {
-                self.showError(message: "A thumbnail could not be generated for the selected video")
-                return
-            }
-            
-            do {
-                let asset = AVAsset(url: url)
-                let generator = AVAssetImageGenerator(asset: asset)
-                generator.appliesPreferredTrackTransform = true
-                let timestamp = asset.duration
-                let cgImage = try generator.copyCGImage(at: timestamp, actualTime: nil)
-                let thumbnail = UIImage(cgImage: cgImage)
-                self.currentThumbnailImage = thumbnail
-                DispatchQueue.main.async {
-                    self.thumbnailImageView.image = thumbnail
+        videoPickerController.getVideoURL { urlResult in
+            let thumbResult: Result<UIImage, Error> = urlResult.flatMap { url in
+                Result {
+                    let asset = AVAsset(url: url)
+                    let generator = AVAssetImageGenerator(asset: asset)
+                    generator.appliesPreferredTrackTransform = true
+                    let timestamp = asset.duration
+                    let cgImage = try generator.copyCGImage(at: timestamp, actualTime: nil)
+                    return UIImage(cgImage: cgImage)
                 }
-                
-                self.uploadThumbnail(image: thumbnail, generated: true)
-            } catch {
-                self.showError(message: "A thumbnail could not be generated for the selected video")
-                return
             }
-        })
+            DispatchQueue.main.async {
+                self.didGetThumbnail(thumbResult, generated: true)
+            }
+        }
     }
     
-    func uploadThumbnail(image: UIImage, generated: Bool = false) {
-        thumbnailUploadInProgress = true
-        DispatchQueue.main.async {
-            self.uploadingIndicator.isHidden = false
+    func didGetThumbnail(_ result: Result<UIImage, Error>, generated: Bool) {
+        assert(Thread.isMainThread)
+        guard case let .success(image) = result else {
+            showError(error: GenericError("Could not get thumbnail image"))
+            return
         }
+
+        thumbnailUploadInProgress = true
+        uploadingIndicator.isHidden = false
+        thumbnailImageView.image = image
+        
         Helper.uploadImage(image: image, completion: { imageUrl, error in
             guard let imageUrl = imageUrl, error == nil else {
                 DispatchQueue.main.async {
@@ -397,7 +388,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             return
         }
         
-        if !editMode && selectedVideoUrl == nil {
+        if !editMode && videoPickerController.pickedVideoName == nil {
             showError(message: "Please select a video to upload")
             return
         }
@@ -498,11 +489,8 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     }
     
     func uploadVideo(params: Dictionary<String, Any>, completion: @escaping ([String: Any]?, Error?) -> Void) {
-        guard let selectedItemProvider = selectedItemProvider else {
-            return
-        }
-        selectedItemProvider.loadInPlaceFileRepresentation(forTypeIdentifier: UTType.movie.identifier, completionHandler: { url, inPlace, error in
-            guard let videoUrl = url, error == nil else {
+        videoPickerController.getVideoURL { urlResult in
+            guard case let .success(videoUrl) = urlResult else {
                 completion(nil, GenericError("The selected video could not be uploaded."))
                 return
             }
@@ -606,7 +594,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 print(error)
                 completion(nil, GenericError("An error occurred trying to upload the video. Please try again."))
             }
-        })
+        }
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -647,14 +635,12 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         present(pc, animated: true)
     }
     
-    func showVideoPicker() {
-        var config = PHPickerConfiguration()
-        config.filter = .videos
-        
-        let pc = PHPickerViewController(configuration: config)
-        pc.delegate = self
-        pc.modalPresentationStyle = .overCurrentContext
-        present(pc, animated: true)
+    func didPickVideo(_ picked: Bool) {
+        guard picked else {
+            return
+        }
+        thumbnailGenerated = false
+        videoNameField.text = videoPickerController.pickedVideoName
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
@@ -666,29 +652,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         guard let image = info[.editedImage] as? UIImage else {
             return
         }
-        // reset thumbnail generated state here because the user selected a different image as a thumbnail
-        thumbnailGenerated = false
-        DispatchQueue.main.async {
-            self.thumbnailImageView.image = image
-        }
-        uploadThumbnail(image: image)
-    }
-    
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true, completion: nil)
-        guard let provider = results.first?.itemProvider else { return }
-        if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
-            self.selectedItemProvider = provider
-            self.thumbnailGenerated = false
-            provider.loadItem(forTypeIdentifier: UTType.movie.identifier, options: [:]) { [self] (videoURL, error) in
-                if let url = videoURL as? URL {
-                    self.selectedVideoUrl = url
-                    DispatchQueue.main.async {
-                        self.videoNameField.text = url.lastPathComponent
-                    }
-                }
-            }
-        }
+        didGetThumbnail(.success(image), generated: false)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
