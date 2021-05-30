@@ -88,18 +88,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         return Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["trending_group", "trending_mixed"] : orderByValue, releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) : releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: currentCategoryIndex == Self.moviesCategoryIndex ? 20 : 5, page: currentPage, pageSize: pageSize)
     }
     
-    struct ClaimSearchResult: Decodable {
-        var items: [Claim]
-        // Temporary place for the number of items before we filtered.
-        // Set during the transform.
-        var unfilteredItemCount: Int?
-    }
-
-    func didLoadClaims(_ result: Result<ClaimSearchResult, Error>) {
+    func didLoadClaims(_ result: Result<Lbry.Page<Claim>, Error>) {
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
         if case let .success(payload) = result {
-            lastPageReached = payload.unfilteredItemCount! < pageSize
             UIView.performWithoutAnimation {
                 claimListView.performBatchUpdates {
                     let oldCount = claims.count
@@ -127,18 +119,22 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         // Capture category index for use in sorting, before leaving main thread.
         let category = self.currentCategoryIndex
-        Lbry.apiCall(method: Lbry.methodClaimSearch,
+        var isLastPage = false
+        Lbry.apiCall(method: Lbry.Methods.claimSearch,
                      params: buildClaimSearchOptions(),
                      url: Lbry.lbrytvURL,
                      transform: { payload in
                         assert(!Thread.isMainThread)
-                        payload.unfilteredItemCount = payload.items.count
+                        isLastPage = payload.items.count < payload.page_size
                         payload.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) }
                         if category != HomeViewController.wildWestCategoryIndex {
                             payload.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
                         }
                         payload.items.forEach(Lbry.addClaimToCache)
-        }, completion: didLoadClaims)
+                     }, completion: { result in
+                        self.didLoadClaims(result)
+                        self.lastPageReached = isLastPage
+                     })
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
