@@ -32,11 +32,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         ContentSources.MoviesChannelIds,
         ContentSources.PrimaryChannelContentIds
     ]
-    let moviesCategoryIndex: Int = 8
-    let wildWestCategoryIndex: Int = 9
+    static let moviesCategoryIndex: Int = 8
+    static let wildWestCategoryIndex: Int = 9
     var currentCategoryIndex: Int = 0
     var categoryButtons: [UIButton] = []
-    var options = Dictionary<String, Any>()
     
     let pageSize: Int = 20
     var currentPage: Int = 1
@@ -81,66 +80,61 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         }
     }
     
-    func updateClaimSearchOptions() {
-        let isWildWest = currentCategoryIndex == wildWestCategoryIndex
+    func buildClaimSearchOptions() -> [String: Any] {
+        let isWildWest = currentCategoryIndex == Self.wildWestCategoryIndex
         let orderByValue = Helper.sortByItemValues[currentSortByIndex]
         let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : Helper.releaseTime6Months()
         
-        options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["trending_group", "trending_mixed"] : orderByValue, releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) : releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: currentCategoryIndex == moviesCategoryIndex ? 20 : 5, page: currentPage, pageSize: pageSize)
+        return Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["trending_group", "trending_mixed"] : orderByValue, releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) : releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: currentCategoryIndex == Self.moviesCategoryIndex ? 20 : 5, page: currentPage, pageSize: pageSize)
+    }
+    
+    func didLoadClaims(_ result: Result<Lbry.Page<Claim>, Error>) {
+        assert(Thread.isMainThread)
+        result.showErrorIfPresent()
+        if case let .success(payload) = result {
+            UIView.performWithoutAnimation {
+                claimListView.performBatchUpdates {
+                    let oldCount = claims.count
+                    claims.append(contentsOf: payload.items)
+                    let indexPaths = (oldCount..<claims.count).map { IndexPath(item: $0, section: 0) }
+                    claimListView.insertRows(at: indexPaths, with: .automatic)
+                }
+            }
+        }
+        loadingContainer.isHidden = true
+        loading = false
+        checkNoContent()
+        refreshControl.endRefreshing()
     }
     
     func loadClaims() {
+        assert(Thread.isMainThread)
         if (loading) {
             return
         }
         
-        DispatchQueue.main.async {
-            self.noContentView.isHidden = true
-            self.loadingContainer.isHidden = false
-        }
+        noContentView.isHidden = true
+        loadingContainer.isHidden = false
         loading = true
         
-        updateClaimSearchOptions()
-        Lbry.apiCall(method: Lbry.methodClaimSearch, params: options, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.loadingContainer.isHidden = true
-                self.loading = false
-                self.checkNoContent()
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            let items = result?["items"] as? [[String: Any]]
-            if (items != nil) {
-                if items!.count < self.pageSize {
-                    self.lastPageReached = true
-                }
-                var loadedClaims: [Claim] = []
-                items?.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId }) && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
-                            loadedClaims.append(claim!)
+        // Capture category index for use in sorting, before leaving main thread.
+        let category = self.currentCategoryIndex
+        var isLastPage = false
+        Lbry.apiCall(method: Lbry.Methods.claimSearch,
+                     params: buildClaimSearchOptions(),
+                     url: Lbry.lbrytvURL,
+                     transform: { payload in
+                        assert(!Thread.isMainThread)
+                        isLastPage = payload.items.count < payload.page_size
+                        payload.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) }
+                        if category != HomeViewController.wildWestCategoryIndex {
+                            payload.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
                         }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                self.claims.append(contentsOf: loadedClaims)
-                if self.currentCategoryIndex != self.wildWestCategoryIndex {
-                    self.claims.sort(by: { Int64($0.value?.releaseTime ?? "0")! > Int64($1.value?.releaseTime ?? "0")! })
-                }
-            }
-            
-            self.loading = false
-            DispatchQueue.main.async {
-                self.loadingContainer.isHidden = true
-                self.checkNoContent()
-                self.claimListView.reloadData()
-                self.refreshControl.endRefreshing()
-            }
-        })
+                        payload.items.forEach(Lbry.addClaimToCache)
+                     }, completion: { result in
+                        self.didLoadClaims(result)
+                        self.lastPageReached = isLastPage
+                     })
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -210,12 +204,11 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func resetContent() {
-        DispatchQueue.main.async {
-            self.currentPage = 1
-            self.lastPageReached = false
-            self.claims.removeAll()
-            self.claimListView.reloadData()
-        }
+        assert(Thread.isMainThread)
+        currentPage = 1
+        lastPageReached = false
+        claims.removeAll()
+        claimListView.reloadData()
     }
     
     func selectCategoryButton(button: UIButton) {
@@ -224,9 +217,8 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     func checkNoContent() {
-        DispatchQueue.main.async {
-            self.noContentView.isHidden = self.claims.count > 0
-        }
+        assert(Thread.isMainThread)
+        noContentView.isHidden = !claims.isEmpty
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {

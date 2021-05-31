@@ -87,3 +87,15 @@ extension URLSession {
         }
     }
 }
+
+extension Result {
+    // If the result contains an error, show it.
+    // Must be called from the main thread.
+    func showErrorIfPresent() {
+        assert(Thread.isMainThread)
+        if case let .failure(error) = self {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(error: error)
+        }
+    }
+}

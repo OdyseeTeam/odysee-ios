@@ -21,9 +21,22 @@ final class Lbry {
     static var walletSyncInProgress = false
     static var pushWalletSyncQueueCount = 0
     
-    static let methodClaimSearch = "claim_search"
-    static let methodResolve = "resolve"
-    
+    struct Page<Item: Decodable>: Decodable {
+        var items: [Item]
+        var page_size: Int
+    }
+
+    struct Method<ResultType: Decodable> {
+        let name: String
+    }
+
+    struct Methods {
+        static let resolve      = Method<[String: Claim]>(name: "resolve")
+        static let claimSearch  = Method<Page<Claim>>(name: "claim_search")
+    }
+
+    static let methodClaimSearch = Methods.claimSearch.name
+    static let methodResolve = Methods.resolve.name
     static let methodAddressUnused = "address_unused"
     static let methodChannelAbandon = "channel_abandon"
     static let methodChannelCreate = "channel_create"
@@ -94,13 +107,15 @@ final class Lbry {
         var result: Wrapped?
     }
     
+    // `transform` is run off-main before completion to do things like sorting/filtering. Be cafeful!
     // Delivers the parsed Result on the main thread.
-    static func apiCall<Value: Decodable>(method: String,
+    static func apiCall<Value: Decodable>(method: Method<Value>,
                                           params: [String: Any],
                                           url: URL,
                                           authToken: String? = nil,
+                                          transform: ((inout Value) throws -> ())? = nil,
                                           completion: @escaping (Result<Value, Error>) -> Void) {
-        let req = apiRequest(method: method, params: params, url: url, authToken: authToken)
+        let req = apiRequest(method: method.name, params: params, url: url, authToken: authToken)
         let task = URLSession.shared.dataTask(with: req) { taskResult in
             // Do the parse, compute the result here on network thread.
             let result: Result<Value, Error> = taskResult.flatMap { rawResponse in
@@ -111,17 +126,10 @@ final class Lbry {
                     assert(response.jsonrpc == "2.0")
 
                     // no result inside response
-                    guard let result = response.result else {
+                    guard var result = response.result else {
                         throw LbryApiResponseError(response.error?.message ?? "unknown api error")
                     }
-                    
-                    // If we're loading claims, put them in the cache.
-                    if let claimDict = result as? [String: Claim] {
-                        for claim in claimDict.values {
-                            Lbry.addClaimToCache(claim: claim)
-                        }
-                    }
-                    
+                    try transform?(&result)
                     return result
                 }
             }
