@@ -177,6 +177,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         defaults.removeObject(forKey: Lbryio.keyYouTubeSyncDone)
         defaults.removeObject(forKey: Lbryio.keyYouTubeSyncConnected)
         
+        // clear the wallet address if it exists
+        defaults.removeObject(forKey: Helper.keyReceiveAddress)
+        
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainNavigationController?.popToRootViewController(animated: false)
         if let initvc = self.presentingViewController as? InitViewController {
