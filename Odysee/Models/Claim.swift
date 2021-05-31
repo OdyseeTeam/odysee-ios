@@ -114,7 +114,7 @@ class Claim: Decodable, Equatable, Hashable {
         return lhs.claimId == rhs.claimId
     }
     func hash(into hasher: inout Hasher) {
-        hasher.combine(claimId?.hashValue ?? 0)
+        claimId.hash(into: &hasher)
     }
     
 }
