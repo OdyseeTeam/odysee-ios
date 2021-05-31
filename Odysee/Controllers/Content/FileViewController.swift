@@ -780,7 +780,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             
             Lbry.apiCall(method: Lbry.Methods.resolve,
                          params: ["urls": resolveUrls],
-                         url: Lbry.lbrytvURL,
                          completion: self.handleRelatedContentResult)
         })
     }

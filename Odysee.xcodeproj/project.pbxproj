@@ -95,6 +95,7 @@
 		CCDDA921265852920006035F /* Multistream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA920265852910006035F /* Multistream.swift */; };
 		CCDDA9232658529C0006035F /* MultistreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA9222658529C0006035F /* MultistreamTests.swift */; };
 		CCDDA929265861AF0006035F /* PINRemoteImage in Frameworks */ = {isa = PBXBuildFile; productRef = CCDDA928265861AF0006035F /* PINRemoteImage */; };
+		CCFB0B4F26653E0900696E0C /* OrderedCollections in Frameworks */ = {isa = PBXBuildFile; productRef = CCFB0B4E26653E0900696E0C /* OrderedCollections */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -211,6 +212,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CCFB0B4F26653E0900696E0C /* OrderedCollections in Frameworks */,
 				6459121D2620745D00B2ABA5 /* Starscream in Frameworks */,
 				B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */,
 				6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */,
@@ -495,6 +497,7 @@
 				6459121C2620745D00B2ABA5 /* Starscream */,
 				648F70D126307BC700885A2F /* HaishinKit */,
 				CCDDA928265861AF0006035F /* PINRemoteImage */,
+				CCFB0B4E26653E0900696E0C /* OrderedCollections */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -574,6 +577,7 @@
 				6459121B2620745C00B2ABA5 /* XCRemoteSwiftPackageReference "Starscream" */,
 				648F70D026307BC700885A2F /* XCRemoteSwiftPackageReference "HaishinKit" */,
 				CCDDA927265861AF0006035F /* XCRemoteSwiftPackageReference "PINRemoteImage" */,
+				CCFB0B4D26653E0800696E0C /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -1078,6 +1082,14 @@
 				revision = 93428e8b6e797d27d1f57425937c0e094d0f4ad8;
 			};
 		};
+		CCFB0B4D26653E0800696E0C /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.3;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1115,6 +1127,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CCDDA927265861AF0006035F /* XCRemoteSwiftPackageReference "PINRemoteImage" */;
 			productName = PINRemoteImage;
+		};
+		CCFB0B4E26653E0900696E0C /* OrderedCollections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CCFB0B4D26653E0800696E0C /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = OrderedCollections;
 		};
 /* End XCSwiftPackageProductDependency section */
 

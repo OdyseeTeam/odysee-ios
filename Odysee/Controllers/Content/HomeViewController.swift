@@ -123,7 +123,6 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         var isLastPage = false
         Lbry.apiCall(method: Lbry.Methods.claimSearch,
                      params: buildClaimSearchOptions(),
-                     url: Lbry.lbrytvURL,
                      transform: { payload in
                         assert(!Thread.isMainThread)
                         isLastPage = payload.items.count < payload.page_size
