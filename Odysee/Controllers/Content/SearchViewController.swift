@@ -51,6 +51,8 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         getStartedView.isHidden = false
         searchBar.backgroundImage = UIImage()
         //searchBar.becomeFirstResponder()
+        
+        resultsListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
     }
     
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {

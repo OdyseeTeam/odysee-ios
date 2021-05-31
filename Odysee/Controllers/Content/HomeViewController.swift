@@ -67,6 +67,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         refreshControl.tintColor = Helper.primaryColor
         claimListView.addSubview(refreshControl)
+        claimListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
         
         loadingContainer.layer.cornerRadius = 20
         
