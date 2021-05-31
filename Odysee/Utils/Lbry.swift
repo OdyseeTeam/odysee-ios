@@ -120,8 +120,7 @@ final class Lbry {
             // Do the parse, compute the result here on network thread.
             let result: Result<Value, Error> = taskResult.flatMap { rawResponse in
                 Result {
-                    os_log(.debug, log: Log.verboseJSON,
-                           "Response to `\(method.name)`: \(String(data: rawResponse.data, encoding: .utf8)!)")
+                    Log.verboseJSON.logIfEnabled(.debug, "Response to `\(method)`: \(String(data: rawResponse.data, encoding: .utf8)!)")
 
                     let response = try JSONDecoder().decode(APIResponse<Value>.self, from: rawResponse.data)
                     assert(response.jsonrpc == "2.0")
@@ -158,7 +157,7 @@ final class Lbry {
                 return
             }
             do {
-                os_log(.debug, log: Log.verboseJSON, "Response to `\(method)`: \(String(data: data, encoding: .utf8)!)")
+                Log.verboseJSON.logIfEnabled(.debug, "Response to `\(method)`: \(String(data: data, encoding: .utf8)!)")
                 
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 if (response?["result"] != nil) {
