@@ -4130,6 +4130,7 @@
                         <outlet property="optionalFieldsContainer" destination="fVb-wy-N7i" id="y52-5N-jVW"/>
                         <outlet property="saveButton" destination="bfu-gf-aa2" id="IFw-v2-HIh"/>
                         <outlet property="savingIndicator" destination="VSC-nJ-wRj" id="nSu-j7-p7P"/>
+                        <outlet property="scrollView" destination="PaG-zY-5Jv" id="9HX-eX-YJs"/>
                         <outlet property="thumbnailEditContainer" destination="3jt-zw-qJ0" id="hKj-Hx-Wsr"/>
                         <outlet property="thumbnailImageView" destination="Rax-qA-xTx" id="2PU-Qo-RSC"/>
                         <outlet property="titleField" destination="DC2-va-Kzi" id="dvK-bv-pC9"/>
@@ -4687,7 +4688,7 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="u3y-nj-oLx" userLabel="Change Camera button">
-                                <rect key="frame" x="373" y="776" width="25" height="22"/>
+                                <rect key="frame" x="373.5" y="776" width="24.5" height="22"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                 <state key="normal" image="arrow.triangle.2.circlepath.camera" catalog="system"/>
                                 <connections>
@@ -4701,6 +4702,56 @@
                                     <action selector="toggleStreamingTapped:" destination="fov-pz-LOs" eventType="touchUpInside" id="ILL-kD-Vu6"/>
                                 </connections>
                             </button>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1or-Qw-Zdb">
+                                <rect key="frame" x="0.0" y="44" width="414" height="772"/>
+                                <subviews>
+                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5rl-Cv-Aqe">
+                                        <rect key="frame" x="0.0" y="0.0" width="414" height="772"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="VAA-tu-Cok">
+                                                <rect key="frame" x="0.0" y="0.0" width="414" height="184"/>
+                                                <subviews>
+                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Please specify a title for your livestream" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bof-VV-QBA">
+                                                        <rect key="frame" x="16" y="64" width="382" height="16"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                                                        <nil key="textColor"/>
+                                                        <nil key="highlightedColor"/>
+                                                    </label>
+                                                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="q03-LB-HXE">
+                                                        <rect key="frame" x="16" y="96" width="382" height="34"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                        <textInputTraits key="textInputTraits"/>
+                                                    </textField>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WA2-Ib-g9c">
+                                                        <rect key="frame" x="16" y="146" width="382" height="30"/>
+                                                        <state key="normal" title="Continue">
+                                                            <color key="titleColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
+                                                        </state>
+                                                        <connections>
+                                                            <action selector="continueTapped:" destination="fov-pz-LOs" eventType="touchUpInside" id="eQ3-54-8sg"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                                <edgeInsets key="layoutMargins" top="64" left="16" bottom="8" right="16"/>
+                                            </stackView>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="VAA-tu-Cok" firstAttribute="leading" secondItem="5rl-Cv-Aqe" secondAttribute="leading" id="0xt-F7-7KZ"/>
+                                            <constraint firstItem="VAA-tu-Cok" firstAttribute="top" secondItem="5rl-Cv-Aqe" secondAttribute="top" id="C1E-Sd-ojj"/>
+                                            <constraint firstItem="VAA-tu-Cok" firstAttribute="width" secondItem="5rl-Cv-Aqe" secondAttribute="width" id="Ckb-Ih-zFe"/>
+                                            <constraint firstAttribute="bottom" secondItem="VAA-tu-Cok" secondAttribute="bottom" id="SCs-Md-OYv"/>
+                                            <constraint firstAttribute="trailing" secondItem="VAA-tu-Cok" secondAttribute="trailing" id="npn-6u-IfF"/>
+                                        </constraints>
+                                    </scrollView>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="5rl-Cv-Aqe" secondAttribute="trailing" id="CAg-Tj-KBC"/>
+                                    <constraint firstItem="5rl-Cv-Aqe" firstAttribute="top" secondItem="1or-Qw-Zdb" secondAttribute="top" id="MrA-jQ-DEj"/>
+                                    <constraint firstAttribute="bottom" secondItem="5rl-Cv-Aqe" secondAttribute="bottom" id="Nue-FS-xLg"/>
+                                    <constraint firstItem="5rl-Cv-Aqe" firstAttribute="leading" secondItem="1or-Qw-Zdb" secondAttribute="leading" id="sZ0-P8-q1E"/>
+                                </constraints>
+                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aA3-Qn-14h" userLabel="Pre-load View">
                                 <rect key="frame" x="0.0" y="44" width="414" height="818"/>
                                 <subviews>
@@ -4759,12 +4810,16 @@
                             <constraint firstItem="2bk-9X-7pa" firstAttribute="trailing" secondItem="u3y-nj-oLx" secondAttribute="trailing" constant="16" id="GZX-Fc-65W"/>
                             <constraint firstItem="2bk-9X-7pa" firstAttribute="bottom" secondItem="u3y-nj-oLx" secondAttribute="bottom" constant="64" id="KS3-NB-ep2"/>
                             <constraint firstItem="2bk-9X-7pa" firstAttribute="bottom" secondItem="aA3-Qn-14h" secondAttribute="bottom" id="KlU-Ui-LC6"/>
+                            <constraint firstItem="iuz-Xq-7OO" firstAttribute="top" secondItem="1or-Qw-Zdb" secondAttribute="bottom" id="MfJ-zQ-D3J"/>
                             <constraint firstItem="aA3-Qn-14h" firstAttribute="top" secondItem="2bk-9X-7pa" secondAttribute="top" id="QHG-Gp-gYF"/>
                             <constraint firstItem="Ffe-rT-rxC" firstAttribute="top" secondItem="2bk-9X-7pa" secondAttribute="top" constant="16" id="Wkx-IR-Mg7"/>
                             <constraint firstItem="aA3-Qn-14h" firstAttribute="leading" secondItem="2bk-9X-7pa" secondAttribute="leading" id="Z39-fy-n2g"/>
                             <constraint firstItem="2bk-9X-7pa" firstAttribute="bottom" secondItem="Jw0-hm-bp1" secondAttribute="bottom" id="dV4-SS-MPK"/>
                             <constraint firstItem="2bk-9X-7pa" firstAttribute="bottom" secondItem="iuz-Xq-7OO" secondAttribute="bottom" constant="16" id="dZO-5m-FPt"/>
+                            <constraint firstItem="2bk-9X-7pa" firstAttribute="trailing" secondItem="1or-Qw-Zdb" secondAttribute="trailing" id="huR-yM-OZA"/>
+                            <constraint firstItem="1or-Qw-Zdb" firstAttribute="top" secondItem="2bk-9X-7pa" secondAttribute="top" id="iVd-Mm-l03"/>
                             <constraint firstItem="2bk-9X-7pa" firstAttribute="trailing" secondItem="Ffe-rT-rxC" secondAttribute="trailing" constant="16" id="k0d-VV-GGv"/>
+                            <constraint firstItem="1or-Qw-Zdb" firstAttribute="leading" secondItem="2bk-9X-7pa" secondAttribute="leading" id="nx0-03-c3Z"/>
                             <constraint firstItem="Jw0-hm-bp1" firstAttribute="top" secondItem="2bk-9X-7pa" secondAttribute="top" id="pU5-uk-HPW"/>
                             <constraint firstItem="2bk-9X-7pa" firstAttribute="trailing" secondItem="Jw0-hm-bp1" secondAttribute="trailing" id="uHu-lh-tHd"/>
                             <constraint firstItem="2bk-9X-7pa" firstAttribute="trailing" secondItem="aA3-Qn-14h" secondAttribute="trailing" id="wRb-6v-Ut3"/>
@@ -4773,10 +4828,13 @@
                     </view>
                     <connections>
                         <outlet property="cameraCaptureView" destination="Jw0-hm-bp1" id="qGB-tM-vKY"/>
+                        <outlet property="livestreamOptionsScrollView" destination="5rl-Cv-Aqe" id="ROu-QU-n5R"/>
+                        <outlet property="livestreamOptionsView" destination="1or-Qw-Zdb" id="KCa-pD-fRw"/>
                         <outlet property="precheckLabel" destination="bY1-OR-IR2" id="69s-Rb-Gsf"/>
                         <outlet property="precheckLoadingView" destination="vpd-L9-xeu" id="Wv5-IC-wbk"/>
                         <outlet property="precheckView" destination="aA3-Qn-14h" id="cUt-8T-1g4"/>
                         <outlet property="spacemanImage" destination="fAJ-vz-RjM" id="hBv-VK-0rq"/>
+                        <outlet property="titleField" destination="q03-LB-HXE" id="O87-eb-mxP"/>
                         <outlet property="toggleStreamingButton" destination="iuz-Xq-7OO" id="E1L-aq-mub"/>
                     </connections>
                 </viewController>
