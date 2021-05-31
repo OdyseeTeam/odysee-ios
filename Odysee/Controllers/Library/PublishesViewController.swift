@@ -88,6 +88,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
                     uploadsListView.insertRows(at: indexPaths, with: .none)
                 }
             }
+            Lbry.ownUploads = uploads.filter { $0.claimId != "new" }
         }
         result.showErrorIfPresent()
         loadingUploads = false
