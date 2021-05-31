@@ -29,6 +29,11 @@ class GoLiveViewController: UIViewController {
     @IBOutlet weak var toggleStreamingButton: UIButton!
     @IBOutlet weak var spacemanImage: UIImageView!
     
+    
+    @IBOutlet weak var livestreamOptionsScrollView: UIScrollView!
+    @IBOutlet weak var livestreamOptionsView: UIView!
+    @IBOutlet weak var titleField: UITextField!
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -46,6 +51,25 @@ class GoLiveViewController: UIViewController {
         self.loadChannels()
         self.activateAudioSession()
         self.initStream()
+    }
+    
+    func registerForKeyboardNotifications() {
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        let info = notification.userInfo
+        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+        let contentInsets = UIEdgeInsets.init(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+        livestreamOptionsScrollView.contentInset = contentInsets
+        livestreamOptionsScrollView.scrollIndicatorInsets = contentInsets
+    }
+
+    @objc func keyboardWillHide(notification: NSNotification) {
+        let contentInsets = UIEdgeInsets.zero
+        livestreamOptionsScrollView.contentInset = contentInsets
+        livestreamOptionsScrollView.scrollIndicatorInsets = contentInsets
     }
     
     func activateAudioSession() {
@@ -206,20 +230,25 @@ class GoLiveViewController: UIViewController {
             if self.channels.count > 0 {
                 var effectiveAmount = Decimal(0)
                 let channel = self.channels[0]
+                if channel.confirmations! < 1 {
+                    self.displayRequirementNotMet(message: String.localized("Your channel is not yet confirmed on the blockchain. Please wait a couple of minutes and try again."))
+                    return
+                }
+                
                 if let meta = channel.meta {
                     effectiveAmount = Decimal(string: meta.effectiveAmount!)!
                 }
                 if effectiveAmount < GoLiveViewController.minStreamStake {
-                    DispatchQueue.main.async {
-                        self.precheckLoadingView.isHidden = true
-                        self.spacemanImage.image = UIImage.init(named: "spaceman_sad")
-                        self.precheckLabel.text = String(format: String.localized("You need have at least %@ credits staked (directly or through supports) on %@ to be able to livestream."),
-                                                         String(describing: GoLiveViewController.minStreamStake), channel.name!)
-                    }
+                    self.displayRequirementNotMet(message: String(format: String.localized("You need have at least %@ credits staked (directly or through supports) on %@ to be able to livestream."),
+                                                         String(describing: GoLiveViewController.minStreamStake), channel.name!))
                     return
                 }
                 
-                self.loadLivestreamingClaim()
+                
+                // show livestream options entry
+                self.showLivestreamingOptions()
+                
+                //self.loadLivestreamingClaim()
                 return
             }
             
@@ -231,7 +260,41 @@ class GoLiveViewController: UIViewController {
         })
     }
     
+    func displayRequirementNotMet(message: String) {
+        DispatchQueue.main.async {
+            self.precheckLoadingView.isHidden = true
+            self.spacemanImage.image = UIImage.init(named: "spaceman_sad")
+            self.precheckLabel.text = message
+        }
+    }
     
+    func showLivestreamingOptions() {
+        DispatchQueue.main.async {
+            self.precheckLoadingView.isHidden = true
+            self.precheckView.isHidden = true
+            self.livestreamOptionsView.isHidden = false
+            self.titleField.becomeFirstResponder()
+        }
+    }
+    
+    @IBAction func continueTapped(_ sender: UIButton) {
+        titleField.resignFirstResponder()
+        
+        // check that there is a title
+        let title = titleField.text
+        if (title ?? "").isBlank {
+            showError(message: String.localized("Please specify a title for your stream"))
+            return
+        }
+        
+        self.precheckView.isHidden = false
+        self.precheckLoadingView.isHidden = false
+        self.livestreamOptionsView.isHidden = true
+        self.createLivestreamClaim(title: title!)
+    }
+    
+    
+    /* TODO: Determine if we want to be able to reuse existing claims
     func loadLivestreamingClaim() {
         let options: Dictionary<String, Any> = ["claim_type": "stream", "page": 1, "page_size": 1, "resolve": true, "has_no_source": true]
         Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
@@ -262,11 +325,11 @@ class GoLiveViewController: UIViewController {
                         return
                     }
                 } else {
-                    self.createLivestreamClaim()
+                    //self.createLivestreamClaim()
                 }
             }
         })
-    }
+    }*/
     
     func signAndSetupStream(channel: Claim?) {
         let options: Dictionary<String, Any> = ["channel_id": channel!.claimId!, "hexdata": Helper.strToHex(channel!.name!)]
@@ -281,11 +344,9 @@ class GoLiveViewController: UIViewController {
             }
             
             if let result = data["result"] as? [String: Any] {
-                print(result)
                 let signature = result["signature"] as? String
                 let signing_ts = result["signing_ts"] as? String
                 self.streamKey = self.createStreamKey(channel: channel, signature: signature!, signing_ts: signing_ts!)
-                print(self.streamKey)
                 
                 DispatchQueue.main.async {
                     self.precheckLoadingView.isHidden = true
@@ -307,18 +368,18 @@ class GoLiveViewController: UIViewController {
         return String(format: "%@?d=%@&s=%@&t=%@", channel!.claimId!, Helper.strToHex(channel!.name!), signature, signing_ts)
     }
     
-    func createLivestreamClaim() {
-        // check eligibility? (50 credits staked on channel)
+    func createLivestreamClaim(title: String) {
+        // check eligibility? (50 credits fked on channel)
         let channel = channels[0] // use the first channel
-        let title = String(format: "%@ livestream", channel.name!)
         let deposit: Decimal = Decimal(0.001)
+        let suffix: String = String(describing: Int(Date().timeIntervalSince1970))
         let options: Dictionary<String, Any> = [
             "blocking": true,
             "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber)!,
             "title": title,
             "description": "",
-            "thumbnail_url": "",
-            "name": "livestream",
+            "thumbnail_url": channel.value?.thumbnail?.url ?? "", // use the channel thumbnail for now, allow thumbnail uploads in the future
+            "name": String(format: "livestream-%@", suffix),
             "channel_id": channel.claimId!,
             "release_time": Int(Date().timeIntervalSince1970)
         ]
@@ -333,7 +394,8 @@ class GoLiveViewController: UIViewController {
                 return
             }
             
-            self.loadLivestreamingClaim()
+            // The claim was successfully set up. Create the stream key and start
+            self.signAndSetupStream(channel: self.channels[0])
         })
     }
     
