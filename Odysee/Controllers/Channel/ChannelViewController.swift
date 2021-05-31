@@ -109,6 +109,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        contentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
         contentLoadingContainer.layer.cornerRadius = 20
         titleLabel.layer.cornerRadius = 8
         titleLabel.textInsets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)

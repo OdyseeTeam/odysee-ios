@@ -189,6 +189,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         
         avpc.allowsPictureInPicturePlayback = true
         avpc.updatesNowPlayingInfoCenter = false
+        relatedContentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
 
         addChild(avpc)
         avpc.view.frame = mediaView.bounds
@@ -777,7 +778,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 }
             }
             
-            Lbry.apiCall(method: Lbry.methodResolve,
+            Lbry.apiCall(method: Lbry.Methods.resolve,
                          params: ["urls": resolveUrls],
                          url: Lbry.lbrytvURL,
                          completion: self.handleRelatedContentResult)

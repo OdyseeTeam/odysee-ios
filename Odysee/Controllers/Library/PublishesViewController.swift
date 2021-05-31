@@ -31,6 +31,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         
         longPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(handleUploadCellLongPress))
         uploadsListView.addGestureRecognizer(longPressGestureRecognizer)
+        uploadsListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -139,7 +140,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "upload_list_cell", for: indexPath) as! ClaimTableViewCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
         
         let claim: Claim = uploads[indexPath.row]
         cell.setClaim(claim: claim)

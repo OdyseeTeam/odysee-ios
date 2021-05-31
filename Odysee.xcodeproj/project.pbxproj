@@ -89,6 +89,7 @@
 		64FF820F2604FB0B009B7A3B /* FirstRunDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF820E2604FB0B009B7A3B /* FirstRunDelegate.swift */; };
 		64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF8219260507D2009B7A3B /* CreateChannelViewController.swift */; };
 		B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */; };
+		CC004D5A2662868300514FDF /* ClaimTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC004D592662868300514FDF /* ClaimTableViewCell.xib */; };
 		CC97807926549867009F580E /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC97807826549867009F580E /* Log.swift */; };
 		CCDDA9172655C1340006035F /* FileDismissAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA9162655C1340006035F /* FileDismissAnimationController.swift */; };
 		CCDDA921265852920006035F /* Multistream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA920265852910006035F /* Multistream.swift */; };
@@ -198,6 +199,7 @@
 		64FF820E2604FB0B009B7A3B /* FirstRunDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstRunDelegate.swift; sourceTree = "<group>"; };
 		64FF8219260507D2009B7A3B /* CreateChannelViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateChannelViewController.swift; sourceTree = "<group>"; };
 		B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
+		CC004D592662868300514FDF /* ClaimTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ClaimTableViewCell.xib; sourceTree = "<group>"; };
 		CC97807826549867009F580E /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		CCDDA9162655C1340006035F /* FileDismissAnimationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileDismissAnimationController.swift; sourceTree = "<group>"; };
 		CCDDA920265852910006035F /* Multistream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Multistream.swift; sourceTree = "<group>"; };
@@ -428,6 +430,7 @@
 				6413273C2556E83C00CBB6B8 /* Models */,
 				64FBE79C25502A290082AF2E /* AppDelegate.swift */,
 				64FBE79E25502A290082AF2E /* SceneDelegate.swift */,
+				CC004D592662868300514FDF /* ClaimTableViewCell.xib */,
 				64FBE7A225502A290082AF2E /* Main.storyboard */,
 				64FBE7A825502A2C0082AF2E /* Assets.xcassets */,
 				64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */,
@@ -594,6 +597,7 @@
 				641615052581267B003A2194 /* GoogleService-Info.plist in Resources */,
 				64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */,
 				64FBE7A425502A290082AF2E /* Main.storyboard in Resources */,
+				CC004D5A2662868300514FDF /* ClaimTableViewCell.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
