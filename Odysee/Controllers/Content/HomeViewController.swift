@@ -6,6 +6,7 @@
 //
 
 import Firebase
+import OrderedCollections
 import UIKit
 
 class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource {
@@ -41,7 +42,7 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     var currentPage: Int = 1
     var lastPageReached: Bool = false
     var loading: Bool = false
-    var claims: [Claim] = []
+    var claims = OrderedSet<Claim>()
     
     var sortByPicker: UIPickerView!
     var contentFromPicker: UIPickerView!
