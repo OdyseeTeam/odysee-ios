@@ -6,6 +6,7 @@
 //
 
 import Firebase
+import OrderedCollections
 import UIKit
 
 class PublishesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
@@ -17,7 +18,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     var newPlaceholderAdded = false
     var longPressGestureRecognizer: UILongPressGestureRecognizer!
     var loadingUploads = false
-    var uploads: [Claim] = []
+    var uploads = OrderedSet<Claim>()
     var currentPage: Int = 1
     var pageSize: Int = 50
     
@@ -46,8 +47,6 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-        
-        loadUploads()
     }
     
     func addNewPlaceholder() {
@@ -68,45 +67,35 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         loadingUploads = true
         loadingContainer.isHidden = false
         
-        let options: Dictionary<String, Any> = ["claim_type": "stream", "page": currentPage, "page_size": pageSize, "resolve": true]
-        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.showError(error: error)
-                self.loadingUploads = false
-                self.loadingContainer.isHidden = true
-                self.checkNoUploads()
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            if let items = result?["items"] as? [[String: Any]] {
-                var loadedClaims: [Claim] = []
-                items.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil && !self.uploads.contains(where: { $0.claimId == claim?.claimId })) {
-                            loadedClaims.append(claim!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                //self.uploads.removeAll()
-                //self.addNewPlaceholder()
-                self.uploads.append(contentsOf: loadedClaims)
-                Lbry.ownUploads = self.uploads.filter { $0.claimId != "new" }
-            }
-            
-            self.loadingUploads = false
-            DispatchQueue.main.async {
-                self.loadingContainer.isHidden = true
-                self.checkNoUploads()
-                self.uploadsListView.reloadData()
-            }
-        })
+        let options: [String: Any] = ["claim_type": "stream",
+                                      "page": currentPage,
+                                      "page_size": pageSize,
+                                      "resolve": true]
+        Lbry.apiCall(method: Lbry.Methods.claimList,
+                     params: options,
+                     completion: didReceiveUploads)
     }
     
+
+    func didReceiveUploads(_ result: Result<Lbry.Page<Claim>, Error>) {
+        assert(Thread.isMainThread)
+        if case let .success(page) = result {
+            UIView.performWithoutAnimation {
+                uploadsListView.performBatchUpdates {
+                    let oldCount = uploads.count
+                    uploads.append(contentsOf: page.items)
+                    let indexPaths = (oldCount..<uploads.count).map { IndexPath(item: $0, section: 0) }
+                    uploadsListView.insertRows(at: indexPaths, with: .none)
+                }
+            }
+            Lbry.ownUploads = uploads.filter { $0.claimId != "new" }
+        }
+        result.showErrorIfPresent()
+        loadingUploads = false
+        loadingContainer.isHidden = true
+        uploadsListView.isHidden = uploads.isEmpty
+        noUploadsView.isHidden = !uploads.isEmpty
+    }
 
     /*
     // MARK: - Navigation
@@ -119,20 +108,17 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     */
     
     func abandonClaim(claim: Claim) {
-        let params: Dictionary<String, Any> = ["claim_id": claim.claimId!, "blocking": true]
-        Lbry.apiCall(method: Lbry.methodStreamAbandon, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let _ = data, error == nil else {
-                self.showError(error: error)
-                return
-            }
-        })
+        let params: [String: Any] = ["claim_id": claim.claimId!,
+                                     "blocking": true]
+        Lbry.apiCall(method: Lbry.Methods.streamAbandon,
+                     params: params,
+                     completion: didAbandonClaim)
     }
     
-    func checkNoUploads() {
-        DispatchQueue.main.async {
-            self.uploadsListView.isHidden = self.uploads.count == 0
-            self.noUploadsView.isHidden = self.uploads.count > 0
-        }
+    func didAbandonClaim(_ result: Result<Transaction, Error>) {
+        assert(Thread.isMainThread)
+        // TODO: Handle failure and re-insert the row.
+        result.showErrorIfPresent()
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -187,7 +173,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             
             if claim.confirmations ?? 0 == 0 {
                 // pending claim
-                self.showError(message: "You cannot remove a pending upload. Please try again later.")
+                self.showError(message: String.localized("You cannot remove a pending upload. Please try again later."))
                 return
             }
             

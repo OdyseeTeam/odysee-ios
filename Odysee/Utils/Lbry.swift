@@ -31,10 +31,13 @@ final class Lbry {
     }
 
     struct Methods {
-        static let resolve      = Method<[String: Claim]>(name: "resolve")
-        static let claimSearch  = Method<Page<Claim>>(name: "claim_search")
+        static let resolve       = Method<[String: Claim]>(name: "resolve")
+        static let claimSearch   = Method<Page<Claim>>(name: "claim_search")
+        static let claimList     = Method<Page<Claim>>(name: "claim_list")
+        static let streamAbandon = Method<Transaction>(name: "stream_abandon")
     }
 
+    // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
     static let methodClaimSearch = Methods.claimSearch.name
     static let methodResolve = Methods.resolve.name
     static let methodAddressUnused = "address_unused"
@@ -42,11 +45,10 @@ final class Lbry {
     static let methodChannelCreate = "channel_create"
     static let methodChannelUpdate = "channel_update"
     static let methodCommentCreate = "comment_create"
-    static let methodStreamAbandon = "stream_abandon"
     static let methodStreamUpdate = "stream_update"
     static let methodChannelSign = "channel_sign"
     static let methodPublish = "publish"
-    static let methodClaimList = "claim_list"
+    static let methodClaimList = Methods.claimList.name
     static let methodCommentList = "comment_list"
     static let methodCommentReact = "comment_react"
     static let methodCommentReactList = "comment_react_list"
@@ -111,8 +113,8 @@ final class Lbry {
     // Delivers the parsed Result on the main thread.
     static func apiCall<Value: Decodable>(method: Method<Value>,
                                           params: [String: Any],
-                                          url: URL,
-                                          authToken: String? = nil,
+                                          url: URL = lbrytvURL,
+                                          authToken: String? = Lbryio.authToken,
                                           transform: ((inout Value) throws -> ())? = nil,
                                           completion: @escaping (Result<Value, Error>) -> Void) {
         let req = apiRequest(method: method.name, params: params, url: url, authToken: authToken)

@@ -7,7 +7,7 @@
 
 import Foundation
 
-class Claim: Decodable, Equatable  {
+class Claim: Decodable, Equatable, Hashable {
     var address: String?
     var amount: String?
     var canonicalUrl: String?
@@ -113,4 +113,8 @@ class Claim: Decodable, Equatable  {
     static func ==(lhs:Claim, rhs:Claim) -> Bool {
         return lhs.claimId == rhs.claimId
     }
+    func hash(into hasher: inout Hasher) {
+        claimId.hash(into: &hasher)
+    }
+    
 }
