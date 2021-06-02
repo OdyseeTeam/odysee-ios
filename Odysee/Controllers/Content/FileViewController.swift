@@ -1113,17 +1113,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         appDelegate.mainController.showMessage(message: message)
     }
     
-    @IBAction func dismissFileViewTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let transition = CATransition()
-        transition.duration = 0.2
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        transition.type = .push
-        transition.subtype = .fromBottom
-        appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
-        self.navigationController?.popViewController(animated: false)
-    }
-    
     var interactiveDismiss: UIPercentDrivenInteractiveTransition?
     @IBAction func dismissFileViewPanned(_ sender: Any) {
         assert(sender as? NSObject == dismissPanRecognizer)
