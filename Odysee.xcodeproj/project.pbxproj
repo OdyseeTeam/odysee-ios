@@ -90,6 +90,7 @@
 		64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF8219260507D2009B7A3B /* CreateChannelViewController.swift */; };
 		B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */; };
 		CC004D5A2662868300514FDF /* ClaimTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC004D592662868300514FDF /* ClaimTableViewCell.xib */; };
+		CC48F4FC2662B2020018D958 /* VideoPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC48F4FB2662B2020018D958 /* VideoPickerController.swift */; };
 		CC97807926549867009F580E /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC97807826549867009F580E /* Log.swift */; };
 		CCDDA9172655C1340006035F /* FileDismissAnimationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA9162655C1340006035F /* FileDismissAnimationController.swift */; };
 		CCDDA921265852920006035F /* Multistream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDDA920265852910006035F /* Multistream.swift */; };
@@ -200,6 +201,7 @@
 		64FF8219260507D2009B7A3B /* CreateChannelViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateChannelViewController.swift; sourceTree = "<group>"; };
 		B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
 		CC004D592662868300514FDF /* ClaimTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ClaimTableViewCell.xib; sourceTree = "<group>"; };
+		CC48F4FB2662B2020018D958 /* VideoPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPickerController.swift; sourceTree = "<group>"; };
 		CC97807826549867009F580E /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		CCDDA9162655C1340006035F /* FileDismissAnimationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileDismissAnimationController.swift; sourceTree = "<group>"; };
 		CCDDA920265852910006035F /* Multistream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Multistream.swift; sourceTree = "<group>"; };
@@ -385,6 +387,7 @@
 				641108E6255AA2BC00F0FB8A /* InitViewController.swift */,
 				6411C0B4255B94DA0018C3D5 /* MainViewController.swift */,
 				64A6CA7A255DD34700294E74 /* AppTabBarController.swift */,
+				CC48F4FB2662B2020018D958 /* VideoPickerController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -662,6 +665,7 @@
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
 				641108F1255AF6CE00F0FB8A /* Helper.swift in Sources */,
 				641E7EC62608BE5800A79CD3 /* License.swift in Sources */,
+				CC48F4FC2662B2020018D958 /* VideoPickerController.swift in Sources */,
 				646E4A64259CF5380008C9C8 /* CommentTableViewCell.swift in Sources */,
 				64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */,
 				64424DDA255895A500F2D247 /* ContentSources.swift in Sources */,
