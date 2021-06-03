@@ -1083,7 +1083,7 @@
 			repositoryURL = "https://github.com/pinterest/PINRemoteImage";
 			requirement = {
 				kind = revision;
-				revision = 93428e8b6e797d27d1f57425937c0e094d0f4ad8;
+				revision = 019b71b3fc2835a59b2f6ecaa9033841867813a8;
 			};
 		};
 		CCFB0B4D26653E0800696E0C /* XCRemoteSwiftPackageReference "swift-collections" */ = {
