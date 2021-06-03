@@ -24,10 +24,12 @@ class ImagePrefetchingController {
 
     deinit {
         assert(Thread.isMainThread)
-        cancelPrefetching(at: prefetchingMap.keys)
+        for uuids in prefetchingMap.values {
+            uuids.forEach(mgr.cancelTask)
+        }
     }
 
-    func prefetch<S: Sequence>(at indexPaths: S) where S.Element == IndexPath {
+    func prefetch(at indexPaths: [IndexPath]) {
         assert(Thread.isMainThread)
         prefetchingMap.reserveCapacity(prefetchingMap.count + indexPaths.underestimatedCount)
         // TODO: We would like to sort these index paths intelligently by distance from the center
@@ -50,7 +52,7 @@ class ImagePrefetchingController {
     // in the data source. For instance, if you delete all the items, you'll get
     // cancelPrefetch for the items you had beforehand. The index paths only
     // refer to index paths from previous calls to `prefetch`
-    func cancelPrefetching<S: Sequence>(at indexPaths: S) where S.Element == IndexPath {
+    func cancelPrefetching(at indexPaths: [IndexPath]) {
         assert(Thread.isMainThread)
         for indexPath in indexPaths {
             guard let index = prefetchingMap.index(forKey: indexPath) else {
