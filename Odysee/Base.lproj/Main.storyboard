@@ -1616,6 +1616,7 @@
                                 <connections>
                                     <outlet property="dataSource" destination="BYZ-38-t0r" id="wfX-kn-0Vy"/>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="4pz-bI-ZPx"/>
+                                    <outlet property="prefetchDataSource" destination="BYZ-38-t0r" id="Yfb-xr-8Wj"/>
                                 </connections>
                             </tableView>
                             <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="CEB-nI-u0n">

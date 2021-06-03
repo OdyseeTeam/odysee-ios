@@ -7,9 +7,15 @@
 
 import Firebase
 import OrderedCollections
+import PINRemoteImage
 import UIKit
 
-class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource {
+class HomeViewController: UIViewController,
+                          UITableViewDelegate,
+                          UITableViewDataSource,
+                          UIPickerViewDelegate,
+                          UIPickerViewDataSource,
+                          UITableViewDataSourcePrefetching {
 
     @IBOutlet weak var loadingContainer: UIView!
     @IBOutlet weak var claimListView: UITableView!
@@ -94,13 +100,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
         if case let .success(payload) = result {
-            UIView.performWithoutAnimation {
-                claimListView.performBatchUpdates {
-                    let oldCount = claims.count
-                    claims.append(contentsOf: payload.items)
-                    let indexPaths = (oldCount..<claims.count).map { IndexPath(item: $0, section: 0) }
-                    claimListView.insertRows(at: indexPaths, with: .automatic)
-                }
+            let oldCount = claims.count
+            claims.append(contentsOf: payload.items)
+            if claims.count != oldCount {
+                claimListView.reloadData()
             }
         }
         loadingContainer.isHidden = true
@@ -295,5 +298,43 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         resetContent()
         loadClaims()
+    }
+    
+    // MARK: UITableViewDataSourcePrefetching
+
+    // claimID -> Prefetching UUIDs
+    var prefetchingMap = [String: [UUID]]()
+
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        // TODO: We would like to sort these index paths intelligently by distance from the center
+        // of the viewport, so that we start prefetching the rows most likely to be seen next.
+        // However, in iOS 14 there is a bug if we call rectForRowAtIndexPath: here, and the
+        // indexPathForRowAt: method is also unreliable here.
+        let mgr = PINRemoteImageManager.shared()
+        for indexPath in indexPaths {
+            let claim = claims[indexPath.row]
+            let claimID = claim.claimId!
+            if prefetchingMap[claimID] != nil {
+                return
+            }
+            let urls = ClaimTableViewCell.imagePrefetchURLs(claim: claim)
+            if !urls.isEmpty {
+                let uuids = mgr.prefetchImages(with: urls)
+                prefetchingMap[claimID] = uuids
+            }
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        let mgr = PINRemoteImageManager.shared()
+        for indexPath in indexPaths {
+            let claim = claims[indexPath.row]
+            let claimID = claim.claimId!
+            guard let index = prefetchingMap.index(forKey: claimID) else {
+                continue
+            }
+            prefetchingMap[index].value.forEach(mgr.cancelTask)
+            prefetchingMap.remove(at: index)
+        }
     }
 }
