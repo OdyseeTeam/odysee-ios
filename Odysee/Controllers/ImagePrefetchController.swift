@@ -8,7 +8,10 @@
 import Foundation
 import PINRemoteImage
 
-// A helper
+// A helper for using PINRemoteImage+UITableViewDataSourcePrefetching.
+// You give it a `(IndexPath) -> [URL]` to get the URLs for a given cell.
+// You forward it the `prefetchRows` and `cancelPrefetching` calls.
+// It manages the prefetching.
 class ImagePrefetchingController {
     private let mgr = PINRemoteImageManager.shared()
     private let imageURLProvider: (IndexPath) -> [URL]
