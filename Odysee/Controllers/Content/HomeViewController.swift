@@ -56,6 +56,8 @@ class HomeViewController: UIViewController,
     var currentSortByIndex = 0 // default to Trending content
     var currentContentFromIndex = 1 // default to Past week
     
+    var prefetchController: ImagePrefetchingController!
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Home", AnalyticsParameterScreenClass: "HomeViewController"])
@@ -69,6 +71,10 @@ class HomeViewController: UIViewController,
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        prefetchController = ImagePrefetchingController { [unowned self] indexPath in
+            let claim = self.claims[indexPath.row]
+            return ClaimTableViewCell.imagePrefetchURLs(claim: claim)
+        }
         // Do any additional setup after loading the view.
         refreshControl.attributedTitle = NSAttributedString(string: "Pull down to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
@@ -301,40 +307,12 @@ class HomeViewController: UIViewController,
     }
     
     // MARK: UITableViewDataSourcePrefetching
-
-    // claimID -> Prefetching UUIDs
-    var prefetchingMap = [String: [UUID]]()
-
+    
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        // TODO: We would like to sort these index paths intelligently by distance from the center
-        // of the viewport, so that we start prefetching the rows most likely to be seen next.
-        // However, in iOS 14 there is a bug if we call rectForRowAtIndexPath: here, and the
-        // indexPathForRowAt: method is also unreliable here.
-        let mgr = PINRemoteImageManager.shared()
-        for indexPath in indexPaths {
-            let claim = claims[indexPath.row]
-            let claimID = claim.claimId!
-            if prefetchingMap[claimID] != nil {
-                return
-            }
-            let urls = ClaimTableViewCell.imagePrefetchURLs(claim: claim)
-            if !urls.isEmpty {
-                let uuids = mgr.prefetchImages(with: urls)
-                prefetchingMap[claimID] = uuids
-            }
-        }
+        prefetchController.prefetch(at: indexPaths)
     }
     
     func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
-        let mgr = PINRemoteImageManager.shared()
-        for indexPath in indexPaths {
-            let claim = claims[indexPath.row]
-            let claimID = claim.claimId!
-            guard let index = prefetchingMap.index(forKey: claimID) else {
-                continue
-            }
-            prefetchingMap[index].value.forEach(mgr.cancelTask)
-            prefetchingMap.remove(at: index)
-        }
+        prefetchController.cancelPrefetching(at: indexPaths)
     }
 }
