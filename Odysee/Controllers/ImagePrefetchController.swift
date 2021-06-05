@@ -31,7 +31,7 @@ class ImagePrefetchingController {
 
     func prefetch(at indexPaths: [IndexPath]) {
         assert(Thread.isMainThread)
-        prefetchingMap.reserveCapacity(prefetchingMap.count + indexPaths.underestimatedCount)
+        prefetchingMap.reserveCapacity(prefetchingMap.count + indexPaths.count)
         // TODO: We would like to sort these index paths intelligently by distance from the center
         // of the viewport, so that we start prefetching the rows most likely to be seen next.
         // However, in iOS 14 there is a bug if we call rectForRowAtIndexPath: here, and the
