@@ -183,18 +183,18 @@ final class Lbry {
     }
     
     static func addClaimToCache(claim: Claim?) {
-        if (claim != nil) {
-            Lbry.claimCacheById[(claim?.claimId!)!] = claim
-            let claimUrl: LbryUri? = LbryUri.tryParse(url: (claim?.permanentUrl!)!, requireProto: false)
-            if (claimUrl != nil) {
-                Lbry.claimCacheByUrl[claimUrl!.description] = claim
-            }
-            if !(claim?.shortUrl ?? "").isBlank {
-                Lbry.claimCacheByUrl[claim!.shortUrl!] = claim
-            }
-            if !(claim?.canonicalUrl ?? "").isBlank {
-                Lbry.claimCacheByUrl[claim!.canonicalUrl!] = claim
-            }
+        guard let claim = claim, let id = claim.claimId else {
+            return
+        }
+        Lbry.claimCacheById[id] = claim
+        if let claimUrl = LbryUri.tryParse(url: claim.permanentUrl!, requireProto: false) {
+            Lbry.claimCacheByUrl[claimUrl.description] = claim
+        }
+        if let shortUrl = claim.shortUrl, !shortUrl.isBlank {
+            Lbry.claimCacheByUrl[claim.shortUrl!] = claim
+        }
+        if let canonicalUrl = claim.canonicalUrl, !canonicalUrl.isBlank {
+            Lbry.claimCacheByUrl[claim.canonicalUrl!] = claim
         }
     }
     

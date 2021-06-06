@@ -788,7 +788,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func handleRelatedContentResult(_ result: Result<[String: Claim], Error>) {
         assert(Thread.isMainThread)
         if case let .success(claims) = result {
-            // Filter out self.claim && existing related content.
+            // Filter out self.claim.
             relatedContent = claims.values.filter { testClaim in
                 let testID = testClaim.claimId
                 return testID != self.claim?.claimId
