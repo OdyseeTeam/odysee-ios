@@ -104,3 +104,15 @@ struct Transaction: Decodable {
     }
 }
 
+struct Outpoint: Hashable {
+    var txid: String
+    var index: Int
+
+    static func parse(str: String) -> Outpoint? {
+        let substrs = str.split(separator: ":")
+        guard substrs.count == 2, let index = Int(substrs[1]) else {
+            return nil
+        }
+        return Outpoint(txid: String(substrs[0]), index: index)
+    }
+}

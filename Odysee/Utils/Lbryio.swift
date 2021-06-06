@@ -27,6 +27,7 @@ final class Lbryio {
     static let keyAuthToken = "AuthToken"
     static var currentUser: User? = nil
     
+    private static let lock = Lock()
     static var currentLbcUsdRate: Decimal? = 0
     static var followedUrls: [String] = [] // simple cache of followed urls
     static var cachedSubscriptions: Dictionary<String, LbrySubscription> = Dictionary<String, LbrySubscription>()
@@ -34,8 +35,14 @@ final class Lbryio {
     static var latestNotificationId: Int64 = 0
     static var subscriptionsDirty = false
     
-    static var filteredOutpoints: [String] = []
-    static var blockedOutpoints: [String] = []
+    private static var filteredOutpoints = Set<Outpoint>()
+    static func setFilteredOutpoints(_ val: Set<Outpoint>) {
+        lock.withLock { filteredOutpoints = val }
+    }
+    private static var blockedOutpoints = Set<Outpoint>()
+    static func setBlockedOutpoints(_ val: Set<Outpoint>) {
+        lock.withLock { blockedOutpoints = val }
+    }
     
     static var cachedTwitterOauthToken: String? = nil
     static var cachedTwitterOauthTokenSecret: String? = nil
@@ -361,11 +368,23 @@ final class Lbryio {
         return true
     }
     
+    static func isClaimFilteredOrBlocked(_ claim: Claim) -> Bool {
+        guard let outpoint = claim.outpoint else { return false }
+        return lock.withLock {
+            return blockedOutpoints.contains(outpoint) || filteredOutpoints.contains(outpoint)
+        }
+    }
     static func isClaimFiltered(_ claim: Claim) -> Bool {
-        return filteredOutpoints.contains(String(format: "%@:%d", claim.txid!, claim.nout!))
+        guard let outpoint = claim.outpoint else { return false }
+        return lock.withLock {
+            filteredOutpoints.contains(outpoint)
+        }
     }
     static func isClaimBlocked(_ claim: Claim) -> Bool {
-        return blockedOutpoints.contains(String(format: "%@:%d", claim.txid!, claim.nout!))
+        guard let outpoint = claim.outpoint else { return false }
+        return lock.withLock {
+            blockedOutpoints.contains(outpoint)
+        }
     }
 }
 
