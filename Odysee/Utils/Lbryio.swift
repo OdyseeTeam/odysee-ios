@@ -368,12 +368,6 @@ final class Lbryio {
         return true
     }
     
-    static func isClaimFilteredOrBlocked(_ claim: Claim) -> Bool {
-        guard let outpoint = claim.outpoint else { return false }
-        return lock.withLock {
-            return blockedOutpoints.contains(outpoint) || filteredOutpoints.contains(outpoint)
-        }
-    }
     static func isClaimFiltered(_ claim: Claim) -> Bool {
         guard let outpoint = claim.outpoint else { return false }
         return lock.withLock {
