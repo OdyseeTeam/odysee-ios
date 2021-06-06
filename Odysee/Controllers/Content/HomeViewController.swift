@@ -7,9 +7,15 @@
 
 import Firebase
 import OrderedCollections
+import PINRemoteImage
 import UIKit
 
-class HomeViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource {
+class HomeViewController: UIViewController,
+                          UITableViewDelegate,
+                          UITableViewDataSource,
+                          UIPickerViewDelegate,
+                          UIPickerViewDataSource,
+                          UITableViewDataSourcePrefetching {
 
     @IBOutlet weak var loadingContainer: UIView!
     @IBOutlet weak var claimListView: UITableView!
@@ -50,6 +56,8 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     var currentSortByIndex = 0 // default to Trending content
     var currentContentFromIndex = 1 // default to Past week
     
+    var prefetchController: ImagePrefetchingController!
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Home", AnalyticsParameterScreenClass: "HomeViewController"])
@@ -63,6 +71,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        prefetchController = ImagePrefetchingController { [unowned self] indexPath in
+            let claim = self.claims[indexPath.row]
+            return ClaimTableViewCell.imagePrefetchURLs(claim: claim)
+        }
         // Do any additional setup after loading the view.
         refreshControl.attributedTitle = NSAttributedString(string: "Pull down to refresh")
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
@@ -94,13 +106,10 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
         if case let .success(payload) = result {
-            UIView.performWithoutAnimation {
-                claimListView.performBatchUpdates {
-                    let oldCount = claims.count
-                    claims.append(contentsOf: payload.items)
-                    let indexPaths = (oldCount..<claims.count).map { IndexPath(item: $0, section: 0) }
-                    claimListView.insertRows(at: indexPaths, with: .automatic)
-                }
+            let oldCount = claims.count
+            claims.append(contentsOf: payload.items)
+            if claims.count != oldCount {
+                claimListView.reloadData()
             }
         }
         loadingContainer.isHidden = true
@@ -295,5 +304,15 @@ class HomeViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         resetContent()
         loadClaims()
+    }
+    
+    // MARK: UITableViewDataSourcePrefetching
+    
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        prefetchController.prefetch(at: indexPaths)
+    }
+    
+    func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        prefetchController.cancelPrefetching(at: indexPaths)
     }
 }
