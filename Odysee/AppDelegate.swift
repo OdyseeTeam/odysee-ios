@@ -49,10 +49,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
         
-        if keyPath == "playbackLikelyToKeepUp" && player != nil {
-            if !(currentFileViewController?.playerConnected ?? false) {
-                player?.play()
-            }
+        if let player = player,
+           let item = player.currentItem,
+           keyPath == "playbackLikelyToKeepUp",
+           item.isPlaybackLikelyToKeepUp,
+           currentFileViewController?.playerConnected != true,
+           player.timeControlStatus != .paused {
+            player.play()
         }
     }
     
