@@ -62,17 +62,9 @@ struct LbryUri: CustomStringConvertible {
         return !(name ?? "").isBlank && regexInvalidUri.firstMatch(in: name!, options: [], range: NSRange(name!.startIndex..., in: name!)) == nil
     }
     
-    static let regexComponents =
-        try! NSRegularExpression(pattern:
-                                    String(format: "%@%@%@%@(/?)%@%@",
-                                           rePartProtocol,
-                                           rePartHost,
-                                           rePartStreamOrChannelName,
-                                           rePartModifierSeparator,
-                                           rePartStreamOrChannelName,
-                                           rePartModifierSeparator),
-                                 options: [.caseInsensitive])
     static func parse(url: String, requireProto: Bool) throws -> LbryUri {
+        let regexComponents = try! NSRegularExpression(pattern: String(format: "%@%@%@%@(/?)%@%@", rePartProtocol, rePartHost, rePartStreamOrChannelName, rePartModifierSeparator, rePartStreamOrChannelName, rePartModifierSeparator), options: [.caseInsensitive])
+        
         var cleanUrl = url, queryString: String? = nil;
         let qsMatches = regexSeparateQueryString.matches(in: cleanUrl, options: [], range: NSRange(url.startIndex..., in: url))
         if (qsMatches.count > 0) {
