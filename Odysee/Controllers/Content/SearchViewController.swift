@@ -94,11 +94,8 @@ class SearchViewController: UIViewController,
             }
             
             var params = [String: Any]()
-            params["urls"] = results.compactMap { dict -> String? in
-                let name = dict["name"] as! String
-                let id = dict["claimId"] as! String
-                let str = [name, id].joined(separator: "#")
-                return LbryUri.tryParse(url: str, requireProto: false)?.description
+            params["urls"] = results.compactMap { item in
+                LbryUri.tryParse(url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String), requireProto: false)?.description
             }
             Lbry.apiCall(method: Lbry.Methods.resolve,
                          params: params,
