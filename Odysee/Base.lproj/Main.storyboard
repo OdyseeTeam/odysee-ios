@@ -7034,6 +7034,7 @@
                                 <connections>
                                     <outlet property="dataSource" destination="ZK9-XQ-4P5" id="aWK-zs-2cJ"/>
                                     <outlet property="delegate" destination="ZK9-XQ-4P5" id="qU4-co-7EG"/>
+                                    <outlet property="prefetchDataSource" destination="ZK9-XQ-4P5" id="LoZ-Rn-KcV"/>
                                 </connections>
                             </tableView>
                             <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="24" translatesAutoresizingMaskIntoConstraints="NO" id="dgc-bS-LCm">

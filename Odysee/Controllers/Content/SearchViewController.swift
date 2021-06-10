@@ -6,10 +6,16 @@
 //
 
 import Firebase
+import OrderedCollections
 import SafariServices
 import UIKit
 
-class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISearchBarDelegate, UITableViewDelegate, UITableViewDataSource {
+class SearchViewController: UIViewController,
+                            UIGestureRecognizerDelegate,
+                            UISearchBarDelegate,
+                            UITableViewDelegate,
+                            UITableViewDataSource,
+                            UITableViewDataSourcePrefetching {
 
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var getStartedView: UIStackView!
@@ -24,7 +30,8 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
     var currentQuery: String? = nil
     var searching: Bool = false
     let pageSize = 20
-    var claims: [Claim] = []
+    var claims = OrderedSet<Claim>()
+    var prefetchController: ImagePrefetchingController!
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -32,6 +39,7 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
         appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        searchBar.becomeFirstResponder()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -45,12 +53,14 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        prefetchController = ImagePrefetchingController { [unowned self] indexPath in
+            return ClaimTableViewCell.imagePrefetchURLs(claim: self.claims[indexPath.row])
+        }
+        
         loadingContainer.layer.cornerRadius = 20
         
         getStartedView.isHidden = false
         searchBar.backgroundImage = UIImage()
-        //searchBar.becomeFirstResponder()
         
         resultsListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
     }
@@ -76,59 +86,38 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         currentQuery = query
         currentFrom = from
         Lighthouse.search(rawQuery: query!, size: pageSize, from: currentFrom, relatedTo: nil, completion: { results, error in
-            if (results == nil || results!.count == 0) {
-                self.checkNoResults()
+            guard let results = results, !results.isEmpty else {
+                DispatchQueue.main.async {
+                    self.checkNoResults()
+                }
                 return
             }
             
-            var resolveUrls: [String] = []
-            for item in results! {
-                let lbryUri = LbryUri.tryParse(url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String), requireProto: false)
-                if (lbryUri != nil) {
-                    resolveUrls.append(lbryUri!.description)
-                }
+            var params = [String: Any]()
+            params["urls"] = results.compactMap { item in
+                LbryUri.tryParse(url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String), requireProto: false)?.description
             }
-            
-            self.resolveAndDisplayResults(urls: resolveUrls)
+            Lbry.apiCall(method: Lbry.Methods.resolve,
+                         params: params,
+                         transform: { table in
+                            table.values.forEach(Lbry.addClaimToCache)
+                         },
+                         completion: self.didResolveResults)
         })
     }
     
-    func resolveAndDisplayResults(urls: [String]) {
-        var params: Dictionary<String, Any> = Dictionary<String, Any>()
-        params["urls"] = urls
-        
-        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                // display no results
-                self.loadingContainer.isHidden = true
-                self.checkNoResults()
-                return
+    func didResolveResults(_ result: Result<[String: Claim], Error>) {
+        result.showErrorIfPresent()
+        if case let .success(claimDict) = result {
+            let oldCount = claims.count
+            claims.append(contentsOf: claimDict.values)
+            if claims.count != oldCount {
+                resultsListView.reloadData()
             }
-            
-            var claimResults: [Claim] = []
-            let result = data["result"] as! NSDictionary
-            for (_, claimData) in result {
-                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
-                do {
-                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if (claim != nil && !(claim?.claimId ?? "").isBlank && !self.claims.contains(where: { $0.claimId == claim?.claimId })) {
-                        Lbry.addClaimToCache(claim: claim)
-                        claimResults.append(claim!)
-                    }
-                } catch let error {
-                    print(error)
-                }
-            }
-            self.claims.append(contentsOf: claimResults)
-            self.searching = false
-            
-            DispatchQueue.main.async {
-                self.loadingContainer.isHidden = true
-                self.checkNoResults()
-                self.searchBar.resignFirstResponder()
-                self.resultsListView.reloadData()
-            }
-        })
+        }
+        checkNoResults()
+        searching = false
+        loadingContainer.isHidden = true
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -152,13 +141,12 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
     }
     
     func checkNoResults() {
-        DispatchQueue.main.async {
-            self.loadingContainer.isHidden = true
-            self.noResultsView.isHidden = self.claims.count > 0
-            self.noResultsLabel.text = Lighthouse.containsFilteredKeyword(self.currentQuery!) ?
-                String.localized("This search term is disabled to comply with iOS content guidelines. View this search on the web at odysee.com") :
-                String.localized("Oops! We could not find any content matching your search term. Please try again with something different.")
-        }
+        assert(Thread.isMainThread)
+        loadingContainer.isHidden = true
+        noResultsView.isHidden = !claims.isEmpty
+        noResultsLabel.text = Lighthouse.containsFilteredKeyword(currentQuery!) ?
+            String.localized("This search term is disabled to comply with iOS content guidelines. View this search on the web at odysee.com") :
+            String.localized("Oops! We could not find any content matching your search term. Please try again with something different.")
     }
     
     @IBAction func noResultsViewTapped(_ sender: Any) {
@@ -223,15 +211,11 @@ class SearchViewController: UIViewController, UIGestureRecognizerDelegate, UISea
         searchBar.resignFirstResponder()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        prefetchController.prefetch(at: indexPaths)
     }
-    */
 
+    func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
+        prefetchController.cancelPrefetching(at: indexPaths)
+    }
 }
