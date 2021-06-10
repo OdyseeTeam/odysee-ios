@@ -589,7 +589,6 @@ struct ContentSources {
         "7ea92a937f5755b40ac3d99ed37c53b40359b0a2",
         "e473f25d192d5cb180d3718ed8e0e8c4f5db8245",
         "05f157d8e8aa4b700b18e244f9813e0bf9fdf85a",
-        "1487afc813124abbeb0629d2172be0f01ccec3bf",
         "0bfc37e2db0b10da237195561dd37dfe7ecdf923",
         "8e098d2042ad9b9074f52cc06b89d6d4db5231dd",
         "5c15e604c4207f52c8cf58fe21e63164c230e257",
