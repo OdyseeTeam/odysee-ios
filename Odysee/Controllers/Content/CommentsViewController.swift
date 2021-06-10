@@ -148,7 +148,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             "skip_validation": true,
             "include_replies": false
         ]
-        Lbry.apiCall(method: Lbry.methodCommentList, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
+        Lbry.apiCall(method: Lbry.Methods.commentList.name, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
             guard let data = data, error == nil else {
                 print(error!)
                 return
@@ -524,7 +524,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             "skip_validation": true,
             "include_replies": true
         ]
-        Lbry.apiCall(method: Lbry.methodCommentList, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
+        Lbry.apiCall(method: Lbry.Methods.commentList.name, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
             guard let data = data, error == nil else {
                 print(error!)
                 return

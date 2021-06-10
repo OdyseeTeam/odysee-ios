@@ -102,7 +102,7 @@ class HomeViewController: UIViewController,
         return Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["trending_group", "trending_mixed"] : orderByValue, releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) : releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: currentCategoryIndex == Self.moviesCategoryIndex ? 20 : 5, page: currentPage, pageSize: pageSize)
     }
     
-    func didLoadClaims(_ result: Result<Lbry.Page<Claim>, Error>) {
+    func didLoadClaims(_ result: Result<Page<Claim>, Error>) {
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
         if case let .success(payload) = result {
@@ -135,7 +135,7 @@ class HomeViewController: UIViewController,
                      params: buildClaimSearchOptions(),
                      transform: { payload in
                         assert(!Thread.isMainThread)
-                        isLastPage = payload.items.count < payload.page_size
+                        isLastPage = payload.items.count < payload.pageSize
                         payload.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) }
                         if category != HomeViewController.wildWestCategoryIndex {
                             payload.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
