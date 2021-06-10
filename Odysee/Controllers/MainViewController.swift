@@ -286,10 +286,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                     return
                 }
                 
-                if let result = data as? [String: Any] {
-                    if let outpoints = result["outpoints"] as? [String] {
-                        Lbryio.filteredOutpoints = outpoints
-                    }
+                if let result = data as? [String: Any],
+                   let outpointStrings = result["outpoints"] as? [String] {
+                    let outpoints = Set(outpointStrings.compactMap(Outpoint.parse))
+                    Lbryio.setFilteredOutpoints(outpoints)
                 }
             })
         } catch {
@@ -304,10 +304,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                     return
                 }
                 
-                if let result = data as? [String: Any] {
-                    if let outpoints = result["outpoints"] as? [String] {
-                        Lbryio.blockedOutpoints = outpoints
-                    }
+                if let result = data as? [String: Any],
+                   let outpointStrings = result["outpoints"] as? [String] {
+                    let outpoints = Set(outpointStrings.compactMap(Outpoint.parse))
+                    Lbryio.setBlockedOutpoints(outpoints)
                 }
             })
         } catch {

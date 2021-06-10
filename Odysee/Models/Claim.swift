@@ -116,5 +116,11 @@ class Claim: Decodable, Equatable, Hashable {
     func hash(into hasher: inout Hasher) {
         claimId.hash(into: &hasher)
     }
-    
+    var outpoint: Outpoint? {
+        if let txid = txid, let nout = nout {
+            return Outpoint(txid: txid, index: nout)
+        } else {
+            return nil
+        }
+    }
 }
