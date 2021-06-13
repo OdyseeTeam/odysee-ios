@@ -9,7 +9,7 @@ import AVFoundation
 import HaishinKit
 import UIKit
 
-class GoLiveViewController: UIViewController {
+class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
 
     var rtmpConnection: RTMPConnection!
     var rtmpStream: RTMPStream!
@@ -20,6 +20,9 @@ class GoLiveViewController: UIViewController {
     var streamName: String? = nil
     var currentCamera: AVCaptureDevice.Position = .back
     var startingStream: Bool = false
+    var selectedChannel: Claim? = nil
+    var thumbnailUploadInProgress: Bool = false
+    var currentThumbnailUrl: String?
     static let minStreamStake: Decimal = Decimal(50)
     
     @IBOutlet weak var precheckView: UIView!
@@ -33,6 +36,12 @@ class GoLiveViewController: UIViewController {
     @IBOutlet weak var livestreamOptionsScrollView: UIScrollView!
     @IBOutlet weak var livestreamOptionsView: UIView!
     @IBOutlet weak var titleField: UITextField!
+    
+    @IBOutlet weak var channelPicker: UIPickerView!
+    @IBOutlet weak var channelErrorLabel: UILabel!
+    
+    @IBOutlet weak var thumbnailImageView: UIImageView!
+    @IBOutlet weak var uploadingIndicator: UIView!
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -48,6 +57,7 @@ class GoLiveViewController: UIViewController {
         // Do any additional setup after loading the view.
         precheckLoadingView.layer.cornerRadius = 16
         
+        self.registerForKeyboardNotifications()
         self.loadChannels()
         self.activateAudioSession()
         self.initStream()
@@ -85,6 +95,15 @@ class GoLiveViewController: UIViewController {
     func initStream() {
         rtmpConnection = RTMPConnection()
         rtmpStream = RTMPStream(connection: rtmpConnection)
+        rtmpStream.captureSettings = [
+            .fps: 30,
+            .sessionPreset: AVCaptureSession.Preset.hd1280x720
+        ]
+        rtmpStream.videoSettings = [
+            .width: 1280,
+            .height: 720,
+            .bitrate: 4096
+        ]
         rtmpStream.attachAudio(AVCaptureDevice.default(for: AVMediaType.audio)) { error in
             print(error)
         }
@@ -196,68 +215,64 @@ class GoLiveViewController: UIViewController {
     
     func loadChannels() {
         precheckLoadingView.isHidden = false
-        
-        let options: Dictionary<String, Any> = ["claim_type": "channel", "page": 1, "page_size": 999, "resolve": true]
-        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                DispatchQueue.main.async {
-                    self.precheckLoadingView.isHidden = true
-                    self.spacemanImage.image = UIImage.init(named: "spaceman_sad")
-                    self.precheckLabel.text = String.localized("An error occurred loading your channels. Please try again later.")
-                }
-                return
-            }
             
-            let result = data["result"] as? [String: Any]
-            if let items = result?["items"] as? [[String: Any]] {
-                var loadedClaims: [Claim] = []
-                items.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil) {
-                            loadedClaims.append(claim!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                    
-                }
-                self.channels.removeAll()
-                self.channels.append(contentsOf: loadedClaims)
-            }
+        let options: [String: Any] = ["claim_type": "channel",
+                                      "page": 1,
+                                      "page_size": 999,
+                                      "resolve": true]
+        Lbry.apiCall(method: Lbry.Methods.claimList,
+                     params: options,
+                     authToken: Lbryio.authToken,
+                     completion: didLoadChannels)
+    }
+    
+    func canStreamOnChannel(_ channel: Claim?) -> Bool {
+        if channel == nil {
+            return false
+        }
+        
+        var effectiveAmount = Decimal(0)
+        let channel = self.channels[0]
+        if channel.confirmations! < 1 {
+            channelErrorLabel.text = String.localized("Your channel is still pending. Please wait a couple of minutes and try again.")
+            return false
+        }
+        
+        if let meta = channel.meta {
+            effectiveAmount = Decimal(string: meta.effectiveAmount!)!
+        }
+        if effectiveAmount < GoLiveViewController.minStreamStake {
+            channelErrorLabel.text = String(format: String.localized("You need to have at least %@ credits staked (directly or through supports) on %@ to be able to livestream."), String(describing: GoLiveViewController.minStreamStake), channel.name!)
+            return false
+        }
+        
+        return true
+    }
+    
+    func didLoadChannels(_ result: Result<Lbry.Page<Claim>, Error>) {
+        assert(Thread.isMainThread)
+        if case let .success(page) = result {
+            channels.removeAll()
+            channels.append(contentsOf: page.items)
+            channelPicker.reloadAllComponents()
             
             if self.channels.count > 0 {
-                var effectiveAmount = Decimal(0)
-                let channel = self.channels[0]
-                if channel.confirmations! < 1 {
-                    self.displayRequirementNotMet(message: String.localized("Your channel is not yet confirmed on the blockchain. Please wait a couple of minutes and try again."))
-                    return
-                }
-                
-                if let meta = channel.meta {
-                    effectiveAmount = Decimal(string: meta.effectiveAmount!)!
-                }
-                if effectiveAmount < GoLiveViewController.minStreamStake {
-                    self.displayRequirementNotMet(message: String(format: String.localized("You need have at least %@ credits staked (directly or through supports) on %@ to be able to livestream."),
-                                                         String(describing: GoLiveViewController.minStreamStake), channel.name!))
-                    return
-                }
-                
-                
-                // show livestream options entry
-                self.showLivestreamingOptions()
-                
-                //self.loadLivestreamingClaim()
+                // allow the user to choose a channel on the options before proceeding
+                showLivestreamingOptions()
                 return
             }
+        
+            precheckLoadingView.isHidden = true
+            spacemanImage.image = UIImage.init(named: "spaceman_sad")
+            precheckLabel.text = String.localized("You need to create a channel before you can livestream.")
             
-            DispatchQueue.main.async {
-                self.precheckLoadingView.isHidden = true
-                self.spacemanImage.image = UIImage.init(named: "spaceman_sad")
-                self.precheckLabel.text = String.localized("You need to create a channel before you can livestream.")
-            }
-        })
+            return
+        }
+        
+        result.showErrorIfPresent()
+        precheckLoadingView.isHidden = true
+        self.spacemanImage.image = UIImage.init(named: "spaceman_sad")
+        self.precheckLabel.text = String.localized("An error occurred loading your channels. Please try again later.")
     }
     
     func displayRequirementNotMet(message: String) {
@@ -274,11 +289,27 @@ class GoLiveViewController: UIViewController {
             self.precheckView.isHidden = true
             self.livestreamOptionsView.isHidden = false
             self.titleField.becomeFirstResponder()
+            
+            // check the selected picker item
+            if self.channels.count > 0 {
+                self.selectedChannel = self.channels[self.channelPicker.selectedRow(inComponent: 0)]
+                _ = self.canStreamOnChannel(self.selectedChannel)
+            }
         }
     }
     
     @IBAction func continueTapped(_ sender: UIButton) {
         titleField.resignFirstResponder()
+        
+        if thumbnailUploadInProgress {
+            showError(message: String.localized("Please wait for the thumbnail to finish uploading"))
+            return
+        }
+        
+        if (!canStreamOnChannel(selectedChannel)) {
+            showError(message: String.localized("Please select a valid channel to continue"))
+            return
+        }
         
         // check that there is a title
         let title = titleField.text
@@ -286,7 +317,7 @@ class GoLiveViewController: UIViewController {
             showError(message: String.localized("Please specify a title for your stream"))
             return
         }
-        
+
         self.precheckView.isHidden = false
         self.precheckLoadingView.isHidden = false
         self.livestreamOptionsView.isHidden = true
@@ -378,7 +409,7 @@ class GoLiveViewController: UIViewController {
             "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber)!,
             "title": title,
             "description": "",
-            "thumbnail_url": channel.value?.thumbnail?.url ?? "", // use the channel thumbnail for now, allow thumbnail uploads in the future
+            "thumbnail_url": currentThumbnailUrl ?? (channel.value?.thumbnail?.url ?? ""),
             "name": String(format: "livestream-%@", suffix),
             "channel_id": channel.claimId!,
             "release_time": Int(Date().timeIntervalSince1970)
@@ -396,6 +427,79 @@ class GoLiveViewController: UIViewController {
             
             // The claim was successfully set up. Create the stream key and start
             self.signAndSetupStream(channel: self.channels[0])
+        })
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return self.channels.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return self.channels.map{ $0.name }[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        selectedChannel = self.channels[row]
+        _ = canStreamOnChannel(selectedChannel)
+    }
+    
+    @IBAction func selectImageTapped(_ sender: UIButton) {
+        self.view.endEditing(true)
+        showImagePicker()
+    }
+    
+    func showImagePicker() {
+        let pc = UIImagePickerController()
+        pc.delegate = self
+        pc.allowsEditing = true
+        pc.mediaTypes = ["public.image"]
+        pc.sourceType = .photoLibrary
+        pc.modalPresentationStyle = .overCurrentContext
+        present(pc, animated: true)
+    }
+    
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        picker.dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+        picker.dismiss(animated: true, completion: nil)
+        guard let image = info[.editedImage] as? UIImage else {
+            return
+        }
+        didGetThumbnail(.success(image))
+    }
+    
+    func didGetThumbnail(_ result: Result<UIImage, Error>) {
+        assert(Thread.isMainThread)
+        guard case let .success(image) = result else {
+            showError(error: GenericError("Could not get thumbnail image"))
+            return
+        }
+
+        thumbnailUploadInProgress = true
+        uploadingIndicator.isHidden = false
+        thumbnailImageView.image = image
+        
+        Helper.uploadImage(image: image, completion: { imageUrl, error in
+            guard let imageUrl = imageUrl, error == nil else {
+                DispatchQueue.main.async {
+                    self.uploadingIndicator.isHidden = true
+                }
+                
+                self.thumbnailUploadInProgress = false
+                self.showError(error: error)
+                return
+            }
+            DispatchQueue.main.async {
+                self.uploadingIndicator.isHidden = true
+            }
+            self.thumbnailUploadInProgress = false
+            self.currentThumbnailUrl = imageUrl
         })
     }
     
