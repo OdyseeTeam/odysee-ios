@@ -99,9 +99,6 @@ class SearchViewController: UIViewController,
             }
             Lbry.apiCall(method: Lbry.Methods.resolve,
                          params: params,
-                         transform: { table in
-                            table.values.forEach(Lbry.addClaimToCache)
-                         },
                          completion: self.didResolveResults)
         })
     }
