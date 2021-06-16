@@ -9,9 +9,9 @@ import UIKit
 
 class CommentTableViewCell: UITableViewCell {
 
-    var viewController: CommentsViewController?
+    weak var viewController: CommentsViewController?
     var currentComment: Comment?
-    var authorImageMap: Dictionary<String, String> = [:]
+    var authorImageMap = [String: URL]()
     
     @IBOutlet weak var authorThumbnailView: UIImageView!
     @IBOutlet weak var authorNameLabel: UILabel!
@@ -39,16 +39,16 @@ class CommentTableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
     
-    func setAuthorImageMap(map: Dictionary<String, String>) {
+    func setAuthorImageMap(map: [String: URL]) {
         authorImageMap = map
         displayAuthorImage()
     }
     
     func displayAuthorImage() {
         if currentComment?.channelUrl != nil {
-            if let thumbnailUrlStr = authorImageMap[currentComment!.channelUrl!] {
+            if let thumbnailUrl = authorImageMap[currentComment!.channelUrl!] {
                 authorThumbnailView.backgroundColor = UIColor.clear
-                authorThumbnailView.load(url: URL(string: thumbnailUrlStr)!)
+                authorThumbnailView.load(url: thumbnailUrl)
             } else {
                 authorThumbnailView.image = UIImage.init(named: "spaceman")
                 authorThumbnailView.backgroundColor = Helper.lightPrimaryColor
