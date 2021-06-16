@@ -37,7 +37,6 @@
 		64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DCE25588D0C00F2D247 /* ClaimTableViewCell.swift */; };
 		64424DDA255895A500F2D247 /* ContentSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64424DD9255895A500F2D247 /* ContentSources.swift */; };
 		644F76AE25592F8400813451 /* FileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76AD25592F8400813451 /* FileViewController.swift */; };
-		644F76B625595D4E00813451 /* Cache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 644F76B525595D4E00813451 /* Cache.swift */; };
 		6451659625DEA8B2009FAC39 /* YouTubeSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6451659525DEA8B2009FAC39 /* YouTubeSyncViewController.swift */; };
 		64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 64533588257FDC6800C49BD1 /* FirebaseAnalytics */; };
 		6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 6453358A257FDC6800C49BD1 /* FirebaseMessaging */; };
@@ -149,7 +148,6 @@
 		64424DCE25588D0C00F2D247 /* ClaimTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimTableViewCell.swift; sourceTree = "<group>"; };
 		64424DD9255895A500F2D247 /* ContentSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentSources.swift; sourceTree = "<group>"; };
 		644F76AD25592F8400813451 /* FileViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileViewController.swift; sourceTree = "<group>"; };
-		644F76B525595D4E00813451 /* Cache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cache.swift; sourceTree = "<group>"; };
 		6451659525DEA8B2009FAC39 /* YouTubeSyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncViewController.swift; sourceTree = "<group>"; };
 		645912212620789E00B2ABA5 /* ChatMessageTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatMessageTableViewCell.swift; sourceTree = "<group>"; };
 		6462DABC255D3CFE001CF1E8 /* UICardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UICardView.swift; sourceTree = "<group>"; };
@@ -282,7 +280,6 @@
 				CC97807826549867009F580E /* Log.swift */,
 				6413274D2557D89200CBB6B8 /* Extensions.swift */,
 				64424DD9255895A500F2D247 /* ContentSources.swift */,
-				644F76B525595D4E00813451 /* Cache.swift */,
 				641108DB255A8D7D00F0FB8A /* Lbryio.swift */,
 				CC0B2B0C266D0E72002490BB /* Lock.swift */,
 				641108F0255AF6CD00F0FB8A /* Helper.swift */,
@@ -707,7 +704,6 @@
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
 				6413273E2556E86000CBB6B8 /* Claim.swift in Sources */,
 				642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */,
-				644F76B625595D4E00813451 /* Cache.swift in Sources */,
 				646E54EA257E565000BEBFBE /* SupportViewController.swift in Sources */,
 				646E54D8257D40DC00BEBFBE /* ChannelViewController.swift in Sources */,
 				64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */,

@@ -8,6 +8,7 @@
 import AVFoundation
 import MediaPlayer
 import Firebase
+import PINRemoteImage
 import UIKit
 import CoreData
 
@@ -156,6 +157,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         setupNowPlaying()
     }
     
+    func makeMediaItem(_ image: UIImage) -> MPMediaItemArtwork {
+        return MPMediaItemArtwork(boundsSize: image.size, requestHandler: { _ in image })
+    }
+
+    var thumbDownloadURL: URL?
+    var thumbDownloadUUID: UUID?
     func setupNowPlaying() {
         // Define Now Playing Info
         if currentFileViewController != nil && player != nil {
@@ -166,15 +173,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     (claim.signingChannel!.value?.title ?? claim.signingChannel!.name) : String.localized("Anonymous")
                 nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = ""
                 
-                var image: UIImage? = nil
-                if let thumbnailUrl = claim.value?.thumbnail?.url {
-                    if let cacheData = Cache.getImage(url: thumbnailUrl) {
-                        image = UIImage(data: cacheData)
-                    } else if let data = try? Data(contentsOf: URL(string: thumbnailUrl)!) {
-                        image = UIImage(data: data)
-                        if (image != nil) {
-                            Cache.putImage(url: thumbnailUrl, image: data)
-                        }
+                if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init),
+                   thumbDownloadURL != thumbnailUrl {
+                    let mgr = PINRemoteImageManager.shared()
+                    if let previousUUID = thumbDownloadUUID {
+                        mgr.cancelTask(with: previousUUID)
+                    }
+                    var cachedImage: UIImage?
+                    thumbDownloadURL = thumbnailUrl
+                    thumbDownloadUUID = mgr.downloadImage(
+                        with: thumbnailUrl,
+                        options: .downloadOptionsSkipDecode,
+                        completion: { [unowned self] result in
+                            if result.resultType == .memoryCache {
+                                // Got image from memory cache. This is synchronous.
+                                assert(Thread.isMainThread)
+                                cachedImage = result.image
+                            } else {
+                                // image was not available in memory cache. This is asynchronous.
+                                // Dispatch to main, and if we're still looking for the same image,
+                                // add it into the nowPlayingInfo.
+                                DispatchQueue.main.async {
+                                    guard thumbDownloadURL == thumbnailUrl else {
+                                        return
+                                    }
+                                    thumbDownloadURL = nil
+                                    thumbDownloadUUID = nil
+                                    let ctr = MPNowPlayingInfoCenter.default()
+                                    if let image = result.image, var info = ctr.nowPlayingInfo {
+                                        info[MPMediaItemPropertyArtwork] = makeMediaItem(image)
+                                        ctr.nowPlayingInfo = info
+                                    }
+                                }
+                            }
+                        })
+                    if let cachedImage = cachedImage {
+                        thumbDownloadURL = nil
+                        thumbDownloadUUID = nil
+                        nowPlayingInfo[MPMediaItemPropertyArtwork] = makeMediaItem(cachedImage)
                     }
                 }
                 
@@ -182,12 +218,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playerItem.currentTime().seconds
                 nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playerItem.asset.duration.seconds
                 nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = self.player!.rate
-                if image != nil {
-                    nowPlayingInfo[MPMediaItemPropertyArtwork] =
-                        MPMediaItemArtwork(boundsSize: image!.size) { size in
-                            return image!
-                    }
-                }
                 
                 // Set the metadata
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
