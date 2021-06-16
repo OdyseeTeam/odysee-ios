@@ -111,6 +111,7 @@ class HomeViewController: UIViewController,
             if claims.count != oldCount {
                 claimListView.reloadData()
             }
+            lastPageReached = payload.isLastPage
         }
         loadingContainer.isHidden = true
         loading = false
@@ -130,21 +131,13 @@ class HomeViewController: UIViewController,
         
         // Capture category index for use in sorting, before leaving main thread.
         let category = self.currentCategoryIndex
-        var isLastPage = false
         Lbry.apiCall(method: Lbry.Methods.claimSearch,
                      params: buildClaimSearchOptions(),
-                     transform: { payload in
-                        assert(!Thread.isMainThread)
-                        isLastPage = payload.items.count < payload.pageSize
-                        payload.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) }
+                     transform: { page in
                         if category != HomeViewController.wildWestCategoryIndex {
-                            payload.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
+                            page.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
                         }
-                        payload.items.forEach(Lbry.addClaimToCache)
-                     }, completion: { result in
-                        self.didLoadClaims(result)
-                        self.lastPageReached = isLastPage
-                     })
+                     }, completion: didLoadClaims)
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

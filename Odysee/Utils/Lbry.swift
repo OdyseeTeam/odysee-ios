@@ -21,14 +21,28 @@ final class Lbry {
     static var walletSyncInProgress = false
     static var pushWalletSyncQueueCount = 0
 
+    static func processResolvedClaims(_ dict: inout [String: Claim]) {
+        dict = dict.filter { !Lbryio.isClaimBlocked($0.value) && !Lbryio.isClaimFiltered($0.value) }
+        dict.values.forEach(Lbry.addClaimToCache)
+    }
+
+    static func processPageOfClaims(_ page: inout Page<Claim>) {
+        page.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) }
+        page.items.forEach(Lbry.addClaimToCache)
+    }
+
     struct Method<ResultType: Decodable> {
-        let name: String
+        var name: String
+        var defaultTransform: ((inout ResultType) throws -> Void)?
     }
 
     struct Methods {
-        static let resolve       = Method<[String: Claim]>(name: "resolve")
-        static let claimSearch   = Method<Page<Claim>>(name: "claim_search")
-        static let claimList     = Method<Page<Claim>>(name: "claim_list")
+        static let resolve       = Method<[String: Claim]>(name: "resolve",
+                                                           defaultTransform: processResolvedClaims)
+        static let claimSearch   = Method<Page<Claim>>(name: "claim_search",
+                                                       defaultTransform: processPageOfClaims)
+        static let claimList     = Method<Page<Claim>>(name: "claim_list",
+                                                       defaultTransform: processPageOfClaims)
         static let streamAbandon = Method<Transaction>(name: "stream_abandon")
         static let commentList   = Method<Page<Comment>>(name: "comment_list")
     }
@@ -126,6 +140,7 @@ final class Lbry {
                     guard var result = response.result else {
                         throw LbryApiResponseError(response.error?.message ?? "unknown api error")
                     }
+                    try method.defaultTransform?(&result)
                     try transform?(&result)
                     return result
                 }

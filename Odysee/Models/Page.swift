@@ -9,15 +9,17 @@ import Foundation
 
 struct Page<Item: Decodable>: Decodable {
     var pageSize: Int
-    var items: [Item] {
-        get { return _items ?? [] }
-        set { _items = newValue }
+    var items: [Item]
+    var isLastPage: Bool
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        pageSize = try container.decode(Int.self, forKey: .pageSize)
+        items = try container.decodeIfPresent([Item].self, forKey: .items) ?? []
+        isLastPage = items.count < pageSize
     }
     
-    // Server encodes [] as missing `items` key. Optional array is annoying. Workaround.
-    private var _items: [Item]?
-    
     private enum CodingKeys: String, CodingKey {
-        case _items = "items", pageSize = "page_size"
+        case items, pageSize = "page_size"
     }
 }

@@ -99,3 +99,11 @@ extension Result {
         }
     }
 }
+
+extension Optional {
+    // Assert this optional is not nil (so we catch it in debug), and return `self ?? defaultValue`
+    func assertAndDefault(_ defaultValue: @autoclosure () -> Wrapped) -> Wrapped {
+        assert(self != nil)
+        return self ?? defaultValue()
+    }
+}
