@@ -79,8 +79,8 @@ final class Lbry {
     static var localWalletHash: String? = nil
     static var walletBalance: WalletBalance? = nil
     
-    static var claimCacheById: Dictionary<String, Claim> = Dictionary<String, Claim>()
-    static var claimCacheByUrl: Dictionary<String, Claim> = Dictionary<String, Claim>()
+    private static var claimCacheById = NSCache<NSString, Claim>()
+    private static var claimCacheByUrl = NSCache<NSString, Claim>()
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
     
@@ -192,19 +192,25 @@ final class Lbry {
         task.resume();
     }
     
+    static func cachedClaim(url: String) -> Claim? {
+        return claimCacheByUrl.object(forKey: url as NSString)
+    }
+    static func cachedClaim(id: String) -> Claim? {
+        return claimCacheById.object(forKey: id as NSString)
+    }
     static func addClaimToCache(claim: Claim?) {
-        if (claim != nil) {
-            Lbry.claimCacheById[(claim?.claimId!)!] = claim
-            let claimUrl: LbryUri? = LbryUri.tryParse(url: (claim?.permanentUrl!)!, requireProto: false)
-            if (claimUrl != nil) {
-                Lbry.claimCacheByUrl[claimUrl!.description] = claim
-            }
-            if !(claim?.shortUrl ?? "").isBlank {
-                Lbry.claimCacheByUrl[claim!.shortUrl!] = claim
-            }
-            if !(claim?.canonicalUrl ?? "").isBlank {
-                Lbry.claimCacheByUrl[claim!.canonicalUrl!] = claim
-            }
+        guard let claim = claim else {
+            return
+        }
+        claimCacheById.setObject(claim, forKey: claim.claimId! as NSString)
+        if let claimUrl = LbryUri.tryParse(url: claim.permanentUrl!, requireProto: false)?.description {
+            Lbry.claimCacheByUrl.setObject(claim, forKey: claimUrl as NSString)
+        }
+        if let shortUrl = claim.shortUrl, !shortUrl.isBlank {
+            Lbry.claimCacheByUrl.setObject(claim, forKey: shortUrl as NSString)
+        }
+        if let canonicalUrl = claim.canonicalUrl, !canonicalUrl.isBlank {
+            Lbry.claimCacheByUrl.setObject(claim, forKey: canonicalUrl as NSString)
         }
     }
     
