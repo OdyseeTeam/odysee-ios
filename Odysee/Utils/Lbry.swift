@@ -20,11 +20,6 @@ final class Lbry {
     
     static var walletSyncInProgress = false
     static var pushWalletSyncQueueCount = 0
-    
-    struct Page<Item: Decodable>: Decodable {
-        var items: [Item]
-        var page_size: Int
-    }
 
     struct Method<ResultType: Decodable> {
         let name: String
@@ -35,6 +30,7 @@ final class Lbry {
         static let claimSearch   = Method<Page<Claim>>(name: "claim_search")
         static let claimList     = Method<Page<Claim>>(name: "claim_list")
         static let streamAbandon = Method<Transaction>(name: "stream_abandon")
+        static let commentList   = Method<Page<Comment>>(name: "comment_list")
     }
 
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
@@ -49,7 +45,6 @@ final class Lbry {
     static let methodChannelSign = "channel_sign"
     static let methodPublish = "publish"
     static let methodClaimList = Methods.claimList.name
-    static let methodCommentList = "comment_list"
     static let methodCommentReact = "comment_react"
     static let methodCommentReactList = "comment_react_list"
     static let methodPreferenceGet = "preference_get"

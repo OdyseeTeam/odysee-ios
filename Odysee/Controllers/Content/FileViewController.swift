@@ -9,6 +9,7 @@ import AVKit
 import AVFoundation
 import CoreData
 import Firebase
+import OrderedCollections
 import SafariServices
 import Starscream
 import UIKit
@@ -107,7 +108,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var commentsCurrentPage: Int = 1
     var commentsLastPageReached: Bool = false
     var commentsLoading: Bool = false
-    var comments: [Comment] = []
+    var comments = OrderedSet<Comment>()
     var authorThumbnailMap: Dictionary<String, String> = [:]
     
     var numLikes = 0
@@ -882,7 +883,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let vc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
         vc.claimId = claim?.claimId!
         vc.commentsDisabled = commentsDisabled
-        vc.comments = comments
+        vc.comments = comments.elements
         vc.commentsLastPageReached = commentsLastPageReached
         vc.authorThumbnailMap = authorThumbnailMap
         
@@ -1220,45 +1221,30 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             "include_replies": false
         ]
         
-        Lbry.apiCall(method: Lbry.methodCommentList, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                print(error!)
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            if let items = result?["items"] as? [[String: Any]] {
-                if items.count < self.commentsPageSize {
-                    self.commentsLastPageReached = true
-                }
-                var loadedComments: [Comment] = []
-                items.forEach { item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let comment: Comment? = try JSONDecoder().decode(Comment.self, from: data)
-                        if (comment != nil && !self.comments.contains(where: { $0.commentId == comment?.commentId })) {
-                            loadedComments.append(comment!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                self.comments.append(contentsOf: loadedComments)
-                // resolve author map
-                if self.comments.count > 0 {
-                    self.resolveCommentAuthors(urls: loadedComments.map { $0.channelUrl! })
-                }
-                
-            }
-            
-            self.commentsLoading = false
-            DispatchQueue.main.async {
-                self.checkNoComments()
-                self.checkFeaturedComment()
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.commentList, params: params, completion: didLoadComments)
     }
     
+    func didLoadComments(_ result: Result<Page<Comment>, Error>) {
+        assert(Thread.isMainThread)
+
+        commentsLoading = false
+        guard case let .success(page) = result else {
+            assertionFailure()
+            return
+        }
+        
+        commentsLastPageReached = page.items.count < page.pageSize
+        let oldCount = comments.count
+        comments.append(contentsOf: page.items)
+        let newComments = comments.suffix(from: oldCount)
+        
+        if !newComments.isEmpty {
+            checkNoComments()
+            checkFeaturedComment()
+            resolveCommentAuthors(urls: newComments.map { $0.channelUrl! })
+        }
+    }
+
     func checkFeaturedComment() {
         DispatchQueue.main.async {
             if self.comments.count > 0 {

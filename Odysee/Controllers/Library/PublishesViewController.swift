@@ -77,7 +77,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
 
-    func didReceiveUploads(_ result: Result<Lbry.Page<Claim>, Error>) {
+    func didReceiveUploads(_ result: Result<Page<Claim>, Error>) {
         assert(Thread.isMainThread)
         if case let .success(page) = result {
             UIView.performWithoutAnimation {

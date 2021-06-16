@@ -249,7 +249,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         return true
     }
     
-    func didLoadChannels(_ result: Result<Lbry.Page<Claim>, Error>) {
+    func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
         assert(Thread.isMainThread)
         if case let .success(page) = result {
             channels.removeAll()
