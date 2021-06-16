@@ -11,6 +11,8 @@ class ClaimTableViewCell: UITableViewCell {
 
     static let nib = UINib(nibName: "ClaimTableViewCell", bundle: nil)
     static let spacemanImage = UIImage(named: "spaceman")
+    static let thumbImageSpec = ImageSpec(size: CGSize(width: 160, height: 90))
+    static let channelImageSpec = ImageSpec(size: CGSize(width: 90, height: 90))
 
     @IBOutlet var channelImageView: UIImageView!
     @IBOutlet var thumbnailImageView: UIImageView!
@@ -38,7 +40,9 @@ class ClaimTableViewCell: UITableViewCell {
         
         var result = [URL]()
         if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
-            result.append(thumbnailUrl)
+            let isChannel = claim.name?.starts(with: "@") ?? false
+            let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
+            result.append(thumbnailUrl.makeImageURL(spec: spec))
         }
         return result
     }
@@ -46,8 +50,10 @@ class ClaimTableViewCell: UITableViewCell {
     func setClaim(claim: Claim) {
         if (currentClaim != nil && claim.claimId != currentClaim!.claimId) {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
+            thumbnailImageView.pin_cancelImageDownload()
             thumbnailImageView.image = nil
             thumbnailImageView.backgroundColor = nil
+            channelImageView.pin_cancelImageDownload()
             channelImageView.image = nil
             channelImageView.backgroundColor = nil
         }
@@ -87,17 +93,17 @@ class ClaimTableViewCell: UITableViewCell {
         // load thumbnail url
         if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
             if isChannel {
-                channelImageView.load(url: thumbnailUrl)
+                channelImageView.load(url: thumbnailUrl.makeImageURL(spec: Self.channelImageSpec))
             } else {
-                thumbnailImageView.load(url: thumbnailUrl)
+                thumbnailImageView.load(url: thumbnailUrl.makeImageURL(spec: Self.thumbImageSpec))
             }
         } else {
             if isChannel {
-                thumbnailImageView.image = Self.spacemanImage
-                thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
-            } else {
                 channelImageView.image = Self.spacemanImage
                 channelImageView.backgroundColor = Helper.lightPrimaryColor
+            } else {
+                thumbnailImageView.image = Self.spacemanImage
+                thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
             }
         }
         
