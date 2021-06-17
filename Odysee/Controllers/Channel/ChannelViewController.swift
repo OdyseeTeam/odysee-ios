@@ -71,7 +71,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var commentsLastPageReached: Bool = false
     var commentsLoading: Bool = false
     var comments: [Comment] = []
-    var authorThumbnailMap: Dictionary<String, String> = [:]
+    var authorThumbnailMap = [String: URL]()
     
     var currentCommentAsIndex = -1
     var currentSortByIndex = 1 // default to New content

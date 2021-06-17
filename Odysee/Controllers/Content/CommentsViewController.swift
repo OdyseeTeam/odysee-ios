@@ -37,7 +37,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     var postingComment: Bool = false
     var channels: [Claim] = Lbry.ownChannels
     var comments: [Comment] = []
-    var authorThumbnailMap: Dictionary<String, String> = [:]
+    var authorThumbnailMap = [String: URL]()
     var isChannelComments = false
     var reacting = false
     
@@ -195,32 +195,17 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     func resolveCommentAuthors(urls: [String]) {
         let params = ["urls": urls]
-        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { [self] data, error in
-            guard let data = data, error == nil else {
-                return
-            }
-            
-            let result = data["result"] as! NSDictionary
-            for (url, claimData) in result {
-                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
-                do {
-                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if claim != nil && !(claim!.claimId ?? "").isBlank {
-                        if claim!.value != nil && claim!.value!.thumbnail != nil && !(claim!.value!.thumbnail!.url ?? "").isBlank {
-                            self.authorThumbnailMap[url as! String] = claim!.value!.thumbnail!.url!
-                        }
-                    }
-                } catch {
-                    // pass
-                }
-            }
-            
-            DispatchQueue.main.async {
-                commentList.reloadData()
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.resolve, params: params, completion: didResolveCommentAuthors)
     }
     
+    func didResolveCommentAuthors(_ result: Result<[String: Claim], Error>) {
+        guard case let .success(dict) = result else {
+            return
+        }
+        Helper.addThumbURLs(claims: dict, thumbURLs: &authorThumbnailMap)
+        commentList.reloadData()
+    }
+
     func loadChannels() {
         if channels.count > 0 {
             return

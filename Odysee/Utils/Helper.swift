@@ -261,13 +261,21 @@ final class Helper {
     }
     
     static func claimContainsTag(claim: Claim, tag: String) -> Bool {
-        return claim.value != nil && claim.value!.tags != nil &&
-            claim.value!.tags!.filter{ $0.lowercased() == tag.lowercased() }.count > 0
+        return claim.value?.tags?.contains { $0.caseInsensitiveCompare(tag) == .orderedSame } ?? false
     }
     
     static func strToHex(_ str: String) -> String {
         let data = Data(str.utf8)
         return data.map{ String(format: "%02x", $0) }.joined()
+    }
+    
+    static func addThumbURLs(claims: [String: Claim], thumbURLs: inout [String: URL]) {
+        thumbURLs.reserveCapacity(thumbURLs.count + claims.count)
+        for (url, claim) in claims {
+            if let thumbUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
+                thumbURLs[url] = thumbUrl
+            }
+        }
     }
 }
 
