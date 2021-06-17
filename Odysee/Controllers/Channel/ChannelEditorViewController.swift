@@ -222,7 +222,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
                     do {
                         let claimResult: Claim? = try JSONDecoder().decode(Claim.self, from: data)
                         if (claimResult != nil && !editMode) {
-                            self.logChannelCreate(claimResult!)
+                            Lbryio.logPublishEvent(claimResult!)
                         }
                     } catch let error {
                         print(error)
@@ -239,10 +239,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             self.showError(message: String.localized("An unknown error occurred. Please try again."))
             self.checkControlStates()
         })
-    }
-    
-    func logChannelCreate(_ claimResult: Claim) {
-        
     }
         
     func checkControlStates() {

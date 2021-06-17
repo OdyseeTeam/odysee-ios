@@ -550,7 +550,23 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             }
             
             Lbry.ownChannels = self.channels
+            if Lbry.ownChannels.count > 0 {
+                self.oneTimeChannelsAssociation(Lbry.ownChannels)
+            }
         })
+    }
+    
+    func oneTimeChannelsAssociation(_ channels: [Claim]) {
+        let defaults = UserDefaults.standard
+        let associated = defaults.bool(forKey: Lbryio.keyChannelsAssociated)
+        if associated {
+            return
+        }
+        
+        channels.forEach { channel in
+            Lbryio.logPublishEvent(channel)
+        }
+        defaults.setValue(true, forKey: Lbryio.keyChannelsAssociated)
     }
     
     @IBAction func brandTapped(_ sender: Any) {
