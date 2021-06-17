@@ -138,7 +138,7 @@ class UserAccountViewController: UIViewController {
         
         if (email ?? "").isBlank || (password ?? "").isBlank {
             // show validation error
-            self.showError(message: String.localized("Please enter an email address and a password"))
+            self.showErrorAlert(message: String.localized("Please enter an email address and a password"))
             return
         }
         
@@ -178,7 +178,7 @@ class UserAccountViewController: UIViewController {
                 // possible invalid state
                 self.requestInProgress = false
                 self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
-                self.showError(message: String.localized("An unknown error occurred. Please try again."))
+                self.showErrorAlert(message: String.localized("An unknown error occurred. Please try again."))
             })
         } catch let error {
             self.requestInProgress = false
@@ -263,10 +263,10 @@ class UserAccountViewController: UIViewController {
         }
     }
     
-    func showError(message: String?) {
+    func showErrorAlert(message: String) {
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            appDelegate.mainController.showErrorAlert(message: message)
         }
     }
     
@@ -286,7 +286,7 @@ class UserAccountViewController: UIViewController {
         
         if (email ?? "").isBlank {
             // show validation error
-            self.showError(message: String.localized("Please enter your email address"))
+            self.showErrorAlert(message: String.localized("Please enter your email address"))
             return
         }
         
@@ -351,7 +351,7 @@ class UserAccountViewController: UIViewController {
         
         // password entry flow
         if (passwordField.text ?? "").isBlank {
-            self.showError(message: String.localized("Please enter your password"))
+            self.showErrorAlert(message: String.localized("Please enter your password"))
             return
         }
         
@@ -402,7 +402,7 @@ class UserAccountViewController: UIViewController {
                 // possible invalid state
                 self.requestInProgress = false
                 self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
-                self.showError(message: String.localized("An unknown error occurred. Please try again."))
+                self.showErrorAlert(message: String.localized("An unknown error occurred. Please try again."))
             })
         } catch let error {
             self.requestInProgress = false

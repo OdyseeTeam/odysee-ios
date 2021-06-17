@@ -398,6 +398,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         }
     }
     
+    func showErrorAlert(title: String? = nil, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: String.localized("OK"), style: .default))
+        present(alert, animated: true)
+    }
+    
     func showError(message: String?) {
         DispatchQueue.main.async {
             let sb = Snackbar()
