@@ -195,8 +195,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         displayResolving()
         
         let url = claimUrl!.description
-        if Lbry.claimCacheByUrl[url] != nil {
-            channelClaim = Lbry.claimCacheByUrl[url]
+
+        channelClaim = Lbry.cachedClaim(url: url)
+        if channelClaim != nil {
             DispatchQueue.main.async {
                 self.showClaimAndCheckFollowing()
             }

@@ -262,8 +262,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         displayResolving()
         
         let url = claimUrl!.description
-        if Lbry.claimCacheByUrl[url] != nil {
-            self.claim = Lbry.claimCacheByUrl[url]
+        claim = Lbry.cachedClaim(url: url)
+        if claim != nil {
             DispatchQueue.main.async {
                 self.showClaimAndCheckFollowing()
             }
