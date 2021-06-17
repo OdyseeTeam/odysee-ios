@@ -23,6 +23,7 @@ final class Lbryio {
     static let keyEmailRewardClaimed: String = "EmailRewardClaimed"
     static let keyYouTubeSyncDone: String = "YouTubeSyncDone"
     static let keyYouTubeSyncConnected: String = "YouTubeSyncConnected"
+    static let keyChannelsAssociated: String = "ChannelsAssociated"
     
     static let keyAuthToken = "AuthToken"
     static var currentUser: User? = nil
@@ -335,6 +336,35 @@ final class Lbryio {
             })
         } catch let error {
             completion(nil, nil, error)
+        }
+    }
+    
+    static func logPublishEvent(_ claimResult: Claim) {
+        guard let permanentUrl = claimResult.permanentUrl,
+              let claimId = claimResult.claimId,
+              let txid = claimResult.txid,
+              let nout = claimResult.nout else {
+            // invalid claim or claim result, just skip
+            return
+        }
+        
+        do {
+            var options: Dictionary<String, String> = [
+                "uri": permanentUrl,
+                "claim_id": claimId,
+                "outpoint": String(format: "%@:%d", txid, nout)
+            ]
+            if let signingChannel = claimResult.signingChannel {
+                options["channel_claim_id"] = signingChannel.claimId!
+            }
+            try Lbryio.call(resource: "event", action: "publish", options: options, method: Lbryio.methodPost, completion: { data, error in
+                guard let _ = data, error == nil else {
+                    // ignore errors, can always retry at a later time
+                    return
+                }
+            })
+        } catch {
+            // pass
         }
     }
     
