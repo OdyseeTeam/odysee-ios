@@ -276,8 +276,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         Lbry.apiCall(method: Lbry.Methods.resolve, params: params, completion: didResolveClaim)
     }
     
-    func didResolveClaim(_ result: Result<[String: Claim], Error>) {
-        guard case let .success(dict) = result, let entry = dict.first else {
+    func didResolveClaim(_ result: Result<ResolveResult, Error>) {
+        guard case let .success(resolve) = result, let entry = resolve.claims.first else {
             displayNothingAtLocation()
             return
         }
@@ -770,11 +770,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     // The main-thread part of the related content loading flow, at the end.
-    func handleRelatedContentResult(_ result: Result<[String: Claim], Error>) {
+    func handleRelatedContentResult(_ result: Result<ResolveResult, Error>) {
         assert(Thread.isMainThread)
-        if case let .success(claims) = result {
+        if case let .success(resolve) = result {
             // Filter out self.claim.
-            relatedContent = claims.values.filter { testClaim in
+            relatedContent = resolve.claims.values.filter { testClaim in
                 let testID = testClaim.claimId
                 return testID != self.claim?.claimId
             }
@@ -1249,11 +1249,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         Lbry.apiCall(method: Lbry.Methods.resolve, params: params, completion: didResolveCommentAuthors)
     }
     
-    func didResolveCommentAuthors(_ result: Result<[String: Claim], Error>) {
-        guard case let .success(dict) = result else {
+    func didResolveCommentAuthors(_ result: Result<ResolveResult, Error>) {
+        guard case let .success(resolve) = result else {
             return
         }
-        Helper.addThumbURLs(claims: dict, thumbURLs: &authorThumbnailMap)
+        Helper.addThumbURLs(claims: resolve.claims, thumbURLs: &authorThumbnailMap)
         checkFeaturedComment()
     }
     
