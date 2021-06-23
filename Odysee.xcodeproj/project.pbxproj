@@ -90,6 +90,7 @@
 		B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */; };
 		CC004D5A2662868300514FDF /* ClaimTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = CC004D592662868300514FDF /* ClaimTableViewCell.xib */; };
 		CC015766267A9C1100F96EFE /* ImageURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC015765267A9C1100F96EFE /* ImageURLs.swift */; };
+		CC015768267C1A0B00F96EFE /* ResolveResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC015767267C1A0B00F96EFE /* ResolveResult.swift */; };
 		CC0B2B0D266D0E72002490BB /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0B2B0C266D0E72002490BB /* Lock.swift */; };
 		CC48F4FC2662B2020018D958 /* VideoPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC48F4FB2662B2020018D958 /* VideoPickerController.swift */; };
 		CC49954526692037001BB2DC /* ImagePrefetchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC49954426692037001BB2DC /* ImagePrefetchController.swift */; };
@@ -205,6 +206,7 @@
 		B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AuthenticationServices.framework; path = System/Library/Frameworks/AuthenticationServices.framework; sourceTree = SDKROOT; };
 		CC004D592662868300514FDF /* ClaimTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ClaimTableViewCell.xib; sourceTree = "<group>"; };
 		CC015765267A9C1100F96EFE /* ImageURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageURLs.swift; sourceTree = "<group>"; };
+		CC015767267C1A0B00F96EFE /* ResolveResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolveResult.swift; sourceTree = "<group>"; };
 		CC0B2B0C266D0E72002490BB /* Lock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
 		CC48F4FB2662B2020018D958 /* VideoPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPickerController.swift; sourceTree = "<group>"; };
 		CC49954426692037001BB2DC /* ImagePrefetchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePrefetchController.swift; sourceTree = "<group>"; };
@@ -267,6 +269,7 @@
 				642B6B0B257AB9F200F17355 /* WalletBalance.swift */,
 				642B6B10257B4CBC00F17355 /* Transaction.swift */,
 				646E4A5E259CF13A0008C9C8 /* Comment.swift */,
+				CC015767267C1A0B00F96EFE /* ResolveResult.swift */,
 				641E7EC02608BE0C00A79CD3 /* Language.swift */,
 				CC80EC0E2672A80700CA07DA /* Page.swift */,
 				641E7EC52608BE5700A79CD3 /* License.swift */,
@@ -648,6 +651,7 @@
 				6451659625DEA8B2009FAC39 /* YouTubeSyncViewController.swift in Sources */,
 				646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */,
 				645912222620789E00B2ABA5 /* ChatMessageTableViewCell.swift in Sources */,
+				CC015768267C1A0B00F96EFE /* ResolveResult.swift in Sources */,
 				64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */,
 				64BAFBB22609ED5900BD4B9A /* LibraryViewController.swift in Sources */,
 				641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */,

@@ -21,9 +21,9 @@ final class Lbry {
     static var walletSyncInProgress = false
     static var pushWalletSyncQueueCount = 0
 
-    static func processResolvedClaims(_ dict: inout [String: Claim]) {
-        dict = dict.filter { !Lbryio.isClaimBlocked($0.value) && !Lbryio.isClaimFiltered($0.value) }
-        dict.values.forEach(Lbry.addClaimToCache)
+    static func processResolvedClaims(_ result: inout ResolveResult) {
+        result.claims = result.claims.filter { !Lbryio.isClaimBlocked($0.value) && !Lbryio.isClaimFiltered($0.value) }
+        result.claims.values.forEach(Lbry.addClaimToCache)
     }
 
     static func processPageOfClaims(_ page: inout Page<Claim>) {
@@ -37,8 +37,8 @@ final class Lbry {
     }
 
     struct Methods {
-        static let resolve       = Method<[String: Claim]>(name: "resolve",
-                                                           defaultTransform: processResolvedClaims)
+        static let resolve       = Method<ResolveResult>(name: "resolve",
+                                                         defaultTransform: processResolvedClaims)
         static let claimSearch   = Method<Page<Claim>>(name: "claim_search",
                                                        defaultTransform: processPageOfClaims)
         static let claimList     = Method<Page<Claim>>(name: "claim_list",
@@ -202,9 +202,13 @@ final class Lbry {
         guard let claim = claim else {
             return
         }
-        claimCacheById.setObject(claim, forKey: claim.claimId! as NSString)
-        if let claimUrl = LbryUri.tryParse(url: claim.permanentUrl!, requireProto: false)?.description {
-            Lbry.claimCacheByUrl.setObject(claim, forKey: claimUrl as NSString)
+        assert(claim.claimId != nil)
+        if let id = claim.claimId {
+            claimCacheById.setObject(claim, forKey: id as NSString)
+        }
+        if let claimUrl = claim.permanentUrl,
+           let parsed = LbryUri.tryParse(url: claimUrl, requireProto: false)?.description {
+            Lbry.claimCacheByUrl.setObject(claim, forKey: parsed as NSString)
         }
         if let shortUrl = claim.shortUrl, !shortUrl.isBlank {
             Lbry.claimCacheByUrl.setObject(claim, forKey: shortUrl as NSString)

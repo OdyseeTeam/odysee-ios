@@ -209,11 +209,11 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         Lbry.apiCall(method: Lbry.Methods.resolve, params: params, completion: didResolveCommentAuthors)
     }
     
-    func didResolveCommentAuthors(_ result: Result<[String: Claim], Error>) {
-        guard case let .success(dict) = result else {
+    func didResolveCommentAuthors(_ result: Result<ResolveResult, Error>) {
+        guard case let .success(resolve) = result else {
             return
         }
-        Helper.addThumbURLs(claims: dict, thumbURLs: &authorThumbnailMap)
+        Helper.addThumbURLs(claims: resolve.claims, thumbURLs: &authorThumbnailMap)
         notificationsListView.reloadData()
     }
 
