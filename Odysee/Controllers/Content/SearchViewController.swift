@@ -93,12 +93,11 @@ class SearchViewController: UIViewController,
                 return
             }
             
-            var params = [String: Any]()
-            params["urls"] = results.compactMap { item in
+            let urls = results.compactMap { item in
                 LbryUri.tryParse(url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String), requireProto: false)?.description
             }
             Lbry.apiCall(method: Lbry.Methods.resolve,
-                         params: params,
+                         params: .init(urls: urls),
                          completion: self.didResolveResults)
         })
     }

@@ -7,6 +7,13 @@
 
 import Foundation
 
+enum ClaimType: String, Codable {
+    case channel
+    case stream
+    case repost
+    case collection
+}
+
 class Claim: Decodable, Equatable, Hashable {
     var address: String?
     var amount: String?
@@ -28,7 +35,7 @@ class Claim: Decodable, Equatable, Hashable {
     var txid: String?
     var type: String?
     var value: Metadata?
-    var valueType: String?
+    var valueType: ClaimType?
     var selected: Bool = false
     
     private enum CodingKeys: String, CodingKey {

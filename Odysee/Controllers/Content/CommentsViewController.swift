@@ -198,8 +198,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func resolveCommentAuthors(urls: [String]) {
-        let params = ["urls": urls]
-        Lbry.apiCall(method: Lbry.Methods.resolve, params: params, completion: didResolveCommentAuthors)
+        Lbry.apiCall(method: Lbry.Methods.resolve,
+                     params: .init(urls: urls),
+                     completion: didResolveCommentAuthors)
     }
     
     func didResolveCommentAuthors(_ result: Result<ResolveResult, Error>) {
