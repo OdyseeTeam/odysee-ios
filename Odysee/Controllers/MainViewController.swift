@@ -261,6 +261,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     @IBAction func accountActionTapped(_ sender: Any) {
         let vc = storyboard?.instantiateViewController(identifier: "ua_menu_vc") as! UserAccountMenuViewController
         vc.modalPresentationStyle = .overCurrentContext
+        vc.modalTransitionStyle = .crossDissolve
         present(vc, animated: true)
     }
     
