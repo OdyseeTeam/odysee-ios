@@ -33,7 +33,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     @IBOutlet weak var generateThumbnailButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
     @IBOutlet weak var uploadButton: UIButton!
-    @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var progressView: UIProgressView!
     @IBOutlet weak var uploadingIndicator: UIView!
     
     var channels: [Claim] = []
@@ -236,7 +236,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         
     func startLoading() {
         DispatchQueue.main.async {
-            self.loadingIndicator.isHidden = false
+            self.progressView.isHidden = false
             self.cancelButton.isHidden = true
             self.uploadButton.isHidden = true
         }
@@ -244,7 +244,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     
     func restoreButtons() {
         DispatchQueue.main.async {
-            self.loadingIndicator.isHidden = true
+            self.progressView.isHidden = true
             self.cancelButton.isHidden = false
             self.uploadButton.isHidden = false
         }
@@ -455,7 +455,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 }
             })
         } else {
-            uploadVideo(params: params, completion: { data, error in
+            progressView.observedProgress = uploadVideo(params: params, completion: { data, error in
                 guard let _ = data, error == nil else {
                     self.saveInProgress = false
                     self.restoreButtons()
@@ -488,7 +488,8 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         }
     }
     
-    func uploadVideo(params: Dictionary<String, Any>, completion: @escaping ([String: Any]?, Error?) -> Void) {
+    func uploadVideo(params: Dictionary<String, Any>, completion: @escaping ([String: Any]?, Error?) -> Void) -> Progress {
+        let progress = Progress(totalUnitCount: 1)
         videoPickerController.getVideoURL { urlResult in
             guard case let .success(videoUrl) = urlResult else {
                 completion(nil, GenericError("The selected video could not be uploaded."))
@@ -589,12 +590,14 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                     }
                 }
                 
+                progress.addChild(task.progress, withPendingUnitCount: 1)
                 task.resume()
             } catch let error {
                 print(error)
                 completion(nil, GenericError("An error occurred trying to upload the video. Please try again."))
             }
         }
+        return progress
     }
     
     func numberOfComponents(in pickerView: UIPickerView) -> Int {

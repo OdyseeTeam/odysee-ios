@@ -3182,10 +3182,9 @@
                                                             <action selector="cancelTapped:" destination="Msd-wJ-nEU" eventType="touchUpInside" id="Hmd-zU-aEP"/>
                                                         </connections>
                                                     </button>
-                                                    <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="vbh-az-QtK">
-                                                        <rect key="frame" x="197" y="32" width="20" height="29"/>
-                                                        <color key="color" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
-                                                    </activityIndicatorView>
+                                                    <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="6md-d9-MNf">
+                                                        <rect key="frame" x="78" y="44.5" width="258" height="4"/>
+                                                    </progressView>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dA6-ol-M7f">
                                                         <rect key="frame" x="351" y="32" width="47" height="29"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
@@ -3199,12 +3198,13 @@
                                                 </subviews>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <constraints>
-                                                    <constraint firstItem="vbh-az-QtK" firstAttribute="centerX" secondItem="H7N-kK-Eg8" secondAttribute="centerX" id="5Av-Bq-pE8"/>
                                                     <constraint firstItem="Wr8-xd-PFv" firstAttribute="leading" secondItem="H7N-kK-Eg8" secondAttribute="leading" constant="16" id="9cs-7V-VOp"/>
                                                     <constraint firstItem="dA6-ol-M7f" firstAttribute="top" secondItem="H7N-kK-Eg8" secondAttribute="top" constant="32" id="ARc-P5-CaW"/>
-                                                    <constraint firstAttribute="bottom" secondItem="vbh-az-QtK" secondAttribute="bottom" constant="16" id="CRe-Sj-S3D"/>
+                                                    <constraint firstItem="Wr8-xd-PFv" firstAttribute="width" secondItem="dA6-ol-M7f" secondAttribute="width" id="DCG-cL-EG5"/>
+                                                    <constraint firstItem="6md-d9-MNf" firstAttribute="centerY" secondItem="Wr8-xd-PFv" secondAttribute="centerY" id="H2U-V1-ZqI"/>
+                                                    <constraint firstItem="6md-d9-MNf" firstAttribute="leading" secondItem="Wr8-xd-PFv" secondAttribute="trailing" constant="15" id="Ia2-jg-GV7"/>
+                                                    <constraint firstItem="dA6-ol-M7f" firstAttribute="leading" secondItem="6md-d9-MNf" secondAttribute="trailing" constant="15" id="dpx-1H-J18"/>
                                                     <constraint firstItem="Wr8-xd-PFv" firstAttribute="top" secondItem="H7N-kK-Eg8" secondAttribute="top" constant="32" id="qf9-fc-hhG"/>
-                                                    <constraint firstItem="vbh-az-QtK" firstAttribute="top" secondItem="H7N-kK-Eg8" secondAttribute="top" constant="32" id="sHQ-IJ-4eC"/>
                                                     <constraint firstAttribute="bottom" secondItem="Wr8-xd-PFv" secondAttribute="bottom" constant="16" id="w3h-ms-od1"/>
                                                     <constraint firstAttribute="bottom" secondItem="dA6-ol-M7f" secondAttribute="bottom" constant="16" id="yJm-Bn-lDL"/>
                                                     <constraint firstAttribute="trailing" secondItem="dA6-ol-M7f" secondAttribute="trailing" constant="16" id="ydj-R2-Td4"/>
@@ -3242,9 +3242,9 @@
                         <outlet property="generateThumbnailButton" destination="vec-ew-jqK" id="d9P-Cf-aUD"/>
                         <outlet property="languagePickerView" destination="add-Qu-OSY" id="j8z-Ge-L9y"/>
                         <outlet property="licensePickerView" destination="o4E-8G-MgU" id="wyY-nm-tla"/>
-                        <outlet property="loadingIndicator" destination="vbh-az-QtK" id="uaC-1h-0VJ"/>
                         <outlet property="nameField" destination="Rxg-Cs-CLK" id="j0E-CT-n0U"/>
                         <outlet property="namePrefixLabel" destination="xUS-Xi-t5E" id="p84-Hw-nOc"/>
+                        <outlet property="progressView" destination="6md-d9-MNf" id="jjK-Be-Tx6"/>
                         <outlet property="scrollView" destination="3wx-yg-s99" id="sF0-Yw-eGS"/>
                         <outlet property="selectVideoArea" destination="Yrc-eH-HDp" id="Alr-97-vgE"/>
                         <outlet property="thumbnailImageView" destination="7bS-GP-EdN" id="fN6-O1-Poy"/>
