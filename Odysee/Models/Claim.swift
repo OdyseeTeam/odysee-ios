@@ -67,10 +67,13 @@ class Claim: Decodable, Equatable, Hashable {
         var image: StreamInfo?
         var software: StreamInfo?
         
+        // collection
+        var claims: [String]?
+        
         private enum CodingKeys: String, CodingKey {
             case title, description, thumbnail, languages, tags, locations, publicKey = "public_key", publicKeyId = "public_key_id",
                  cover, email, websiteUrl = "website_url", featured, license, licenseUrl = "license_url", releaseTime = "release_time",
-                 author, fee, streamType = "stream_type", source, video, audio, image, software
+                 author, fee, streamType = "stream_type", source, video, audio, image, software, claims
         }
     }
     struct Source: Decodable {

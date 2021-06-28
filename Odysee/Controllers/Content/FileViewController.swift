@@ -60,6 +60,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet weak var streamerBellView: UIView!
     @IBOutlet weak var streamerBellIconView: UIImageView!
     
+    @IBOutlet weak var relatedOrPlaylistTitle: UILabel!
     @IBOutlet weak var loadingRelatedView: UIActivityIndicatorView!
     @IBOutlet weak var relatedContentListView: UITableView!
     @IBOutlet weak var relatedContentListHeightConstraint: NSLayoutConstraint!
@@ -89,6 +90,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet weak var dismissPanRecognizer: UIPanGestureRecognizer!
 
     let avpc = AVPlayerViewController()
+    weak var commentsVc: CommentsViewController!
     
     var commentsDisabled = false
     var commentsViewPresented = false  
@@ -97,8 +99,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var claimUrl: LbryUri?
     var subscribeUnsubscribeInProgress = false
     var relatedContent: [Claim] = []
+    var playlistItems: [Claim] = []
+    var currentPlaylistIndex: Int = 0
     var channels: [Claim] = []
     var loadingRelated = false
+    var loadingPlaylist = false
     var fileViewLogged = false
     var loggingInProgress = false
     var playRequestTime: Int64 = 0
@@ -110,7 +115,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var commentsLoading: Bool = false
     var comments = OrderedSet<Comment>()
     var authorThumbnailMap = [String: URL]()
-    
+
     var numLikes = 0
     var numDislikes = 0
     var likesContent = false
@@ -118,6 +123,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var reacting = false
     var playerConnected = false
     var isLivestream = false
+    var isPlaylist = false
     var isLive = false
     
     var loadingChannels = false
@@ -125,6 +131,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var messages: [Comment] = []
     var chatConnected = false
     var chatWebsocket: WebSocket? = nil
+    
+    var currentPlaylistPage = 1
+    var playlistLastPageReached = false
+    let playlistPageSize = 50
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -134,9 +144,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         appDelegate.mainController.toggleMiniPlayer(hidden: true)
         appDelegate.currentFileViewController = self
         
-        if claim != nil {
-            checkFollowing()
-            checkNotificationsDisabled()
+        if claim != nil && !isPlaylist {
+            checkFollowing(claim!)
+            checkNotificationsDisabled(claim!)
         }
     }
     
@@ -209,15 +219,17 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         // Do any additional setup after loading the view.
         if claim == nil && claimUrl != nil {
             resolveAndDisplayClaim()
-        } else if claim != nil {
-            if Lbryio.isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!)) {
+        } else if let currentClaim = claim {
+            if Lbryio.isClaimBlocked(currentClaim) || (currentClaim.signingChannel != nil && Lbryio.isClaimBlocked(currentClaim.signingChannel!)) {
                 displayClaimBlocked()
             } else {
                 displayClaim()
-                loadAndDisplayViewCount()
-                loadReactions()
-                loadRelatedContent()
-                loadComments()
+                if !isPlaylist {
+                    loadAndDisplayViewCount(currentClaim)
+                    loadReactions(currentClaim)
+                    loadComments(currentClaim)
+                }
+                loadPlaylistOrRelated()
             }
         } else {
             displayNothingAtLocation()
@@ -246,15 +258,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func showClaimAndCheckFollowing() {
         if Lbryio.isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!)) {
             displayClaimBlocked()
-        } else {
+        } else if let currentClaim = claim {
             displayClaim()
-            loadAndDisplayViewCount()
-            loadReactions()
-            loadRelatedContent()
-            loadComments()
-            
-            checkFollowing()
-            checkNotificationsDisabled()
+            if !isPlaylist {
+                loadAndDisplayViewCount(currentClaim)
+                loadReactions(currentClaim)
+                loadComments(currentClaim)
+                checkFollowing(currentClaim)
+                checkNotificationsDisabled(currentClaim)
+            }
+            loadPlaylistOrRelated()
         }
     }
     
@@ -364,7 +377,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             "Referer": "https://bitwave.tv"
                         ]
                         DispatchQueue.main.async {
-                            self.initializePlayerWithUrl(sourceUrl: streamUrl, headers: headers)
+                            self.initializePlayerWithUrl(singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers)
                         }
                     }
                 }
@@ -384,30 +397,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
     
-    func displayClaim() {
-        isLivestream = claim?.value?.source == nil
-        detailsScrollView.isHidden = isLivestream
-        livestreamChatView.isHidden = !isLivestream
-        
+    func displaySingleClaim(_ singleClaim: Claim) {
         resolvingView.isHidden = true
         descriptionArea.isHidden = true
         descriptionDivider.isHidden = true
-        displayRelatedPlaceholders()
         
-        connectChatSocket()
+        commentsDisabled = Helper.claimContainsTag(claim: singleClaim, tag: Helper.tagDisableComments) ||
+            (singleClaim.signingChannel != nil && Helper.claimContainsTag(claim: singleClaim.signingChannel!, tag: Helper.tagDisableComments))
+        commentExpandView.isHidden = commentsDisabled
+        noCommentsLabel.isHidden = !commentsDisabled
+        noCommentsLabel.text = String.localized("Comments are disabled.")
+        featuredCommentView.isHidden = commentsDisabled
         
-        commentsDisabled = Helper.claimContainsTag(claim: claim!, tag: Helper.tagDisableComments) ||
-            (claim?.signingChannel != nil && Helper.claimContainsTag(claim: claim!.signingChannel!, tag: Helper.tagDisableComments))
-        if commentsDisabled {
-            commentExpandView.isHidden = true
-            noCommentsLabel.isHidden = false
-            noCommentsLabel.text = String.localized("Comments are disabled.")
-            featuredCommentView.isHidden = true
-        }
+        titleLabel.text = singleClaim.value?.title
         
-        titleLabel.text = claim?.value?.title
-        
-        let releaseTime: Double = Double(claim?.value?.releaseTime ?? "0")!
+        let releaseTime: Double = Double(singleClaim.value?.releaseTime ?? "0")!
         let date: Date = NSDate(timeIntervalSince1970: releaseTime) as Date // TODO: Timezone check / conversion?
         
         timeAgoLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
@@ -416,17 +420,17 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         var thumbnailUrl: URL? = nil
         publisherImageView.rounded()
         livestreamerImageView.rounded()
-        if (claim?.signingChannel != nil) {
+        if (singleClaim.signingChannel != nil) {
             if !isLivestream {
-                publisherTitleLabel.text = claim?.signingChannel?.value?.title
-                publisherNameLabel.text = claim?.signingChannel?.name
+                publisherTitleLabel.text = singleClaim.signingChannel?.value?.title
+                publisherNameLabel.text = singleClaim.signingChannel?.name
             } else {
-                livestreamerTitleLabel.text = claim?.signingChannel?.value?.title
-                livestreamerNameLabel.text = claim?.signingChannel?.name
+                livestreamerTitleLabel.text = singleClaim.signingChannel?.value?.title
+                livestreamerNameLabel.text = singleClaim.signingChannel?.name
                 
             }
-            if (claim?.signingChannel?.value != nil && claim?.signingChannel?.value?.thumbnail != nil) {
-                thumbnailUrl = URL(string: (claim!.signingChannel!.value!.thumbnail!.url!))!
+            if (singleClaim.signingChannel?.value != nil && singleClaim.signingChannel?.value?.thumbnail != nil) {
+                thumbnailUrl = URL(string: (singleClaim.signingChannel!.value!.thumbnail!.url!))!
             }
         } else {
             publisherTitleLabel.text = String.localized("Anonymous")
@@ -449,35 +453,50 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
         }
         
-        if (claim?.value?.description ?? "").isBlank {
+        if (singleClaim.value?.description ?? "").isBlank {
             descriptionArea.isHidden = true
             descriptionDivider.isHidden = true
         } else {
             // details
             descriptionLabel.text = claim?.value?.description
         }
+    }
+    
+    func displayClaim() {
+        isPlaylist = "collection" == claim?.valueType
+        isLivestream = !isPlaylist && claim?.value?.source == nil
+        detailsScrollView.isHidden = isLivestream
+        livestreamChatView.isHidden = !isLivestream
+        relatedOrPlaylistTitle.text = isPlaylist ? claim?.value?.title : String.localized("Related Content")
         
-        if isLivestream {
-            loadLivestream()
-        } else {
-            initializePlayerWithUrl(sourceUrl: getStreamingUrl(claim: claim!))
+        displayRelatedPlaceholders()
+        
+        if !isPlaylist {
+            // for a playlist, we need to do a claim_search for the list of claim IDs first, and then display the first result
+            connectChatSocket()
+            displaySingleClaim(claim!)
+            if isLivestream {
+                loadLivestream()
+            } else {
+                initializePlayerWithUrl(singleClaim: self.claim!, sourceUrl: getStreamingUrl(claim: claim!))
+            }
         }
     }
     
-    func initializePlayerWithUrl(sourceUrl: URL, headers: Dictionary<String, String> = [:]) {
+    func initializePlayerWithUrl(singleClaim: Claim, sourceUrl: URL, headers: Dictionary<String, String> = [:]) {
         assert(Thread.isMainThread)
         
         livestreamOfflinePlaceholder.isHidden = true
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         avpc.delegate = appDelegate.mainController
-        if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId) {
+        if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == singleClaim.claimId) {
             avpc.player = appDelegate.player
             playerConnected = true
             return
         }
         
-        appDelegate.currentClaim = self.claim
+        appDelegate.currentClaim = singleClaim
         appDelegate.player?.pause()
         
         appDelegate.playerObserverAdded = false
@@ -515,7 +534,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         
         let timeToStartMs = Int64(Date().timeIntervalSince1970 * 1000.0) - playRequestTime
         let timeToStartSeconds = Int64(Double(timeToStartMs) / 1000.0)
-        let url = claim!.permanentUrl!
+        let url = isPlaylist ? currentPlaylistClaim().permanentUrl! : claim!.permanentUrl!
         
         Analytics.logEvent("play", parameters: [
             "url": url,
@@ -599,13 +618,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         return URL(string: str)!
     }
     
-    func loadAndDisplayViewCount() {
+    func loadAndDisplayViewCount(_ singleClaim: Claim) {
         if isLivestream {
             return
         }
         
         do {
-            let options: Dictionary<String, String> = ["claim_id": claim!.claimId!]
+            let options: Dictionary<String, String> = ["claim_id": singleClaim.claimId!]
             try Lbryio.call(resource: "file", action: "view_count", options: options, method: Lbryio.methodGet, completion: { data, error in
                 guard let data = data, error == nil else {
                     // couldn't load the view count for display
@@ -626,13 +645,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
     
-    func loadReactions() {
+    func loadReactions(_ singleClaim: Claim) {
         if isLivestream {
             return
         }
         
         do {
-            let claimId = claim!.claimId!
+            let claimId = singleClaim.claimId!
             let options: Dictionary<String, String> = ["claim_ids": claimId]
             try Lbryio.call(resource: "reaction", action: "list", options: options, method: Lbryio.methodPost, completion: { data, error in
                 guard let data = data, error == nil else {
@@ -690,7 +709,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         reacting = true
         do {
             var remove = false
-            let claimId = claim!.claimId!
+            let claimId = isPlaylist ? currentPlaylistClaim().claimId! : claim!.claimId!
             var options: Dictionary<String, String> = [
                 "claim_ids": claimId,
                 "type": type,
@@ -738,6 +757,103 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             self.fireReactionImage.tintColor = self.likesContent ? Helper.fireActiveColor : UIColor.label
             self.slimeReactionImage.tintColor = self.dislikesContent ? Helper.slimeActiveColor : UIColor.label
         }
+    }
+    
+    func loadPlaylistOrRelated() {
+        if isPlaylist {
+            loadPlaylistContent()
+            return
+        }
+        
+        loadRelatedContent()
+    }
+    
+    func loadPlaylistContent() {
+        if (loadingPlaylist || isLivestream) {
+            return
+        }
+        
+        if currentPlaylistPage == 1 && playlistItems.count == 0 {
+            displayResolving()
+        }
+        
+        loadingRelated = true
+        loadingRelatedView.isHidden = false
+    
+        if let playlistClaims = claim?.value!.claims {
+            let options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: nil, notChannelIds: nil, claimIds: playlistClaims, orderBy: Helper.sortByItemValues[1], releaseTime: nil, maxDuration: nil, limitClaimsPerChannel: 0, page: currentPlaylistPage, pageSize: playlistPageSize)
+            
+            Lbry.apiCall(method: Lbry.Methods.claimSearch,
+                         params: options,
+                         completion: didLoadPlaylistClaims)
+        }
+    }
+    
+    func didLoadPlaylistClaims(_ result: Result<Page<Claim>, Error>) {
+        assert(Thread.isMainThread)
+        result.showErrorIfPresent()
+        if case let .success(payload) = result {
+            let oldCount = playlistItems.count
+            playlistItems.append(contentsOf: payload.items.filter{ !playlistItems.contains($0) })
+            if playlistItems.count != oldCount {
+                relatedContentListView.reloadData()
+            }
+            playlistLastPageReached = payload.isLastPage
+        }
+        loadingRelatedView.isHidden = true
+        loadingRelated = false
+        
+        if currentPlaylistPage == 1 {
+            // first set of results, display the first claim
+            let singleClaim = playlistItems[0]
+            loadPlaylistItemClaim(singleClaim)
+        }
+    }
+    
+    func playPreviousPlaylistItem() {
+        if !isPlaylist || playlistItems.count == 0 {
+            return
+        }
+        
+        if currentPlaylistIndex > 0 {
+            currentPlaylistIndex -= 1
+            loadPlaylistItemClaim(playlistItems[currentPlaylistIndex])
+        }
+    }
+    
+    func playNextPlaylistItem() {
+        if !isPlaylist || playlistItems.count == 0 {
+            return
+        }
+        
+        if currentPlaylistIndex < playlistItems.count - 1 {
+            currentPlaylistIndex += 1
+            loadPlaylistItemClaim(playlistItems[currentPlaylistIndex])
+        }
+    }
+    
+    func loadPlaylistItemClaim(_ singleClaim: Claim) {
+        comments.removeAll()
+        
+        displaySingleClaim(singleClaim)
+        if commentsVc != nil {
+            commentsVc.comments.removeAll()
+            commentsVc.resetCommentList()
+            commentsVc.claimId = singleClaim.claimId
+            commentsVc.commentsLastPageReached = false
+            commentsVc.commentsDisabled = commentsDisabled
+            if !commentsVc.commentsDisabled {
+                commentsVc.loadComments()
+            }
+        }
+        
+        initializePlayerWithUrl(singleClaim: singleClaim, sourceUrl: getStreamingUrl(claim: singleClaim))
+        loadAndDisplayViewCount(singleClaim)
+        loadReactions(singleClaim)
+        loadComments(singleClaim)
+        
+        checkFollowing(singleClaim)
+        checkNotificationsDisabled(singleClaim)
     }
     
     func loadRelatedContent() {
@@ -802,7 +918,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == relatedContentListView {
-            return relatedContent.count
+            return isPlaylist ? playlistItems.count : relatedContent.count
         }
         
         if tableView == chatListView {
@@ -815,7 +931,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if tableView == relatedContentListView {
             let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
-            let claim: Claim = relatedContent[indexPath.row]
+            let claim: Claim = isPlaylist ? playlistItems[indexPath.row] : relatedContent[indexPath.row]
             cell.setClaim(claim: claim)
             return cell
         }
@@ -833,8 +949,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == relatedContentListView {
             tableView.deselectRow(at: indexPath, animated: true)
-            let claim: Claim = relatedContent[indexPath.row]
+            let claim: Claim = isPlaylist ? playlistItems[indexPath.row] : relatedContent[indexPath.row]
             if claim.claimId == "placeholder" {
+                return
+            }
+            
+            if isPlaylist {
+                // play the itema nd set the current index
+                let index = indexPath.row
+                currentPlaylistIndex = index
+                loadPlaylistItemClaim(claim)
                 return
             }
             
@@ -864,18 +988,20 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
         
-        let vc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
-        vc.claimId = claim?.claimId!
-        vc.commentsDisabled = commentsDisabled
-        vc.comments = comments.elements
-        vc.commentsLastPageReached = commentsLastPageReached
-        vc.authorThumbnailMap = authorThumbnailMap
+        commentsVc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
+        commentsVc.claimId = isPlaylist ? playlistItems[currentPlaylistIndex].claimId! : claim?.claimId!
+        commentsVc.commentsDisabled = commentsDisabled
+        commentsVc.comments = comments.elements
+        commentsVc.authorThumbnailMap = authorThumbnailMap
+        if !isPlaylist {
+            commentsVc.commentsLastPageReached = commentsLastPageReached
+        }
         
-        vc.willMove(toParent: self)
-        commentsContainerView.addSubview(vc.view)
-        vc.view.frame = CGRect(x: 0, y: 0, width: commentsContainerView.bounds.width, height: commentsContainerView.bounds.height)
-        self.addChild(vc)
-        vc.didMove(toParent: self)
+        commentsVc.willMove(toParent: self)
+        commentsContainerView.addSubview(commentsVc.view)
+        commentsVc.view.frame = CGRect(x: 0, y: 0, width: commentsContainerView.bounds.width, height: commentsContainerView.bounds.height)
+        self.addChild(commentsVc)
+        commentsVc.didMove(toParent: self)
         
         commentsContainerView.isHidden = false
         commentsViewPresented = true
@@ -902,8 +1028,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     @IBAction func publisherTapped(_ sender: Any) {
-        if claim!.signingChannel != nil {
-            let channelClaim = claim!.signingChannel!
+        let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
+        if let channelClaim = publisher {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
@@ -923,11 +1049,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
         
-        if claim?.signingChannel == nil {
-            return
+        let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
+        if let channelClaim = publisher {
+            subscribeOrUnsubscribe(claim: channelClaim, notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim), unsubscribing: Lbryio.isFollowing(claim: channelClaim))
         }
-        let channelClaim = claim!.signingChannel!
-        subscribeOrUnsubscribe(claim: channelClaim, notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim), unsubscribing: Lbryio.isFollowing(claim: channelClaim))
     }
     
     @IBAction func bellTapped(_ sender: Any) {
@@ -937,19 +1062,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
         
-        if claim?.signingChannel == nil {
-            return
+        let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
+        if let channelClaim = publisher {
+            subscribeOrUnsubscribe(claim: channelClaim, notificationsDisabled: !Lbryio.isNotificationsDisabledForSub(claim: channelClaim), unsubscribing: false)
         }
-        let channelClaim = claim!.signingChannel!
-        subscribeOrUnsubscribe(claim: channelClaim, notificationsDisabled: !Lbryio.isNotificationsDisabledForSub(claim: channelClaim), unsubscribing: false)
     }
     
-    func checkFollowing() {
-        if claim?.signingChannel == nil {
+    func checkFollowing(_ singleClaim: Claim) {
+        if singleClaim.signingChannel == nil {
             return
         }
         
-        let channelClaim = claim!.signingChannel!
+        let channelClaim = singleClaim.signingChannel!
         DispatchQueue.main.async {
             if (Lbryio.isFollowing(claim: channelClaim)) {
                 // show unfollow and bell icons
@@ -976,12 +1100,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
     
-    func checkNotificationsDisabled() {
-        if claim?.signingChannel == nil {
+    func checkNotificationsDisabled(_ singleClaim: Claim) {
+        if singleClaim.signingChannel == nil {
             return
         }
         
-        let channelClaim = claim!.signingChannel!
+        let channelClaim = singleClaim.signingChannel!
         if (!Lbryio.isFollowing(claim: channelClaim)) {
             return
         }
@@ -993,6 +1117,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 self.bellIconView.image = UIImage.init(systemName: "bell.slash.fill")
             }
         }
+    }
+    
+    func currentPlaylistClaim() -> Claim {
+        return playlistItems[currentPlaylistIndex]
     }
     
     // TODO: Refactor into a more reusable call to prevent code duplication
@@ -1015,8 +1143,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 self.subscribeUnsubscribeInProgress = false
                 guard let _ = data, error == nil else {
                     self.showError(error: error)
-                    self.checkFollowing()
-                    self.checkNotificationsDisabled()
+                    self.checkFollowing(self.isPlaylist ? self.currentPlaylistClaim() : self.claim!)
+                    self.checkNotificationsDisabled(self.isPlaylist ? self.currentPlaylistClaim() : self.claim!)
                     return
                 }
 
@@ -1028,8 +1156,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     self.removeSubscription(url: subUrl.description, channelName: subUrl.channelName!)
                 }
                 
-                self.checkFollowing()
-                self.checkNotificationsDisabled()
+                self.checkFollowing(self.isPlaylist ? self.currentPlaylistClaim() : self.claim!)
+                self.checkNotificationsDisabled(self.isPlaylist ? self.currentPlaylistClaim() : self.claim!)
                 Lbryio.subscriptionsDirty = true
                 Lbry.saveSharedUserState(completion: { success, err in
                     guard err == nil else {
@@ -1147,7 +1275,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func shareActionTapped(_ sender: Any) {
-        let url = LbryUri.tryParse(url: claim!.shortUrl!, requireProto: false)
+        let shareClaim = isPlaylist ? currentPlaylistClaim() : self.claim!
+        let url = LbryUri.tryParse(url: shareClaim.shortUrl!, requireProto: false)
         if (url != nil) {
             let items = [url!.odyseeString]
             let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
@@ -1162,7 +1291,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
         
         let vc = storyboard?.instantiateViewController(identifier: "support_vc") as! SupportViewController
-        vc.claim = claim!
+        let supportClaim = isPlaylist ? currentPlaylistClaim() : self.claim!
+        vc.claim = supportClaim
         vc.modalPresentationStyle = .overCurrentContext
         present(vc, animated: true)
     }
@@ -1191,14 +1321,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
     
-    func loadComments() {
+    func loadComments(_ singleClaim: Claim) {
         if commentsDisabled || commentsLoading || isLivestream {
             return
         }
         
         commentsLoading = true
         let params: Dictionary<String, Any> = [
-            "claim_id": claim!.claimId!,
+            "claim_id": singleClaim.claimId!,
             "page": commentsCurrentPage,
             "page_size": commentsPageSize,
             "skip_validation": true,

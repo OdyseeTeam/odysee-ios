@@ -54,6 +54,10 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
     }
     
+    func resetCommentList() {
+        commentList.reloadData()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
