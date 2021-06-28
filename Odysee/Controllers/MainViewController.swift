@@ -398,6 +398,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         }
     }
     
+    func showErrorAlert(title: String? = nil, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: String.localized("OK"), style: .default))
+        present(alert, animated: true)
+    }
+    
     func showError(message: String?) {
         DispatchQueue.main.async {
             let sb = Snackbar()
@@ -550,7 +556,23 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             }
             
             Lbry.ownChannels = self.channels
+            if Lbry.ownChannels.count > 0 {
+                self.oneTimeChannelsAssociation(Lbry.ownChannels)
+            }
         })
+    }
+    
+    func oneTimeChannelsAssociation(_ channels: [Claim]) {
+        let defaults = UserDefaults.standard
+        let associated = defaults.bool(forKey: Lbryio.keyChannelsAssociated)
+        if associated {
+            return
+        }
+        
+        channels.forEach { channel in
+            Lbryio.logPublishEvent(channel)
+        }
+        defaults.setValue(true, forKey: Lbryio.keyChannelsAssociated)
     }
     
     @IBAction func brandTapped(_ sender: Any) {

@@ -16,7 +16,7 @@ class NotificationTableViewCell: UITableViewCell {
     @IBOutlet weak var timeView: UILabel!
     @IBOutlet weak var unreadIndicatorView: UIView!
     
-    var authorImageMap: Dictionary<String, String> = [:]
+    var authorImageMap = [String: URL]()
     var currentNotification: LbryNotification?
     
     override func awakeFromNib() {
@@ -30,16 +30,16 @@ class NotificationTableViewCell: UITableViewCell {
         // Configure the view for the selected state
     }
     
-    func setAuthorImageMap(map: Dictionary<String, String>) {
+    func setAuthorImageMap(map: [String: URL]) {
         authorImageMap = map
         displayAuthorImage()
     }
     
     func displayAuthorImage() {
         if currentNotification?.author != nil {
-            if let thumbnailUrlStr = authorImageMap[currentNotification!.author!] {
+            if let thumbnailUrl = authorImageMap[currentNotification!.author!] {
                 avatarView.backgroundColor = UIColor.clear
-                avatarView.load(url: URL(string: thumbnailUrlStr)!)
+                avatarView.load(url: thumbnailUrl)
             }
         }
     }

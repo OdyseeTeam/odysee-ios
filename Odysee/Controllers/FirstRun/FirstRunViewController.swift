@@ -212,7 +212,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
                     do {
                         let claimResult: Claim? = try JSONDecoder().decode(Claim.self, from: data)
                         if (claimResult != nil) {
-                            //self.logChannelCreate(claimResult!)
+                            Lbryio.logPublishEvent(claimResult!)
                         }
                     } catch {
                         // pass

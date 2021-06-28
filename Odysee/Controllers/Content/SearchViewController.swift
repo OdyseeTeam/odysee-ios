@@ -103,11 +103,11 @@ class SearchViewController: UIViewController,
         })
     }
     
-    func didResolveResults(_ result: Result<[String: Claim], Error>) {
+    func didResolveResults(_ result: Result<ResolveResult, Error>) {
         result.showErrorIfPresent()
-        if case let .success(claimDict) = result {
+        if case let .success(resolve) = result {
             let oldCount = claims.count
-            claims.append(contentsOf: claimDict.values)
+            claims.append(contentsOf: resolve.claims.values)
             if claims.count != oldCount {
                 resultsListView.reloadData()
             }

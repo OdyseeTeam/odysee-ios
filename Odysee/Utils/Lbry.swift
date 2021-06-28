@@ -21,9 +21,9 @@ final class Lbry {
     static var walletSyncInProgress = false
     static var pushWalletSyncQueueCount = 0
 
-    static func processResolvedClaims(_ dict: inout [String: Claim]) {
-        dict = dict.filter { !Lbryio.isClaimBlocked($0.value) && !Lbryio.isClaimFiltered($0.value) }
-        dict.values.forEach(Lbry.addClaimToCache)
+    static func processResolvedClaims(_ result: inout ResolveResult) {
+        result.claims = result.claims.filter { !Lbryio.isClaimBlocked($0.value) && !Lbryio.isClaimFiltered($0.value) }
+        result.claims.values.forEach(Lbry.addClaimToCache)
     }
 
     static func processPageOfClaims(_ page: inout Page<Claim>) {
@@ -37,8 +37,8 @@ final class Lbry {
     }
 
     struct Methods {
-        static let resolve       = Method<[String: Claim]>(name: "resolve",
-                                                           defaultTransform: processResolvedClaims)
+        static let resolve       = Method<ResolveResult>(name: "resolve",
+                                                         defaultTransform: processResolvedClaims)
         static let claimSearch   = Method<Page<Claim>>(name: "claim_search",
                                                        defaultTransform: processPageOfClaims)
         static let claimList     = Method<Page<Claim>>(name: "claim_list",
@@ -79,8 +79,8 @@ final class Lbry {
     static var localWalletHash: String? = nil
     static var walletBalance: WalletBalance? = nil
     
-    static var claimCacheById: Dictionary<String, Claim> = Dictionary<String, Claim>()
-    static var claimCacheByUrl: Dictionary<String, Claim> = Dictionary<String, Claim>()
+    private static var claimCacheById = NSCache<NSString, Claim>()
+    private static var claimCacheByUrl = NSCache<NSString, Claim>()
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
     
@@ -192,19 +192,29 @@ final class Lbry {
         task.resume();
     }
     
+    static func cachedClaim(url: String) -> Claim? {
+        return claimCacheByUrl.object(forKey: url as NSString)
+    }
+    static func cachedClaim(id: String) -> Claim? {
+        return claimCacheById.object(forKey: id as NSString)
+    }
     static func addClaimToCache(claim: Claim?) {
-        if (claim != nil) {
-            Lbry.claimCacheById[(claim?.claimId!)!] = claim
-            let claimUrl: LbryUri? = LbryUri.tryParse(url: (claim?.permanentUrl!)!, requireProto: false)
-            if (claimUrl != nil) {
-                Lbry.claimCacheByUrl[claimUrl!.description] = claim
-            }
-            if !(claim?.shortUrl ?? "").isBlank {
-                Lbry.claimCacheByUrl[claim!.shortUrl!] = claim
-            }
-            if !(claim?.canonicalUrl ?? "").isBlank {
-                Lbry.claimCacheByUrl[claim!.canonicalUrl!] = claim
-            }
+        guard let claim = claim else {
+            return
+        }
+        assert(claim.claimId != nil)
+        if let id = claim.claimId {
+            claimCacheById.setObject(claim, forKey: id as NSString)
+        }
+        if let claimUrl = claim.permanentUrl,
+           let parsed = LbryUri.tryParse(url: claimUrl, requireProto: false)?.description {
+            Lbry.claimCacheByUrl.setObject(claim, forKey: parsed as NSString)
+        }
+        if let shortUrl = claim.shortUrl, !shortUrl.isBlank {
+            Lbry.claimCacheByUrl.setObject(claim, forKey: shortUrl as NSString)
+        }
+        if let canonicalUrl = claim.canonicalUrl, !canonicalUrl.isBlank {
+            Lbry.claimCacheByUrl.setObject(claim, forKey: canonicalUrl as NSString)
         }
     }
     

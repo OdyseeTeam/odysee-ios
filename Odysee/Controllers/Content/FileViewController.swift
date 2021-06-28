@@ -114,8 +114,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var commentsLastPageReached: Bool = false
     var commentsLoading: Bool = false
     var comments = OrderedSet<Comment>()
-    var authorThumbnailMap: Dictionary<String, String> = [:]
-        
+    var authorThumbnailMap = [String: URL]()
+
     var numLikes = 0
     var numDislikes = 0
     var likesContent = false
@@ -275,8 +275,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         displayResolving()
         
         let url = claimUrl!.description
-        if Lbry.claimCacheByUrl[url] != nil {
-            self.claim = Lbry.claimCacheByUrl[url]
+        claim = Lbry.cachedClaim(url: url)
+        if claim != nil {
             DispatchQueue.main.async {
                 self.showClaimAndCheckFollowing()
             }
@@ -286,35 +286,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         var params: Dictionary<String, Any> = Dictionary<String, Any>()
         params["urls"] = [url]
         
-        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.displayNothingAtLocation()
-                return
-            }
-            
-            let result = data["result"] as! NSDictionary
-            for (_, claimData) in result {
-                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
-                do {
-                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if claim != nil && !(claim!.claimId ?? "").isBlank {
-                        Lbry.addClaimToCache(claim: claim)
-                        self.claim = claim
-                        DispatchQueue.main.async {
-                            self.showClaimAndCheckFollowing()
-                        }
-                    } else {
-                        self.displayNothingAtLocation()
-                    }
-                } catch let error {
-                    print(error)
-                }
-                
-                break
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.resolve, params: params, completion: didResolveClaim)
     }
     
+    func didResolveClaim(_ result: Result<ResolveResult, Error>) {
+        guard case let .success(resolve) = result, let entry = resolve.claims.first else {
+            displayNothingAtLocation()
+            return
+        }
+        
+        self.claim = entry.value
+        showClaimAndCheckFollowing()
+    }
+
     func displayResolving() {
         DispatchQueue.main.async {
             self.resolvingView.isHidden = false
@@ -902,11 +886,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     // The main-thread part of the related content loading flow, at the end.
-    func handleRelatedContentResult(_ result: Result<[String: Claim], Error>) {
+    func handleRelatedContentResult(_ result: Result<ResolveResult, Error>) {
         assert(Thread.isMainThread)
-        if case let .success(claims) = result {
+        if case let .success(resolve) = result {
             // Filter out self.claim.
-            relatedContent = claims.values.filter { testClaim in
+            relatedContent = resolve.claims.values.filter { testClaim in
                 let testID = testClaim.claimId
                 return testID != self.claim?.claimId
             }
@@ -1379,9 +1363,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         DispatchQueue.main.async {
             if self.comments.count > 0 {
                 self.featuredCommentLabel.text = self.comments[0].comment
-                if let thumbUrlStr = self.authorThumbnailMap[self.comments[0].channelUrl!] {
+                if let thumbUrl = self.authorThumbnailMap[self.comments[0].channelUrl!] {
                     self.featuredCommentThumbnail.backgroundColor = UIColor.clear
-                    self.featuredCommentThumbnail.load(url: URL(string: thumbUrlStr)!)
+                    self.featuredCommentThumbnail.load(url: thumbUrl)
                 } else {
                     self.featuredCommentThumbnail.image = UIImage.init(named: "spaceman")
                     self.featuredCommentThumbnail.backgroundColor = Helper.lightPrimaryColor
@@ -1392,27 +1376,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     func resolveCommentAuthors(urls: [String]) {
         let params = ["urls": urls]
-        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { [self] data, error in
-            guard let data = data, error == nil else {
-                return
-            }
-            
-            let result = data["result"] as! NSDictionary
-            for (url, claimData) in result {
-                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
-                do {
-                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if claim != nil && !(claim!.claimId ?? "").isBlank {
-                        if claim!.value != nil && claim!.value!.thumbnail != nil && !(claim!.value!.thumbnail!.url ?? "").isBlank {
-                            self.authorThumbnailMap[url as! String] = claim!.value!.thumbnail!.url!
-                        }
-                    }
-                } catch {
-                    // pass
-                }
-            }
-            self.checkFeaturedComment()
-        })
+        Lbry.apiCall(method: Lbry.Methods.resolve, params: params, completion: didResolveCommentAuthors)
+    }
+    
+    func didResolveCommentAuthors(_ result: Result<ResolveResult, Error>) {
+        guard case let .success(resolve) = result else {
+            return
+        }
+        Helper.addThumbURLs(claims: resolve.claims, thumbURLs: &authorThumbnailMap)
+        checkFeaturedComment()
     }
     
     func checkNoComments() {
