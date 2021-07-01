@@ -75,9 +75,11 @@ class InitViewController: UIViewController {
             // successful authentication and install registration
             // open the main application interface
             DispatchQueue.main.async {
-                let main = self.storyboard?.instantiateViewController(identifier: "main_vc")
-                main!.modalPresentationStyle = .currentContext
-                self.present(main!, animated: true)
+                let main = self.storyboard!.instantiateViewController(identifier: "main_vc")
+                let window = self.view.window!
+                window.rootViewController = main
+                UIView.transition(with: window, duration: 0.2,
+                                  options: .transitionCrossDissolve, animations: nil)
             }
         })
     }
