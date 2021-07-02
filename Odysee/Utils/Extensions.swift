@@ -127,16 +127,16 @@ extension NSDictionary: Encodable {
     public func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
         for (k, v) in self {
-            guard let k = k as? String else {
+            guard let keyString = k as? String else {
                 throw EncodingError.invalidValue(k, .init(codingPath: encoder.codingPath,
                                                           debugDescription: "NSDictionary key"))
             }
-            let nestedEncoder = c.superEncoder(forKey: .init(stringValue: k))
-            guard let v = v as? Encodable else {
+            let nestedEncoder = c.superEncoder(forKey: .init(stringValue: keyString))
+            guard let encodableValue = v as? Encodable else {
                 throw EncodingError.invalidValue(v, .init(codingPath: nestedEncoder.codingPath,
                                                           debugDescription: "NSDictionary value"))
             }
-            try v.encode(to: nestedEncoder)
+            try encodableValue.encode(to: nestedEncoder)
         }
     }
     
@@ -154,11 +154,11 @@ extension NSArray: Encodable {
         var c = encoder.unkeyedContainer()
         for v in self {
             let nestedEncoder = c.superEncoder()
-            guard let v = v as? Encodable else {
+            guard let encodableValue = v as? Encodable else {
                 throw EncodingError.invalidValue(v, .init(codingPath: nestedEncoder.codingPath,
                                                           debugDescription: "NSArray"))
             }
-            try v.encode(to: nestedEncoder)
+            try encodableValue.encode(to: nestedEncoder)
         }
     }
 }
