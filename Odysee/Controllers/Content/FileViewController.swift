@@ -283,10 +283,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
         
-        var params: Dictionary<String, Any> = Dictionary<String, Any>()
-        params["urls"] = [url]
-        
-        Lbry.apiCall(method: Lbry.Methods.resolve, params: params, completion: didResolveClaim)
+        Lbry.apiCall(method: Lbry.Methods.resolve,
+                     params: .init(urls: [url]),
+                     completion: didResolveClaim)
     }
     
     func didResolveClaim(_ result: Result<ResolveResult, Error>) {
@@ -463,7 +462,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     func displayClaim() {
-        isPlaylist = "collection" == claim?.valueType
+        isPlaylist = .collection == claim?.valueType
         isLivestream = !isPlaylist && claim?.value?.source == nil
         detailsScrollView.isHidden = isLivestream
         livestreamChatView.isHidden = !isLivestream
@@ -784,7 +783,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             let options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: nil, notChannelIds: nil, claimIds: playlistClaims, orderBy: Helper.sortByItemValues[1], releaseTime: nil, maxDuration: nil, limitClaimsPerChannel: 0, page: currentPlaylistPage, pageSize: playlistPageSize)
             
             Lbry.apiCall(method: Lbry.Methods.claimSearch,
-                         params: options,
+                         params: options as NSDictionary,
                          completion: didLoadPlaylistClaims)
         }
     }
@@ -871,16 +870,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 return
             }
             
-            var resolveUrls: [String] = []
-            for item in results! {
-                let lbryUri = LbryUri.tryParse(url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String), requireProto: false)
-                if (lbryUri != nil) {
-                    resolveUrls.append(lbryUri!.description)
-                }
+            let urls = results!.compactMap { item in
+                LbryUri.tryParse(url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String), requireProto: false)?.description
             }
-            
             Lbry.apiCall(method: Lbry.Methods.resolve,
-                         params: ["urls": resolveUrls],
+                         params: .init(urls: urls),
                          completion: self.handleRelatedContentResult)
         })
     }
@@ -1327,15 +1321,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
         
         commentsLoading = true
-        let params: Dictionary<String, Any> = [
-            "claim_id": singleClaim.claimId!,
-            "page": commentsCurrentPage,
-            "page_size": commentsPageSize,
-            "skip_validation": true,
-            "include_replies": false
-        ]
-        
-        Lbry.apiCall(method: Lbry.Methods.commentList, params: params, completion: didLoadComments)
+        Lbry.apiCall(method: Lbry.Methods.commentList,
+                     params: .init(
+                        claimId: singleClaim.claimId!,
+                        page: commentsCurrentPage,
+                        pageSize: commentsPageSize,
+                        skipValidation: true),
+                     completion: didLoadComments)
     }
     
     func didLoadComments(_ result: Result<Page<Comment>, Error>) {
@@ -1375,8 +1367,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     func resolveCommentAuthors(urls: [String]) {
-        let params = ["urls": urls]
-        Lbry.apiCall(method: Lbry.Methods.resolve, params: params, completion: didResolveCommentAuthors)
+        Lbry.apiCall(method: Lbry.Methods.resolve,
+                     params: .init(urls: urls),
+                     completion: didResolveCommentAuthors)
     }
     
     func didResolveCommentAuthors(_ result: Result<ResolveResult, Error>) {

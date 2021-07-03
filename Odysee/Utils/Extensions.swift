@@ -107,3 +107,76 @@ extension Optional {
         return self ?? defaultValue()
     }
 }
+
+// These extensions are useful for Lbry.swift – so that we can support old methods that haven't
+// migrated to their own Params type yet and still use dictionaries.
+extension NSString: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        try (self as String).encode(to: encoder)
+    }
+}
+
+extension NSNull: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.singleValueContainer()
+        try c.encodeNil()
+    }
+}
+
+extension NSDictionary: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        for (k, v) in self {
+            guard let keyString = k as? String else {
+                throw EncodingError.invalidValue(k, .init(codingPath: encoder.codingPath,
+                                                          debugDescription: "NSDictionary key"))
+            }
+            let nestedEncoder = c.superEncoder(forKey: .init(stringValue: keyString))
+            guard let encodableValue = v as? Encodable else {
+                throw EncodingError.invalidValue(v, .init(codingPath: nestedEncoder.codingPath,
+                                                          debugDescription: "NSDictionary value"))
+            }
+            try encodableValue.encode(to: nestedEncoder)
+        }
+    }
+    
+    // A dummy CodingKeys that lets you use any string you want.
+    private struct CodingKeys: CodingKey {
+        var stringValue: String
+        init(stringValue: String) { self.stringValue = stringValue }
+        var intValue: Int? { return nil }
+        init?(intValue: Int) { return nil }
+    }
+}
+
+extension NSArray: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.unkeyedContainer()
+        for v in self {
+            let nestedEncoder = c.superEncoder()
+            guard let encodableValue = v as? Encodable else {
+                throw EncodingError.invalidValue(v, .init(codingPath: nestedEncoder.codingPath,
+                                                          debugDescription: "NSArray"))
+            }
+            try encodableValue.encode(to: nestedEncoder)
+        }
+    }
+}
+
+extension NSNumber: Encodable {
+    public func encode(to encoder: Encoder) throws {
+        var c = encoder.singleValueContainer()
+        // NSNumber in swift is weird. You have to use value(of:) to find bools, but you can't use
+        // value(of:) to find ints and floats correctly.
+        if let b = value(of: Bool.self) {
+            try c.encode(b)
+        } else if let i = self as? Int {
+            try c.encode(i)
+        } else if let d = self as? Double {
+            try c.encode(d)
+        } else {
+            throw EncodingError.invalidValue(self, .init(codingPath: encoder.codingPath,
+                                                         debugDescription: "NSNumber"))
+        }
+    }
+}

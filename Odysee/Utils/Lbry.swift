@@ -31,20 +31,21 @@ final class Lbry {
         page.items.forEach(Lbry.addClaimToCache)
     }
 
-    struct Method<ResultType: Decodable> {
+    struct Method<ParamType: Encodable, ResultType: Decodable> {
         var name: String
         var defaultTransform: ((inout ResultType) throws -> Void)?
     }
 
     struct Methods {
-        static let resolve       = Method<ResolveResult>(name: "resolve",
+        static let resolve       = Method<ResolveParams, ResolveResult>(name: "resolve",
                                                          defaultTransform: processResolvedClaims)
-        static let claimSearch   = Method<Page<Claim>>(name: "claim_search",
+        // TODO: Add real type for params.
+        static let claimSearch   = Method<NSDictionary, Page<Claim>>(name: "claim_search",
                                                        defaultTransform: processPageOfClaims)
-        static let claimList     = Method<Page<Claim>>(name: "claim_list",
+        static let claimList     = Method<ClaimListParams, Page<Claim>>(name: "claim_list",
                                                        defaultTransform: processPageOfClaims)
-        static let streamAbandon = Method<Transaction>(name: "stream_abandon")
-        static let commentList   = Method<Page<Comment>>(name: "comment_list")
+        static let streamAbandon = Method<StreamAbandonParams, Transaction>(name: "stream_abandon")
+        static let commentList   = Method<CommentListParams, Page<Comment>>(name: "comment_list")
     }
 
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
@@ -84,21 +85,33 @@ final class Lbry {
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
     
-    static private func apiRequest(method: String,
-                                   params: [String: Any],
-                                   url: URL,
-                                   authToken: String?) -> URLRequest {
-        let counter = Date().timeIntervalSince1970
-        let body: Dictionary<String, Any> = [
-            "jsonrpc": "2.0",
-            "method": method,
-            "params": params,
-            "counter": counter
-        ];
+    private struct APIBody<CallParams: Encodable>: Encodable {
+        var method: String
+        var params: CallParams
+        var jsonrpc = "2.0"
+        var counter = Date().timeIntervalSince1970
+    }
+    
+    static private let bodyEncoder: JSONEncoder = {
+        let e = JSONEncoder()
+        e.keyEncodingStrategy = .convertToSnakeCase
+        return e
+    }()
+
+    static private func apiRequest<Params: Encodable>(method: String,
+                                                      params: Params,
+                                                      url: URL,
+                                                      authToken: String?) throws -> URLRequest {
+        let body = APIBody(method: method, params: params)
         
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
-        req.httpBody = try! JSONSerialization.data(withJSONObject: body, options: .prettyPrinted)
+        do {
+            req.httpBody = try bodyEncoder.encode(body)
+        } catch let e {
+            assertionFailure("API encoding error: \(e)")
+            throw e
+        }
         req.addValue("application/json", forHTTPHeaderField: "Content-Type")
         req.addValue("application/json", forHTTPHeaderField: "Accept")
         if let authToken = authToken, !authToken.isBlank {
@@ -120,20 +133,27 @@ final class Lbry {
     
     // `transform` is run off-main before completion to do things like sorting/filtering. Be cafeful!
     // Delivers the parsed Result on the main thread.
-    static func apiCall<Value: Decodable>(method: Method<Value>,
-                                          params: [String: Any],
-                                          url: URL = lbrytvURL,
-                                          authToken: String? = Lbryio.authToken,
-                                          transform: ((inout Value) throws -> ())? = nil,
-                                          completion: @escaping (Result<Value, Error>) -> Void) {
-        let req = apiRequest(method: method.name, params: params, url: url, authToken: authToken)
+    static func apiCall<Params: Encodable, ReturnType: Decodable>
+    (method: Method<Params, ReturnType>,
+     params: Params,
+     url: URL = lbrytvURL,
+     authToken: String? = Lbryio.authToken,
+     transform: ((inout ReturnType) throws -> ())? = nil,
+     completion: @escaping (Result<ReturnType, Error>) -> Void) {
+        let req: URLRequest
+        do {
+            req = try apiRequest(method: method.name, params: params, url: url, authToken: authToken)
+        } catch let e {
+            completion(.failure(e))
+            return
+        }
         let task = URLSession.shared.dataTask(with: req) { taskResult in
             // Do the parse, compute the result here on network thread.
-            let result: Result<Value, Error> = taskResult.flatMap { rawResponse in
+            let result: Result<ReturnType, Error> = taskResult.flatMap { rawResponse in
                 Result {
                     Log.verboseJSON.logIfEnabled(.debug, "Response to `\(method)`: \(String(data: rawResponse.data, encoding: .utf8)!)")
 
-                    let response = try JSONDecoder().decode(APIResponse<Value>.self, from: rawResponse.data)
+                    let response = try JSONDecoder().decode(APIResponse<ReturnType>.self, from: rawResponse.data)
                     assert(response.jsonrpc == "2.0")
 
                     // no result inside response
@@ -161,7 +181,16 @@ final class Lbry {
     // Delivers the result on a background thread as a [String: Any].
     // New code should migrate to the version above that delivers on main.
     static func apiCall(method: String, params: Dictionary<String, Any>, connectionString: String, authToken: String? = nil, completion: @escaping ([String: Any]?, Error?) -> Void) {
-        let req = apiRequest(method: method, params: params, url: URL(string: connectionString)!, authToken: authToken)
+        let req: URLRequest
+        do {
+            req = try apiRequest(method: method,
+                                 params: params as NSDictionary,
+                                 url: URL(string: connectionString)!,
+                                 authToken: authToken)
+        } catch let e {
+            completion(nil, e)
+            return
+        }
         let task = URLSession.shared.dataTask(with: req, completionHandler: { data, response, error in
             guard let data = data, error == nil else {
                 // handle error

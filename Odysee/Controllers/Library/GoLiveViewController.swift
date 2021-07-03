@@ -215,13 +215,13 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     
     func loadChannels() {
         precheckLoadingView.isHidden = false
-            
-        let options: [String: Any] = ["claim_type": "channel",
-                                      "page": 1,
-                                      "page_size": 999,
-                                      "resolve": true]
+        
         Lbry.apiCall(method: Lbry.Methods.claimList,
-                     params: options,
+                     params: .init(
+                        claimType: .channel,
+                        page: 1,
+                        pageSize: 999,
+                        resolve: true),
                      authToken: Lbryio.authToken,
                      completion: didLoadChannels)
     }

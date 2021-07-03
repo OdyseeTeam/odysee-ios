@@ -67,12 +67,12 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         loadingUploads = true
         loadingContainer.isHidden = false
         
-        let options: [String: Any] = ["claim_type": "stream",
-                                      "page": currentPage,
-                                      "page_size": pageSize,
-                                      "resolve": true]
         Lbry.apiCall(method: Lbry.Methods.claimList,
-                     params: options,
+                     params: .init(
+                        claimType: .stream,
+                        page: currentPage,
+                        pageSize: pageSize,
+                        resolve: true),
                      completion: didReceiveUploads)
     }
     
@@ -108,10 +108,11 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     */
     
     func abandonClaim(claim: Claim) {
-        let params: [String: Any] = ["claim_id": claim.claimId!,
-                                     "blocking": true]
         Lbry.apiCall(method: Lbry.Methods.streamAbandon,
-                     params: params,
+                     params: .init(
+                        claimId: claim.claimId!,
+                        blocking: true
+                     ),
                      completion: didAbandonClaim)
     }
     

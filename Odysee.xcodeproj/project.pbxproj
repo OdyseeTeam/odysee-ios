@@ -92,6 +92,7 @@
 		CC015766267A9C1100F96EFE /* ImageURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC015765267A9C1100F96EFE /* ImageURLs.swift */; };
 		CC015768267C1A0B00F96EFE /* ResolveResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC015767267C1A0B00F96EFE /* ResolveResult.swift */; };
 		CC0B2B0D266D0E72002490BB /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0B2B0C266D0E72002490BB /* Lock.swift */; };
+		CC3A1E7826853D7E00683E28 /* APIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3A1E7726853D7E00683E28 /* APIParams.swift */; };
 		CC48F4FC2662B2020018D958 /* VideoPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC48F4FB2662B2020018D958 /* VideoPickerController.swift */; };
 		CC49954526692037001BB2DC /* ImagePrefetchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC49954426692037001BB2DC /* ImagePrefetchController.swift */; };
 		CC80EC0F2672A80700CA07DA /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC80EC0E2672A80700CA07DA /* Page.swift */; };
@@ -208,6 +209,7 @@
 		CC015765267A9C1100F96EFE /* ImageURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageURLs.swift; sourceTree = "<group>"; };
 		CC015767267C1A0B00F96EFE /* ResolveResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolveResult.swift; sourceTree = "<group>"; };
 		CC0B2B0C266D0E72002490BB /* Lock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
+		CC3A1E7726853D7E00683E28 /* APIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIParams.swift; sourceTree = "<group>"; };
 		CC48F4FB2662B2020018D958 /* VideoPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPickerController.swift; sourceTree = "<group>"; };
 		CC49954426692037001BB2DC /* ImagePrefetchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePrefetchController.swift; sourceTree = "<group>"; };
 		CC80EC0E2672A80700CA07DA /* Page.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Page.swift; sourceTree = "<group>"; };
@@ -270,6 +272,7 @@
 				642B6B10257B4CBC00F17355 /* Transaction.swift */,
 				646E4A5E259CF13A0008C9C8 /* Comment.swift */,
 				CC015767267C1A0B00F96EFE /* ResolveResult.swift */,
+				CC3A1E7726853D7E00683E28 /* APIParams.swift */,
 				641E7EC02608BE0C00A79CD3 /* Language.swift */,
 				CC80EC0E2672A80700CA07DA /* Page.swift */,
 				641E7EC52608BE5700A79CD3 /* License.swift */,
@@ -705,6 +708,7 @@
 				646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */,
 				64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */,
 				640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */,
+				CC3A1E7826853D7E00683E28 /* APIParams.swift in Sources */,
 				641AFAE925B606E000218BD9 /* UAButton.swift in Sources */,
 				641E7EC12608BE0C00A79CD3 /* Language.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
