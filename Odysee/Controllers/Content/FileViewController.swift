@@ -797,10 +797,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         loadingRelatedView.isHidden = false
     
         if let playlistClaims = claim?.value!.claims {
-            let options = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: nil, notChannelIds: nil, claimIds: playlistClaims, orderBy: Helper.sortByItemValues[1], releaseTime: nil, maxDuration: nil, limitClaimsPerChannel: 0, page: currentPlaylistPage, pageSize: playlistPageSize)
-            
             Lbry.apiCall(method: Lbry.Methods.claimSearch,
-                         params: options as NSDictionary,
+                         params: .init(
+                            claimType: [.stream],
+                            page: currentPlaylistPage,
+                            pageSize: playlistPageSize,
+                            claimIds: playlistClaims,
+                            orderBy: Helper.sortByItemValues[1]),
                          completion: didLoadPlaylistClaims)
         }
     }
