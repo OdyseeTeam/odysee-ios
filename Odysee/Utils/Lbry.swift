@@ -49,7 +49,6 @@ final class Lbry {
     }
 
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
-    static let methodClaimSearch = Methods.claimSearch.name
     static let methodResolve = Methods.resolve.name
     static let methodAddressUnused = "address_unused"
     static let methodChannelAbandon = "channel_abandon"

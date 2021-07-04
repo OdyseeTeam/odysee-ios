@@ -7,6 +7,7 @@
 
 import CoreData
 import Firebase
+import OrderedCollections
 import SafariServices
 import UIKit
 
@@ -62,7 +63,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var currentPage: Int = 1
     var lastPageReached: Bool = false
     var loadingContent: Bool = false
-    var claims: [Claim] = []
+    var claims = OrderedSet<Claim>()
     var channels: [Claim] = []
     
     var commentsDisabled = false
@@ -363,45 +364,23 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         loadingContent = true
         noChannelContentView.isHidden = true
         updateClaimSearchOptions()
-        Lbry.apiCall(method: Lbry.methodClaimSearch, params: claimSearchOptions, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.loadingContent = false
-                print(error!)
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            let items = result?["items"] as? [[String: Any]]
-            if (items != nil) {
-                if (items!.count < self.pageSize) {
-                    self.lastPageReached = true
-                }
-                var loadedClaims: [Claim] = []
-                items?.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId }) && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
-                            loadedClaims.append(claim!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                self.claims.append(contentsOf: loadedClaims)
-                //self.claims.sort(by: { Int64($0.value?.releaseTime ?? "0")! > Int64($1.value?.releaseTime ?? "0")! })
-            }
-            
-            self.loadingContent = false
-            DispatchQueue.main.async {
-                self.contentLoadingContainer.isHidden = true
-                self.checkNoContent()
-                self.contentListView.reloadData()
-                //self.refreshControl.endRefreshing()
-                
-                self.checkLivestream()
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimSearch,
+                     params: claimSearchOptions as NSDictionary,
+                     completion: didLoadContent)
+    }
+    
+    func didLoadContent(_ result: Result<Page<Claim>, Error>) {
+        loadingContent = false
+        contentLoadingContainer.isHidden = true
+        guard case let .success(page) = result else {
+            result.showErrorIfPresent()
+            return
+        }
+        lastPageReached = page.isLastPage
+        claims.append(contentsOf: page.items)
+        contentListView.reloadData()
+        checkNoContent()
+        checkLivestream()
     }
     
     @objc func checkLivestream() {
@@ -413,38 +392,18 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         
         let channelIds: [String] = [channelClaim?.claimId ?? ""]
         let hasNoSourceOptions = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds, notChannelIds: nil, claimIds: nil, orderBy: Helper.sortByItemValues[1], releaseTime: nil, maxDuration: nil, limitClaimsPerChannel: 0, hasNoSource: true, page: 1, pageSize: pageSize)
-        Lbry.apiCall(method: Lbry.methodClaimSearch, params: hasNoSourceOptions, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.loadingContent = false
-                print(error!)
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            let items = result?["items"] as? [[String: Any]]
-            if (items != nil) {
-                var loadedClaims: [Claim] = []
-                items?.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
-                            loadedClaims.append(claim!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                
-                if loadedClaims.count > 0 {
-                    self.checkChannelIsLive(claim: loadedClaims[0])
-                }
-            }
-            self.loadingContent = false
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimSearch,
+                     params: hasNoSourceOptions as NSDictionary,
+                     completion: didCheckLivestream)
     }
     
-    func checkChannelIsLive(claim: Claim?) {
+    func didCheckLivestream(_ result: Result<Page<Claim>, Error>) {
+        loadingContent = false
+        guard case let .success(page) = result,
+              let claim = page.items.first else {
+            result.showErrorIfPresent()
+            return
+        }
         let url = URL(string: String(format: "https://api.bitwave.tv/v1/odysee/live/%@", channelClaim!.claimId!))
         let session = URLSession.shared
         var req = URLRequest(url: url!)
@@ -461,10 +420,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     let isLive = livestreamData["live"] as? Bool ?? false
                     if isLive {
                         // only show the livestream claim at the top if the channel is actually live
-                        if !self.claims.contains(where: { $0.claimId == claim?.claimId }) {
-                            self.claims.insert(claim!, at: 0)
-                        }
                         DispatchQueue.main.async {
+                            self.claims.insert(claim, at: 0)
                             self.contentListView.reloadData()
                         }
                         
