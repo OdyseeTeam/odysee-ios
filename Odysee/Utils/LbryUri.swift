@@ -98,24 +98,15 @@ struct LbryUri: CustomStringConvertible {
         }
         
         let streamOrChannelName = components[2]
-        var primaryModSeparator = components[3]
+        let primaryModSeparator = components[3]
         let primaryModValue = components[4]
         let possibleStreamName = components[6]
-        var secondaryModSeparator = components[7]
+        let secondaryModSeparator = components[7]
         let secondaryModValue = components[8]
         
         let includesChannel = streamOrChannelName.starts(with: "@")
         let isChannel = includesChannel && possibleStreamName.isEmpty
         let channelName: String? = includesChannel && streamOrChannelName.count > 1 ? String(streamOrChannelName.suffix(from: streamOrChannelName.index(after: streamOrChannelName.firstIndex(of: "@")!))) : nil
-        
-        if (!components[1].isBlank) {
-            if (primaryModSeparator == ":") {
-                primaryModSeparator = "#"
-            }
-            if (secondaryModSeparator == ":") {
-                secondaryModSeparator = "#"
-            }
-        }
         
         if (includesChannel) {
             if ((channelName ?? "").isBlank) {
@@ -181,10 +172,10 @@ struct LbryUri: CustomStringConvertible {
         let secondaryClaimId: String? = !(secondaryClaimName ?? "").isBlank ? streamClaimId : nil
         
         if (!(primaryClaimId ?? "").isBlank) {
-            url.append("#")
+            url.append(":")
             url.append(primaryClaimId ?? "")
         } else if (primaryClaimSequence > 0) {
-            url.append(":")
+            url.append("*")
             url.append(String(primaryClaimSequence))
         } else if (primaryBidPosition > 0) {
             url.append("$")
@@ -196,10 +187,10 @@ struct LbryUri: CustomStringConvertible {
             url.append(secondaryClaimName ?? "")
         }
         if (!(secondaryClaimId ?? "").isBlank) {
-            url.append("#")
+            url.append(":")
             url.append(secondaryClaimId ?? "")
         } else if (secondaryClaimSequence > 0) {
-            url.append(":")
+            url.append("*")
             url.append(String(secondaryClaimSequence))
         } else if (secondaryBidPosition > 0) {
             url.append("$")
@@ -236,9 +227,9 @@ struct LbryUri: CustomStringConvertible {
                     throw LbryUriError.runtimeError(String(format: "No modifier provided after separator %@", modSeparator))
                 }
             
-                if (modSeparator == "#") {
+                if (modSeparator == "#" || modSeparator == ":") {
                     claimId = modValue
-                } else if (modSeparator == ":") {
+                } else if (modSeparator == "*") {
                     claimSequence = Int(modValue) ?? -1
                 } else if (modSeparator == "$") {
                     bidPosition = Int(modValue) ?? -1
