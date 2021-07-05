@@ -66,6 +66,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var claims = OrderedSet<Claim>()
     var channels: [Claim] = []
     
+    var commentsDisabledChecked = false
     var commentsDisabled = false
     var commentsPageSize: Int = 50
     var commentsCurrentPage: Int = 1
@@ -135,7 +136,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
     
     func displayCommentsView() {
-        if commentsViewPresented {
+        if commentsViewPresented || !commentsDisabledChecked {
             return
         }
         
@@ -261,11 +262,21 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         return true
     }
     
+    func checkCommentsDisabled(_ commentsDisabled: Bool) {
+        DispatchQueue.main.async {
+            self.commentsDisabled = !commentsDisabled
+            self.displayCommentsView()
+        }
+    }
+    
     func displayClaim() {
         resolvingView.isHidden = true
         
         if channelClaim?.value != nil {
-            commentsDisabled = Helper.claimContainsTag(claim: channelClaim!, tag: Helper.tagDisableComments)
+            Lbryio.areCommentsEnabled(channelId: channelClaim!.claimId!, channelName: channelClaim!.name!, completion: { enabled in
+                self.commentsDisabledChecked = true
+                self.checkCommentsDisabled(!enabled)
+            })
             
             if channelClaim?.value?.thumbnail != nil {
                 thumbnailImageView.load(url: URL(string: (channelClaim?.value?.thumbnail?.url)!)!)

@@ -15,6 +15,7 @@ final class Lbryio {
     
     static var generatingAuthToken: Bool = false
     static let connectionString = "https://api.lbry.com"
+    static let commentronUrl = "https://comments.lbry.com/api/v2"
     static let wsConnectionBaseUrl = "wss://api.lbry.com/subscribe?auth_token="
     static let wsCommmentBaseUrl = "wss://comments.lbry.com/api/v2/live-chat/subscribe?subscription_id="
     static let authTokenParam = "auth_token"
@@ -214,6 +215,19 @@ final class Lbryio {
                     completion(nil, error)
                 }
             }
+        })
+    }
+    
+    static func areCommentsEnabled(channelId: String, channelName: String, completion: @escaping (Bool) -> Void) {
+        let params: Dictionary<String, Any> = ["channel_id": channelId, "channel_name": channelName, "page": 1, "page_size": 1]
+        Lbry.apiCall(method: "comment.List", params: params, connectionString: commentronUrl, completion: { data, error in
+            guard let _ = data, error == nil else {
+                completion(false)
+                return
+            }
+            
+            // if no errors occurred, that means comments were returned
+            completion(true)
         })
     }
     
