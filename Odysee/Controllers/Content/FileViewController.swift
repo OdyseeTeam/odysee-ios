@@ -93,6 +93,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     let avpc = AVPlayerViewController()
     weak var commentsVc: CommentsViewController!
     
+    var commentsDisabledChecked = false
     var commentsDisabled = false
     var commentsViewPresented = false  
     var commentAsPicker: UIPickerView!
@@ -228,7 +229,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 if !isPlaylist {
                     loadAndDisplayViewCount(currentClaim)
                     loadReactions(currentClaim)
-                    loadComments(currentClaim)
                 }
                 loadPlaylistOrRelated()
             }
@@ -264,7 +264,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             if !isPlaylist {
                 loadAndDisplayViewCount(currentClaim)
                 loadReactions(currentClaim)
-                loadComments(currentClaim)
                 checkFollowing(currentClaim)
                 checkNotificationsDisabled(currentClaim)
             }
@@ -397,17 +396,32 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
     
+    func checkCommentsDisabled(commentsDisabled: Bool, currentClaim: Claim) {
+        DispatchQueue.main.async {
+            self.commentsDisabled = commentsDisabled
+            self.commentExpandView.isHidden = commentsDisabled
+            self.noCommentsLabel.isHidden = !commentsDisabled
+            self.noCommentsLabel.text = String.localized("Comments are disabled.")
+            self.featuredCommentView.isHidden = commentsDisabled
+            
+            if !self.commentsDisabled {
+                self.loadComments(currentClaim)
+            }
+        }
+    }
+    
     func displaySingleClaim(_ singleClaim: Claim) {
+        commentsDisabledChecked = false
         resolvingView.isHidden = true
         descriptionArea.isHidden = true
         descriptionDivider.isHidden = true
         
-        commentsDisabled = Helper.claimContainsTag(claim: singleClaim, tag: Helper.tagDisableComments) ||
-            (singleClaim.signingChannel != nil && Helper.claimContainsTag(claim: singleClaim.signingChannel!, tag: Helper.tagDisableComments))
-        commentExpandView.isHidden = commentsDisabled
-        noCommentsLabel.isHidden = !commentsDisabled
-        noCommentsLabel.text = String.localized("Comments are disabled.")
-        featuredCommentView.isHidden = commentsDisabled
+        if let publisher = claim?.signingChannel {
+            Lbryio.areCommentsEnabled(channelId: publisher.claimId!, channelName: publisher.name!, completion: { enabled in
+                self.commentsDisabledChecked = true
+                self.checkCommentsDisabled(commentsDisabled: !enabled, currentClaim: singleClaim)
+            })
+        }
         
         titleLabel.text = singleClaim.value?.title
         
@@ -535,15 +549,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         
         let timeToStartMs = Int64(Date().timeIntervalSince1970 * 1000.0) - playRequestTime
         let timeToStartSeconds = Int64(Double(timeToStartMs) / 1000.0)
-        let url = isPlaylist ? currentPlaylistClaim().permanentUrl! : claim!.permanentUrl!
-        
-        Analytics.logEvent("play", parameters: [
-            "url": url,
-            "time_to_start_ms": timeToStartMs,
-            "time_to_start_seconds": timeToStartSeconds
-        ])
-     
-        logFileView(url: url, timeToStart: timeToStartMs)
+        let url = isPlaylist ? currentPlaylistClaim().permanentUrl! : (claim != nil ? claim!.permanentUrl! : nil)
+        if let claimUrl = url {
+            Analytics.logEvent("play", parameters: [
+                "url": claimUrl,
+                "time_to_start_ms": timeToStartMs,
+                "time_to_start_seconds": timeToStartSeconds
+            ])
+         
+            logFileView(url: claimUrl, timeToStart: timeToStartMs)
+        }
     }
     
     func disconnectPlayer() {
@@ -990,7 +1005,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     @IBAction func commentAreaTapped(_ sender: Any) {
-        if commentsDisabled {
+        if commentsDisabled || !commentsDisabledChecked {
             return
         }
         
