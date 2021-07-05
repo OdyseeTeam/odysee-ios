@@ -7,6 +7,7 @@
 
 import Firebase
 import CoreData
+import OrderedCollections
 import UIKit
 
 class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, WalletSyncObserver {
@@ -31,7 +32,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var contentFromPicker: UIPickerView!
     
     var selectedChannelClaim: Claim? = nil
-    var suggestedFollows: [Claim] = []
+    var suggestedFollows = OrderedSet<Claim>()
     var following: [Claim] = []
     var subscriptions: [Subscription] = []
     var selectedChannelIds: [String] = []
@@ -49,7 +50,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var currentPage: Int = 1
     var lastPageReached: Bool = false
     var loadingContent: Bool = false
-    var claims: [Claim] = []
+    var claims = OrderedSet<Claim>()
     
     var currentSortByIndex = 1 // default to New content
     var currentContentFromIndex = 1 // default to Past week
@@ -240,37 +241,19 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
         
         updateSuggestedClaimSearchOptions()
-        Lbry.apiCall(method: Lbry.methodClaimSearch, params: suggestedClaimSearchOptions, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-                guard let data = data, error == nil else {
-                    print(error!)
-                    return
-                }
-                
-                let result = data["result"] as? [String: Any]
-                let items = result?["items"] as? [[String: Any]]
-                if (items != nil) {
-                    var loadedClaims: [Claim] = []
-                    items?.forEach{ item in
-                        let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                        do {
-                            let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                            if (claim != nil && !self.suggestedFollows.contains(where: { $0.claimId == claim?.claimId }) && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
-                                Lbry.addClaimToCache(claim: claim)
-                                loadedClaims.append(claim!)
-                            }
-                        } catch let error {
-                            print(error)
-                        }
-                    }
-                    self.suggestedFollows.append(contentsOf: loadedClaims)
-                }
-            
-                self.loadingSuggested = false
-                DispatchQueue.main.async {
-                    self.loadingContainer.isHidden = true
-                    self.suggestedFollowsView.reloadData()
-                }
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimSearch,
+                     params: suggestedClaimSearchOptions as NSDictionary,
+                     completion: didLoadSuggestedFollows)
+    }
+    
+    func didLoadSuggestedFollows(_ result: Result<Page<Claim>, Error>) {
+        loadingSuggested = false
+        loadingContainer.isHidden = true
+        guard case let .success(page) = result else {
+            return
+        }
+        suggestedFollows.append(contentsOf: page.items)
+        suggestedFollowsView.reloadData()
     }
     
     /*
@@ -294,39 +277,23 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         
         loadingContent = true
         updateClaimSearchOptions()
-        Lbry.apiCall(method: Lbry.methodClaimSearch, params: claimSearchOptions, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            if (data != nil) {
-                let result = data?["result"] as? [String: Any]
-                let items = result?["items"] as? [[String: Any]]
-                if (items != nil) {
-                    if (items!.count < self.pageSize) {
-                        self.lastPageReached = true
-                    }
-                    var loadedClaims: [Claim] = []
-                    items?.forEach{ item in
-                        let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                        do {
-                            let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                            if (claim != nil && !self.claims.contains(where: { $0.claimId == claim?.claimId }) && !Lbryio.isClaimFiltered(claim!) && !Lbryio.isClaimBlocked(claim!)) {
-                                loadedClaims.append(claim!)
-                            }
-                        } catch let error {
-                            print(error)
-                        }
-                    }
-                    self.claims.append(contentsOf: loadedClaims)
-                    //self.claims.sort(by: { Int64($0.value?.releaseTime ?? "0")! > Int64($1.value?.releaseTime ?? "0")! })
-                }
-            }
-            
-            self.loadingContent = false
-            DispatchQueue.main.async {
-                self.loadingContainer.isHidden = true
-                //self.checkNoContent()
-                self.contentListView.reloadData()
-                //self.refreshControl.endRefreshing()
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimSearch,
+                     params: claimSearchOptions as NSDictionary,
+                     completion: didLoadSubscriptionContent)
+    }
+    
+    func didLoadSubscriptionContent(_ result: Result<Page<Claim>, Error>) {
+        loadingContent = false
+        loadingContainer.isHidden = true
+        
+        guard case let .success(page) = result else {
+            result.showErrorIfPresent()
+            return
+        }
+        
+        lastPageReached = page.isLastPage
+        claims.append(contentsOf: page.items)
+        contentListView.reloadData()
     }
     
     func showMessage(message: String?) {
