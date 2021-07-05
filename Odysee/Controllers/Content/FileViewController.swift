@@ -29,6 +29,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet weak var livestreamerArea: UIView!
     
     @IBOutlet weak var mediaView: UIView!
+    @IBOutlet weak var reloadStreamView: UIView!
     
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var viewCountLabel: UILabel!
@@ -376,7 +377,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             "Referer": "https://bitwave.tv"
                         ]
                         DispatchQueue.main.async {
-                            self.initializePlayerWithUrl(singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers)
+                            self.initializePlayerWithUrl(singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers, forceInit: true)
                         }
                     }
                 }
@@ -466,6 +467,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         isLivestream = !isPlaylist && claim?.value?.source == nil
         detailsScrollView.isHidden = isLivestream
         livestreamChatView.isHidden = !isLivestream
+        reloadStreamView.isHidden = !isLivestream
         relatedOrPlaylistTitle.text = isPlaylist ? claim?.value?.title : String.localized("Related Content")
         
         displayRelatedPlaceholders()
@@ -482,14 +484,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
     
-    func initializePlayerWithUrl(singleClaim: Claim, sourceUrl: URL, headers: Dictionary<String, String> = [:]) {
+    func initializePlayerWithUrl(singleClaim: Claim, sourceUrl: URL, headers: Dictionary<String, String> = [:], forceInit: Bool = false) {
         assert(Thread.isMainThread)
         
         livestreamOfflinePlaceholder.isHidden = true
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         avpc.delegate = appDelegate.mainController
-        if (appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == singleClaim.claimId) {
+        if (!forceInit && appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == singleClaim.claimId) {
             avpc.player = appDelegate.player
             playerConnected = true
             return
@@ -970,6 +972,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     @IBAction func closeTapped(_ sender: UIButton) {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    @IBAction func reloadTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if let player = appDelegate.player {
+            if player.rate != 0 && player.error == nil {
+                return
+            }
+        }
+        
+        if !isLivestream {
+            return
+        }
+        
+        loadLivestream()
     }
     
     @IBAction func commentAreaTapped(_ sender: Any) {
