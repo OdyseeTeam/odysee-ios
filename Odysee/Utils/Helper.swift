@@ -38,6 +38,13 @@ final class Helper {
     static let apiDateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+        f.timeZone = TimeZone(abbreviation: "UTC")
+        return f
+    }()
+    static let localDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        f.timeZone = TimeZone.current
         return f
     }()
     static let sdkAmountFormatter: NumberFormatter = {
