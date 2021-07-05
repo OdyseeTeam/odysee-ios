@@ -1392,10 +1392,10 @@
                                 <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="notification_cell" id="CBC-yc-Lg6" customClass="NotificationTableViewCell" customModule="Odysee" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="28" width="414" height="133.5"/>
+                                        <rect key="frame" x="0.0" y="28" width="414" height="134"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="CBC-yc-Lg6" id="CyX-RZ-AKz">
-                                            <rect key="frame" x="0.0" y="0.0" width="414" height="133.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="414" height="134"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nec-jl-R4W">
@@ -1427,7 +1427,7 @@
                                                     </constraints>
                                                 </view>
                                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="Rkn-qw-1Ja">
-                                                    <rect key="frame" x="72" y="12" width="298" height="109.5"/>
+                                                    <rect key="frame" x="72" y="12" width="298" height="110"/>
                                                     <subviews>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E1P-Ch-8kS">
                                                             <rect key="frame" x="0.0" y="0.0" width="298" height="0.0"/>
@@ -1442,7 +1442,7 @@
                                                             <nil key="highlightedColor"/>
                                                         </label>
                                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KCt-HX-Xa4">
-                                                            <rect key="frame" x="0.0" y="6" width="298" height="103.5"/>
+                                                            <rect key="frame" x="0.0" y="6" width="298" height="104"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                             <nil key="textColor"/>
                                                             <nil key="highlightedColor"/>
@@ -3173,7 +3173,7 @@
                                                 <rect key="frame" x="0.0" y="1208" width="414" height="77"/>
                                                 <subviews>
                                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wr8-xd-PFv">
-                                                        <rect key="frame" x="16" y="32" width="45" height="29"/>
+                                                        <rect key="frame" x="16" y="32" width="47" height="29"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <state key="normal" title="Cancel">
                                                             <color key="titleColor" systemColor="systemGrayColor"/>
@@ -6230,6 +6230,34 @@
                                                             <outletCollection property="gestureRecognizers" destination="HAD-iU-ZMG" appends="YES" id="oAq-8u-Czn"/>
                                                         </connections>
                                                     </stackView>
+                                                    <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="Jze-kH-Iqv" userLabel="Reload Action">
+                                                        <rect key="frame" x="297.5" y="0.0" width="64" height="48"/>
+                                                        <subviews>
+                                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrow.clockwise" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="aIu-he-BLh">
+                                                                <rect key="frame" x="0.0" y="-1" width="64" height="30"/>
+                                                                <color key="tintColor" systemColor="labelColor"/>
+                                                                <constraints>
+                                                                    <constraint firstAttribute="height" constant="30" id="9Wb-VH-ziR"/>
+                                                                    <constraint firstAttribute="width" constant="30" id="zbt-NV-f5B"/>
+                                                                </constraints>
+                                                            </imageView>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Reload" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YTx-GK-AnX">
+                                                                <rect key="frame" x="0.0" y="34" width="64" height="14"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                                                                <nil key="textColor"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                        <gestureRecognizers/>
+                                                        <constraints>
+                                                            <constraint firstItem="aIu-he-BLh" firstAttribute="centerX" secondItem="Jze-kH-Iqv" secondAttribute="centerX" id="19Y-tM-0NG"/>
+                                                            <constraint firstAttribute="width" constant="64" id="sWQ-9w-jdT"/>
+                                                            <constraint firstItem="YTx-GK-AnX" firstAttribute="centerX" secondItem="Jze-kH-Iqv" secondAttribute="centerX" id="zTW-QD-sxp"/>
+                                                        </constraints>
+                                                        <connections>
+                                                            <outletCollection property="gestureRecognizers" destination="oOL-0f-mTm" appends="YES" id="EVP-eY-flq"/>
+                                                        </connections>
+                                                    </stackView>
                                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="9pf-kL-184" userLabel="Report Action">
                                                         <rect key="frame" x="350" y="0.0" width="64" height="48"/>
                                                         <subviews>
@@ -6686,6 +6714,7 @@
                         <outlet property="relatedContentListHeightConstraint" destination="cBi-wK-yrF" id="z81-Tn-eNK"/>
                         <outlet property="relatedContentListView" destination="TeQ-fq-0Js" id="kf9-S5-B14"/>
                         <outlet property="relatedOrPlaylistTitle" destination="Adh-uu-Xrm" id="r1c-vf-iLk"/>
+                        <outlet property="reloadStreamView" destination="Jze-kH-Iqv" id="feh-tY-gig"/>
                         <outlet property="resolvingCloseButton" destination="BZT-jG-hIL" id="6fb-yU-EHY"/>
                         <outlet property="resolvingImageView" destination="yFZ-CV-wIg" id="PTT-HF-psH"/>
                         <outlet property="resolvingLabel" destination="cTE-5u-8f2" id="Fgm-vq-p0k"/>
@@ -6781,6 +6810,11 @@
                 <tapGestureRecognizer id="ePl-Bl-nK9" userLabel="Livestreamer Area Tap Gesture Recognizer">
                     <connections>
                         <action selector="publisherTapped:" destination="Wx8-f6-Mvh" id="HJ7-Fl-AtV"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="oOL-0f-mTm" userLabel="Reload Tap Gesture Recognizer">
+                    <connections>
+                        <action selector="reloadTapped:" destination="Wx8-f6-Mvh" id="UCM-Ms-hhb"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
@@ -7673,6 +7707,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="arrow.clockwise" catalog="system" width="115" height="128"/>
         <image name="arrow.triangle.2.circlepath.camera" catalog="system" width="128" height="94"/>
         <image name="bell.fill" catalog="system" width="128" height="124"/>
         <image name="bell.slash.fill" catalog="system" width="124" height="128"/>
