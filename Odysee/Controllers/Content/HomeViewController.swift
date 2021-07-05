@@ -171,6 +171,17 @@ class HomeViewController: UIViewController,
                 currentPage += 1
                 loadClaims()
             }
+            return
+        }
+        
+        guard !refreshControl.isRefreshing && !loading else {
+            return
+        }
+        
+        if claimListView.contentOffset.y < -300 {
+            resetContent()
+            loadClaims()
+            refreshControl.beginRefreshing()
         }
     }
     
