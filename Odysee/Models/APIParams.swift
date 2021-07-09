@@ -25,7 +25,7 @@ struct StreamAbandonParams: Encodable {
 }
 
 struct ClaimListParams: Encodable {
-    var claimType: ClaimType?
+    var claimType: [ClaimType]?
     var page: Int?
     var pageSize: Int?
     var resolve: Bool?

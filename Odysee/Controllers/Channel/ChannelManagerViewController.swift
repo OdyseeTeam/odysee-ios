@@ -71,43 +71,30 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         channelListView.isHidden = channels.count <= 1
         noChannelsView.isHidden = true
         
-        let options: Dictionary<String, Any> = ["claim_type": "channel", "page": 1, "page_size": 999, "resolve": true]
-        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.showError(error: error)
-                self.loadingChannels = false
-                self.loadingContainer.isHidden = true
-                self.checkNoChannels()
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            if let items = result?["items"] as? [[String: Any]] {
-                var loadedClaims: [Claim] = []
-                items.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil) {
-                            loadedClaims.append(claim!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                self.channels.removeAll()
-                self.addNewPlaceholder()
-                self.channels.append(contentsOf: loadedClaims)
-                Lbry.ownChannels = self.channels.filter { $0.claimId != "new" }
-            }
-            
-            self.loadingChannels = false
-            DispatchQueue.main.async {
-                self.loadingContainer.isHidden = true
-                self.checkNoChannels()
-                self.channelListView.reloadData()
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimList,
+                     params: .init(
+                        claimType: [.channel],
+                        page: 1,
+                        pageSize: 999,
+                        resolve: true),
+                     completion: didLoadChannels)
+    }
+    
+    func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
+        loadingChannels = false
+        loadingContainer.isHidden = true
+        guard case let .success(page) = result else {
+            checkNoChannels()
+            result.showErrorIfPresent()
+            return
+        }
+        
+        channels.removeAll(keepingCapacity: true)
+        addNewPlaceholder()
+        channels.append(contentsOf: page.items)
+        Lbry.ownChannels = channels.filter { $0.claimId != "new" }
+        checkNoChannels()
+        channelListView.reloadData()
     }
     
     func abandonChannel(channel: Claim) {

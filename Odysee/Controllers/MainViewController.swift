@@ -534,33 +534,25 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     func loadChannels() {
-        let options: Dictionary<String, Any> = ["claim_type": "channel", "page": 1, "page_size": 999, "resolve": true]
-        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                return
-            }
-            
-            self.channels.removeAll()
-            let result = data["result"] as? [String: Any]
-            if let items = result?["items"] as? [[String: Any]] {
-                items.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil) {
-                            self.channels.append(claim!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-            }
-            
-            Lbry.ownChannels = self.channels
-            if Lbry.ownChannels.count > 0 {
-                self.oneTimeChannelsAssociation(Lbry.ownChannels)
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimList,
+                     params: .init(
+                        claimType: [.channel],
+                        page: 1,
+                        pageSize: 999,
+                        resolve: true),
+                     completion: didLoadChannels)
+    }
+    
+    func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
+        guard case let .success(page) = result else {
+            return
+        }
+        channels.removeAll(keepingCapacity: true)
+        channels.append(contentsOf: page.items)
+        Lbry.ownChannels = channels
+        if !channels.isEmpty {
+            oneTimeChannelsAssociation(channels)
+        }
     }
     
     func oneTimeChannelsAssociation(_ channels: [Claim]) {

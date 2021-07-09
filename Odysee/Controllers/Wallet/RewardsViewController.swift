@@ -570,39 +570,35 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
     
     func claimReward(_ reward: Reward, walletAddress: String) {
         if reward.rewardType == Reward.typeFirstPublish || reward.rewardType == Reward.typeFirstChannel {
-            let params: Dictionary<String, Any> = ["claim_type": reward.rewardType == Reward.typeFirstPublish ? "stream" : "channel",
-                                                   "page": 1, "page_size": 1, "resolve": true]
-            Lbry.apiCall(method: Lbry.methodClaimList, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-                guard let data = data, error == nil else {
-                    self.claimRewardFinished()
-                    self.showError(error: error)
-                    return
-                }
-                
-                let result = data["result"] as? [String: Any]
-                if let items = result?["items"] as? [[String: Any]] {
-                    if items.count > 0 {
-                        do {
-                            let jsonData = try JSONSerialization.data(withJSONObject: items[0], options: [.prettyPrinted, .sortedKeys])
-                            let claim: Claim? = try JSONDecoder().decode(Claim.self, from: jsonData)
-                            if (claim != nil && !(claim?.txid ?? "").isBlank) {
-                                self.doClaimReward(reward, walletAddress: walletAddress, transactionId: claim?.txid)
-                                return
-                            }
-                        } catch {
-                            // pass
-                        }
-                    }
-                }
-                
-                self.claimRewardFinished()
-                self.showError(message: "The eligible transaction for claiming the reward could not be retrieved.")
-            })
+            Lbry.apiCall(method: Lbry.Methods.claimList,
+                         params: .init(
+                            claimType: [reward.rewardType == Reward.typeFirstPublish ? .stream : .channel],
+                            page: 1,
+                            pageSize: 1,
+                            resolve: true),
+                         completion: {
+                            self.didResolveRewardClaim($0, reward: reward, walletAddress: walletAddress)
+                         })
         } else {
             doClaimReward(reward, walletAddress: walletAddress, transactionId: nil)
         }
     }
     
+    func didResolveRewardClaim(_ result: Result<Page<Claim>, Error>, reward: Reward, walletAddress: String) {
+        guard case let .success(page) = result else {
+            claimRewardFinished()
+            result.showErrorIfPresent()
+            return
+        }
+        guard let claim = page.items.first else {
+            claimRewardFinished()
+            showError(message: String.localized("The eligible transaction for claiming the reward could not be retrieved."))
+            return
+        }
+        
+        doClaimReward(reward, walletAddress: walletAddress, transactionId: claim.txid)
+    }
+
     func doClaimReward(_ reward: Reward, walletAddress: String, transactionId: String?) {
         var options: Dictionary<String, String> = ["reward_type": reward.rewardType!, "wallet_address": walletAddress]
         if reward.rewardType == Reward.typeCustom && !(reward.rewardCode ?? "").isBlank {

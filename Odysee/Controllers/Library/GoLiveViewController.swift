@@ -218,7 +218,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         
         Lbry.apiCall(method: Lbry.Methods.claimList,
                      params: .init(
-                        claimType: .channel,
+                        claimType: [.channel],
                         page: 1,
                         pageSize: 999,
                         resolve: true),
