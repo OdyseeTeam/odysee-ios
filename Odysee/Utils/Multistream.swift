@@ -90,7 +90,7 @@ class Multistream: InputStream, StreamDelegate {
         return false
     }
     
-    private func refillBuffer() -> Bool {
+    @discardableResult private func refillBuffer() -> Bool {
         let bytesRead: Int = buffer.withUnsafeMutableBytes { ptr in
             let y = ptr.bindMemory(to: UInt8.self).baseAddress!
             return internalRead(y + bufferLength, maxLength: kBufferSize - bufferLength)

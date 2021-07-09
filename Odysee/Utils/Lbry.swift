@@ -483,7 +483,7 @@ final class Lbry {
                 localWalletHash = hash
                 Lbryio.syncGet(hash: hash, completion: { walletSync, needsNewWallet, wsError in
                     guard let walletSync = walletSync, wsError == nil else {
-                        print(wsError)
+                        print(wsError as Any)
                         self.walletSyncInProgress = false
                         return
                     }
