@@ -8,6 +8,7 @@
 import MobileCoreServices
 import Firebase
 import os
+import OrderedCollections
 import Photos
 import PhotosUI
 import UIKit
@@ -37,7 +38,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     @IBOutlet weak var uploadingIndicator: UIView!
     
     var channels: [Claim] = []
-    var uploads: [Claim] = []
+    var uploads: OrderedSet<Claim> = []
     var currentClaim: Claim?
     let videoPickerController = makeVideoPickerController()
     var selectingThumbnail: Bool = false
@@ -112,81 +113,53 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     }
     
     func loadUploads() {
-        let options: Dictionary<String, Any> = ["claim_type": "stream", "page": 1, "page_size": 999, "resolve": true]
-        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                // pass
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            if let items = result?["items"] as? [[String: Any]] {
-                var loadedClaims: [Claim] = []
-                items.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil && !self.uploads.contains(where: { $0.claimId == claim?.claimId })) {
-                            loadedClaims.append(claim!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                self.uploads.append(contentsOf: loadedClaims)
-                Lbry.ownUploads = self.uploads.filter { $0.claimId != "new" }
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimList,
+                     params: .init(
+                        claimType: [.stream],
+                        page: 1,
+                        pageSize: 999,
+                        resolve: true),
+                     completion: didLoadUploads)
     }
     
+    func didLoadUploads(_ result: Result<Page<Claim>, Error>) {
+        guard case let .success(page) = result else {
+            return
+        }
+        
+        uploads.append(contentsOf: page.items)
+        Lbry.ownUploads = uploads.filter { $0.claimId != "new" }
+    }
+
     func loadChannels() {
         DispatchQueue.main.async {
             self.startLoading()
         }
         
-        var options = Dictionary<String, Any>()
-        options["claim_type"] = ["channel"]
-        options["page"] = 1
-        options["page_size"] = 999
-        options["resolve"] = true
-        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.restoreButtons()
-                self.showError(error: error)
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            let items = result?["items"] as? [[String: Any]]
-            if (items != nil) {
-                var loadedClaims: [Claim] = []
-                items?.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil) {
-                            loadedClaims.append(claim!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                self.channels.removeAll()
-                self.addAnonymousPlaceholder()
-                self.channels.append(contentsOf: loadedClaims)
-                Lbry.ownChannels = self.channels.filter { $0.claimId != "anonymous" }
-            }
-            
-            DispatchQueue.main.async {
-                self.restoreButtons()
-                self.channelPickerView.reloadAllComponents()
-                if self.channels.count > 1 {
-                    self.channelPickerView.selectRow(1, inComponent: 0, animated: true)
-                    self.namePrefixLabel.text = String(format: self.namePrefixFormat, self.channels[1].name! + "/")
-                }
-                self.populateFieldsForEdit()
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimList,
+                     params: .init(claimType: [.channel],
+                                   page: 1,
+                                   pageSize: 999,
+                                   resolve: true),
+                     completion: didLoadChannels)
+    }
+    
+    func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
+        restoreButtons()
+        guard case let .success(page) = result else {
+            result.showErrorIfPresent()
+            return
+        }
+        channels.removeAll(keepingCapacity: true)
+        addAnonymousPlaceholder()
+        channels.append(contentsOf: page.items)
+        Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
+        channelPickerView.reloadAllComponents()
+        if channels.count > 1 {
+            channelPickerView.selectRow(1, inComponent: 0, animated: true)
+            namePrefixLabel.text = String(format: namePrefixFormat, channels[1].name! + "/")
+        }
+        populateFieldsForEdit()
     }
     
     func populateFieldsForEdit() {

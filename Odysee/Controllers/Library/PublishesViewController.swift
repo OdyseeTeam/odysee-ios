@@ -69,7 +69,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         
         Lbry.apiCall(method: Lbry.Methods.claimList,
                      params: .init(
-                        claimType: .stream,
+                        claimType: [.stream],
                         page: currentPage,
                         pageSize: pageSize,
                         resolve: true),

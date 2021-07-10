@@ -55,30 +55,25 @@ class CreateChannelViewController: UIViewController, UITextFieldDelegate {
     func loadAndCheckChannels() {
         frDelegate?.requestStarted()
         
-        let options: Dictionary<String, Any> = ["claim_type": "channel", "page": 1, "page_size": 999, "resolve": false]
-        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
-                return
-            }
-            
-            var numChannels = 0
-            let result = data["result"] as? [String: Any]
-            let items = result?["items"] as? [[String: Any]]
-            if (items != nil) {
-                numChannels = items?.count ?? 0
-            }
-            
-            if numChannels > 0 {
-                // Channels already exist, no need to show the "Create First Channel" view
-                self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
-                self.frDelegate?.nextStep()
-                return
-            }
-            
-            self.frDelegate?.requestFinished(showSkip: true, showContinue: true)
-            self.presentView()
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimList,
+                     params: .init(claimType: [.channel], page: 1, pageSize: 999),
+                     completion: didLoadChannels)
+    }
+    
+    func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
+        guard case let .success(page) = result else {
+            frDelegate?.requestFinished(showSkip: true, showContinue: false)
+            return
+        }
+        
+        if !page.items.isEmpty {
+            // Channels already exist, no need to show the "Create First Channel" view
+            frDelegate?.requestFinished(showSkip: true, showContinue: false)
+            frDelegate?.nextStep()
+        } else {
+            frDelegate?.requestFinished(showSkip: true, showContinue: true)
+            presentView()
+        }
     }
     
     func presentView() {

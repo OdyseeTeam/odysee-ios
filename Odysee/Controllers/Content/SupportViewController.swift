@@ -73,42 +73,30 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         options["page"] = 1
         options["page_size"] = 999
         options["resolve"] = true
-        Lbry.apiCall(method: Lbry.methodClaimList, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.showError(error: error)
-                return
-            }
-            
-            let result = data["result"] as? [String: Any]
-            let items = result?["items"] as? [[String: Any]]
-            if (items != nil) {
-                var loadedClaims: [Claim] = []
-                items?.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claim != nil) {
-                            loadedClaims.append(claim!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                self.channels.removeAll()
-                self.addAnonymousPlaceholder()
-                self.channels.append(contentsOf: loadedClaims)
-                Lbry.ownChannels = self.channels.filter { $0.claimId != "anonymous" }
-            }
-            
-            DispatchQueue.main.async {
-                self.loadingSendSupportView.isHidden = true
-                self.tipButton.isEnabled = true
-                self.channelPickerView.reloadAllComponents()
-                if self.channels.count > 1 {
-                    self.channelPickerView.selectRow(1, inComponent: 0, animated: true)
-                }
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.claimList,
+                     params: .init(
+                        claimType: [.channel],
+                        page: 1,
+                        pageSize: 999,
+                        resolve: true),
+                     completion: didLoadChannels)
+    }
+    
+    func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
+        guard case let .success(page) = result else {
+            result.showErrorIfPresent()
+            return
+        }
+        channels.removeAll(keepingCapacity: true)
+        addAnonymousPlaceholder()
+        channels.append(contentsOf: page.items)
+        Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
+        loadingSendSupportView.isHidden = true
+        tipButton.isEnabled = true
+        channelPickerView.reloadAllComponents()
+        if channels.count > 1 {
+            channelPickerView.selectRow(1, inComponent: 0, animated: true)
+        }
     }
     
     func registerForKeyboardNotifications() {
