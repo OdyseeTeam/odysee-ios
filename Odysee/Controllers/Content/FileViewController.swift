@@ -1017,7 +1017,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
         
-        commentsVc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
+        commentsVc = storyboard?.instantiateViewController(identifier: "comments_vc") as? CommentsViewController
         commentsVc.claimId = isPlaylist ? playlistItems[currentPlaylistIndex].claimId! : claim?.claimId!
         commentsVc.commentsDisabled = commentsDisabled
         commentsVc.comments = comments.elements
