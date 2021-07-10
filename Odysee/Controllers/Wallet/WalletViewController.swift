@@ -266,10 +266,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             return
         }
         
-        var params = Dictionary<String, Any>()
-        params["page"] = 1
-        params["page_size"] = 5
-        
         recentTransactions.removeAll()
         recentTransactionsListView.reloadData()
         
@@ -277,35 +273,26 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         loadingRecentTransactionsView.isHidden = false
         noRecentTransactionsLabel.isHidden = true
         
-        Lbry.apiCall(method: Lbry.methodTransactionList, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.showError(error: error)
-                return
-            }
-            
-            let result = data["result"] as! [String: Any]
-            let items = result["items"] as? [[String: Any]]
-            if (items != nil) {
-                items?.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let transaction: Transaction? = try JSONDecoder().decode(Transaction.self, from: data)
-                        if (transaction != nil) {
-                            self.recentTransactions.append(transaction!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-            }
-            
-            DispatchQueue.main.async {
-                self.loadingRecentTransactions = false
-                self.loadingRecentTransactionsView.isHidden = true
-                self.noRecentTransactionsLabel.isHidden = self.recentTransactions.count > 0
-                self.recentTransactionsListView.reloadData()
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.transactionList,
+                     params: .init(
+                        page: 1,
+                        pageSize: 5),
+                     completion: didLoadRecentTransactions)
+    }
+    
+    func didLoadRecentTransactions(_ result: Result<Page<Transaction>, Error>) {
+        loadingRecentTransactions = false
+        loadingRecentTransactionsView.isHidden = true
+        defer {
+            noRecentTransactionsLabel.isHidden = !recentTransactions.isEmpty
+        }
+        guard case let .success(page) = result else {
+            result.showErrorIfPresent()
+            return
+        }
+        recentTransactions.append(contentsOf: page.items)
+        recentTransactionsListView.reloadData()
+        
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
