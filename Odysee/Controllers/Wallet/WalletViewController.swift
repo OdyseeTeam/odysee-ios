@@ -191,20 +191,15 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
     func getNewReceiveAddress() {
         //getNewAddressButton.isEnabled = false
-        Lbry.apiCall(method: Lbry.methodAddressUnused, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                print(error!)
+        Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()) { result in
+            guard case let .success(address) = result else {
+                result.showErrorIfPresent()
                 return
             }
-            
-            let newAddress = data["result"] as! String
-            DispatchQueue.main.async {
-                let defaults = UserDefaults.standard
-                defaults.setValue(newAddress, forKey: Helper.keyReceiveAddress)
-                self.receiveAddressTextField.text = newAddress
-                //self.getNewAddressButton.isEnabled = true
-            }
-        })
+            UserDefaults.standard.set(address, forKey: Helper.keyReceiveAddress)
+            self.receiveAddressTextField.text = address
+            //self.getNewAddressButton.isEnabled = true
+        }
     }
     
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
