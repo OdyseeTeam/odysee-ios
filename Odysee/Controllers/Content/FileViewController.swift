@@ -10,11 +10,13 @@ import AVFoundation
 import CoreData
 import Firebase
 import OrderedCollections
+import PerfectMarkdown
 import SafariServices
 import Starscream
 import UIKit
+import WebKit
 
-class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, WebSocketDelegate {
+class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavigationControllerDelegate, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, WebSocketDelegate, WKNavigationDelegate {
     
     @IBOutlet weak var titleArea: UIView!
     @IBOutlet weak var publisherArea: UIView!
@@ -89,6 +91,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet weak var slimeReactionImage: UIImageView!
     
     @IBOutlet weak var dismissPanRecognizer: UIPanGestureRecognizer!
+    
+    @IBOutlet weak var mediaViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var webViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var webView: WKWebView!
+    @IBOutlet weak var dismissFileView: UIView!
 
     let avpc = AVPlayerViewController()
     weak var commentsVc: CommentsViewController!
@@ -127,6 +134,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var isLivestream = false
     var isPlaylist = false
     var isLive = false
+    var isTextContent = false
+    var isImageContent = false
+    var isOtherContent = false
     
     var loadingChannels = false
     var postingChat = false
@@ -184,7 +194,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.currentClaim = claim
+        
+        appDelegate.currentClaim = isTextContent || isImageContent || isOtherContent ? nil : claim
         appDelegate.mainController.updateMiniPlayer()
         
         if (appDelegate.player != nil) {
@@ -210,6 +221,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         avpc.didMove(toParent: self)
 
         registerForKeyboardNotifications()
+        webView.navigationDelegate = self
+        webView.scrollView.bounces = false
         
         checkRepost()
         relatedContentListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
@@ -416,6 +429,30 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         descriptionArea.isHidden = true
         descriptionDivider.isHidden = true
         
+        var contentType: String? = nil
+        if let mediaType = claim?.value?.source?.mediaType {
+            isTextContent = mediaType.starts(with: "text/")
+            isImageContent = mediaType.starts(with: "image/")
+            isOtherContent = !isTextContent && !isImageContent && !mediaType.starts(with: "video")
+            contentType = mediaType
+        }
+        
+        if isTextContent || isImageContent || isOtherContent {
+            dismissFileView.isHidden = true
+            mediaView.isHidden = true
+            mediaViewHeightConstraint.constant = 0
+            
+            if isTextContent {
+                webView.isHidden = false
+                if let url = buildTextContentUrl(singleClaim) {
+                    loadTextContent(url: url, contentType: contentType)
+                }
+            }
+        } else {
+            mediaView.isHidden = false
+            mediaViewHeightConstraint.constant = 240
+        }
+        
         if let publisher = claim?.signingChannel {
             Lbryio.areCommentsEnabled(channelId: publisher.claimId!, channelName: publisher.name!, completion: { enabled in
                 self.commentsDisabledChecked = true
@@ -470,9 +507,83 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if (singleClaim.value?.description ?? "").isBlank {
             descriptionArea.isHidden = true
             descriptionDivider.isHidden = true
+            titleAreaIconView.isHidden = true
         } else {
             // details
             descriptionLabel.text = claim?.value?.description
+        }
+    }
+    
+    func buildTextContentUrl(_ claim: Claim) -> URL? {
+        return URL(string: String(format: "https://cdn.lbryplayer.xyz/api/v4/streams/free/%@/%@/%@",
+                                  claim.name!, claim.claimId!, String((claim.value!.source!.sdHash!.prefix(6)))))
+    }
+    
+    func loadTextContent(url: URL, contentType: String?) {
+        DispatchQueue.global().async {
+            do {
+                let contents = try String(contentsOf: url)
+                if contentType == "text/md" || contentType == "text/markdown" || contentType == "text/x-markdown" {
+                    guard let html = contents.markdownToHTML else {
+                        self.handleContentLoadError(String(format: String.localized("Could not load URL %@"), url.absoluteString))
+                        return
+                    }
+                    
+                    let mdHtml = self.buildMarkdownHTML(html)
+                    self.loadWebViewContent(mdHtml)
+                } else {
+                    // TODO: Load text into webview directly instead of having to send another URL request
+                    self.loadWebViewURL(url)
+                }
+            } catch {
+                self.handleContentLoadError(String(format: String.localized("Could not load URL %@"), url.absoluteString))
+            }
+        }
+    }
+    
+    func loadWebViewContent(_ content: String) {
+        DispatchQueue.main.async {
+            self.webView.loadHTMLString(content, baseURL: nil)
+        }
+    }
+    
+    func buildPlainTextHTML(_ text: String) -> String {
+        return "<html><head><body><pre style=\"white-space: pre-wrap;\">\(text)</pre></body></head></html>"
+    }
+    
+    func buildMarkdownHTML(_ markdownHtml: String) -> String {
+        return """
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no"/>
+    <style type="text/css">
+      body { font-family: sans-serif; margin: 16px; }
+      img { width: 100%; }
+      pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+  </head>
+  <body>
+    <div id="content">
+\(markdownHtml)
+    </div>
+  </body>
+</html>
+"""
+    }
+    
+    func loadWebViewURL(_ url: URL) {
+        DispatchQueue.main.async {
+            self.webView.load(URLRequest(url: url))
+        }
+    }
+    
+    func handleContentLoadError(_ message: String) {
+        DispatchQueue.main.async {
+            self.showError(message: message)
+            self.webView.isHidden = true
+            self.webViewHeightConstraint.constant = 0
         }
     }
     
@@ -492,7 +603,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             displaySingleClaim(claim!)
             if isLivestream {
                 loadLivestream()
-            } else {
+            } else if !isTextContent && !isImageContent && !isOtherContent {
                 initializePlayerWithUrl(singleClaim: self.claim!, sourceUrl: getStreamingUrl(claim: claim!))
             }
         }
@@ -863,7 +974,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
         }
         
-        initializePlayerWithUrl(singleClaim: singleClaim, sourceUrl: getStreamingUrl(claim: singleClaim))
+        if !isTextContent && !isImageContent && !isOtherContent {
+            initializePlayerWithUrl(singleClaim: singleClaim, sourceUrl: getStreamingUrl(claim: singleClaim))
+        }
         loadAndDisplayViewCount(singleClaim)
         loadReactions(singleClaim)
         loadComments(singleClaim)
@@ -1337,9 +1450,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     @IBAction func titleAreaTapped(_ sender: Any) {
         if descriptionArea.isHidden {
-            descriptionArea.isHidden = false
-            descriptionDivider.isHidden = false
-            titleAreaIconView.image = UIImage.init(systemName: "chevron.up")
+            descriptionArea.isHidden = (descriptionLabel.text ?? "").isBlank
+            descriptionDivider.isHidden = (descriptionLabel.text ?? "").isBlank
+            titleAreaIconView.image = UIImage.init(systemName: descriptionArea.isHidden ? "chevron.down" : "chevron.up")
         } else {
             descriptionArea.isHidden = true
             descriptionDivider.isHidden = true
@@ -1525,6 +1638,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if chatWebsocket != nil && chatConnected {
             chatWebsocket?.disconnect()
         }
+    }
+    
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        print("****CALLING DIDFINISH?!!!!")
+        webView.evaluateJavaScript("document.readyState", completionHandler: { (complete, error) in
+            if complete != nil {
+                self.webView.evaluateJavaScript("document.body.scrollHeight", completionHandler: { (height, error) in
+                    self.webViewHeightConstraint.constant = height as! CGFloat
+                    webView.scrollView.isScrollEnabled = false
+                })
+            }
+        })
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

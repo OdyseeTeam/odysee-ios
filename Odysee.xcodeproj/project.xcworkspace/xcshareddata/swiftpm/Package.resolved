@@ -155,6 +155,15 @@
         }
       },
       {
+        "package": "PerfectMarkdown",
+        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-Markdown.git",
+        "state": {
+          "branch": null,
+          "revision": "ec159e763d95cd81125f80e4d616049fa9ee389c",
+          "version": "3.2.0"
+        }
+      },
+      {
         "package": "PINCache",
         "repositoryURL": "https://github.com/pinterest/PINCache.git",
         "state": {
