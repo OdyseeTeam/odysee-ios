@@ -33,7 +33,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     
     var selectedChannelClaim: Claim? = nil
     var suggestedFollows = OrderedSet<Claim>()
-    var following: [Claim] = []
+    var following = OrderedSet<Claim>()
     var subscriptions: [Subscription] = []
     var selectedChannelIds: [String] = []
     var selectedSuggestedFollows: Dictionary<String, Claim> = Dictionary<String, Claim>()
@@ -525,63 +525,40 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
     
     func resolveChannelList(_ refresh: Bool = false) {
-        let urls = subscriptions.map{ $0.url }
-        var params: Dictionary<String, Any> = Dictionary<String, Any>()
-        params["urls"] = urls
+        Lbry.apiCall(method: Lbry.Methods.resolve,
+                     params: .init(
+                        urls: subscriptions.compactMap { $0.url }
+                     ),
+                     completion: { result in
+                        self.didResolveChannelList(result, refresh: refresh)
+                     })
+    }
+
+    func didResolveChannelList(_ result: Result<ResolveResult, Error>, refresh: Bool) {
+        guard case let .success(resolve) = result else {
+            result.showErrorIfPresent()
+            return
+        }
         
-        //let prevFollowing = self.following
-        var newFollowing: [Claim] = []
-        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                // display no results
-                // channels could not be resolved
-                print(error!)
-                return
+        if refresh {
+            following.removeAll(keepingCapacity: true)
+        }
+        following.append(contentsOf: resolve.claims.values)
+        
+        checkSelectedChannel()
+        channelListView.reloadData()
+        contentListView.reloadData()
+        
+        if Lbryio.subscriptionsDirty {
+            loadingContent = false
+            resetSubscriptionContent()
+            let index = indexForSelectedChannelClaim()
+            if index == -1 {
+                selectedChannelIds = []
             }
-            
-            var claimResults: [Claim] = []
-            let result = data["result"] as! NSDictionary
-            for (_, claimData) in result {
-                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
-                do {
-                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if (claim != nil && !(claim?.claimId ?? "").isBlank) {
-                        Lbry.addClaimToCache(claim: claim)
-                        if (!self.following.contains(where: { $0.claimId == claim?.claimId })) {
-                            claimResults.append(claim!)
-                        }
-                        if (refresh && !newFollowing.contains(where: { $0.claimId == claim?.claimId })) {
-                            newFollowing.append(claim!)
-                        }
-                    }
-                } catch let error {
-                    print(error)
-                }
-            }
-            
-            if refresh {
-                self.following = newFollowing
-            } else {
-                self.following.append(contentsOf: claimResults)
-            }
-            
-            DispatchQueue.main.async {
-                self.checkSelectedChannel()
-                self.channelListView.reloadData()
-                self.contentListView.reloadData()
-            }
-            
-            if Lbryio.subscriptionsDirty {
-                self.loadingContent = false
-                self.resetSubscriptionContent()
-                let index = self.indexForSelectedChannelClaim()
-                if index == -1 {
-                    self.selectedChannelIds = []
-                }
-                Lbryio.subscriptionsDirty = false
-            }
-            self.loadSubscriptionContent()
-        })
+            Lbryio.subscriptionsDirty = false
+        }
+        loadSubscriptionContent()
     }
 
     func deselectChannels(except: Claim) {

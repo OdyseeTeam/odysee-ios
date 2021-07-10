@@ -205,36 +205,20 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
         
-        var params: Dictionary<String, Any> = Dictionary<String, Any>()
-        params["urls"] = [url]
+        Lbry.apiCall(method: Lbry.Methods.resolve,
+                     params: .init(urls: [url]),
+                     completion: didResolveClaim)
+    }
+    
+    func didResolveClaim(_ result: Result<ResolveResult, Error>) {
+        guard case let .success(resolve) = result, let claim = resolve.claims.values.first else {
+            result.showErrorIfPresent()
+            displayNothingAtLocation()
+            return
+        }
         
-        Lbry.apiCall(method: Lbry.methodResolve, params: params, connectionString: Lbry.lbrytvConnectionString, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.displayNothingAtLocation()
-                return
-            }
-            
-            let result = data["result"] as! NSDictionary
-            for (_, claimData) in result {
-                let data = try! JSONSerialization.data(withJSONObject: claimData, options: [.prettyPrinted, .sortedKeys])
-                do {
-                    let claim: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                    if claim != nil && !(claim!.claimId ?? "").isBlank {
-                        Lbry.addClaimToCache(claim: claim)
-                        self.channelClaim = claim
-                        DispatchQueue.main.async {
-                            self.showClaimAndCheckFollowing()
-                        }
-                    } else {
-                        self.displayNothingAtLocation()
-                    }
-                } catch let error {
-                    print(error)
-                }
-                
-                break
-            }
-        })
+        self.channelClaim = claim
+        showClaimAndCheckFollowing()
     }
     
     func displayResolving() {
