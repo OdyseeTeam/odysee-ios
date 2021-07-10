@@ -30,3 +30,20 @@ struct ClaimListParams: Encodable {
     var pageSize: Int?
     var resolve: Bool?
 }
+
+struct ClaimSearchParams: Encodable {
+    var claimType: [ClaimType]?
+    var noTotals: Bool? = true // server defaults to false, but we dont need totals.
+    var page: Int?
+    var pageSize: Int?
+    var releaseTime: String?
+    var duration: String?
+    var hasNoSource: Bool?
+    var limitClaimsPerChannel: Int?
+    var anyTags: [String]?
+    var notTags: [String]?
+    var channelIds: [String]?
+    var notChannelIds: [String]?
+    var claimIds: [String]?
+    var orderBy: [String]?
+}

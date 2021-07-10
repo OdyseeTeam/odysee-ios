@@ -43,9 +43,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var lastSuggestedPageReached: Bool = false
     var loadingSuggested: Bool = false
     var showingSuggested: Bool = false
-    var suggestedClaimSearchOptions = Dictionary<String, Any>()
     
-    var claimSearchOptions = Dictionary<String, Any>()
     let pageSize: Int = 20
     var currentPage: Int = 1
     var lastPageReached: Bool = false
@@ -125,18 +123,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         suggestedFollowsView.allowsMultipleSelection = true
         channelListView.allowsMultipleSelection = false
         contentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
-    }
-    
-    func updateClaimSearchOptions() {
-        let allChannelIds = following.map { $0.claimId } as! [String]
-        var channelIdFilter: [String]? = allChannelIds
-        if (selectedChannelIds.count > 0) {
-            channelIdFilter = selectedChannelIds
-        }
-        
-        let orderByValue = Helper.sortByItemValues[currentSortByIndex]
-        let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
-        self.claimSearchOptions = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIdFilter, notChannelIds: nil, claimIds: nil, orderBy: orderByValue, releaseTime: releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: 0, page: currentPage, pageSize: pageSize)
     }
     
     func loadLocalSubscriptions(_ refresh: Bool = false) {
@@ -227,11 +213,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
     }
     
-    func updateSuggestedClaimSearchOptions() {
-        let followedChannelIds = following.map { $0.claimId } as! [String]
-        suggestedClaimSearchOptions = Lbry.buildClaimSearchOptions(claimType: ["channel"], anyTags: nil, notTags: nil, channelIds: nil, notChannelIds: followedChannelIds, claimIds: ContentSources.PrimaryChannelContentIds, orderBy: ["effective_amount"], releaseTime: nil, maxDuration: nil, limitClaimsPerChannel: 0, page: currentSuggestedPage, pageSize: suggestedPageSize)
-    }
-    
     func loadSuggestedFollows() {
         DispatchQueue.main.async {
             self.suggestedView.isHidden = false
@@ -240,9 +221,14 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             self.loadingContainer.isHidden = false
         }
         
-        updateSuggestedClaimSearchOptions()
         Lbry.apiCall(method: Lbry.Methods.claimSearch,
-                     params: suggestedClaimSearchOptions as NSDictionary,
+                     params: .init(
+                        claimType: [.channel],
+                        page: currentSuggestedPage,
+                        pageSize: suggestedPageSize,
+                        notChannelIds: following.map { $0.claimId! },
+                        claimIds: ContentSources.PrimaryChannelContentIds,
+                        orderBy: ["effective_amount"]),
                      completion: didLoadSuggestedFollows)
     }
     
@@ -276,9 +262,18 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
         
         loadingContent = true
-        updateClaimSearchOptions()
+        
+        let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
         Lbry.apiCall(method: Lbry.Methods.claimSearch,
-                     params: claimSearchOptions as NSDictionary,
+                     params: .init(
+                        claimType: [.stream],
+                        page: currentPage,
+                        pageSize: pageSize,
+                        releaseTime: releaseTimeValue,
+                        channelIds: !selectedChannelIds.isEmpty ?
+                            selectedChannelIds :
+                            following.compactMap { $0.claimId },
+                        orderBy: Helper.sortByItemValues[currentSortByIndex]),
                      completion: didLoadSubscriptionContent)
     }
     

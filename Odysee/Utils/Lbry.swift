@@ -39,8 +39,7 @@ final class Lbry {
     struct Methods {
         static let resolve       = Method<ResolveParams, ResolveResult>(name: "resolve",
                                                          defaultTransform: processResolvedClaims)
-        // TODO: Add real type for params.
-        static let claimSearch   = Method<NSDictionary, Page<Claim>>(name: "claim_search",
+        static let claimSearch   = Method<ClaimSearchParams, Page<Claim>>(name: "claim_search",
                                                        defaultTransform: processPageOfClaims)
         static let claimList     = Method<ClaimListParams, Page<Claim>>(name: "claim_list",
                                                        defaultTransform: processPageOfClaims)
@@ -243,56 +242,6 @@ final class Lbry {
         }
         if let canonicalUrl = claim.canonicalUrl, !canonicalUrl.isBlank {
             Lbry.claimCacheByUrl.setObject(claim, forKey: canonicalUrl as NSString)
-        }
-    }
-    
-    static func buildClaimSearchOptions(
-        claimType: [String]?,
-        anyTags: [String]?,
-        notTags: [String]?,
-        channelIds: [String]?,
-        notChannelIds: [String]?,
-        claimIds: [String]?,
-        orderBy: [String]?,
-        releaseTime: String?,
-        maxDuration: Int64?,
-        limitClaimsPerChannel: Int,
-        hasNoSource: Bool? = false,
-        page: Int,
-        pageSize: Int) -> Dictionary<String, Any> {
-        var options: Dictionary<String, Any> = [String: Any]()
-        
-        if (claimType != nil) {
-            options["claim_type"] = claimType
-        }
-        options["no_totals"] = true
-        options["page"] = page
-        options["page_size"] = pageSize
-        if (!(releaseTime ?? "").isBlank) {
-            options["release_time"] = releaseTime
-        }
-        if ((maxDuration ?? 0) > 0) {
-            options["duration"] = String(format: "<%d", maxDuration!)
-        }
-        if (limitClaimsPerChannel > 0) {
-            options["limit_claims_per_channel"] = limitClaimsPerChannel
-        }
-        
-        options["has_no_source"] = hasNoSource
-        
-        addClaimSearchListOption(key: "any_tags", list: anyTags, options: &options)
-        addClaimSearchListOption(key: "not_tags", list: notTags, options: &options)
-        addClaimSearchListOption(key: "channel_ids", list: channelIds, options: &options)
-        addClaimSearchListOption(key: "not_channel_ids", list: notChannelIds, options: &options)
-        addClaimSearchListOption(key: "claim_ids", list: claimIds, options: &options)
-        addClaimSearchListOption(key: "order_by", list: orderBy, options: &options)
-        
-        return options
-    }
-    
-    static func addClaimSearchListOption(key: String, list: [String]?, options: inout Dictionary<String, Any>) {
-        if ((list ?? []).count > 0) {
-            options[key] = list
         }
     }
     

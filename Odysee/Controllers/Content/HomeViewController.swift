@@ -94,14 +94,6 @@ class HomeViewController: UIViewController,
         }
     }
     
-    func buildClaimSearchOptions() -> NSDictionary {
-        let isWildWest = currentCategoryIndex == Self.wildWestCategoryIndex
-        let orderByValue = Helper.sortByItemValues[currentSortByIndex]
-        let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : Helper.releaseTime6Months()
-        
-        return Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds[currentCategoryIndex], notChannelIds: nil, claimIds: nil, orderBy: isWildWest ? ["trending_group", "trending_mixed"] : orderByValue, releaseTime: isWildWest ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) : releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: currentCategoryIndex == Self.moviesCategoryIndex ? 20 : 5, page: currentPage, pageSize: pageSize) as NSDictionary
-    }
-    
     func didLoadClaims(_ result: Result<Page<Claim>, Error>) {
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
@@ -131,8 +123,23 @@ class HomeViewController: UIViewController,
         
         // Capture category index for use in sorting, before leaving main thread.
         let category = self.currentCategoryIndex
+        let isWildWest = currentCategoryIndex == Self.wildWestCategoryIndex
+        let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : Helper.releaseTime6Months()
+        
         Lbry.apiCall(method: Lbry.Methods.claimSearch,
-                     params: buildClaimSearchOptions(),
+                     params: .init(
+                        claimType: [.stream],
+                        page: currentPage,
+                        pageSize: pageSize,
+                        releaseTime: isWildWest ?
+                            Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) :
+                            releaseTimeValue,
+                        limitClaimsPerChannel:
+                            currentCategoryIndex == Self.moviesCategoryIndex ? 20 : 5,
+                        channelIds: channelIds[currentCategoryIndex],
+                        orderBy: isWildWest ?
+                            ["trending_group", "trending_mixed"]
+                            : Helper.sortByItemValues[currentSortByIndex]),
                      transform: { page in
                         if category != HomeViewController.wildWestCategoryIndex {
                             page.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }

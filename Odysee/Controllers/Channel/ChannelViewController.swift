@@ -58,7 +58,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var contentFromPicker: UIPickerView!
 
     var commentsViewPresented = false
-    var claimSearchOptions = Dictionary<String, Any>()
     let pageSize: Int = 20
     var currentPage: Int = 1
     var lastPageReached: Bool = false
@@ -335,13 +334,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         })
     }
     
-    func updateClaimSearchOptions() {
-        let channelIds: [String] = [channelClaim?.claimId ?? ""]
-        let orderByValue = Helper.sortByItemValues[currentSortByIndex]
-        let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
-        self.claimSearchOptions = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds, notChannelIds: nil, claimIds: nil, orderBy: orderByValue, releaseTime: releaseTimeValue, maxDuration: nil, limitClaimsPerChannel: 0, page: currentPage, pageSize: pageSize)
-    }
-    
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if (scrollView == pageScrollView) {
             let pageIndex = Int(round(scrollView.contentOffset.x / view.frame.width))
@@ -374,9 +366,15 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         
         loadingContent = true
         noChannelContentView.isHidden = true
-        updateClaimSearchOptions()
+        let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
         Lbry.apiCall(method: Lbry.Methods.claimSearch,
-                     params: claimSearchOptions as NSDictionary,
+                     params: .init(
+                        claimType: [.stream],
+                        page: currentPage,
+                        pageSize: pageSize,
+                        releaseTime: releaseTimeValue,
+                        channelIds: [channelClaim?.claimId ?? ""],
+                        orderBy: Helper.sortByItemValues[currentSortByIndex]),
                      completion: didLoadContent)
     }
     
@@ -401,10 +399,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         
         loadingContent = true
         
-        let channelIds: [String] = [channelClaim?.claimId ?? ""]
-        let hasNoSourceOptions = Lbry.buildClaimSearchOptions(claimType: ["stream"], anyTags: nil, notTags: nil, channelIds: channelIds, notChannelIds: nil, claimIds: nil, orderBy: Helper.sortByItemValues[1], releaseTime: nil, maxDuration: nil, limitClaimsPerChannel: 0, hasNoSource: true, page: 1, pageSize: pageSize)
         Lbry.apiCall(method: Lbry.Methods.claimSearch,
-                     params: hasNoSourceOptions as NSDictionary,
+                     params: .init(
+                        claimType: [.stream],
+                        page: 1,
+                        pageSize: pageSize,
+                        hasNoSource: true,
+                        channelIds: [channelClaim?.claimId ?? ""],
+                        orderBy: Helper.sortByItemValues[1]),
                      completion: didCheckLivestream)
     }
     
