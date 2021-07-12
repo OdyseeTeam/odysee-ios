@@ -84,6 +84,12 @@ class UserAccountMenuViewController: UIViewController {
         presentingViewController?.dismiss(animated: false, completion: nil)
         appDelegate.mainController.stopAllTimers()
         appDelegate.mainController.resetUserAndViews()
+        
+        let initVc = storyboard?.instantiateViewController(identifier: "init_vc") as! InitViewController
+        let window = self.view.window!
+        window.rootViewController = initVc
+        UIView.transition(with: window, duration: 0.2,
+                          options: .transitionCrossDissolve, animations: nil)
     }
     
     @IBAction func youTubeSyncTapped(_ sender: Any) {

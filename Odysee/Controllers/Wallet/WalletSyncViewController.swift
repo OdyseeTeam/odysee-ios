@@ -136,8 +136,8 @@ class WalletSyncViewController: UIViewController {
         DispatchQueue.main.async {
             // sync_apply was successful, we can proceed
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.checkAndClaimEmailReward()
             appDelegate.mainController.startWalletBalanceTimer()
+            appDelegate.mainController.checkAndClaimEmailReward(completion: { })
             
             if self.firstRunFlow {
                 self.frDelegate?.requestFinished(showSkip: true, showContinue: true)

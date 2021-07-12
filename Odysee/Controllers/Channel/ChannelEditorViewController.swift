@@ -39,6 +39,13 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
     var imageUploadInProgress = false
     var currentCoverUrl: String? = nil
     var currentThumbnailUrl: String? = nil
+    var commentsVc: CommentsViewController!
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -64,6 +71,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         descriptionField.layer.borderWidth = 1
         descriptionField.layer.cornerRadius = 4
         
+        depositField.text = Helper.minimumDepositString
         populateFieldsForEdit()
     }
     
@@ -231,7 +239,10 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
                 
                 DispatchQueue.main.async {
                     self.showMessage(message: String.localized(editMode ? "The channel was successfully updated" : "The channel was successfully created"))
-                     self.navigationController?.popViewController(animated: true)
+                    if let vc = self.commentsVc {
+                        vc.loadChannels()
+                    }
+                    self.navigationController?.popViewController(animated: true)
                 }
                 return
             }

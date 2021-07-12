@@ -85,7 +85,7 @@ final class Lbry {
         var method: String
         var params: CallParams
         var jsonrpc = "2.0"
-        var counter = Date().timeIntervalSince1970
+        var id = Int64(Date().timeIntervalSince1970)
     }
     
     static private let bodyEncoder: JSONEncoder = {
@@ -143,6 +143,7 @@ final class Lbry {
             completion(.failure(e))
             return
         }
+        
         let task = URLSession.shared.dataTask(with: req) { taskResult in
             // Do the parse, compute the result here on network thread.
             let result: Result<ReturnType, Error> = taskResult.flatMap { rawResponse in
