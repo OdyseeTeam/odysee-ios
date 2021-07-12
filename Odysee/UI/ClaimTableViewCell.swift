@@ -58,6 +58,8 @@ class ClaimTableViewCell: UITableViewCell {
             channelImageView.backgroundColor = nil
         }
         
+        self.backgroundColor = claim.featured ? UIColor.black : nil
+        
         thumbnailImageView.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
         titleLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
         publisherLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
@@ -85,11 +87,13 @@ class ClaimTableViewCell: UITableViewCell {
         channelImageView.isHidden = !isChannel
         thumbnailImageView.isHidden = isChannel
         
+        titleLabel.textColor = claim.featured ? UIColor.white : nil
         titleLabel.text = isChannel ? claim.name : claim.value?.title
         publisherLabel.text = isChannel ? claim.name : claim.signingChannel?.name
         if claim.value?.source == nil  && !isChannel {
             publisherLabel.text = "LIVE"
         }
+        
         // load thumbnail url
         if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
             if isChannel {
@@ -111,6 +115,8 @@ class ClaimTableViewCell: UITableViewCell {
         if (releaseTime == 0) {
             releaseTime = Double(claim.timestamp ?? 0)
         }
+        
+        publishTimeLabel.textColor = claim.featured ? UIColor.white : nil
         if releaseTime > 0 {
             let date = Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
             publishTimeLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())

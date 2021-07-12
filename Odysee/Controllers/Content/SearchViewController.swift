@@ -65,6 +65,41 @@ class SearchViewController: UIViewController,
         resultsListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
     }
     
+    func resolveWinning(query: String) {
+        var sanitisedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let range = NSMakeRange(0, sanitisedQuery.count)
+        sanitisedQuery = LbryUri.regexInvalidUri.stringByReplacingMatches(in: query, options: [], range: range, withTemplate: "")
+        
+        var possibleUrls = [String(format: "lbry://%@", sanitisedQuery)]
+        if !sanitisedQuery.starts(with: "@") {
+            // if it's not a channel url, add the channel url as a possible url
+            possibleUrls.append(String(format: "lbry://@%@", sanitisedQuery))
+        }
+        
+        Lbry.apiCall(method: Lbry.Methods.resolve,
+                     params: .init(urls: possibleUrls),
+                     completion: didResolveWinning)
+    }
+    
+    func didResolveWinning(_ result: Result<ResolveResult, Error>) {
+        if case let .success(resolve) = result {
+            var winningClaims: [Claim] = []
+            winningClaims.append(contentsOf: resolve.claims.values)
+            
+            if winningClaims.count > 0 {
+                winningClaims.sort(by: { Decimal(string: $1.meta?.effectiveAmount ?? "0")! > Decimal(string: $0.meta?.effectiveAmount ?? "0")! })
+                let winningClaim = winningClaims[0]
+                winningClaim.featured = true
+                
+                // if the claim is already in the search results, remove it so we can promote to the top
+                claims.removeAll(where: { $0.claimId == winningClaim.claimId })
+                claims.insert(winningClaim, at: 0)
+                resultsListView.reloadData()
+                checkNoResults()
+            }
+        }
+    }
+    
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
@@ -110,6 +145,11 @@ class SearchViewController: UIViewController,
             if claims.count != oldCount {
                 resultsListView.reloadData()
             }
+            
+            // try to resolve the winning claim after loading initial set of results
+            if let query = currentQuery {
+                resolveWinning(query: query)
+            }
         }
         checkNoResults()
         searching = false
@@ -117,8 +157,8 @@ class SearchViewController: UIViewController,
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.searchTask?.cancel()
-        
+        // disable auto search. Consider making this a toggled setting in the future?
+        /*self.searchTask?.cancel()
         let task = DispatchWorkItem { [weak self] in
             if (!searchText.isBlank && searchText != (self?.currentQuery ?? "")) {
                 self?.resetSearch()
@@ -126,9 +166,9 @@ class SearchViewController: UIViewController,
             self?.search(query: searchText, from: 0)
         }
         self.searchTask = task
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1.5, execute: task)
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1.5, execute: task)*/
     }
-    
+        
     func resetSearch() {
         self.claims = []
         DispatchQueue.main.async {
@@ -205,6 +245,11 @@ class SearchViewController: UIViewController,
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar)  {
         searchBar.resignFirstResponder()
+        if searching {
+            return
+        }
+        resetSearch()
+        search(query: searchBar.searchTextField.text, from: 0)
     }
     
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
