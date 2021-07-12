@@ -9,6 +9,7 @@ import AVKit
 import AVFoundation
 import CoreData
 import Firebase
+import ImageScrollView
 import OrderedCollections
 import PerfectMarkdown
 import SafariServices
@@ -92,8 +93,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     @IBOutlet weak var dismissPanRecognizer: UIPanGestureRecognizer!
     
+    @IBOutlet weak var closeOtherContentButton: UIButton!
+    @IBOutlet weak var contentInfoView: UIView!
+    @IBOutlet weak var contentInfoLoading: UIActivityIndicatorView!
+    @IBOutlet weak var contentInfoDescription: UILabel!
+    @IBOutlet weak var contentInfoImage: UIImageView!
+    @IBOutlet weak var contentInfoViewButton: UIButton!
     @IBOutlet weak var mediaViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var webViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var imageViewer: ImageScrollView!
     @IBOutlet weak var webView: WKWebView!
     @IBOutlet weak var dismissFileView: UIView!
 
@@ -116,7 +124,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var fileViewLogged = false
     var loggingInProgress = false
     var playRequestTime: Int64 = 0
-    var playerObserverAdded: Bool = false
+    var playerObserverAdded = false
+    var imageViewerActive = false
+    var otherContentWebUrl: String? = nil
     
     var commentsPageSize: Int = 50
     var commentsCurrentPage: Int = 1
@@ -137,6 +147,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var isTextContent = false
     var isImageContent = false
     var isOtherContent = false
+    var avpcInitialised = false
     
     var loadingChannels = false
     var postingChat = false
@@ -210,19 +221,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        avpc.allowsPictureInPicturePlayback = true
-        avpc.updatesNowPlayingInfoCenter = false
         relatedContentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
 
-        addChild(avpc)
-        avpc.view.frame = mediaView.bounds
-        mediaView.addSubview(avpc.view)
-        avpc.didMove(toParent: self)
-
         registerForKeyboardNotifications()
+        
+        imageViewer.setup()
         webView.navigationDelegate = self
         webView.scrollView.bounces = false
+        contentInfoViewButton.layer.masksToBounds = true
+        contentInfoViewButton.layer.cornerRadius = 16
         
         checkRepost()
         relatedContentListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
@@ -437,20 +444,57 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             contentType = mediaType
         }
         
+        otherContentWebUrl = nil
+        closeOtherContentButton.isHidden = true
+        contentInfoView.isHidden = true
+        mediaView.isHidden = false
+        mediaViewHeightConstraint.constant = 240
+        
         if isTextContent || isImageContent || isOtherContent {
             dismissFileView.isHidden = true
-            mediaView.isHidden = true
-            mediaViewHeightConstraint.constant = 0
+            contentInfoView.isHidden = false
+            closeOtherContentButton.isHidden = false
+            contentInfoViewButton.isHidden = true
+            contentInfoImage.image = nil
             
+            let contentUrl = buildOtherContentUrl(singleClaim)
             if isTextContent {
                 webView.isHidden = false
-                if let url = buildTextContentUrl(singleClaim) {
-                    loadTextContent(url: url, contentType: contentType)
+                contentInfoDescription.text = String.localized("Loading content...")
+                contentInfoLoading.isHidden = false
+                loadTextContent(url: contentUrl!, contentType: contentType)
+                logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
+            } else if isImageContent {
+                var thumbnailDisplayUrl = contentUrl
+                if !(singleClaim.value?.thumbnail?.url ?? "").isBlank {
+                    thumbnailDisplayUrl = URL(string: singleClaim.value!.thumbnail!.url!)!
                 }
+                contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
+                let tmpImageView = UIImageView()
+                tmpImageView.pin_setImage(from: contentUrl, processorKey: String(format: "iv_%@", singleClaim.claimId!)) { (result, unsafePointer) -> UIImage? in
+                    guard let image = result.image else { return nil }
+                    DispatchQueue.main.async {
+                        self.imageViewer.display(image: image)
+                    }
+                    return image
+                }
+                contentInfoViewButton.isHidden = false
+                logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
+            } else if let url = LbryUri.tryParse(url: singleClaim.permanentUrl!, requireProto: false) {
+                contentInfoLoading.isHidden = true
+                contentInfoDescription.text = String(format: String.localized("This content cannot be viewed in the Odysee app at this time. Please open %@ in your web browser."), url.odyseeString)
+                otherContentWebUrl = url.odyseeString
             }
-        } else {
-            mediaView.isHidden = false
-            mediaViewHeightConstraint.constant = 240
+        } else if !avpcInitialised {
+            avpc.allowsPictureInPicturePlayback = true
+            avpc.updatesNowPlayingInfoCenter = false
+            addChild(avpc)
+            
+            avpc.view.frame = mediaView.bounds
+            mediaView.addSubview(avpc.view)
+            avpc.didMove(toParent: self)
+            
+            avpcInitialised = true
         }
         
         if let publisher = claim?.signingChannel {
@@ -514,7 +558,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
     
-    func buildTextContentUrl(_ claim: Claim) -> URL? {
+    @IBAction func viewContentTapped(_ sender: UIButton) {
+        imageViewer.isHidden = false
+        imageViewer.layoutIfNeeded()
+        imageViewerActive = true
+    }
+    
+    @IBAction func contentInfoTapped(_ sender: Any) {
+        if let url = URL(string: otherContentWebUrl ?? "") {
+            let vc = SFSafariViewController(url: url)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.present(vc, animated: true, completion: nil)
+        }
+    }
+    
+    func buildOtherContentUrl(_ claim: Claim) -> URL? {
         return URL(string: String(format: "https://cdn.lbryplayer.xyz/api/v4/streams/free/%@/%@/%@",
                                   claim.name!, claim.claimId!, String((claim.value!.source!.sdHash!.prefix(6)))))
     }
@@ -996,7 +1054,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         Lighthouse.search(rawQuery: query!, size: 16, from: 0, relatedTo: claim!.claimId!, completion: { results, error in
             if (results == nil || results!.count == 0) {
                 //self.checkNoResults()
-                self.loadingRelatedView.isHidden = true
+                DispatchQueue.main.async {
+                    self.loadingRelatedView.isHidden = true
+                }
                 return
             }
             
@@ -1100,6 +1160,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     @IBAction func closeTapped(_ sender: UIButton) {
         self.navigationController?.popViewController(animated: true)
+    }
+    
+    @IBAction func closeOtherContentTapped(_sender: UIButton) {
+        if imageViewerActive {
+            imageViewer.isHidden = true
+            imageViewerActive = false
+        } else {
+            self.navigationController?.popViewController(animated: true)
+        }
     }
     
     @IBAction func reloadTapped(_ sender: Any) {
@@ -1641,12 +1710,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        print("****CALLING DIDFINISH?!!!!")
         webView.evaluateJavaScript("document.readyState", completionHandler: { (complete, error) in
             if complete != nil {
-                self.webView.evaluateJavaScript("document.body.scrollHeight", completionHandler: { (height, error) in
+                webView.evaluateJavaScript("document.body.scrollHeight", completionHandler: { (height, error) in
                     self.webViewHeightConstraint.constant = height as! CGFloat
                     webView.scrollView.isScrollEnabled = false
+                    
+                    self.mediaView.isHidden = true
+                    self.mediaViewHeightConstraint.constant = 0
+                    self.contentInfoLoading.isHidden = true
+                    self.contentInfoView.isHidden = true
                 })
             }
         })

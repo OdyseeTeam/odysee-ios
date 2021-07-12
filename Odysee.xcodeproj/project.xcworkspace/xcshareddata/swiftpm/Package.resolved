@@ -101,6 +101,15 @@
         }
       },
       {
+        "package": "ImageScrollView",
+        "repositoryURL": "https://github.com/huynguyencong/ImageScrollView.git",
+        "state": {
+          "branch": null,
+          "revision": "1cf139aec5b838d3b383058e20cdbd80d20142f5",
+          "version": "1.9.3"
+        }
+      },
+      {
         "package": "Kanna",
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {

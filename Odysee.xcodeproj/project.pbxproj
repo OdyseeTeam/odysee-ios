@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = 64019A0D269C101D00E16A51 /* ImageScrollView */; };
 		640BEF2F2587A8FA0019B840 /* LbryNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640BEF2E2587A8FA0019B840 /* LbryNotification.swift */; };
 		640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640BEF332587DB5D0019B840 /* NotificationTableViewCell.swift */; };
 		641108DC255A8D7D00F0FB8A /* Lbryio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641108DB255A8D7D00F0FB8A /* Lbryio.swift */; };
@@ -229,6 +230,7 @@
 				6459121D2620745D00B2ABA5 /* Starscream in Frameworks */,
 				B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */,
 				6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */,
+				64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */,
 				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
 				64A26CE526974B7A00AE19DE /* PerfectMarkdown in Frameworks */,
 				646D5645258587A8002DB12F /* OAuthSwift in Frameworks */,
@@ -519,6 +521,7 @@
 				CCDDA928265861AF0006035F /* PINRemoteImage */,
 				CCFB0B4E26653E0900696E0C /* OrderedCollections */,
 				64A26CE426974B7A00AE19DE /* PerfectMarkdown */,
+				64019A0D269C101D00E16A51 /* ImageScrollView */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -600,6 +603,7 @@
 				CCDDA927265861AF0006035F /* XCRemoteSwiftPackageReference "PINRemoteImage" */,
 				CCFB0B4D26653E0800696E0C /* XCRemoteSwiftPackageReference "swift-collections" */,
 				64A26CE326974B7900AE19DE /* XCRemoteSwiftPackageReference "Perfect-Markdown" */,
+				64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -1062,6 +1066,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/huynguyencong/ImageScrollView.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.9.3;
+			};
+		};
 		6411C0AE255B35260018C3D5 /* XCRemoteSwiftPackageReference "Base58Swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/keefertaylor/Base58Swift.git";
@@ -1129,6 +1141,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		64019A0D269C101D00E16A51 /* ImageScrollView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */;
+			productName = ImageScrollView;
+		};
 		6411C0AF255B35260018C3D5 /* Base58Swift */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 6411C0AE255B35260018C3D5 /* XCRemoteSwiftPackageReference "Base58Swift" */;
