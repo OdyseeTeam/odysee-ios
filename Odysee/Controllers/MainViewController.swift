@@ -214,6 +214,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         miniPlayerTitleLabel.text = ""
         miniPlayerPublisherLabel.text = ""
         appDelegate.currentClaim = nil
+        
+        toggleMiniPlayer(hidden: true)
     }
     
     @IBAction func uploadTapped(_ sender: Any) {
