@@ -12,6 +12,7 @@ import Firebase
 import ImageScrollView
 import OrderedCollections
 import PerfectMarkdown
+import PINRemoteImage
 import SafariServices
 import Starscream
 import UIKit
@@ -470,13 +471,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     thumbnailDisplayUrl = URL(string: singleClaim.value!.thumbnail!.url!)!
                 }
                 contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
-                let tmpImageView = UIImageView()
-                tmpImageView.pin_setImage(from: contentUrl, processorKey: String(format: "iv_%@", singleClaim.claimId!)) { (result, unsafePointer) -> UIImage? in
-                    guard let image = result.image else { return nil }
-                    DispatchQueue.main.async {
+                PINRemoteImageManager.shared().downloadImage(with: contentUrl!) { result in
+                    guard let image = result.image else { return }
+                    Thread.performOnMain {
                         self.imageViewer.display(image: image)
                     }
-                    return image
                 }
                 contentInfoViewButton.isHidden = false
                 logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
