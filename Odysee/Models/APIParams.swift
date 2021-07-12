@@ -7,6 +7,9 @@
 
 import Foundation
 
+// API taken from https://lbry.tech/api/sdk
+// Structs here only contain fields that we actually use.
+
 struct ResolveParams: Encodable {
     var urls = [String]()
 }
@@ -48,4 +51,16 @@ struct ClaimSearchParams: Encodable {
     var notChannelIds: [String]?
     var claimIds: [String]?
     var orderBy: [String]?
+}
+
+struct AddressUnusedParams: Encodable { }
+
+struct ChannelAbandonParams: Encodable {
+    var claimId: String
+    var blocking: Bool?
+}
+
+struct TransactionListParams: Encodable {
+    var page: Int?
+    var pageSize: Int?
 }

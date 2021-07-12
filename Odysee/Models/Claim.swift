@@ -37,6 +37,7 @@ class Claim: Decodable, Equatable, Hashable {
     var value: Metadata?
     var valueType: ClaimType?
     var selected: Bool = false
+    var featured: Bool = false
     
     private enum CodingKeys: String, CodingKey {
         case address, amount, canonicalUrl = "canonical_url", claimId = "claim_id", claimOp = "claim_op", confirmations,

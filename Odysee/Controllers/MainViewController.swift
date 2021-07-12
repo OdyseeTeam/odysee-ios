@@ -109,21 +109,13 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         if !emailRewardClaimed {
             let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
             if ((receiveAddress ?? "").isBlank) {
-                Lbry.apiCall(method: Lbry.methodAddressUnused, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-                    guard let data = data, error == nil else {
-                        // no need to handle any errors here, just continue
-                        completion()
+                Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()) { result in
+                    guard case let .success(newAddress) = result else {
                         return
                     }
-                    
-                    let newAddress = data["result"] as! String
-                    DispatchQueue.main.async {
-                        let defaults = UserDefaults.standard
-                        defaults.setValue(newAddress, forKey: Helper.keyReceiveAddress)
-                    }
-                    
+                    UserDefaults.standard.set(newAddress, forKey: Helper.keyReceiveAddress)
                     self.claimEmailReward(walletAddress: newAddress, completion: completion)
-                })
+                }
 
                 return
             }
@@ -138,7 +130,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         Lbryio.claimReward(type: "email_provided", walletAddress: walletAddress, completion: { data, error in
             guard let _ = data, error == nil else {
                 self.showError(error: error)
-                print(error)
                 completion()
                 return
             }
@@ -228,10 +219,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             
             appDelegate.resetPlayerObserver()
         }
-        toggleMiniPlayer(hidden: true)
+                                       
         miniPlayerTitleLabel.text = ""
         miniPlayerPublisherLabel.text = ""
         appDelegate.currentClaim = nil
+        
+        toggleMiniPlayer(hidden: true)
     }
     
     @IBAction func uploadTapped(_ sender: Any) {

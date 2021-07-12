@@ -180,3 +180,15 @@ extension NSNumber: Encodable {
         }
     }
 }
+
+extension Thread {
+    // Run the closure on the main thread. If this is called on main, run it immediately. Otherwise
+    // dispatch async onto the main queue.
+    static func performOnMain(_ f: @escaping () -> Void) {
+        if isMainThread {
+            f()
+        } else {
+            DispatchQueue.main.async(execute: f)
+        }
+    }
+}

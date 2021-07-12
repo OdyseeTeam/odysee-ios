@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Transaction: Decodable {
+struct Transaction: Decodable, Hashable {
     var confirmations: Int?
     var date: String?
     var fee: String?
@@ -101,6 +101,13 @@ struct Transaction: Decodable {
         private enum CodingKeys: String, CodingKey {
             case address, balanceDelta = "balance_delta", amount, claimId = "claim_id", claimName = "claim_name", isTip = "is_tip", nout = "nout"
         }
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        txid?.hash(into: &hasher)
+    }
+    static func ==(lhs: Transaction, rhs: Transaction) -> Bool {
+        return lhs.txid == rhs.txid
     }
 }
 
