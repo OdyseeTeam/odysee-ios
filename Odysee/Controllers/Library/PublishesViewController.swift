@@ -179,7 +179,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             }
             
             // show confirmation dialog before deleting
-            let alert = UIAlertController(title: String.localized("Abandon channel?"), message: String.localized("Are you sure you want to delete this upload?"), preferredStyle: .alert)
+            let alert = UIAlertController(title: String.localized("Abandon content?"), message: String.localized("Are you sure you want to delete this upload?"), preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
                 self.abandonClaim(claim: claim)
                 self.uploads.remove(at: indexPath.row)

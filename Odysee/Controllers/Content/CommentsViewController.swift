@@ -19,6 +19,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     @IBOutlet weak var commentInput: UITextView!
     @IBOutlet weak var commentList: UITableView!
     @IBOutlet weak var loadingContainer: UIView!
+    @IBOutlet weak var channelDriverView: UIView!
+    @IBOutlet weak var channelDriverHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var commentListHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var contentScrollView: UIScrollView!
     @IBOutlet weak var scrollViewBottomConstraint: NSLayoutConstraint!
@@ -49,7 +51,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         if Lbryio.isSignedIn() {
             loadChannels()
         }
-        if comments.count == 0 && !commentsLastPageReached && !commentsDisabled {
+        if comments.count == 0 && !commentsDisabled {
             loadComments()
         }
     }
@@ -91,6 +93,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             currentCommentAsIndex = 0
             updateCommentAsChannel(0)
         }
+        
+        channelDriverView.isHidden = channels.count > 0
+        channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
     }
     
     func registerForKeyboardNotifications() {
@@ -229,6 +234,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         guard case let .success(page) = result else {
             return
         }
+        print("****Calling didLoadChannels?")
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels
@@ -236,6 +242,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             currentCommentAsIndex = 0
             updateCommentAsChannel(0)
         }
+        channelDriverView.isHidden = channels.count > 0
+        channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
         if let picker = commentAsPicker {
             picker.reloadAllComponents()
         }
@@ -243,6 +251,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     func checkNoComments() {
         DispatchQueue.main.async {
+            print("****CommentCount=" + String(describing: self.comments.count))
             self.noCommentsLabel.isHidden = self.comments.count > 0
         }
     }
@@ -331,6 +340,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         if let parentvc = self.parent as? FileViewController {
             parentvc.closeCommentsView()
         }
+    }
+    
+    @IBAction func channelDriverTapped(_ sender: Any) {
+        let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
+        vc.commentsVc = self
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -587,7 +602,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     func updateCommentAsChannel(_ index: Int) {
-        if index < 0 {
+        if index < 0 || channels.count == 0 {
             return
         }
         

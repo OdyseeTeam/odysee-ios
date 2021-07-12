@@ -219,7 +219,7 @@ final class Lbryio {
     }
     
     static func areCommentsEnabled(channelId: String, channelName: String, completion: @escaping (Bool) -> Void) {
-        let params: Dictionary<String, Any> = ["channel_id": channelId, "channel_name": channelName, "page": 1, "page_size": 1]
+        let params: Dictionary<String, Any> = ["claim_id": channelId, "channel_id": channelId, "channel_name": channelName, "page": 1, "page_size": 1]
         Lbry.apiCall(method: "comment.List", params: params, connectionString: commentronUrl, completion: { data, error in
             guard let _ = data, error == nil else {
                 completion(false)

@@ -241,27 +241,29 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     func displayBalance(balance: WalletBalance?) {
         let currencyFormatter = Helper.currencyFormatter
-        if (balance != nil) {
-            balanceLabel.text = currencyFormatter.string(from: balance!.total! as NSDecimalNumber)
-            immediatelySpendableLabel.text = currencyFormatter.string(from: balance!.available! as NSDecimalNumber)
-            boostingContentLabel.text = currencyFormatter.string(from: balance!.reserved! as NSDecimalNumber)
-            tipsLabel.text = currencyFormatter.string(from: balance!.tips! as NSDecimalNumber)
-            initialPublishesLabel.text = currencyFormatter.string(from: balance!.claims! as NSDecimalNumber)
-            supportingContentLabel.text = currencyFormatter.string(from: balance!.supports! as NSDecimalNumber)
+        if let balance = balance {
+            balanceLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.total ?? Decimal(0)))
+            immediatelySpendableLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.available ?? Decimal(0)))
+            boostingContentLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.reserved ?? Decimal(0)))
+            tipsLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.tips  ?? Decimal(0)))
+            initialPublishesLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.claims ?? Decimal(0)))
+            supportingContentLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.supports ?? Decimal(0)))
             
-            if (Lbryio.currentLbcUsdRate ?? 0) == 0 {
-                // attempt to reload the exchange rate (if it wasn't loaded previously)
-                Lbryio.loadExchangeRate(completion: { rate, error in
-                    guard let rate = rate, error == nil else {
-                        // pass
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.usdBalanceLabel.text = String(format: "≈$%@", currencyFormatter.string(from: (balance!.total! * rate) as NSDecimalNumber)!)
-                    }
-                })
-            } else {
-                usdBalanceLabel.text = String(format: "≈$%@", currencyFormatter.string(from: (balance!.total! * Lbryio.currentLbcUsdRate!) as NSDecimalNumber)!)
+            if let total = balance.total {
+                if (Lbryio.currentLbcUsdRate ?? 0) == 0 {
+                    // attempt to reload the exchange rate (if it wasn't loaded previously)
+                    Lbryio.loadExchangeRate(completion: { rate, error in
+                        guard let rate = rate, error == nil else {
+                            // pass
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            self.usdBalanceLabel.text = String(format: "≈$%@", currencyFormatter.string(from: (total * rate) as NSDecimalNumber)!)
+                        }
+                    })
+                } else {
+                    usdBalanceLabel.text = String(format: "≈$%@", currencyFormatter.string(from: (total * Lbryio.currentLbcUsdRate!) as NSDecimalNumber)!)
+                }
             }
         }
     }

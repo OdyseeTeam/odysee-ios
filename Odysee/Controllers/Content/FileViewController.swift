@@ -401,7 +401,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             self.commentsDisabled = commentsDisabled
             self.commentExpandView.isHidden = commentsDisabled
             self.noCommentsLabel.isHidden = !commentsDisabled
-            self.noCommentsLabel.text = String.localized("Comments are disabled.")
+            self.noCommentsLabel.text = String.localized(commentsDisabled ? "Comments are disabled." : "There are no comments to display at this time. Be the first to post a comment!")
             self.featuredCommentView.isHidden = commentsDisabled
             
             if !self.commentsDisabled {
@@ -1022,9 +1022,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         commentsVc.commentsDisabled = commentsDisabled
         commentsVc.comments = comments.elements
         commentsVc.authorThumbnailMap = authorThumbnailMap
-        if !isPlaylist {
-            commentsVc.commentsLastPageReached = commentsLastPageReached
-        }
         
         commentsVc.willMove(toParent: self)
         commentsContainerView.addSubview(commentsVc.view)
@@ -1379,24 +1376,22 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         comments.append(contentsOf: page.items)
         let newComments = comments.suffix(from: oldCount)
         
-        if !newComments.isEmpty {
-            checkNoComments()
-            checkFeaturedComment()
+        if !comments.isEmpty {
             resolveCommentAuthors(urls: newComments.map { $0.channelUrl! })
         }
+        checkNoComments()
+        checkFeaturedComment()
     }
 
     func checkFeaturedComment() {
-        DispatchQueue.main.async {
-            if self.comments.count > 0 {
-                self.featuredCommentLabel.text = self.comments[0].comment
-                if let thumbUrl = self.authorThumbnailMap[self.comments[0].channelUrl!] {
-                    self.featuredCommentThumbnail.backgroundColor = UIColor.clear
-                    self.featuredCommentThumbnail.load(url: thumbUrl)
-                } else {
-                    self.featuredCommentThumbnail.image = UIImage.init(named: "spaceman")
-                    self.featuredCommentThumbnail.backgroundColor = Helper.lightPrimaryColor
-                }
+        if self.comments.count > 0 {
+            self.featuredCommentLabel.text = self.comments[0].comment
+            if let thumbUrl = self.authorThumbnailMap[self.comments[0].channelUrl!] {
+                self.featuredCommentThumbnail.backgroundColor = UIColor.clear
+                self.featuredCommentThumbnail.load(url: thumbUrl)
+            } else {
+                self.featuredCommentThumbnail.image = UIImage.init(named: "spaceman")
+                self.featuredCommentThumbnail.backgroundColor = Helper.lightPrimaryColor
             }
         }
     }
@@ -1416,10 +1411,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     func checkNoComments() {
-        DispatchQueue.main.async {
-            self.noCommentsLabel.isHidden = self.comments.count > 0
-            self.featuredCommentView.isHidden = self.comments.count == 0
-        }
+        self.noCommentsLabel.isHidden = self.comments.count > 0
+        self.featuredCommentView.isHidden = self.comments.count == 0
     }
     
     func loadChannels() {

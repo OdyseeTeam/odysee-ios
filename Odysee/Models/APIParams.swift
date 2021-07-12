@@ -13,6 +13,8 @@ struct ResolveParams: Encodable {
 
 struct CommentListParams: Encodable {
     var claimId: String
+    var channelId: String?
+    var channelName: String?
     var page: Int?
     var pageSize: Int?
     var skipValidation: Bool?
