@@ -482,7 +482,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
             } else if let url = LbryUri.tryParse(url: singleClaim.permanentUrl!, requireProto: false) {
                 contentInfoLoading.isHidden = true
-                contentInfoDescription.text = String(format: String.localized("This content cannot be viewed in the Odysee app at this time. Please open %@ in your web browser."), url.odyseeString)
+                let messageString = NSMutableAttributedString(string: String(format: String.localized("This content cannot be viewed in the Odysee app at this time. Please open %@ in your web browser."), url.odyseeString))
+                let range = messageString.mutableString.range(of: url.odyseeString)
+                if range.location != NSNotFound {
+                    messageString.addAttribute(.link, value: url.odyseeString, range: range)
+                }
+                contentInfoDescription.attributedText = messageString
                 otherContentWebUrl = url.odyseeString
             }
         } else if !avpcInitialised {
@@ -589,9 +594,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     
                     let mdHtml = self.buildMarkdownHTML(html)
                     self.loadWebViewContent(mdHtml)
+                } else if contentType == "text/html" {
+                    self.loadWebViewContent(contents)
                 } else {
-                    // TODO: Load text into webview directly instead of having to send another URL request
-                    self.loadWebViewURL(url)
+                    self.loadWebViewContent(self.buildPlainTextHTML(contents))
                 }
             } catch {
                 self.handleContentLoadError(String(format: String.localized("Could not load URL %@"), url.absoluteString))
@@ -606,7 +612,23 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     func buildPlainTextHTML(_ text: String) -> String {
-        return "<html><head><body><pre style=\"white-space: pre-wrap;\">\(text)</pre></body></head></html>"
+        return """
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, user-scalable=no"/>
+    <style type="text/css">
+      body { font-family: sans-serif; margin: 16px; }
+      img { width: 100%; }
+      pre { white-space: pre-wrap; word-wrap: break-word; }
+    </style>
+  </head>
+  <body>
+    <pre>\(text)</pre>
+  </body>
+</html>
+"""
     }
     
     func buildMarkdownHTML(_ markdownHtml: String) -> String {
