@@ -210,7 +210,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             
             appDelegate.resetPlayerObserver()
         }
-        toggleMiniPlayer(hidden: true)
+                                       
         miniPlayerTitleLabel.text = ""
         miniPlayerPublisherLabel.text = ""
         appDelegate.currentClaim = nil

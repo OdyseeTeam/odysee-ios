@@ -101,6 +101,15 @@
         }
       },
       {
+        "package": "ImageScrollView",
+        "repositoryURL": "https://github.com/huynguyencong/ImageScrollView.git",
+        "state": {
+          "branch": null,
+          "revision": "1cf139aec5b838d3b383058e20cdbd80d20142f5",
+          "version": "1.9.3"
+        }
+      },
+      {
         "package": "Kanna",
         "repositoryURL": "https://github.com/tid-kijyun/Kanna.git",
         "state": {
@@ -152,6 +161,15 @@
           "branch": null,
           "revision": "fde77955e6983fbfaabd491709d52b8a82fda4d0",
           "version": "2.1.2"
+        }
+      },
+      {
+        "package": "PerfectMarkdown",
+        "repositoryURL": "https://github.com/PerfectlySoft/Perfect-Markdown.git",
+        "state": {
+          "branch": null,
+          "revision": "ec159e763d95cd81125f80e4d616049fa9ee389c",
+          "version": "3.2.0"
         }
       },
       {
