@@ -37,16 +37,17 @@ final class Lbry {
     }
 
     struct Methods {
-        static let resolve        = Method<ResolveParams, ResolveResult>(name: "resolve",
+        static let resolve         = Method<ResolveParams, ResolveResult>(name: "resolve",
                                                          defaultTransform: processResolvedClaims)
-        static let claimSearch    = Method<ClaimSearchParams, Page<Claim>>(name: "claim_search",
+        static let claimSearch     = Method<ClaimSearchParams, Page<Claim>>(name: "claim_search",
                                                        defaultTransform: processPageOfClaims)
-        static let claimList      = Method<ClaimListParams, Page<Claim>>(name: "claim_list",
+        static let claimList       = Method<ClaimListParams, Page<Claim>>(name: "claim_list",
                                                        defaultTransform: processPageOfClaims)
-        static let streamAbandon  = Method<StreamAbandonParams, Transaction>(name: "stream_abandon")
-        static let commentList    = Method<CommentListParams, Page<Comment>>(name: "comment_list")
-        static let addressUnused  = Method<AddressUnusedParams, String>(name: "address_unused")
-        static let channelAbandon = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
+        static let streamAbandon   = Method<StreamAbandonParams, Transaction>(name: "stream_abandon")
+        static let commentList     = Method<CommentListParams, Page<Comment>>(name: "comment_list")
+        static let addressUnused   = Method<AddressUnusedParams, String>(name: "address_unused")
+        static let channelAbandon  = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
+        static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
     }
 
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
@@ -63,7 +64,6 @@ final class Lbry {
     static let methodSupportCreate = "support_create"
     static let methodSyncHash = "sync_hash"
     static let methodSyncApply = "sync_apply"
-    static let methodTransactionList = "transaction_list"
     static let methodWalletBalance = "wallet_balance"
     static let methodWalletStatus = "wallet_status"
     static let methodWalletUnlock = "wallet_unlock"

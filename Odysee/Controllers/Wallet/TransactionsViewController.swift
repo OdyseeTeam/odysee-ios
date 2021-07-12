@@ -6,6 +6,7 @@
 //
 
 import Firebase
+import OrderedCollections
 import UIKit
 
 class TransactionsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UIGestureRecognizerDelegate {
@@ -15,7 +16,7 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
     @IBOutlet weak var loadingContainer: UIView!
     @IBOutlet weak var backView: UIView!
     
-    var transactions: [Transaction] = []
+    var transactions: OrderedSet<Transaction> = []
     var loadingTransactions: Bool = false
     var lastPageReached: Bool = false
     var currentPage = 1
@@ -53,53 +54,32 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
             return
         }
         
-        var params = Dictionary<String, Any>()
-        params["page"] = currentPage
-        params["page_size"] = pageSize
-        
         loadingTransactions = true
         loadingContainer.isHidden = false
         noTransactionsView.isHidden = true
         transactionListView.isHidden = currentPage == 1
         
-        Lbry.apiCall(method: Lbry.methodTransactionList, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.checkTransactionsLoaded()
-                return
-            }
-            
-            let result = data["result"] as! [String: Any]
-            let items = result["items"] as? [[String: Any]]
-            if (items != nil) {
-                if items!.count < self.pageSize {
-                    self.lastPageReached = true
-                }
-                items?.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let transaction: Transaction? = try JSONDecoder().decode(Transaction.self, from: data)
-                        if (transaction != nil && !self.transactions.contains(where: { $0.txid == transaction?.txid })) {
-                            self.transactions.append(transaction!)
-                        }
-                    } catch let error {
-                        print(error)
-                    }
-                }
-                self.transactions.sort(by: { ($0.timestamp ?? 0) > ($1.timestamp ?? 0) })
-            }
-            
-            self.checkTransactionsLoaded()
-        })
+        Lbry.apiCall(method: Lbry.Methods.transactionList,
+                     params: .init(
+                        page: currentPage,
+                        pageSize: pageSize),
+                     completion: didLoadTransactions)
     }
     
-    func checkTransactionsLoaded() {
-        DispatchQueue.main.async {
-            self.loadingTransactions = false
-            self.loadingContainer.isHidden = true
-            self.noTransactionsView.isHidden = self.transactions.count > 0
-            self.transactionListView.isHidden = self.transactions.count == 0
-            self.transactionListView.reloadData()
+    func didLoadTransactions(_ result: Result<Page<Transaction>, Error>) {
+        loadingTransactions = false
+        loadingContainer.isHidden = true
+        defer {
+            noTransactionsView.isHidden = !transactions.isEmpty
+            transactionListView.isHidden = transactions.isEmpty
+            transactionListView.reloadData()
         }
+        guard case let .success(page) = result else {
+            return
+        }
+        lastPageReached = page.isLastPage
+        transactions.append(contentsOf: page.items)
+        transactions.sort { ($0.timestamp ?? 0) > ($1.timestamp ?? 0) }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

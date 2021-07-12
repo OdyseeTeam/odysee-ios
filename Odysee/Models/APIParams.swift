@@ -57,3 +57,8 @@ struct ChannelAbandonParams: Encodable {
     var claimId: String
     var blocking: Bool?
 }
+
+struct TransactionListParams: Encodable {
+    var page: Int?
+    var pageSize: Int?
+}
