@@ -433,7 +433,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if let mediaType = claim?.value?.source?.mediaType {
             isTextContent = mediaType.starts(with: "text/")
             isImageContent = mediaType.starts(with: "image/")
-            isOtherContent = !isTextContent && !isImageContent && !mediaType.starts(with: "video")
+            isOtherContent = !isTextContent && !isImageContent && !mediaType.starts(with: "video") && !mediaType.starts(with: "audio")
             contentType = mediaType
         }
         
