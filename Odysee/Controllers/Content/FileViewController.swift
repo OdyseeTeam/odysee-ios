@@ -605,19 +605,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let defaults = UserDefaults.standard
         let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
         if ((receiveAddress ?? "").isBlank) {
-            Lbry.apiCall(method: Lbry.methodAddressUnused, params: Dictionary<String, Any>(), connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-                guard let data = data, error == nil else {
+            Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()) { result in
+                guard case let .success(newAddress) = result else {
                     return
                 }
                 
-                let newAddress = data["result"] as! String
-                DispatchQueue.main.async {
-                    let defaults = UserDefaults.standard
-                    defaults.setValue(newAddress, forKey: Helper.keyReceiveAddress)
-                }
-                
+                UserDefaults.standard.set(newAddress, forKey: Helper.keyReceiveAddress)
                 Lbryio.claimReward(type: "daily_view", walletAddress: newAddress, completion: { data, error in })
-            })
+            }
             
             return
         }

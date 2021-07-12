@@ -98,13 +98,13 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     }
     
     func abandonChannel(channel: Claim) {
-        let params: Dictionary<String, Any> = ["claim_id": channel.claimId!, "blocking": true]
-        Lbry.apiCall(method: Lbry.methodChannelAbandon, params: params, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let _ = data, error == nil else {
-                self.showError(error: error)
-                return
-            }
-        })
+        Lbry.apiCall(method: Lbry.Methods.channelAbandon,
+                     params: .init(
+                        claimId: channel.claimId!,
+                        blocking: true),
+                     completion: { result in
+                        result.showErrorIfPresent()
+                     })
     }
     
     func checkNoChannels() {
