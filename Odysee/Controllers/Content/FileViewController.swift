@@ -306,8 +306,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
         
         Lbry.apiCall(method: Lbry.Methods.resolve,
-                     params: .init(urls: [url]),
-                     completion: didResolveClaim)
+                     params: .init(urls: [url]))
+            .subscribeResult(didResolveClaim)
     }
     
     func didResolveClaim(_ result: Result<ResolveResult, Error>) {
@@ -798,7 +798,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let defaults = UserDefaults.standard
         let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
         if ((receiveAddress ?? "").isBlank) {
-            Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()) { result in
+            Lbry.apiCall(
+                method: Lbry.Methods.addressUnused,
+                params: .init()
+            )
+            .subscribeResult { result in
                 guard case let .success(newAddress) = result else {
                     return
                 }
@@ -991,8 +995,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             page: currentPlaylistPage,
                             pageSize: playlistPageSize,
                             claimIds: playlistClaims,
-                            orderBy: Helper.sortByItemValues[1]),
-                         completion: didLoadPlaylistClaims)
+                            orderBy: Helper.sortByItemValues[1]))
+                .subscribeResult(didLoadPlaylistClaims)
         }
     }
     
@@ -1086,8 +1090,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 LbryUri.tryParse(url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String), requireProto: false)?.description
             }
             Lbry.apiCall(method: Lbry.Methods.resolve,
-                         params: .init(urls: urls),
-                         completion: self.handleRelatedContentResult)
+                         params: .init(urls: urls))
+                .subscribeResult(self.handleRelatedContentResult)
         })
     }
 
@@ -1559,8 +1563,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         claimId: singleClaim.claimId!,
                         page: commentsCurrentPage,
                         pageSize: commentsPageSize,
-                        skipValidation: true),
-                     completion: didLoadComments)
+                        skipValidation: true))
+            .subscribeResult(didLoadComments)
     }
     
     func didLoadComments(_ result: Result<Page<Comment>, Error>) {
@@ -1599,8 +1603,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     func resolveCommentAuthors(urls: [String]) {
         Lbry.apiCall(method: Lbry.Methods.resolve,
-                     params: .init(urls: urls),
-                     completion: didResolveCommentAuthors)
+                     params: .init(urls: urls))
+            .subscribeResult(didResolveCommentAuthors)
     }
     
     func didResolveCommentAuthors(_ result: Result<ResolveResult, Error>) {
@@ -1627,8 +1631,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         claimType: [.channel],
                         page: 1,
                         pageSize: 999,
-                        resolve: true),
-                     completion: didLoadChannels)
+                        resolve: true))
+            .subscribeResult(didLoadChannels)
     }
     
     func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
@@ -1660,8 +1664,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         claimId: claim!.claimId!,
                         page: 1,
                         pageSize: 75,
-                        skipValidation: true),
-                     completion: didLoadInitialChatMessages)
+                        skipValidation: true))
+            .subscribeResult(didLoadInitialChatMessages)
     }
     
     func didLoadInitialChatMessages(_ result: Result<Page<Comment>, Error>) {

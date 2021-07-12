@@ -76,8 +76,8 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
                         claimType: [.channel],
                         page: 1,
                         pageSize: 999,
-                        resolve: true),
-                     completion: didLoadChannels)
+                        resolve: true))
+            .subscribeResult(didLoadChannels)
     }
     
     func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
@@ -101,10 +101,10 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         Lbry.apiCall(method: Lbry.Methods.channelAbandon,
                      params: .init(
                         claimId: channel.claimId!,
-                        blocking: true),
-                     completion: { result in
-                        result.showErrorIfPresent()
-                     })
+                        blocking: true))
+            .subscribeResult { result in
+                result.showErrorIfPresent()
+            }
     }
     
     func checkNoChannels() {

@@ -77,8 +77,8 @@ class SearchViewController: UIViewController,
         }
         
         Lbry.apiCall(method: Lbry.Methods.resolve,
-                     params: .init(urls: possibleUrls),
-                     completion: didResolveWinning)
+                     params: .init(urls: possibleUrls))
+            .subscribeResult(didResolveWinning)
     }
     
     func didResolveWinning(_ result: Result<ResolveResult, Error>) {
@@ -132,8 +132,8 @@ class SearchViewController: UIViewController,
                 LbryUri.tryParse(url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String), requireProto: false)?.description
             }
             Lbry.apiCall(method: Lbry.Methods.resolve,
-                         params: .init(urls: urls),
-                         completion: self.didResolveResults)
+                         params: .init(urls: urls))
+                .subscribeResult(self.didResolveResults)
         })
     }
     

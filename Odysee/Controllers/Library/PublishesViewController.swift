@@ -72,8 +72,8 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
                         claimType: [.stream],
                         page: currentPage,
                         pageSize: pageSize,
-                        resolve: true),
-                     completion: didReceiveUploads)
+                        resolve: true))
+            .subscribeResult(didReceiveUploads)
     }
     
 
@@ -112,8 +112,8 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
                      params: .init(
                         claimId: claim.claimId!,
                         blocking: true
-                     ),
-                     completion: didAbandonClaim)
+                     ))
+            .subscribeResult(didAbandonClaim)
     }
     
     func didAbandonClaim(_ result: Result<Transaction, Error>) {
