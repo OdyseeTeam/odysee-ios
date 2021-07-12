@@ -153,6 +153,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var postingChat = false
     var messages: [Comment] = []
     var chatConnected = false
+    var initialChatLoaded = false
     var chatWebsocket: WebSocket? = nil
     
     var currentPlaylistPage = 1
@@ -370,6 +371,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if !isLivestream {
             return
         }
+        
+        loadInitialChatMessages()
         
         let url = URL(string: String(format: "https://api.bitwave.tv/v1/odysee/live/%@", claim!.signingChannel!.claimId!))
         let session = URLSession.shared
@@ -1652,6 +1655,39 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             chatWebsocket = WebSocket(request: URLRequest(url: url!))
             chatWebsocket!.delegate = self
             chatWebsocket?.connect()
+        }
+    }
+    
+    func loadInitialChatMessages() {
+        if initialChatLoaded {
+            return
+        }
+        
+        Lbry.apiCall(method: Lbry.Methods.commentList,
+                     params: .init(
+                        claimId: claim!.claimId!,
+                        page: 1,
+                        pageSize: 75,
+                        skipValidation: true),
+                     completion: didLoadInitialChatMessages)
+    }
+    
+    func didLoadInitialChatMessages(_ result: Result<Page<Comment>, Error>) {
+        assert(Thread.isMainThread)
+
+        initialChatLoaded = true
+        guard case let .success(page) = result else {
+            assertionFailure()
+            return
+        }
+        
+        if messages.count == 0 {
+            // only append initial items if the list is empty
+            messages.append(contentsOf: page.items)
+            messages.sort(by: { $1.timestamp ?? 0 > $0.timestamp ?? 0 })
+            chatListView.reloadData()
+            let indexPath = IndexPath(row: self.messages.count - 1, section: 0)
+            chatListView.scrollToRow(at: indexPath, at: .bottom, animated: true)
         }
     }
     
