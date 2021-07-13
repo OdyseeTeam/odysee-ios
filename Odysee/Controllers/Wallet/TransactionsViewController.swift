@@ -62,8 +62,8 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
         Lbry.apiCall(method: Lbry.Methods.transactionList,
                      params: .init(
                         page: currentPage,
-                        pageSize: pageSize),
-                     completion: didLoadTransactions)
+                        pageSize: pageSize))
+            .subscribeResult(didLoadTransactions)
     }
     
     func didLoadTransactions(_ result: Result<Page<Transaction>, Error>) {

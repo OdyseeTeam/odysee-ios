@@ -118,8 +118,8 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                         claimType: [.stream],
                         page: 1,
                         pageSize: 999,
-                        resolve: true),
-                     completion: didLoadUploads)
+                        resolve: true))
+            .subscribeResult(didLoadUploads)
     }
     
     func didLoadUploads(_ result: Result<Page<Claim>, Error>) {
@@ -140,8 +140,8 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                      params: .init(claimType: [.channel],
                                    page: 1,
                                    pageSize: 999,
-                                   resolve: true),
-                     completion: didLoadChannels)
+                                   resolve: true))
+            .subscribeResult(didLoadChannels)
     }
     
     func didLoadChannels(_ result: Result<Page<Claim>, Error>) {

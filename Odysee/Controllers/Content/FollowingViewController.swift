@@ -228,8 +228,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         pageSize: suggestedPageSize,
                         notChannelIds: following.map { $0.claimId! },
                         claimIds: ContentSources.PrimaryChannelContentIds,
-                        orderBy: ["effective_amount"]),
-                     completion: didLoadSuggestedFollows)
+                        orderBy: ["effective_amount"]))
+            .subscribeResult(didLoadSuggestedFollows)
     }
     
     func didLoadSuggestedFollows(_ result: Result<Page<Claim>, Error>) {
@@ -273,8 +273,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         channelIds: !selectedChannelIds.isEmpty ?
                             selectedChannelIds :
                             following.compactMap { $0.claimId },
-                        orderBy: Helper.sortByItemValues[currentSortByIndex]),
-                     completion: didLoadSubscriptionContent)
+                        orderBy: Helper.sortByItemValues[currentSortByIndex]))
+            .subscribeResult(didLoadSubscriptionContent)
     }
     
     func didLoadSubscriptionContent(_ result: Result<Page<Claim>, Error>) {
@@ -528,10 +528,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         Lbry.apiCall(method: Lbry.Methods.resolve,
                      params: .init(
                         urls: subscriptions.compactMap { $0.url }
-                     ),
-                     completion: { result in
-                        self.didResolveChannelList(result, refresh: refresh)
-                     })
+                     ))
+            .subscribeResult { result in
+                self.didResolveChannelList(result, refresh: refresh)
+            }
     }
 
     func didResolveChannelList(_ result: Result<ResolveResult, Error>, refresh: Bool) {

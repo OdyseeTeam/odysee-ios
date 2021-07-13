@@ -6,6 +6,7 @@
 //
 
 import Base58Swift
+import Combine
 import CoreData
 import CryptoKit
 import os
@@ -127,52 +128,41 @@ final class Lbry {
         var result: Wrapped?
     }
     
-    // `transform` is run off-main before completion to do things like sorting/filtering. Be cafeful!
-    // Delivers the parsed Result on the main thread.
+    // `transform` is run off-main to do things like sorting/filtering. Be cafeful!
+    // The returned publisher receives events on the main thread.
     static func apiCall<Params: Encodable, ReturnType: Decodable>
     (method: Method<Params, ReturnType>,
      params: Params,
      url: URL = lbrytvURL,
      authToken: String? = Lbryio.authToken,
-     transform: ((inout ReturnType) throws -> ())? = nil,
-     completion: @escaping (Result<ReturnType, Error>) -> Void) {
-        let req: URLRequest
-        do {
-            req = try apiRequest(method: method.name, params: params, url: url, authToken: authToken)
-        } catch let e {
-            completion(.failure(e))
-            return
+     transform: ((inout ReturnType) throws -> ())? = nil)
+    -> AnyPublisher<ReturnType, Error> {
+        // Note: We subscribe on global queue to do encoding etc. off the main thread.
+        return Just(()).subscribe(on: DispatchQueue.global()).tryMap {
+            // Create URLRequest.
+            try apiRequest(method: method.name, params: params, url: url, authToken: authToken)
         }
-        
-        let task = URLSession.shared.dataTask(with: req) { taskResult in
-            // Do the parse, compute the result here on network thread.
-            let result: Result<ReturnType, Error> = taskResult.flatMap { rawResponse in
-                Result {
-                    Log.verboseJSON.logIfEnabled(.debug, "Response to `\(method)`: \(String(data: rawResponse.data, encoding: .utf8)!)")
-
-                    let response = try JSONDecoder().decode(APIResponse<ReturnType>.self, from: rawResponse.data)
-                    assert(response.jsonrpc == "2.0")
-
-                    // no result inside response
-                    guard var result = response.result else {
-                        throw LbryApiResponseError(response.error?.message ?? "unknown api error")
-                    }
-                    try method.defaultTransform?(&result)
-                    try transform?(&result)
-                    return result
-                }
-            }
-
-            if case let .failure(e as DecodingError) = result {
-                assertionFailure("Decode error \(e)")
-            }
-
-            // Then deliver it to main.
-            DispatchQueue.main.async {
-                completion(result)
-            }
+        .flatMap { request in
+            // Run data task.
+            URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }
         }
-        task.resume()
+        .tryMap { data, rawResponse -> ReturnType in
+            // Decode and validate result.
+            let response = try JSONDecoder().decode(APIResponse<ReturnType>.self, from: data)
+            if response.jsonrpc != "2.0" {
+                assertionFailure()
+                throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
+            }
+            
+            guard var result = response.result else {
+                throw LbryApiResponseError(response.error?.message ?? "unknown api error")
+            }
+            try method.defaultTransform?(&result)
+            try transform?(&result)
+            return result
+        }
+        .receive(on: DispatchQueue.main)
+        .eraseToAnyPublisher()
     }
     
     // Delivers the result on a background thread as a [String: Any].

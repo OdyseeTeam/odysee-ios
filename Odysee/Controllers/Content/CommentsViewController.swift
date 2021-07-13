@@ -204,8 +204,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     func resolveCommentAuthors(urls: [String]) {
         Lbry.apiCall(method: Lbry.Methods.resolve,
-                     params: .init(urls: urls),
-                     completion: didResolveCommentAuthors)
+                     params: .init(urls: urls))
+            .subscribeResult(didResolveCommentAuthors)
     }
     
     func didResolveCommentAuthors(_ result: Result<ResolveResult, Error>) {
@@ -226,8 +226,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                         claimType: [.channel],
                         page: 1,
                         pageSize: 999,
-                        resolve: true),
-                     completion: didLoadChannels)
+                        resolve: true))
+            .subscribeResult(didLoadChannels)
     }
     
     func didLoadChannels(_ result: Result<Page<Claim>, Error>) {

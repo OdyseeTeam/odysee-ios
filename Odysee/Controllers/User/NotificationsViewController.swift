@@ -207,8 +207,8 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         Lbry.apiCall(method: Lbry.Methods.resolve,
                      params: .init(
                         urls: notifications.filter { !($0.author ?? "").isBlank }.map { $0.author! }
-                     ),
-                     completion: didResolveCommentAuthors)
+                     ))
+            .subscribeResult(didResolveCommentAuthors)
     }
     
     func didResolveCommentAuthors(_ result: Result<ResolveResult, Error>) {

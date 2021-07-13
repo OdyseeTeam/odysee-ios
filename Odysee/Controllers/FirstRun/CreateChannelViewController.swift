@@ -55,9 +55,11 @@ class CreateChannelViewController: UIViewController, UITextFieldDelegate {
     func loadAndCheckChannels() {
         frDelegate?.requestStarted()
         
-        Lbry.apiCall(method: Lbry.Methods.claimList,
-                     params: .init(claimType: [.channel], page: 1, pageSize: 999),
-                     completion: didLoadChannels)
+        Lbry.apiCall(
+            method: Lbry.Methods.claimList,
+            params: .init(claimType: [.channel], page: 1, pageSize: 999)
+        )
+        .subscribeResult(didLoadChannels)
     }
     
     func didLoadChannels(_ result: Result<Page<Claim>, Error>) {

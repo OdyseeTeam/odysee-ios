@@ -221,9 +221,8 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                         claimType: [.channel],
                         page: 1,
                         pageSize: 999,
-                        resolve: true),
-                     authToken: Lbryio.authToken,
-                     completion: didLoadChannels)
+                        resolve: true))
+            .subscribeResult(didLoadChannels)
     }
     
     func canStreamOnChannel(_ channel: Claim?) -> Bool {

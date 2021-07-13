@@ -548,7 +548,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         let defaults = UserDefaults.standard
         let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
         if ((receiveAddress ?? "").isBlank) {
-            Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()) { result in
+            Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
                 guard case let .success(newAddress) = result else {
                     self.claimRewardFinished()
                     self.showError(message: String.localized("Could not obtain the wallet address for receiving rewards."))
@@ -570,10 +570,10 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                             claimType: [reward.rewardType == Reward.typeFirstPublish ? .stream : .channel],
                             page: 1,
                             pageSize: 1,
-                            resolve: true),
-                         completion: {
-                            self.didResolveRewardClaim($0, reward: reward, walletAddress: walletAddress)
-                         })
+                            resolve: true))
+                .subscribeResult {
+                    self.didResolveRewardClaim($0, reward: reward, walletAddress: walletAddress)
+                }
         } else {
             doClaimReward(reward, walletAddress: walletAddress, transactionId: nil)
         }

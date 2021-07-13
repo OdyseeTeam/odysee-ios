@@ -78,8 +78,8 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
                         claimType: [.channel],
                         page: 1,
                         pageSize: 999,
-                        resolve: true),
-                     completion: didLoadChannels)
+                        resolve: true))
+            .subscribeResult(didLoadChannels)
     }
     
     func didLoadChannels(_ result: Result<Page<Claim>, Error>) {

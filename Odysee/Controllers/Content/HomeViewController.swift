@@ -144,7 +144,8 @@ class HomeViewController: UIViewController,
                         if category != HomeViewController.wildWestCategoryIndex {
                             page.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
                         }
-                     }, completion: didLoadClaims)
+                     })
+            .subscribeResult(didLoadClaims)
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

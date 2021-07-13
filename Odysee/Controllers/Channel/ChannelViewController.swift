@@ -173,8 +173,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                         claimType: [.channel],
                         page: 1,
                         pageSize: 999,
-                        resolve: true),
-                     completion: didLoadChannels)
+                        resolve: true))
+            .subscribeResult(didLoadChannels)
     }
     
     func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
@@ -199,8 +199,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
         
         Lbry.apiCall(method: Lbry.Methods.resolve,
-                     params: .init(urls: [url]),
-                     completion: didResolveClaim)
+                     params: .init(urls: [url]))
+            .subscribeResult(didResolveClaim)
     }
     
     func didResolveClaim(_ result: Result<ResolveResult, Error>) {
@@ -351,8 +351,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                         pageSize: pageSize,
                         releaseTime: releaseTimeValue,
                         channelIds: [channelClaim?.claimId ?? ""],
-                        orderBy: Helper.sortByItemValues[currentSortByIndex]),
-                     completion: didLoadContent)
+                        orderBy: Helper.sortByItemValues[currentSortByIndex]))
+            .subscribeResult(didLoadContent)
     }
     
     func didLoadContent(_ result: Result<Page<Claim>, Error>) {
@@ -383,8 +383,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                         pageSize: pageSize,
                         hasNoSource: true,
                         channelIds: [channelClaim?.claimId ?? ""],
-                        orderBy: Helper.sortByItemValues[1]),
-                     completion: didCheckLivestream)
+                        orderBy: Helper.sortByItemValues[1]))
+            .subscribeResult(didCheckLivestream)
     }
     
     func didCheckLivestream(_ result: Result<Page<Claim>, Error>) {

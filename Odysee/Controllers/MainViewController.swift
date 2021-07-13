@@ -109,7 +109,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         if !emailRewardClaimed {
             let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
             if ((receiveAddress ?? "").isBlank) {
-                Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()) { result in
+                Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
                     guard case let .success(newAddress) = result else {
                         return
                     }
@@ -544,8 +544,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                         claimType: [.channel],
                         page: 1,
                         pageSize: 999,
-                        resolve: true),
-                     completion: didLoadChannels)
+                        resolve: true))
+            .subscribeResult(didLoadChannels)
     }
     
     func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
