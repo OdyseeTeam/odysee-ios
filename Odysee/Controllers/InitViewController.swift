@@ -39,6 +39,8 @@ class InitViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.runInit()
+        
+        errorView.layer.cornerRadius = 16
     }
     
     func authenticateAndRegisterInstall() {
