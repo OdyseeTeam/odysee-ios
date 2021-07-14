@@ -1175,6 +1175,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = claim
+            
+            // dismiss the current file view before displaying the new one
+            appDelegate.mainNavigationController?.popViewController(animated: false)
             appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
             appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
