@@ -298,7 +298,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func loadAndDisplayFollowerCount() {
         var options = Dictionary<String, String>()
         options["claim_id"] = channelClaim?.claimId
-        try! Lbryio.call(resource: "subscription", action: "sub_count", options: options, method: Lbryio.methodGet, completion: { data, error in
+        try! Lbryio.get(resource: "subscription", action: "sub_count", options: options, completion: { data, error in
             guard let data = data, error == nil else {
                 return
             }
@@ -658,7 +658,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
             
             let subUrl: LbryUri = try LbryUri.parse(url: (claim?.permanentUrl!)!, requireProto: false)
-            try Lbryio.call(resource: "subscription", action: unsubscribing ? "delete" : "new", options: options, method: Lbryio.methodGet, completion: { data, error in
+            try Lbryio.get(resource: "subscription", action: unsubscribing ? "delete" : "new", options: options, completion: { data, error in
                 self.subscribeUnsubscribeInProgress = false
                 guard let _ = data, error == nil else {
                     //print(error)

@@ -170,7 +170,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         }
         
         do {
-            try Lbryio.call(resource: "reward", action: "list", options: ["multiple_rewards_per_type": "true"], method: Lbryio.methodGet, completion: { data, error in
+            try Lbryio.get(resource: "reward", action: "list", options: ["multiple_rewards_per_type": "true"], completion: { data, error in
                 guard let data = data, error == nil else {
                     DispatchQueue.main.async {
                         self.loadingContainer.isHidden = true
@@ -342,7 +342,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             "domain": "odysee.com"
         ]
         do {
-            try Lbryio.call(resource: "verification", action: "twitter_verify", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "verification", action: "twitter_verify", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
                     self.stopProcessing()
                     self.showError(error: error)
@@ -413,7 +413,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                 let base64ReceiptString = receiptData.base64EncodedString(options: [])
              
                 let options: Dictionary<String, String> = ["receipt": base64ReceiptString]
-                try Lbryio.call(resource: "verification", action: "ios_purchase", options: options, method: Lbryio.methodPost, completion: { data, error in
+                try Lbryio.post(resource: "verification", action: "ios_purchase", options: options, completion: { data, error in
                     guard let data = data, error == nil else {
                         completion(nil, error)
                         return
@@ -604,7 +604,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         }
         
         do {
-            try Lbryio.call(resource: "reward", action: "claim", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "reward", action: "claim", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
                     self.claimRewardFinished()
                     self.showError(error: error)

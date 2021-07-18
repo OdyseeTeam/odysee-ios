@@ -102,7 +102,7 @@ class YouTubeSyncStatusViewController: UIViewController {
     func transferChannel(address: String, publicKey: String) {
         do {
             let options = ["address": address, "public_key": publicKey]
-            try Lbryio.call(resource: "yt", action: "transfer", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "yt", action: "transfer", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
                     self.restoreButtons()
@@ -161,7 +161,7 @@ class YouTubeSyncStatusViewController: UIViewController {
             claimChannelButton.isHidden = true
             exploreOdyseeButton.isHidden = true
             loadingIndicator.isHidden = false
-            try Lbryio.call(resource: "yt", action: "transfer", options: [:], method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "yt", action: "transfer", options: [:], completion: { data, error in
                 guard let data = data, error == nil else {
                     //self.showError(error: error)
                     self.restoreButtons()

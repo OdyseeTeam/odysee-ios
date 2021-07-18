@@ -93,7 +93,7 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
                 "desired_lbry_channel_name": channelName,
                 "return_url": returnUrl
             ]
-            try Lbryio.call(resource: "yt", action: "new", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "yt", action: "new", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
                     self.restoreButtons()

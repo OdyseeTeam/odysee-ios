@@ -783,7 +783,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
         
         do {
-            try Lbryio.call(resource: "file", action: "view", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "file", action: "view", options: options, completion: { data, error in
                 // no need to check for errors here
                 self.loggingInProgress = false
                 self.fileViewLogged = true
@@ -832,8 +832,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
         
         do {
-            let options: Dictionary<String, String> = ["claim_id": singleClaim.claimId!]
-            try Lbryio.call(resource: "file", action: "view_count", options: options, method: Lbryio.methodGet, completion: { data, error in
+            try Lbryio.get(resource: "file", action: "view_count", options: ["claim_id": singleClaim.claimId!], completion: { data, error in
                 guard let data = data, error == nil else {
                     // couldn't load the view count for display
                     DispatchQueue.main.async {
@@ -861,7 +860,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         do {
             let claimId = singleClaim.claimId!
             let options: Dictionary<String, String> = ["claim_ids": claimId]
-            try Lbryio.call(resource: "reaction", action: "list", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "reaction", action: "list", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
                     return
                 }
@@ -927,7 +926,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 remove = true
                 options["remove"] = "true"
             }
-            try Lbryio.call(resource: "reaction", action: "react", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "reaction", action: "react", options: options, completion: { data, error in
                 guard let _ = data, error == nil else {
                     self.showError(error: error)
                     return
@@ -1373,7 +1372,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
             
             let subUrl: LbryUri = try LbryUri.parse(url: (claim?.permanentUrl!)!, requireProto: false)
-            try Lbryio.call(resource: "subscription", action: unsubscribing ? "delete" : "new", options: options, method: Lbryio.methodGet, completion: { data, error in
+            try Lbryio.get(resource: "subscription", action: unsubscribing ? "delete" : "new", options: options, completion: { data, error in
                 self.subscribeUnsubscribeInProgress = false
                 guard let _ = data, error == nil else {
                     self.showError(error: error)

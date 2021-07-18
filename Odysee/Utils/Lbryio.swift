@@ -10,8 +10,13 @@ import Firebase
 import os
 
 final class Lbryio {
-    static let methodGet = "GET"
-    static let methodPost = "POST"
+    enum Method : String {
+        case GET
+        case POST
+        func isEqual(toString str: String) -> Bool {
+            return str.uppercased() == rawValue.uppercased()
+        }
+    }
     
     static var generatingAuthToken: Bool = false
     static let connectionString = "https://api.lbry.com"
@@ -49,7 +54,19 @@ final class Lbryio {
     static var cachedTwitterOauthToken: String? = nil
     static var cachedTwitterOauthTokenSecret: String? = nil
     
-    static func call(resource: String, action: String, options: Dictionary<String, String>?, method: String, authTokenOverride: String? = nil, completion: @escaping (Any?, Error?) -> Void) throws {
+    static func get(resource: String, action: String, options: Dictionary<String, String>? = nil, authTokenOverride: String? = nil, completion: @escaping (Any?, Error?) -> Void) throws {
+        try call(resource: resource, action: action, options: options, method: .GET, completion: completion)
+    }
+    
+    static func post(resource: String, action: String, options: Dictionary<String, String>? = nil, authTokenOverride: String? = nil, completion: @escaping (Any?, Error?) -> Void) throws {
+        try call(resource: resource, action: action, options: options, method: .POST, completion: completion)
+    }
+    
+    static func call(resource: String, action: String, options: Dictionary<String, String>? = nil, method: Method, authTokenOverride: String? = nil, completion: @escaping (Any?, Error?) -> Void) throws {
+        try call(resource: resource, action: action, options: options, method: method.rawValue, authTokenOverride: authTokenOverride, completion: completion)
+    }
+    
+    static func call(resource: String, action: String, options: Dictionary<String, String>? = nil, method: String, authTokenOverride: String? = nil, completion: @escaping (Any?, Error?) -> Void) throws {
         let url = String(format: "%@/%@/%@", connectionString, resource, action)
         if ((authToken ?? "").isBlank && !generatingAuthToken) {
             // generate the auth token before calling this resource
@@ -87,7 +104,7 @@ final class Lbryio {
         urlComponents!.queryItems = queryItems
         urlComponents!.percentEncodedQuery = urlComponents!.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
         
-        if (method.lowercased() == methodGet.lowercased()) {
+        if Method.GET.isEqual(toString: method) {
             requestUrl = urlComponents?.url!
         }
 
@@ -98,7 +115,7 @@ final class Lbryio {
         let session = URLSession(configuration: config)
         var req = URLRequest(url: requestUrl!)
         req.httpMethod = method
-        if (method.lowercased() == methodPost.lowercased()) {
+        if Method.POST.isEqual(toString: method) {
             req.httpBody = buildQueryString(authToken: authTokenOverride ?? authToken, options: options).data(using: .utf8)
         }
         
@@ -173,7 +190,7 @@ final class Lbryio {
         options["language"] = "en"
         options["app_id"] = Lbry.installationId!
         
-        try call(resource: "user", action: "new", options: options, method: "post", completion: { data, error in
+        try post(resource: "user", action: "new", options: options, completion: { data, error in
             generatingAuthToken = false
             if (data != nil) {
                 let tokenData = data as! [String: Any]?
@@ -192,7 +209,7 @@ final class Lbryio {
     }
     
     static func fetchCurrentUser(completion: @escaping (User?, Error?) -> Void) throws {
-        try call(resource: "user", action: "me", options: nil, method: methodGet, completion: { data, error in
+        try get(resource: "user", action: "me", completion: { data, error in
             if (error != nil) {
                 completion(nil, error)
                 return
@@ -250,7 +267,7 @@ final class Lbryio {
                 options["firebase_token"] = token!
             }
             do {
-                try call(resource: "install", action: "new", options: options, method: methodPost, completion: { data, error in
+                try post(resource: "install", action: "new", options: options, completion: { data, error in
                     if (error != nil) {
                         completion(error)
                         return
@@ -267,7 +284,7 @@ final class Lbryio {
     static func claimReward(type: String, walletAddress: String, completion: @escaping(Bool?, Error?) -> Void) {
         let options: Dictionary<String, String> = ["reward_type": type, "wallet_address": walletAddress]
         do {
-            try call(resource: "reward", action: "claim", options: options, method: methodPost, completion: { data, error in
+            try post(resource: "reward", action: "claim", options: options, completion: { data, error in
                 if (error != nil) {
                     completion(false, error)
                     return
@@ -282,7 +299,7 @@ final class Lbryio {
     
     static func loadExchangeRate(completion: @escaping(Decimal?, Error?) -> Void) {
         do {
-            try call(resource: "lbc", action: "exchange_rate", options: nil, method: methodGet, completion: { data, error in
+            try get(resource: "lbc", action: "exchange_rate", completion: { data, error in
                 guard let data = data, error == nil else {
                     completion(nil, error)
                     return
@@ -309,7 +326,7 @@ final class Lbryio {
         options["new_hash"] = newHash
         options["data"] = data
         do {
-            try Lbryio.call(resource: "sync", action: "set", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try post(resource: "sync", action: "set", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
                     completion(nil, error)
                     return
@@ -328,7 +345,7 @@ final class Lbryio {
         var options = Dictionary<String, String>()
         options["hash"] = hash
         do {
-            try Lbryio.call(resource: "sync", action: "get", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try post(resource: "sync", action: "get", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
                     if let responseError = error as? LbryioResponseError {
                         if (responseError.code == 404) {
@@ -371,7 +388,7 @@ final class Lbryio {
             if let signingChannel = claimResult.signingChannel {
                 options["channel_claim_id"] = signingChannel.claimId!
             }
-            try Lbryio.call(resource: "event", action: "publish", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "event", action: "publish", options: options, completion: { data, error in
                 guard let _ = data, error == nil else {
                     // ignore errors, can always retry at a later time
                     return

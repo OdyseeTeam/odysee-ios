@@ -287,7 +287,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     
     func loadFilteredOutpoints() {
         do {
-            try Lbryio.call(resource: "file", action: "list_filtered", options: [:], method: Lbryio.methodGet, completion: { data, error in
+            try Lbryio.get(resource: "file", action: "list_filtered", options: [:], completion: { data, error in
                 guard let data = data, error == nil else {
                     return
                 }
@@ -305,7 +305,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     
     func loadBlockedOutpoints() {
         do {
-            try Lbryio.call(resource: "file", action: "list_blocked", options: [:], method: Lbryio.methodGet, completion: { data, error in
+            try Lbryio.get(resource: "file", action: "list_blocked", options: [:], completion: { data, error in
                 guard let data = data, error == nil else {
                     return
                 }
@@ -332,7 +332,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                 options["since_id"] = String(Lbryio.latestNotificationId)
             }
             
-            try Lbryio.call(resource: "notification", action: "list", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "notification", action: "list", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
                     return
                 }
