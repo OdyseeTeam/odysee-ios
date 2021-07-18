@@ -466,11 +466,9 @@ class UserAccountViewController: UIViewController {
         passwordField.text = ""
         Lbryio.authToken = nil
         
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: Lbryio.keyAuthToken)
-        defaults.removeObject(forKey: Lbryio.keyYouTubeSyncDone)
-        defaults.removeObject(forKey: Lbryio.keyYouTubeSyncConnected)
-        defaults.removeObject(forKey: Helper.keyReceiveAddress)
+        Lbryio.Defaults.reset()
+        
+        UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
         
         controlsStackView.isHidden = false
         haveAccountLabel.isHidden = false

@@ -163,14 +163,11 @@ class WalletSyncViewController: UIViewController {
         if (popViewController) {
             appDelegate.mainNavigationController?.popViewController(animated: false)
         }
-        
-        
-        let defaults = UserDefaults.standard
-        let ytSyncDone = defaults.bool(forKey: Lbryio.keyYouTubeSyncDone)
-        if !ytSyncDone {
-            let vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        guard !(Lbryio.Defaults.isYouTubeSyncDone) else {
+            return
         }
+        let vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     func requestSyncApplyWithPassword() {
