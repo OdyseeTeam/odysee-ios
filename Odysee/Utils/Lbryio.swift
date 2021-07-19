@@ -18,6 +18,83 @@ final class Lbryio {
         }
     }
     
+    final class Defaults {
+        private enum Key : String {
+            case AuthToken
+            case ChannelsAssociated
+            case EmailRewardClaimed
+            case YouTubeSyncConnected
+            case YouTubeSyncDone
+        }
+        
+        private static func get(string: Key) -> String? {
+            return UserDefaults.standard.string(forKey: string.rawValue)
+        }
+        private static func set(string: Key, value: String?) {
+            UserDefaults.standard.set(value, forKey: string.rawValue)
+        }
+        
+        private static func get(bool: Key) -> Bool {
+            return UserDefaults.standard.bool(forKey: bool.rawValue)
+        }
+        private static func set(bool: Key, value: Bool) {
+            UserDefaults.standard.set(value, forKey: bool.rawValue)
+        }
+        
+        static var authToken: String? {
+            get {
+                return get(string: .AuthToken)
+            }
+            set {
+                set(string: .AuthToken, value: newValue)
+            }
+        }
+        
+        static var isEmailRewardClaimed: Bool {
+            get {
+                return get(bool: .EmailRewardClaimed)
+            }
+            set {
+                set(bool: .EmailRewardClaimed, value: newValue)
+            }
+        }
+        
+        static var isChannelsAssociated: Bool {
+            get {
+                return get(bool: .ChannelsAssociated)
+            }
+            set {
+                set(bool: .ChannelsAssociated, value: newValue)
+            }
+        }
+        
+        static var isYouTubeSyncConnected: Bool {
+            get {
+                return get(bool: .YouTubeSyncConnected)
+            }
+            set {
+                set(bool: .YouTubeSyncConnected, value: newValue)
+            }
+        }
+        
+        static var isYouTubeSyncDone: Bool {
+            get {
+                return get(bool: .YouTubeSyncDone)
+            }
+            set {
+                set(bool: .YouTubeSyncDone, value: newValue)
+            }
+        }
+        
+        static func reset() {
+            let defaults = UserDefaults.standard
+            defaults.removeObject(forKey: Lbryio.Defaults.Key.AuthToken.rawValue)
+            defaults.removeObject(forKey: Lbryio.Defaults.Key.EmailRewardClaimed.rawValue)
+            defaults.removeObject(forKey: Lbryio.Defaults.Key.YouTubeSyncDone.rawValue)
+            defaults.removeObject(forKey: Lbryio.Defaults.Key.YouTubeSyncConnected.rawValue)
+        }
+    }
+    
     static var generatingAuthToken: Bool = false
     static let connectionString = "https://api.lbry.com"
     static let commentronUrl = "https://comments.lbry.com/api/v2"
@@ -26,12 +103,6 @@ final class Lbryio {
     static let authTokenParam = "auth_token"
     static var authToken: String? = nil
     
-    static let keyEmailRewardClaimed: String = "EmailRewardClaimed"
-    static let keyYouTubeSyncDone: String = "YouTubeSyncDone"
-    static let keyYouTubeSyncConnected: String = "YouTubeSyncConnected"
-    static let keyChannelsAssociated: String = "ChannelsAssociated"
-    
-    static let keyAuthToken = "AuthToken"
     static var currentUser: User? = nil
     
     private static let lock = Lock()
@@ -76,8 +147,7 @@ final class Lbryio {
                     Lbryio.authToken = token
                     
                     // Persist the token
-                    let defaults = UserDefaults.standard
-                    defaults.set(token, forKey: keyAuthToken)
+                    Defaults.authToken = token
                 }
                 
                 // send the call after the auth token has been retrieved

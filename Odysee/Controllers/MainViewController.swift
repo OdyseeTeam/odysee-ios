@@ -104,10 +104,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     func checkAndClaimEmailReward(completion: @escaping (() -> Void)) {
-        let defaults = UserDefaults.standard
-        let emailRewardClaimed = defaults.bool(forKey: Lbryio.keyEmailRewardClaimed)
-        if !emailRewardClaimed {
-            let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
+        if !(Lbryio.Defaults.isEmailRewardClaimed) {
+            let receiveAddress = UserDefaults.standard.string(forKey: Helper.keyReceiveAddress)
             if ((receiveAddress ?? "").isBlank) {
                 Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
                     guard case let .success(newAddress) = result else {
@@ -134,8 +132,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                 return
             }
             DispatchQueue.main.async {
-                let defaults = UserDefaults.standard
-                defaults.setValue(true, forKey: Lbryio.keyEmailRewardClaimed)
+                Lbryio.Defaults.isEmailRewardClaimed = true
             }
             completion()
         })
@@ -151,12 +148,11 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     
     func checkAndShowYouTubeSync() {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let defaults = UserDefaults.standard
-        let ytSyncDone = defaults.bool(forKey: Lbryio.keyYouTubeSyncDone)
-        if !ytSyncDone {
-            let vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        guard !(Lbryio.Defaults.isYouTubeSyncDone) else {
+            return
         }
+        let vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     func stopAllTimers() {
@@ -174,14 +170,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         self.notificationBadgeCountLabel.text = ""
         
         // remove the auth token so that a new one will be generated upon the next init
-        let defaults = UserDefaults.standard
-        defaults.removeObject(forKey: Lbryio.keyAuthToken)
-        defaults.removeObject(forKey: Lbryio.keyEmailRewardClaimed)
-        defaults.removeObject(forKey: Lbryio.keyYouTubeSyncDone)
-        defaults.removeObject(forKey: Lbryio.keyYouTubeSyncConnected)
+        Lbryio.Defaults.reset()
         
         // clear the wallet address if it exists
-        defaults.removeObject(forKey: Helper.keyReceiveAddress)
+        UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainNavigationController?.popToRootViewController(animated: false)
@@ -561,16 +553,13 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     func oneTimeChannelsAssociation(_ channels: [Claim]) {
-        let defaults = UserDefaults.standard
-        let associated = defaults.bool(forKey: Lbryio.keyChannelsAssociated)
-        if associated {
+        guard !(Lbryio.Defaults.isChannelsAssociated) else {
             return
         }
-        
         channels.forEach { channel in
             Lbryio.logPublishEvent(channel)
         }
-        defaults.setValue(true, forKey: Lbryio.keyChannelsAssociated)
+        Lbryio.Defaults.isChannelsAssociated = true
     }
     
     @IBAction func brandTapped(_ sender: Any) {

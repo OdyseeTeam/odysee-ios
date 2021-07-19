@@ -174,14 +174,13 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
     }
     
     func finishYouTubeSync(ytSyncConnected: Bool) {
-        let defaults = UserDefaults.standard
-        defaults.setValue(true, forKey: Lbryio.keyYouTubeSyncDone)
-        defaults.setValue(ytSyncConnected, forKey: Lbryio.keyYouTubeSyncConnected)
+        Lbryio.Defaults.isYouTubeSyncDone = true
+        Lbryio.Defaults.isYouTubeSyncConnected = ytSyncConnected
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainNavigationController?.popViewController(animated: true)
         if (ytSyncConnected) {
-            // redirect to YouTube Sync Status page
+            // TODO: redirect to YouTube Sync Status page
         }
     }
 
