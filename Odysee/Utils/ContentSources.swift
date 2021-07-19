@@ -56,7 +56,6 @@ struct ContentSources {
                     }
                     
                     var categories: [Category] = []
-                    var order: Int = 1
                     if let data = respData?["data"] as? [String: Any] {
                         // for now, we only have "en" in data. In the future, try to detect the
                         // locale code and get the value corresponding to the key
@@ -66,16 +65,17 @@ struct ContentSources {
                                 if let contentSource = enData[key] as? [String: Any] {
                                     if let label = contentSource["label"] as? String,
                                        let name = contentSource["name"] as? String,
-                                       let channelIds = contentSource["channelIds"] as? [String] {
-                                        let category = Category(order: order, key: key, name: name, label: label, channelIds: channelIds)
+                                       let channelIds = contentSource["channelIds"] as? [String],
+                                       let sortOrder = contentSource["sortOrder"] as? Int {
+                                        let category = Category(sortOrder: sortOrder, key: key, name: name, label: label, channelIds: channelIds)
                                         categories.append(category)
-                                        order += 1
                                     }
                                 }
                             }
                         }
                     }
                     
+                    categories.sort(by: { $0.sortOrder ?? 1 < $1.sortOrder ?? 1 })
                     ContentSources.dynamicContentCategories = categories
                     
                     // cache the categories
@@ -101,7 +101,7 @@ struct ContentSources {
     }
     
     struct Category: Codable {
-        var order: Int?
+        var sortOrder: Int?
         var key: String?
         var name: String?
         var label: String?
