@@ -9,7 +9,7 @@ import Foundation
 
 struct ContentSources {
     
-    static let endpoint = "https://alice.odysee.com/$/api/content/v1/get"
+    static let endpoint = "https://odysee.com/$/api/content/v1/get"
     static let defaultsKey = "ContentSourcesCache"
     static var dynamicContentCategories: [Category] = []
     
