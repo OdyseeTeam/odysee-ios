@@ -151,7 +151,7 @@ class UserAccountViewController: UIViewController {
             var options = Dictionary<String, String>()
             options["email"] = email
             options["password"] = password
-            try Lbryio.call(resource: "user", action: "signup", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "user", action: "signup", options: options, completion: { data, error in
                 DispatchQueue.main.async {
                     self.defaultActionButton.isEnabled = true
                 }
@@ -296,7 +296,7 @@ class UserAccountViewController: UIViewController {
                 self.frDelegate?.requestStarted()
                 var options = Dictionary<String, String>()
                 options["email"] = email
-                try Lbryio.call(resource: "user", action: "exists", options: options, method: Lbryio.methodPost, completion: { data, error in
+                try Lbryio.post(resource: "user", action: "exists", options: options, completion: { data, error in
                     guard let data = data, error == nil else {
                         if let responseError = error as? LbryioResponseError {
                             if responseError.code == 412 {
@@ -361,7 +361,7 @@ class UserAccountViewController: UIViewController {
         do {
             self.requestInProgress = true
             self.frDelegate?.requestStarted()
-            try Lbryio.call(resource: "user", action: "signin", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "user", action: "signin", options: options, completion: { data, error in
                 DispatchQueue.main.async {
                     self.defaultActionButton.isEnabled = true
                 }
@@ -416,7 +416,7 @@ class UserAccountViewController: UIViewController {
             var options = Dictionary<String, String>()
             options["email"] = email
             options["only_if_expired"] = "true"
-            try Lbryio.call(resource: "user_email", action: "resend_token", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "user_email", action: "resend_token", options: options, completion: { data, error in
                 guard let _ = data, error == nil else {
                     self.showError(error: error)
                     return
@@ -434,7 +434,7 @@ class UserAccountViewController: UIViewController {
             var options = Dictionary<String, String>()
             options["email"] = email
             options["send_verification_email"] = "true"
-            try Lbryio.call(resource: "user_email", action: "new", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "user_email", action: "new", options: options, completion: { data, error in
                 guard let _ = data, error == nil else {
                     if let responseError = error as? LbryioResponseError {
                         if responseError.code == 409 {

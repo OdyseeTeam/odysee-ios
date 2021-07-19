@@ -90,7 +90,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
             options["notification_ids"] = seenIds.map { String($0) }.joined(separator: ",");
             options["is_seen"] = "true"
             do {
-                try Lbryio.call(resource: "notification", action: "edit", options: options, method: Lbryio.methodPost, completion: { data, error in
+                try Lbryio.post(resource: "notification", action: "edit", options: options, completion: { data, error in
                     guard let _ = data, error == nil else {
                         return
                     }
@@ -115,7 +115,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
             options["is_seen"] = "true"
             options["is_read"] = "true"
             do {
-                try Lbryio.call(resource: "notification", action: "edit", options: options, method: Lbryio.methodPost, completion: { data, error in
+                try Lbryio.post(resource: "notification", action: "edit", options: options, completion: { data, error in
                     guard let _ = data, error == nil else {
                         return
                     }
@@ -130,7 +130,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         var options: Dictionary<String, String> = [:]
         options["notification_ids"] = String(id)
         do {
-            try Lbryio.call(resource: "notification", action: "delete", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "notification", action: "delete", options: options, completion: { data, error in
                 guard let _ = data, error == nil else {
                     return
                 }
@@ -159,7 +159,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
             if Lbryio.latestNotificationId > 0 {
                 options["since_id"] = String(Lbryio.latestNotificationId)
             }
-            try Lbryio.call(resource: "notification", action: "list", options: options, method: Lbryio.methodPost, completion: { data, error in
+            try Lbryio.post(resource: "notification", action: "list", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
                     DispatchQueue.main.async {
                         self.loadingContainer.isHidden = true

@@ -93,7 +93,7 @@ class InitViewController: UIViewController {
             loadLocalSubscriptions()
             
             // check if there are remote subscriptions and load them too
-            try Lbryio.call(resource: "subscription", action: "list", options: nil, method: Lbryio.methodGet, completion: { data, error in
+            try Lbryio.get(resource: "subscription", action: "list", completion: { data, error in
                 guard let data = data, error == nil else {
                     self.authenticateAndRegisterInstall()
                     return
