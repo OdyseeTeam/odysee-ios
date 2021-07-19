@@ -25,22 +25,14 @@ class HomeViewController: UIViewController,
     @IBOutlet weak var sortByLabel: UILabel!
     @IBOutlet weak var contentFromLabel: UILabel!
     
+    static var categoryIndexMovies: Int = -1
+    static var categoryIndexWildWest: Int = -1
+    static let categoryNameGeneral: String = "general"
+    static let categoryNameMovies: String = "movies"
+    
     let refreshControl = UIRefreshControl()
-    let categories: [String] = ["Cheese", "Big Hits", "Gaming", "Lab", "Tech", "News", "Finance 2.0", "The Universe", "Movies", "Wild West"]
-    let channelIds: [[String]?] = [
-        ContentSources.PrimaryChannelContentIds,
-        ContentSources.BigHitsChannelIds,
-        ContentSources.GamingChannelIds,
-        ContentSources.ScienceChannelIds,
-        ContentSources.TechnologyChannelIds,
-        ContentSources.NewsChannelIds,
-        ContentSources.FinanceChannelIds,
-        ContentSources.TheUniverseChannelIds,
-        ContentSources.MoviesChannelIds,
-        ContentSources.PrimaryChannelContentIds
-    ]
-    static let moviesCategoryIndex: Int = 8
-    static let wildWestCategoryIndex: Int = 9
+    var categories: [String] = []
+    var channelIds: [[String]?] = []
     var currentCategoryIndex: Int = 0
     var categoryButtons: [UIButton] = []
     
@@ -71,6 +63,7 @@ class HomeViewController: UIViewController,
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        buildDynamicCategories()
         prefetchController = ImagePrefetchingController { [unowned self] indexPath in
             let claim = self.claims[indexPath.row]
             return ClaimTableViewCell.imagePrefetchURLs(claim: claim)
@@ -92,6 +85,21 @@ class HomeViewController: UIViewController,
         if (claims.count == 0) {
             loadClaims()
         }
+    }
+    
+    func buildDynamicCategories() {
+        for (idx, category) in ContentSources.dynamicContentCategories.enumerated() {
+            categories.append(category.label!)
+            channelIds.append(category.channelIds)
+            if category.name == HomeViewController.categoryNameMovies {
+                HomeViewController.categoryIndexMovies = idx
+            }
+        }
+        
+        categories.append(String.localized("Wild West"))
+        channelIds.append(ContentSources.dynamicContentCategories.filter(
+                            { $0.name == HomeViewController.categoryNameGeneral }).first?.channelIds)
+        HomeViewController.categoryIndexWildWest = categories.count - 1
     }
     
     func didLoadClaims(_ result: Result<Page<Claim>, Error>) {
@@ -123,7 +131,7 @@ class HomeViewController: UIViewController,
         
         // Capture category index for use in sorting, before leaving main thread.
         let category = self.currentCategoryIndex
-        let isWildWest = currentCategoryIndex == Self.wildWestCategoryIndex
+        let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
         let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : Helper.releaseTime6Months()
         
         Lbry.apiCall(method: Lbry.Methods.claimSearch,
@@ -135,13 +143,13 @@ class HomeViewController: UIViewController,
                             Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) :
                             releaseTimeValue,
                         limitClaimsPerChannel:
-                            currentCategoryIndex == Self.moviesCategoryIndex ? 20 : 5,
+                            currentCategoryIndex == HomeViewController.categoryIndexMovies ? 20 : 5,
                         channelIds: channelIds[currentCategoryIndex],
                         orderBy: isWildWest ?
                             ["trending_group", "trending_mixed"]
                             : Helper.sortByItemValues[currentSortByIndex]),
                      transform: { page in
-                        if category != HomeViewController.wildWestCategoryIndex {
+                        if category != HomeViewController.categoryIndexWildWest {
                             page.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
                         }
                      })

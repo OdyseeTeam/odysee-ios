@@ -32,8 +32,21 @@ class InitViewController: UIViewController {
         
         Lbryio.loadExchangeRate(completion: { rate, error in
             // don't bother with error checks here, simply proceed to authenticate
-            self.loadAndCacheSubscriptions()
+            self.loadCategories()
         })
+    }
+    
+    func loadCategories() {
+        ContentSources.loadCategories(completion: { categories, error  in
+            guard let _ = categories, error == nil else {
+                // Categories have to be properly loaded for the home page
+                // If they are not properly loaded, display the startup error
+                self.showError()
+                return
+            }
+            
+            self.loadAndCacheSubscriptions()
+        });
     }
     
     override func viewDidLoad() {
