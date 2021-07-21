@@ -18,6 +18,7 @@ class UserAccountViewController: UIViewController {
     @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var defaultActionButton: UIButton!
     @IBOutlet weak var controlsStackView: UIStackView!
+    @IBOutlet weak var switchModeButton: UIButton!
     
     @IBOutlet weak var verificationLabel: UILabel!
     @IBOutlet weak var agreementLabel: UILabel!
@@ -62,6 +63,9 @@ class UserAccountViewController: UIViewController {
         
         defaultActionButton.layer.masksToBounds = true
         defaultActionButton.layer.cornerRadius = 16
+        
+        switchModeButton.layer.masksToBounds = true
+        switchModeButton.layer.cornerRadius = 16
         
         if firstRunFlow {
             closeButton.isHidden = true
@@ -196,7 +200,8 @@ class UserAccountViewController: UIViewController {
     }
     
     func enableSignInMode() {
-        haveAccountLabel.text = String.localized("Don't have an account? Sign Up.")
+        haveAccountLabel.text = String.localized("Don't have an account?")
+        switchModeButton.setTitle(String.localized("Sign Up"), for: .normal)
         titleLabel.text = String.localized("Log In to Odysee")
         defaultActionButton.setTitle(String.localized("Continue"), for: .normal)
         
@@ -207,7 +212,8 @@ class UserAccountViewController: UIViewController {
     }
     
     func enableSignUpMode() {
-        haveAccountLabel.text = String.localized("Already have an account? Log In.")
+        haveAccountLabel.text = String.localized("Already have an account?")
+        switchModeButton.setTitle(String.localized("Log In"), for: .normal)
         titleLabel.text = String.localized("Join Odysee")
         defaultActionButton.setTitle(String.localized("Sign Up"), for: .normal)
         
