@@ -9,16 +9,17 @@ import Foundation
 
 struct ContentSources {
     
-    static let endpoint = "https://odysee.com/$/api/content/v1/get"
     static let defaultsKey = "ContentSourcesCache"
-    static var dynamicContentCategories: [Category] = []
+    static let endpoint = "https://odysee.com/$/api/content/v1/get"
+  
+    static var DynamicContentCategories: [Category] = []
     
     static func loadCategories(completion: @escaping ([Category]?, Error?) -> Void) {
         let defaults = UserDefaults.standard
         if let csCacheString = defaults.string(forKey: defaultsKey) {
             let csCache = try! JSONDecoder().decode(ContentSourceCache.self, from: csCacheString.data(using: .utf8)!)
             if let diff = Calendar.current.dateComponents([.hour], from: csCache.lastUpdated, to: Date()).hour, diff < 24 {
-                ContentSources.dynamicContentCategories = csCache.categories
+                ContentSources.DynamicContentCategories = csCache.categories
                 completion(csCache.categories, nil)
                 return
             }
@@ -51,7 +52,7 @@ struct ContentSources {
                 Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
                 if (respCode >= 200 && respCode < 300) {
                     if (respData?["data"] == nil) {
-                        completion(nil, GenericError("Could not find data key in response returned"))
+                        completion(nil, LbryioResponseError("Could not find data key in response returned", respCode))
                         return
                     }
                     
@@ -76,7 +77,7 @@ struct ContentSources {
                     }
                     
                     categories.sort(by: { $0.sortOrder ?? 1 < $1.sortOrder ?? 1 })
-                    ContentSources.dynamicContentCategories = categories
+                    ContentSources.DynamicContentCategories = categories
                     
                     // cache the categories
                     let csCache = ContentSourceCache(categories: categories, lastUpdated: Date())

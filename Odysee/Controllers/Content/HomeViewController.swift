@@ -88,8 +88,8 @@ class HomeViewController: UIViewController,
     }
     
     func buildDynamicCategories() {
-        for (idx, category) in ContentSources.dynamicContentCategories.enumerated() {
-            categories.append(category.label!)
+        for (idx, category) in ContentSources.DynamicContentCategories.enumerated() {
+            categories.append(String.localized(category.label!))
             channelIds.append(category.channelIds)
             if category.name == HomeViewController.categoryNameMovies {
                 HomeViewController.categoryIndexMovies = idx
@@ -97,7 +97,7 @@ class HomeViewController: UIViewController,
         }
         
         categories.append(String.localized("Wild West"))
-        channelIds.append(ContentSources.dynamicContentCategories.filter(
+        channelIds.append(ContentSources.DynamicContentCategories.filter(
                             { $0.name == HomeViewController.categoryNameGeneral }).first?.channelIds)
         HomeViewController.categoryIndexWildWest = categories.count - 1
     }

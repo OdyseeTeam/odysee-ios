@@ -227,7 +227,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         page: currentSuggestedPage,
                         pageSize: suggestedPageSize,
                         notChannelIds: following.map { $0.claimId! },
-                        claimIds: ContentSources.dynamicContentCategories.filter({ $0.name == HomeViewController.categoryNameGeneral }).first?.channelIds,
+                        claimIds: ContentSources.DynamicContentCategories.filter({ $0.name == HomeViewController.categoryNameGeneral }).first?.channelIds,
                         orderBy: ["effective_amount"]))
             .subscribeResult(didLoadSuggestedFollows)
     }
