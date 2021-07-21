@@ -142,6 +142,22 @@
 		641E7EB82608BDB100A79CD3 /* Predefined.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Predefined.swift; sourceTree = "<group>"; };
 		641E7EC02608BE0C00A79CD3 /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		641E7EC52608BE5700A79CD3 /* License.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = License.swift; sourceTree = "<group>"; };
+		641F07DC26A83D4E008CD7C5 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Main.strings"; sourceTree = "<group>"; };
+		641F07DD26A83D4E008CD7C5 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		641F07DE26A83DA6008CD7C5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
+		641F07DF26A83DA9008CD7C5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		641F07E026A83E01008CD7C5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Main.strings; sourceTree = "<group>"; };
+		641F07E126A83E03008CD7C5 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		641F07E226A83E49008CD7C5 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
+		641F07E326A83E49008CD7C5 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		641F07E426A83E9C008CD7C5 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/Main.strings"; sourceTree = "<group>"; };
+		641F07E526A83E9C008CD7C5 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		641F07E626A83EE6008CD7C5 /* zh-HK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-HK"; path = "zh-HK.lproj/Main.strings"; sourceTree = "<group>"; };
+		641F07E726A83EE6008CD7C5 /* zh-HK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-HK"; path = "zh-HK.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		641F07EB26A83F93008CD7C5 /* ru-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ru-RU"; path = "ru-RU.lproj/Main.strings"; sourceTree = "<group>"; };
+		641F07EC26A83F94008CD7C5 /* ru-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ru-RU"; path = "ru-RU.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		641F07ED26A83F9B008CD7C5 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Main.strings; sourceTree = "<group>"; };
+		641F07EE26A83FC9008CD7C5 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		642B6AFC257A382900F17355 /* WalletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletViewController.swift; sourceTree = "<group>"; };
 		642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSyncViewController.swift; sourceTree = "<group>"; };
 		642B6B06257A635300F17355 /* WalletSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSync.swift; sourceTree = "<group>"; };
@@ -592,6 +608,13 @@
 			knownRegions = (
 				en,
 				Base,
+				"pt-BR",
+				fr,
+				"zh-Hans",
+				"zh-Hant",
+				"zh-HK",
+				"ru-RU",
+				es,
 			);
 			mainGroup = 64FBE79025502A290082AF2E;
 			packageReferences = (
@@ -767,6 +790,14 @@
 			isa = PBXVariantGroup;
 			children = (
 				64FBE7A325502A290082AF2E /* Base */,
+				641F07DC26A83D4E008CD7C5 /* pt-BR */,
+				641F07DE26A83DA6008CD7C5 /* fr */,
+				641F07E026A83E01008CD7C5 /* fr */,
+				641F07E226A83E49008CD7C5 /* zh-Hans */,
+				641F07E426A83E9C008CD7C5 /* zh-Hant */,
+				641F07E626A83EE6008CD7C5 /* zh-HK */,
+				641F07EB26A83F93008CD7C5 /* ru-RU */,
+				641F07ED26A83F9B008CD7C5 /* es */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -775,6 +806,14 @@
 			isa = PBXVariantGroup;
 			children = (
 				64FBE7AB25502A2C0082AF2E /* Base */,
+				641F07DD26A83D4E008CD7C5 /* pt-BR */,
+				641F07DF26A83DA9008CD7C5 /* fr */,
+				641F07E126A83E03008CD7C5 /* fr */,
+				641F07E326A83E49008CD7C5 /* zh-Hans */,
+				641F07E526A83E9C008CD7C5 /* zh-Hant */,
+				641F07E726A83EE6008CD7C5 /* zh-HK */,
+				641F07EC26A83F94008CD7C5 /* ru-RU */,
+				641F07EE26A83FC9008CD7C5 /* es */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -786,6 +825,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -848,6 +888,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";

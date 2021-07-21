@@ -1,0 +1,696 @@
+
+/* Class = "UILabel"; text = "...on initial publishes"; ObjectID = "05q-sL-rvU"; */
+"05q-sL-rvU.text" = "...on initial publishes";
+
+/* Class = "UITextField"; placeholder = "Recipient address"; ObjectID = "070-Pq-xY6"; */
+"070-Pq-xY6.placeholder" = "Recipient address";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "07y-sU-PS6"; */
+"07y-sU-PS6.text" = "Label";
+
+/* Class = "UILabel"; text = "Please select a channel"; ObjectID = "0KY-Gc-pAc"; */
+"0KY-Gc-pAc.text" = "Please select a channel";
+
+/* Class = "UIButton"; normalTitle = "New Channel"; ObjectID = "0ST-8q-Of3"; */
+"0ST-8q-Of3.normalTitle" = "New Channel";
+
+/* Class = "UIButton"; normalTitle = "Show optional fields"; ObjectID = "10E-NI-CLd"; */
+"10E-NI-CLd.normalTitle" = "Show optional fields";
+
+/* Class = "UILabel"; text = "Your YouTube Channel"; ObjectID = "1G5-NT-zUU"; */
+"1G5-NT-zUU.text" = "Your YouTube Channel";
+
+/* Class = "UIButton"; normalTitle = "Reply"; ObjectID = "1Tf-7t-6WT"; */
+"1Tf-7t-6WT.normalTitle" = "Reply";
+
+/* Class = "UIButton"; normalTitle = "Select a video"; ObjectID = "1cH-Ge-6mX"; */
+"1cH-Ge-6mX.normalTitle" = "Select a video";
+
+/* Class = "UILabel"; text = "Description"; ObjectID = "1lA-1r-8to"; */
+"1lA-1r-8to.text" = "Description";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "1oj-83-ZJo"; */
+"1oj-83-ZJo.text" = "Label";
+
+/* Class = "UILabel"; text = "Upload"; ObjectID = "2Ga-F2-NRX"; */
+"2Ga-F2-NRX.text" = "Upload";
+
+/* Class = "UILabel"; text = "?"; ObjectID = "2IL-7E-TML"; */
+"2IL-7E-TML.text" = "?";
+
+/* Class = "UILabel"; text = "Sync your YouTube channel to Odysee"; ObjectID = "2Qu-O7-IOS"; */
+"2Qu-O7-IOS.text" = "Sync your YouTube channel to Odysee";
+
+/* Class = "UIButton"; normalTitle = "Select an image"; ObjectID = "2dW-uN-M1y"; */
+"2dW-uN-M1y.normalTitle" = "Select an image";
+
+/* Class = "UILabel"; text = "License"; ObjectID = "3Ak-f8-524"; */
+"3Ak-f8-524.text" = "License";
+
+/* Class = "UILabel"; text = "By creating an account, you agree to our terms and confirm that you are over the age of 13."; ObjectID = "3Uf-8u-BrQ"; */
+"3Uf-8u-BrQ.text" = "By creating an account, you agree to our terms and confirm that you are over the age of 13.";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "3gz-dN-Qi8"; */
+"3gz-dN-Qi8.text" = "0";
+
+/* Class = "UITabBarItem"; title = "Following"; ObjectID = "40e-nO-w7b"; */
+"40e-nO-w7b.title" = "Following";
+
+/* Class = "UILabel"; text = "Reward Verified"; ObjectID = "43u-ib-fIy"; */
+"43u-ib-fIy.text" = "Reward Verified";
+
+/* Class = "UILabel"; text = "It's quiet here! New notifications will be displayed when you receive them."; ObjectID = "4EN-q0-4gE"; */
+"4EN-q0-4gE.text" = "It's quiet here! New notifications will be displayed when you receive them.";
+
+/* Class = "UILabel"; text = "Create a URL for this content. Simpler names are easier to find and remember."; ObjectID = "55S-6q-Igt"; */
+"55S-6q-Igt.text" = "Create a URL for this content. Simpler names are easier to find and remember.";
+
+/* Class = "UILabel"; text = "Sign Out"; ObjectID = "5BP-na-wYJ"; */
+"5BP-na-wYJ.text" = "Sign Out";
+
+/* Class = "UITextField"; placeholder = "No video selected"; ObjectID = "5DK-68-frH"; */
+"5DK-68-frH.placeholder" = "No video selected";
+
+/* Class = "UILabel"; text = "Please wait while we check a few things..."; ObjectID = "69B-8a-Pia"; */
+"69B-8a-Pia.text" = "Please wait while we check a few things...";
+
+/* Class = "UILabel"; text = "Start typing to discover exciting content on Odysee"; ObjectID = "6EO-eZ-4SI"; */
+"6EO-eZ-4SI.text" = "Start typing to discover exciting content on Odysee";
+
+/* Class = "UITabBarItem"; title = "Notifications"; ObjectID = "6Gf-6n-n4A"; */
+"6Gf-6n-n4A.title" = "Notifications";
+
+/* Class = "UILabel"; text = "Resolving content..."; ObjectID = "6LG-W2-lxe"; */
+"6LG-W2-lxe.text" = "Resolving content...";
+
+/* Class = "UILabel"; text = "up to"; ObjectID = "6Yv-TE-R1p"; */
+"6Yv-TE-R1p.text" = "up to";
+
+/* Class = "UILabel"; text = "There are no transactions to display at this time."; ObjectID = "6nn-fy-cI3"; */
+"6nn-fy-cI3.text" = "There are no transactions to display at this time.";
+
+/* Class = "UILabel"; text = "Uploading..."; ObjectID = "7F4-jv-FMo"; */
+"7F4-jv-FMo.text" = "Uploading...";
+
+/* Class = "UILabel"; text = "Past week ▾"; ObjectID = "7sZ-zo-RY4"; */
+"7sZ-zo-RY4.text" = "Past week ▾";
+
+/* Class = "UIButton"; normalTitle = "Done"; ObjectID = "7uQ-Jx-ysn"; */
+"7uQ-Jx-ysn.normalTitle" = "Done";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "7zd-Gm-rqM"; */
+"7zd-Gm-rqM.text" = "Label";
+
+/* Class = "UILabel"; text = "0 / 2000"; ObjectID = "7zu-JG-GFn"; */
+"7zu-JG-GFn.text" = "0 / 2000";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "8PH-TD-6Ni"; */
+"8PH-TD-6Ni.text" = "Label";
+
+/* Class = "UILabel"; text = "Channels you follow"; ObjectID = "973-hM-WdY"; */
+"973-hM-WdY.text" = "Channels you follow";
+
+/* Class = "UILabel"; text = "Skip the manual verification queue by paying a fee in order to start participating in the rewards program immediately."; ObjectID = "9A8-cs-RMm"; */
+"9A8-cs-RMm.text" = "Skip the manual verification queue by paying a fee in order to start participating in the rewards program immediately.";
+
+/* Class = "UILabel"; text = "Description"; ObjectID = "9be-r5-cmS"; */
+"9be-r5-cmS.text" = "Description";
+
+/* Class = "UILabel"; text = "Your Odysee channel name"; ObjectID = "9cI-20-TY3"; */
+"9cI-20-TY3.text" = "Your Odysee channel name";
+
+/* Class = "UILabel"; text = "No content to display at this time. Please try again later."; ObjectID = "9oD-Ff-gUS"; */
+"9oD-Ff-gUS.text" = "No content to display at this time. Please try again later.";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "A9s-nL-zJf"; */
+"A9s-nL-zJf.text" = "0";
+
+/* Class = "UILabel"; text = "There are no rewards to display at this time."; ObjectID = "AAm-6H-cGF"; */
+"AAm-6H-cGF.text" = "There are no rewards to display at this time.";
+
+/* Class = "UILabel"; text = "Get instantly verified using your Twitter account. Your Twitter email address must match the email that you provided, and your account should be active."; ObjectID = "ADJ-Nx-aDk"; */
+"ADJ-Nx-aDk.text" = "Get instantly verified using your Twitter account. Your Twitter email address must match the email that you provided, and your account should be active.";
+
+/* Class = "UIButton"; normalTitle = "Explore Odysee"; ObjectID = "Aae-5l-HCw"; */
+"Aae-5l-HCw.normalTitle" = "Explore Odysee";
+
+/* Class = "UILabel"; text = "Related Content"; ObjectID = "Adh-uu-Xrm"; */
+"Adh-uu-Xrm.text" = "Related Content";
+
+/* Class = "UILabel"; text = "Loading content..."; ObjectID = "Akm-Tw-w5H"; */
+"Akm-Tw-w5H.text" = "Loading content...";
+
+/* Class = "UILabel"; text = "Rewards"; ObjectID = "AlG-tL-wkJ"; */
+"AlG-tL-wkJ.text" = "Rewards";
+
+/* Class = "UISegmentedControl"; AvX-Mf-FdW.segmentTitles[0] = "All"; ObjectID = "AvX-Mf-FdW"; */
+"AvX-Mf-FdW.segmentTitles[0]" = "All";
+
+/* Class = "UISegmentedControl"; AvX-Mf-FdW.segmentTitles[1] = "Unclaimed"; ObjectID = "AvX-Mf-FdW"; */
+"AvX-Mf-FdW.segmentTitles[1]" = "Unclaimed";
+
+/* Class = "UISegmentedControl"; AvX-Mf-FdW.segmentTitles[2] = "Claimed"; ObjectID = "AvX-Mf-FdW"; */
+"AvX-Mf-FdW.segmentTitles[2]" = "Claimed";
+
+/* Class = "UIViewController"; title = "Home"; ObjectID = "BYZ-38-t0r"; */
+"BYZ-38-t0r.title" = "Home";
+
+/* Class = "UILabel"; text = "There are no comments to display at this time. Be the first to post a comment!"; ObjectID = "BaS-K8-e0h"; */
+"BaS-K8-e0h.text" = "There are no comments to display at this time. Be the first to post a comment!";
+
+/* Class = "UILabel"; text = "Please specify a title for your livestream"; ObjectID = "Bof-VV-QBA"; */
+"Bof-VV-QBA.text" = "Please specify a title for your livestream";
+
+/* Class = "UILabel"; text = "Please check back later. This may take up to 1 week."; ObjectID = "CO8-vi-Vkw"; */
+"CO8-vi-Vkw.text" = "Please check back later. This may take up to 1 week.";
+
+/* Class = "UIButton"; normalTitle = "Skip for $4.99"; ObjectID = "Cb0-xp-4aw"; */
+"Cb0-xp-4aw.normalTitle" = "Skip for $4.99";
+
+/* Class = "UILabel"; text = "Community Guidelines"; ObjectID = "D04-Tc-Tnz"; */
+"D04-Tc-Tnz.text" = "Community Guidelines";
+
+/* Class = "UILabel"; text = "Oops! The Odysee servers are unreachable at this time. Please check your Internet connection and try again."; ObjectID = "D0w-zV-D4B"; */
+"D0w-zV-D4B.text" = "Oops! The Odysee servers are unreachable at this time. Please check your Internet connection and try again.";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "DbW-xp-ms6"; */
+"DbW-xp-ms6.text" = "Title";
+
+/* Class = "UILabel"; text = "Please select a thumbnail"; ObjectID = "DeV-V7-lSf"; */
+"DeV-V7-lSf.text" = "Please select a thumbnail";
+
+/* Class = "UILabel"; text = "Retrieving account details..."; ObjectID = "DqD-QE-zQz"; */
+"DqD-QE-zQz.text" = "Retrieving account details...";
+
+/* Class = "UILabel"; text = "Email"; ObjectID = "EKe-e0-aAt"; */
+"EKe-e0-aAt.text" = "Email";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "EKh-Dx-7oj"; */
+"EKh-Dx-7oj.text" = "0";
+
+/* Class = "UILabel"; text = "Email"; ObjectID = "Eej-q3-EVZ"; */
+"Eej-q3-EVZ.text" = "Email";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "EkP-1M-Aqs"; */
+"EkP-1M-Aqs.text" = "Label";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "F2v-Gm-bLS"; */
+"F2v-Gm-bLS.text" = "Label";
+
+/* Class = "UILabel"; text = "New ▾"; ObjectID = "FGY-Es-3Zy"; */
+"FGY-Es-3Zy.text" = "New ▾";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "Fcs-H1-E5h"; */
+"Fcs-H1-E5h.text" = "Label";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "FfU-ek-1ot"; */
+"FfU-ek-1ot.text" = "Label";
+
+/* Class = "UIButton"; normalTitle = "Skip"; ObjectID = "G0b-wY-woZ"; */
+"G0b-wY-woZ.normalTitle" = "Skip";
+
+/* Class = "UILabel"; text = "There are no comments to display at this time. Be the first to post a comment!"; ObjectID = "GEL-6m-rWy"; */
+"GEL-6m-rWy.text" = "There are no comments to display at this time. Be the first to post a comment!";
+
+/* Class = "UILabel"; text = "Wallet Transactions"; ObjectID = "Hhe-vX-dXo"; */
+"Hhe-vX-dXo.text" = "Wallet Transactions";
+
+/* Class = "UILabel"; text = "Deposit"; ObjectID = "HvO-I5-Dzk"; */
+"HvO-I5-Dzk.text" = "Deposit";
+
+/* Class = "UITabBarItem"; title = "Library"; ObjectID = "I6n-vK-zU2"; */
+"I6n-vK-zU2.title" = "Library";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "IEA-bt-lb1"; */
+"IEA-bt-lb1.text" = "Label";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "JDy-q5-ldd"; */
+"JDy-q5-ldd.text" = "Label";
+
+/* Class = "UILabel"; text = "more"; ObjectID = "JEt-Ue-jQj"; */
+"JEt-Ue-jQj.text" = "more";
+
+/* Class = "UILabel"; text = "boosting content"; ObjectID = "JIW-bA-Yon"; */
+"JIW-bA-Yon.text" = "boosting content";
+
+/* Class = "UILabel"; text = "Oops! We could not find any content matching your search term. Please try again with something different."; ObjectID = "JbM-iD-e2H"; */
+"JbM-iD-e2H.text" = "Oops! We could not find any content matching your search term. Please try again with something different.";
+
+/* Class = "UIButton"; normalTitle = "Send"; ObjectID = "Jc2-gI-wQ2"; */
+"Jc2-gI-wQ2.normalTitle" = "Send";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "Jqn-ts-AlE"; */
+"Jqn-ts-AlE.text" = "Label";
+
+/* Class = "UILabel"; text = "Title"; ObjectID = "KTJ-H0-QW2"; */
+"KTJ-H0-QW2.text" = "Title";
+
+/* Class = "UILabel"; text = "Reward Verification"; ObjectID = "KZ5-Sh-qXy"; */
+"KZ5-Sh-qXy.text" = "Reward Verification";
+
+/* Class = "UILabel"; text = "immediately spendable"; ObjectID = "Ksc-jc-NSj"; */
+"Ksc-jc-NSj.text" = "immediately spendable";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "L3c-t2-11r"; */
+"L3c-t2-11r.text" = "0";
+
+/* Class = "UIButton"; normalTitle = "Start Over"; ObjectID = "LKj-fl-rrW"; */
+"LKj-fl-rrW.normalTitle" = "Start Over";
+
+/* Class = "UITextField"; placeholder = "0.01"; ObjectID = "LWK-WU-F3V"; */
+"LWK-WU-F3V.placeholder" = "0.01";
+
+/* Class = "UITabBarItem"; title = "Home"; ObjectID = "Lrv-XN-Peg"; */
+"Lrv-XN-Peg.title" = "Home";
+
+/* Class = "UISegmentedControl"; MCK-ju-xGy.segmentTitles[0] = "5"; ObjectID = "MCK-ju-xGy"; */
+"MCK-ju-xGy.segmentTitles[0]" = "5";
+
+/* Class = "UISegmentedControl"; MCK-ju-xGy.segmentTitles[1] = "25"; ObjectID = "MCK-ju-xGy"; */
+"MCK-ju-xGy.segmentTitles[1]" = "25";
+
+/* Class = "UISegmentedControl"; MCK-ju-xGy.segmentTitles[2] = "100"; ObjectID = "MCK-ju-xGy"; */
+"MCK-ju-xGy.segmentTitles[2]" = "100";
+
+/* Class = "UISegmentedControl"; MCK-ju-xGy.segmentTitles[3] = "1000"; ObjectID = "MCK-ju-xGy"; */
+"MCK-ju-xGy.segmentTitles[3]" = "1000";
+
+/* Class = "UISegmentedControl"; MCK-ju-xGy.segmentTitles[4] = "Custom"; ObjectID = "MCK-ju-xGy"; */
+"MCK-ju-xGy.segmentTitles[4]" = "Custom";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "Mzh-tV-I5E"; */
+"Mzh-tV-I5E.text" = "0";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "NHX-0X-Mg3"; */
+"NHX-0X-Mg3.text" = "Label";
+
+/* Class = "UITextField"; placeholder = "Password"; ObjectID = "Nt2-WM-4WI"; */
+"Nt2-WM-4WI.placeholder" = "Password";
+
+/* Class = "UITextField"; placeholder = "Descriptive titles work best"; ObjectID = "Nyx-vN-Bmz"; */
+"Nyx-vN-Bmz.placeholder" = "Descriptive titles work best";
+
+/* Class = "UIButton"; normalTitle = "Continue"; ObjectID = "O2C-Fs-31Q"; */
+"O2C-Fs-31Q.normalTitle" = "Continue";
+
+/* Class = "UITextField"; placeholder = "@channel"; ObjectID = "O6a-0a-Kxg"; */
+"O6a-0a-Kxg.placeholder" = "@channel";
+
+/* Class = "UITextField"; placeholder = "Amount"; ObjectID = "OE2-Vp-AcU"; */
+"OE2-Vp-AcU.placeholder" = "Amount";
+
+/* Class = "UILabel"; text = "...on supporting content"; ObjectID = "OT6-tc-O1O"; */
+"OT6-tc-O1O.text" = "...on supporting content";
+
+/* Class = "UILabel"; text = "Support"; ObjectID = "OvU-Wj-eWs"; */
+"OvU-Wj-eWs.text" = "Support";
+
+/* Class = "UIButton"; normalTitle = "Sign Up"; ObjectID = "P6e-4R-4iL"; */
+"P6e-4R-4iL.normalTitle" = "Sign Up";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "POZ-4c-0cs"; */
+"POZ-4c-0cs.text" = "0";
+
+/* Class = "UILabel"; text = "You are not reward eligible. Join the Odysee Rewards Program today using one of these options."; ObjectID = "PXl-lf-pkR"; */
+"PXl-lf-pkR.text" = "You are not reward eligible. Join the Odysee Rewards Program today using one of these options.";
+
+/* Class = "UILabel"; text = "Claim your channel"; ObjectID = "QIi-B5-OxL"; */
+"QIi-B5-OxL.text" = "Claim your channel";
+
+/* Class = "UILabel"; text = "It looks like you don't have any channels yet. Tap here to create a channel to join the conversation."; ObjectID = "QLo-yB-Ozm"; */
+"QLo-yB-Ozm.text" = "It looks like you don't have any channels yet. Tap here to create a channel to join the conversation.";
+
+/* Class = "UILabel"; text = "Past week ▾"; ObjectID = "QPQ-t0-CBa"; */
+"QPQ-t0-CBa.text" = "Past week ▾";
+
+/* Class = "UILabel"; text = "...earned from others"; ObjectID = "QfQ-7P-M0d"; */
+"QfQ-7P-M0d.text" = "...earned from others";
+
+/* Class = "UILabel"; text = "New ▾"; ObjectID = "Qgz-4z-Zml"; */
+"Qgz-4z-Zml.text" = "New ▾";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "QpJ-Yt-tWm"; */
+"QpJ-Yt-tWm.text" = "Label";
+
+/* Class = "UILabel"; text = "FOLLOW"; ObjectID = "Rlb-gw-hdl"; */
+"Rlb-gw-hdl.text" = "FOLLOW";
+
+/* Class = "UILabel"; text = "Recent Transactions"; ObjectID = "S3I-60-YFb"; */
+"S3I-60-YFb.text" = "Recent Transactions";
+
+/* Class = "UILabel"; text = "New Channel..."; ObjectID = "SOD-1K-T4Q"; */
+"SOD-1K-T4Q.text" = "New Channel...";
+
+/* Class = "UILabel"; text = "FOLLOW"; ObjectID = "SSM-01-V8z"; */
+"SSM-01-V8z.text" = "FOLLOW";
+
+/* Class = "UILabel"; text = "We sent an email to the address you provided. Please click the link in the message to complete email verification and continue using Odysee."; ObjectID = "SWA-vL-8mE"; */
+"SWA-vL-8mE.text" = "We sent an email to the address you provided. Please click the link in the message to complete email verification and continue using Odysee.";
+
+/* Class = "UIButton"; normalTitle = "Sign Up or Log In"; ObjectID = "SsW-fO-Rpz"; */
+"SsW-fO-Rpz.normalTitle" = "Sign Up or Log In";
+
+/* Class = "UILabel"; text = "Balance"; ObjectID = "Svx-1t-cTC"; */
+"Svx-1t-cTC.text" = "Balance";
+
+/* Class = "UILabel"; text = "Claim your handle"; ObjectID = "TU1-d3-TWe"; */
+"TU1-d3-TWe.text" = "Claim your handle";
+
+/* Class = "UIButton"; normalTitle = "View All"; ObjectID = "UBZ-2V-tnK"; */
+"UBZ-2V-tnK.normalTitle" = "View All";
+
+/* Class = "UITextField"; placeholder = "mychannel"; ObjectID = "V1u-7f-M8p"; */
+"V1u-7f-M8p.placeholder" = "mychannel";
+
+/* Class = "UILabel"; text = "FOLLOW"; ObjectID = "VJr-LQ-OQt"; */
+"VJr-LQ-OQt.text" = "FOLLOW";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "VKJ-bC-5Ew"; */
+"VKJ-bC-5Ew.text" = "Label";
+
+/* Class = "UILabel"; text = "Name"; ObjectID = "VfZ-NE-vvl"; */
+"VfZ-NE-vvl.text" = "Name";
+
+/* Class = "UILabel"; text = "Comments"; ObjectID = "Vgp-99-NDn"; */
+"Vgp-99-NDn.text" = "Comments";
+
+/* Class = "UIButton"; normalTitle = "Continue"; ObjectID = "WA2-Ib-g9c"; */
+"WA2-Ib-g9c.normalTitle" = "Continue";
+
+/* Class = "UILabel"; text = "Discover"; ObjectID = "WV3-rg-wzc"; */
+"WV3-rg-wzc.text" = "Discover";
+
+/* Class = "UILabel"; text = "Website"; ObjectID = "WlV-qB-ON4"; */
+"WlV-qB-ON4.text" = "Website";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "Wr8-xd-PFv"; */
+"Wr8-xd-PFv.normalTitle" = "Cancel";
+
+/* Class = "UILabel"; text = "Deposit"; ObjectID = "Ww0-QA-XOG"; */
+"Ww0-QA-XOG.text" = "Deposit";
+
+/* Class = "UILabel"; text = "Website"; ObjectID = "XDD-T5-BQT"; */
+"XDD-T5-BQT.text" = "Website";
+
+/* Class = "UILabel"; text = "Get started by creating a new channel."; ObjectID = "XuR-EX-5ov"; */
+"XuR-EX-5ov.text" = "Get started by creating a new channel.";
+
+/* Class = "UILabel"; text = " "; ObjectID = "Y3D-p1-oEb"; */
+"Y3D-p1-oEb.text" = " ";
+
+/* Class = "UILabel"; text = "Reload"; ObjectID = "YTx-GK-AnX"; */
+"YTx-GK-AnX.text" = "Reload";
+
+/* Class = "UILabel"; text = "Comments"; ObjectID = "Yba-Mi-nry"; */
+"Yba-Mi-nry.text" = "Comments";
+
+/* Class = "UILabel"; text = "Comment as"; ObjectID = "YgH-58-g5n"; */
+"YgH-58-g5n.text" = "Comment as";
+
+/* Class = "UILabel"; text = "Congratulations! You are reward eligible. Available rewards can be viewed and claimed on the Odysee web site."; ObjectID = "Ygs-mt-oXy"; */
+"Ygs-mt-oXy.text" = "Congratulations! You are reward eligible. Available rewards can be viewed and claimed on the Odysee web site.";
+
+/* Class = "UILabel"; text = "Odysee works better if you follow a couple of creators you like."; ObjectID = "YnH-Vh-hfX"; */
+"YnH-Vh-hfX.text" = "Odysee works better if you follow a couple of creators you like.";
+
+/* Class = "UIButton"; normalTitle = "Twitter"; ObjectID = "Z5b-Kj-bFn"; */
+"Z5b-Kj-bFn.normalTitle" = "Twitter";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "Z7I-sM-xB2"; */
+"Z7I-sM-xB2.text" = "Label";
+
+/* Class = "UIButton"; normalTitle = "Claim Channel"; ObjectID = "Z7Z-hl-tYY"; */
+"Z7Z-hl-tYY.normalTitle" = "Claim Channel";
+
+/* Class = "UIButton"; normalTitle = "Tip 5 credits"; ObjectID = "ZaB-wV-g0w"; */
+"ZaB-wV-g0w.normalTitle" = "Tip 5 credits";
+
+/* Class = "UILabel"; text = "Channel to show support as"; ObjectID = "Zf2-sT-75U"; */
+"Zf2-sT-75U.text" = "Channel to show support as";
+
+/* Class = "UILabel"; text = "Publish as"; ObjectID = "aZZ-eS-jXE"; */
+"aZZ-eS-jXE.text" = "Publish as";
+
+/* Class = "UILabel"; text = "YouTube Sync"; ObjectID = "b2U-4S-TtX"; */
+"b2U-4S-TtX.text" = "YouTube Sync";
+
+/* Class = "UILabel"; text = "0 followers"; ObjectID = "b7j-hZ-Bkt"; */
+"b7j-hZ-Bkt.text" = "0 followers";
+
+/* Class = "UIButton"; normalTitle = "Claim Now"; ObjectID = "bAb-1g-rap"; */
+"bAb-1g-rap.normalTitle" = "Claim Now";
+
+/* Class = "UILabel"; text = "This will verify you are an active YouTuber. Channel names cannot be changed once chosen, please be extra careful. Additional instructions will be emailed to you after you verify your email on the next page. Learn more."; ObjectID = "bMq-2y-YNx"; */
+"bMq-2y-YNx.text" = "This will verify you are an active YouTuber. Channel names cannot be changed once chosen, please be extra careful. Additional instructions will be emailed to you after you verify your email on the next page. Learn more.";
+
+/* Class = "UILabel"; text = "Please wait while we check a few things. If this is your first time, this may take a couple of minutes..."; ObjectID = "bY1-OR-IR2"; */
+"bY1-OR-IR2.text" = "Please wait while we check a few things. If this is your first time, this may take a couple of minutes...";
+
+/* Class = "UIButton"; normalTitle = "Save"; ObjectID = "bfu-gf-aa2"; */
+"bfu-gf-aa2.normalTitle" = "Save";
+
+/* Class = "UILabel"; text = "Upload your first video"; ObjectID = "c1L-mD-ZiR"; */
+"c1L-mD-ZiR.text" = "Upload your first video";
+
+/* Class = "UIButton"; normalTitle = "Post Comment"; ObjectID = "c3F-U9-Otp"; */
+"c3F-U9-Otp.normalTitle" = "Post Comment";
+
+/* Class = "UILabel"; text = "There's nothing here yet. Please check back later."; ObjectID = "cDp-BM-cXB"; */
+"cDp-BM-cXB.text" = "There's nothing here yet. Please check back later.";
+
+/* Class = "UIButton"; normalTitle = "No reply"; ObjectID = "cFU-cI-xhg"; */
+"cFU-cI-xhg.normalTitle" = "No reply";
+
+/* Class = "UILabel"; text = "Resolving content..."; ObjectID = "cTE-5u-8f2"; */
+"cTE-5u-8f2.text" = "Resolving content...";
+
+/* Class = "UILabel"; text = "Show this channel your appreciation by sending a donation."; ObjectID = "cbY-1n-seA"; */
+"cbY-1n-seA.text" = "Show this channel your appreciation by sending a donation.";
+
+/* Class = "UILabel"; text = "≈$0.00"; ObjectID = "ckl-l8-SSk"; */
+"ckl-l8-SSk.text" = "≈$0.00";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "d1D-df-wOH"; */
+"d1D-df-wOH.text" = "0";
+
+/* Class = "UILabel"; text = "Channel Name"; ObjectID = "d8p-Dd-oj3"; */
+"d8p-Dd-oj3.text" = "Channel Name";
+
+/* Class = "UILabel"; text = "Get your YouTube videos in front of the Odysee audience"; ObjectID = "d97-BL-G0e"; */
+"d97-BL-G0e.text" = "Get your YouTube videos in front of the Odysee audience";
+
+/* Class = "UIButton"; normalTitle = "Upload"; ObjectID = "dA6-ol-M7f"; */
+"dA6-ol-M7f.normalTitle" = "Upload";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "dey-Mp-D1r"; */
+"dey-Mp-D1r.text" = "0";
+
+/* Class = "UILabel"; text = "Receive"; ObjectID = "doV-w1-h0u"; */
+"doV-w1-h0u.text" = "Receive";
+
+/* Class = "UITextField"; placeholder = "Amount"; ObjectID = "dr2-hI-mAT"; */
+"dr2-hI-mAT.placeholder" = "Amount";
+
+/* Class = "UILabel"; text = "Language"; ObjectID = "eNA-sk-Os6"; */
+"eNA-sk-Os6.text" = "Language";
+
+/* Class = "UILabel"; text = "Your Odysee channel name"; ObjectID = "eVP-wF-iVe"; */
+"eVP-wF-iVe.text" = "Your Odysee channel name";
+
+/* Class = "UILabel"; text = "Help & Support"; ObjectID = "ecY-Qw-KBS"; */
+"ecY-Qw-KBS.text" = "Help & Support";
+
+/* Class = "UILabel"; text = "Trending ▾"; ObjectID = "ejT-8a-Fwx"; */
+"ejT-8a-Fwx.text" = "Trending ▾";
+
+/* Class = "UILabel"; text = "Create a channel"; ObjectID = "fCy-64-CXX"; */
+"fCy-64-CXX.text" = "Create a channel";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "g8O-9K-xL1"; */
+"g8O-9K-xL1.text" = "Label";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "gFB-0o-NKm"; */
+"gFB-0o-NKm.text" = "0";
+
+/* Class = "UITabBarItem"; title = "Home"; ObjectID = "gLH-Px-pFi"; */
+"gLH-Px-pFi.title" = "Home";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "gd5-Vo-rPh"; */
+"gd5-Vo-rPh.text" = "Label";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "gmV-Si-1Rq"; */
+"gmV-Si-1Rq.text" = "0";
+
+/* Class = "UILabel"; text = "Join Odysee"; ObjectID = "i9h-Zm-yIh"; */
+"i9h-Zm-yIh.text" = "Join Odysee";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "id6-Us-S71"; */
+"id6-Us-S71.text" = "Label";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "if1-NN-eWx"; */
+"if1-NN-eWx.text" = "0";
+
+/* Class = "UILabel"; text = "Thumbnail"; ObjectID = "imW-NT-wO7"; */
+"imW-NT-wO7.text" = "Thumbnail";
+
+/* Class = "UIButton"; normalTitle = "Start streaming"; ObjectID = "iuz-Xq-7OO"; */
+"iuz-Xq-7OO.normalTitle" = "Start streaming";
+
+/* Class = "UITextField"; placeholder = "channel"; ObjectID = "jGG-4e-mRH"; */
+"jGG-4e-mRH.placeholder" = "channel";
+
+/* Class = "UILabel"; text = "Go Live"; ObjectID = "jZL-qF-CkO"; */
+"jZL-qF-CkO.text" = "Go Live";
+
+/* Class = "UIButton"; normalTitle = "Verify with Twitter"; ObjectID = "jaM-8A-pPk"; */
+"jaM-8A-pPk.normalTitle" = "Verify with Twitter";
+
+/* Class = "UILabel"; text = "I want to sync my content to Odysee and the LBRY network and agree to these terms. I have also read and understand how the program works."; ObjectID = "jcS-s2-XF0"; */
+"jcS-s2-XF0.text" = "I want to sync my content to Odysee and the LBRY network and agree to these terms. I have also read and understand how the program works.";
+
+/* Class = "UIButton"; normalTitle = "New Upload"; ObjectID = "kXm-38-ket"; */
+"kXm-38-ket.normalTitle" = "New Upload";
+
+/* Class = "UITextField"; placeholder = "Say something about this..."; ObjectID = "klQ-fC-wqe"; */
+"klQ-fC-wqe.placeholder" = "Say something about this...";
+
+/* Class = "UILabel"; text = "Agree to sync"; ObjectID = "lNg-y1-QOn"; */
+"lNg-y1-QOn.text" = "Agree to sync";
+
+/* Class = "UIButton"; normalTitle = "Cancel"; ObjectID = "lUA-Hl-nQT"; */
+"lUA-Hl-nQT.normalTitle" = "Cancel";
+
+/* Class = "UIButton"; normalTitle = "Skip the Queue"; ObjectID = "lbT-cr-TN3"; */
+"lbT-cr-TN3.normalTitle" = "Skip the Queue";
+
+/* Class = "UIButton"; normalTitle = "Try Again"; ObjectID = "ljs-N9-n0x"; */
+"ljs-N9-n0x.normalTitle" = "Try Again";
+
+/* Class = "UIButton"; normalTitle = "Use magic link"; ObjectID = "mtA-8f-99U"; */
+"mtA-8f-99U.normalTitle" = "Use magic link";
+
+/* Class = "UILabel"; text = "Past week ▾"; ObjectID = "nXN-Gp-5kz"; */
+"nXN-Gp-5kz.text" = "Past week ▾";
+
+/* Class = "UILabel"; text = "Send"; ObjectID = "nkP-fk-HuS"; */
+"nkP-fk-HuS.text" = "Send";
+
+/* Class = "UILabel"; text = "Wait for your videos to be synced"; ObjectID = "oJM-ys-rd0"; */
+"oJM-ys-rd0.text" = "Wait for your videos to be synced";
+
+/* Class = "UILabel"; text = "Download"; ObjectID = "ofA-2S-Ymz"; */
+"ofA-2S-Ymz.text" = "Download";
+
+/* Class = "UILabel"; text = "Support"; ObjectID = "ogd-Vs-2JH"; */
+"ogd-Vs-2JH.text" = "Support";
+
+/* Class = "UITabBarItem"; title = "Wallet"; ObjectID = "p2A-Oc-Cal"; */
+"p2A-Oc-Cal.title" = "Wallet";
+
+/* Class = "UILabel"; text = "You will be able to claim your channel once it has finished syncing."; ObjectID = "pJb-If-2ha"; */
+"pJb-If-2ha.text" = "You will be able to claim your channel once it has finished syncing.";
+
+/* Class = "UIButton"; normalTitle = "Select an image"; ObjectID = "pcZ-cv-fnd"; */
+"pcZ-cv-fnd.normalTitle" = "Select an image";
+
+/* Class = "UILabel"; text = "You can continue to enjoy content in the meantime!"; ObjectID = "qMz-nM-Zdp"; */
+"qMz-nM-Zdp.text" = "You can continue to enjoy content in the meantime!";
+
+/* Class = "UILabel"; text = "Invites"; ObjectID = "qkk-tk-GA8"; */
+"qkk-tk-GA8.text" = "Invites";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "r7A-QS-rut"; */
+"r7A-QS-rut.text" = "Label";
+
+/* Class = "UILabel"; text = "Any amount will give you the highest bid, but larger amounts help your content be trusted and discovered."; ObjectID = "rFE-zm-eP3"; */
+"rFE-zm-eP3.text" = "Any amount will give you the highest bid, but larger amounts help your content be trusted and discovered.";
+
+/* Class = "UILabel"; text = "Channels"; ObjectID = "rSw-ui-ksT"; */
+"rSw-ui-ksT.text" = "Channels";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "rhX-zy-HNd"; */
+"rhX-zy-HNd.text" = "Label";
+
+/* Class = "UILabel"; text = "No content to display at this time. Please try again later."; ObjectID = "rj1-cl-7HO"; */
+"rj1-cl-7HO.text" = "No content to display at this time. Please try again later.";
+
+/* Class = "UIButton"; normalTitle = "Manual"; ObjectID = "rne-eG-gXD"; */
+"rne-eG-gXD.normalTitle" = "Manual";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "swc-uj-cgw"; */
+"swc-uj-cgw.text" = "0";
+
+/* Class = "UILabel"; text = "Already have an account? Log In."; ObjectID = "tKf-c4-XRO"; */
+"tKf-c4-XRO.text" = "Already have an account? Log In.";
+
+/* Class = "UILabel"; text = "Report"; ObjectID = "tak-vf-tTS"; */
+"tak-vf-tTS.text" = "Report";
+
+/* Class = "UILabel"; text = "Your channel will be used for publishing and commenting. You can add more channels or remove this one later."; ObjectID = "tjw-TM-aVD"; */
+"tjw-TM-aVD.text" = "Your channel will be used for publishing and commenting. You can add more channels or remove this one later.";
+
+/* Class = "UILabel"; text = "Your total balance. All of this is yours, but some may be in use on channels and content."; ObjectID = "u33-7C-LEj"; */
+"u33-7C-LEj.text" = "Your total balance. All of this is yours, but some may be in use on channels and content.";
+
+/* Class = "UILabel"; text = "Uploading..."; ObjectID = "uZt-cT-yl6"; */
+"uZt-cT-yl6.text" = "Uploading...";
+
+/* Class = "UILabel"; text = "Please request to be verified on the LBRY Foundation Discord server. A manual review can take anywhere from several minutes to a few days."; ObjectID = "uta-5a-feI"; */
+"uta-5a-feI.text" = "Please request to be verified on the LBRY Foundation Discord server. A manual review can take anywhere from several minutes to a few days.";
+
+/* Class = "UILabel"; text = "Channels"; ObjectID = "uwd-lB-h1n"; */
+"uwd-lB-h1n.text" = "Channels";
+
+/* Class = "UILabel"; text = "Uploads"; ObjectID = "v56-OT-kM9"; */
+"v56-OT-kM9.text" = "Uploads";
+
+/* Class = "UITextField"; placeholder = "Email"; ObjectID = "v78-DT-l4h"; */
+"v78-DT-l4h.placeholder" = "Email";
+
+/* Class = "UILabel"; text = "There are no transactions to display at this time."; ObjectID = "v9z-0B-3kh"; */
+"v9z-0B-3kh.text" = "There are no transactions to display at this time.";
+
+/* Class = "UILabel"; text = "Rewards"; ObjectID = "vKx-Px-itO"; */
+"vKx-Px-itO.text" = "Rewards";
+
+/* Class = "UILabel"; text = "Uploading..."; ObjectID = "vNd-qK-cSS"; */
+"vNd-qK-cSS.text" = "Uploading...";
+
+/* Class = "UILabel"; text = "Live discussion"; ObjectID = "vWY-SP-cUz"; */
+"vWY-SP-cUz.text" = "Live discussion";
+
+/* Class = "UIButton"; normalTitle = "Generate thumbnail"; ObjectID = "vec-ew-jqK"; */
+"vec-ew-jqK.normalTitle" = "Generate thumbnail";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "wHA-aE-RRq"; */
+"wHA-aE-RRq.text" = "Label";
+
+/* Class = "UILabel"; text = "Share"; ObjectID = "wHV-iJ-OTZ"; */
+"wHV-iJ-OTZ.text" = "Share";
+
+/* Class = "UIButton"; normalTitle = "Resend Email"; ObjectID = "wMt-rk-s1Q"; */
+"wMt-rk-s1Q.normalTitle" = "Resend Email";
+
+/* Class = "UIButton"; normalTitle = "Continue"; ObjectID = "wUv-bo-aEk"; */
+"wUv-bo-aEk.normalTitle" = "Continue";
+
+/* Class = "UILabel"; text = "odysee.com/"; ObjectID = "xUS-Xi-t5E"; */
+"xUS-Xi-t5E.text" = "odysee.com/";
+
+/* Class = "UIButton"; normalTitle = "Skip"; ObjectID = "xWL-Hl-Y6A"; */
+"xWL-Hl-Y6A.normalTitle" = "Skip";
+
+/* Class = "UITextField"; placeholder = "0.01"; ObjectID = "xth-KK-9jb"; */
+"xth-KK-9jb.placeholder" = "0.01";
+
+/* Class = "UIButton"; normalTitle = "View"; ObjectID = "yOt-RI-fY3"; */
+"yOt-RI-fY3.normalTitle" = "View";
+
+/* Class = "UILabel"; text = "0"; ObjectID = "ysc-c7-aSI"; */
+"ysc-c7-aSI.text" = "0";
+
+/* Class = "UILabel"; text = "Video file"; ObjectID = "zWF-zZ-aX5"; */
+"zWF-zZ-aX5.text" = "Video file";
+
+/* Class = "UILabel"; text = "Use this address to receive credits"; ObjectID = "zjC-FO-HZf"; */
+"zjC-FO-HZf.text" = "Use this address to receive credits";

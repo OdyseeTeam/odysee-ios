@@ -9,9 +9,13 @@ import Foundation
 
 struct ContentSources {
     
+    static let languageCodeEN = "en"
+    static let regionCodeUS = "US"
+    static let regionCodeBR = "BR" // special check for pt-BR
+    
     static let defaultsKey = "ContentSourcesCache"
     static let endpoint = "https://odysee.com/$/api/content/v1/get"
-  
+    
     static var DynamicContentCategories: [Category] = []
     
     static func loadCategories(completion: @escaping ([Category]?, Error?) -> Void) {
@@ -42,6 +46,7 @@ struct ContentSources {
                 completion(nil, error)
                 return
             }
+
             do {
                 var respCode:Int = 0
                 if let httpResponse = response as? HTTPURLResponse {
@@ -58,12 +63,16 @@ struct ContentSources {
                     
                     var categories: [Category] = []
                     if let data = respData?["data"] as? [String: Any] {
-                        // for now, we only have "en" in data. In the future, try to detect the
-                        // locale code and get the value corresponding to the key
-                        if let enData = data["en"] as? [String: Any] {
-                            let keys = Array(enData.keys)
+                        var languageKey = Locale.current.languageCode ?? languageCodeEN
+                        let regionCode = Locale.current.regionCode ?? regionCodeUS
+                        if languageKey != languageCodeEN && regionCode == regionCodeBR {
+                            languageKey = String(format: "%@-%@", languageKey, regionCode)
+                        }
+
+                        if let langData = data[languageKey] as? [String: Any] ?? data[languageCodeEN] as? [String: Any] {
+                            let keys = Array(langData.keys)
                             for key in keys {
-                                if let contentSource = enData[key] as? [String: Any] {
+                                if let contentSource = langData[key] as? [String: Any] {
                                     if let label = contentSource["label"] as? String,
                                        let name = contentSource["name"] as? String,
                                        let channelIds = contentSource["channelIds"] as? [String],
