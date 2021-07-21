@@ -123,6 +123,7 @@ class SearchViewController: UIViewController,
         Lighthouse.search(rawQuery: query!, size: pageSize, from: currentFrom, relatedTo: nil, completion: { results, error in
             guard let results = results, !results.isEmpty else {
                 DispatchQueue.main.async {
+                    self.searching = false
                     self.checkNoResults()
                 }
                 return
