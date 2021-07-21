@@ -64,9 +64,6 @@ class UserAccountViewController: UIViewController {
         defaultActionButton.layer.masksToBounds = true
         defaultActionButton.layer.cornerRadius = 16
         
-        switchModeButton.layer.masksToBounds = true
-        switchModeButton.layer.cornerRadius = 16
-        
         if firstRunFlow {
             closeButton.isHidden = true
         }
