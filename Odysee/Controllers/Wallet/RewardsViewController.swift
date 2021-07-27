@@ -51,6 +51,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
     
     override func viewWillAppear(_ animated: Bool) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
         appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
         
         if Lbryio.isSignedIn() {
@@ -141,10 +142,8 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
     
     func showRewardsList() {
         DispatchQueue.main.async {
-            if !self.firstRunFlow {
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-            }
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.toggleHeaderVisibility(hidden: true)
                 
             self.rewardVerificationPathsView.isHidden = true
             self.closeVerificationButton.isHidden = true
