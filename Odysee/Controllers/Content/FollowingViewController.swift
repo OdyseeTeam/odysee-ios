@@ -39,6 +39,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var selectedSuggestedFollows: Dictionary<String, Claim> = Dictionary<String, Claim>()
     
     let suggestedPageSize: Int = 42
+    let refreshControl = UIRefreshControl()
     var currentSuggestedPage: Int = 1
     var lastSuggestedPageReached: Bool = false
     var loadingSuggested: Bool = false
@@ -123,6 +124,20 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         suggestedFollowsView.allowsMultipleSelection = true
         channelListView.allowsMultipleSelection = false
         contentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
+        
+        refreshControl.attributedTitle = NSAttributedString(string: String.localized("Pull down to refresh"))
+        refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
+        refreshControl.tintColor = Helper.primaryColor
+        contentListView.addSubview(refreshControl)
+    }
+    
+    @objc func refresh(_ sender: AnyObject) {
+        if (loadingContent) {
+            return
+        }
+        
+        resetSubscriptionContent()
+        loadSubscriptionContent()
     }
     
     func loadLocalSubscriptions(_ refresh: Bool = false) {
@@ -288,7 +303,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         
         lastPageReached = page.isLastPage
         claims.append(contentsOf: page.items)
+        claims.sort(by: { $0.value?.releaseTime ?? "0" > $1.value?.releaseTime ?? "0" })
         contentListView.reloadData()
+        refreshControl.endRefreshing()
     }
     
     func showMessage(message: String?) {
@@ -558,6 +575,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             }
             Lbryio.subscriptionsDirty = false
         }
+        
         loadSubscriptionContent()
     }
 

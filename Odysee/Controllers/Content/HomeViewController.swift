@@ -69,7 +69,7 @@ class HomeViewController: UIViewController,
             return ClaimTableViewCell.imagePrefetchURLs(claim: claim)
         }
         // Do any additional setup after loading the view.
-        refreshControl.attributedTitle = NSAttributedString(string: "Pull down to refresh")
+        refreshControl.attributedTitle = NSAttributedString(string: String.localized("Pull down to refresh"))
         refreshControl.addTarget(self, action: #selector(self.refresh(_:)), for: .valueChanged)
         refreshControl.tintColor = Helper.primaryColor
         claimListView.addSubview(refreshControl)
@@ -91,14 +91,14 @@ class HomeViewController: UIViewController,
         for (idx, category) in ContentSources.DynamicContentCategories.enumerated() {
             categories.append(String.localized(category.label!))
             channelIds.append(category.channelIds)
-            if category.name == HomeViewController.categoryNameMovies {
-                HomeViewController.categoryIndexMovies = idx
+            if category.name == Self.categoryNameMovies {
+                Self.categoryIndexMovies = idx
             }
         }
         
         categories.append(String.localized("Wild West"))
         channelIds.append([])
-        HomeViewController.categoryIndexWildWest = categories.count - 1
+        Self.categoryIndexWildWest = categories.count - 1
     }
     
     func didLoadClaims(_ result: Result<Page<Claim>, Error>) {
@@ -130,7 +130,7 @@ class HomeViewController: UIViewController,
         
         // Capture category index for use in sorting, before leaving main thread.
         let category = self.currentCategoryIndex
-        let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
+        let isWildWest = category == Self.categoryIndexWildWest
         let releaseTimeValue = currentSortByIndex == 2 ? Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : Helper.releaseTime6Months()
         
         Lbry.apiCall(method: Lbry.Methods.claimSearch,
@@ -142,7 +142,7 @@ class HomeViewController: UIViewController,
                             Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) :
                             releaseTimeValue,
                         limitClaimsPerChannel:
-                            currentCategoryIndex == HomeViewController.categoryIndexMovies ? 20 : 5,
+                            currentCategoryIndex == Self.categoryIndexMovies ? 20 : 5,
                         channelIds: isWildWest ? nil : channelIds[currentCategoryIndex],
                         orderBy: isWildWest ?
                             ["trending_group", "trending_mixed"]
