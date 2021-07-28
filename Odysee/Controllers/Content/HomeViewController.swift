@@ -97,8 +97,7 @@ class HomeViewController: UIViewController,
         }
         
         categories.append(String.localized("Wild West"))
-        channelIds.append(ContentSources.DynamicContentCategories.filter(
-                            { $0.name == HomeViewController.categoryNameGeneral }).first?.channelIds)
+        channelIds.append([])
         HomeViewController.categoryIndexWildWest = categories.count - 1
     }
     
@@ -144,12 +143,12 @@ class HomeViewController: UIViewController,
                             releaseTimeValue,
                         limitClaimsPerChannel:
                             currentCategoryIndex == HomeViewController.categoryIndexMovies ? 20 : 5,
-                        channelIds: channelIds[currentCategoryIndex],
+                        channelIds: isWildWest ? nil : channelIds[currentCategoryIndex],
                         orderBy: isWildWest ?
                             ["trending_group", "trending_mixed"]
                             : Helper.sortByItemValues[currentSortByIndex]),
                      transform: { page in
-                        if category != HomeViewController.categoryIndexWildWest {
+                        if !isWildWest {
                             page.items.sort { $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime.flatMap(Int64.init) ?? 0 }
                         }
                      })
