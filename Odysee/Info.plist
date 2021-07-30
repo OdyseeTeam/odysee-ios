@@ -41,10 +41,10 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Odysee requires access to your camera to take photos.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Odysee requires access to your photo library.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Odysee requires access to your microphone to capture audio.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Odysee requires access to your photo library.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -78,6 +78,8 @@
 	<array>
 		<string>armv7</string>
 	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
