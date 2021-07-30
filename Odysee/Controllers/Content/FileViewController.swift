@@ -375,7 +375,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         
         loadInitialChatMessages()
         
-        let url = URL(string: String(format: "https://api.bitwave.tv/v1/odysee/live/%@", claim!.signingChannel!.claimId!))
+        let url = URL(string: String(format: "https://api.live.odysee.com/v1/odysee/live/%@", claim!.signingChannel!.claimId!))
         let session = URLSession.shared
         var req = URLRequest(url: url!)
         req.httpMethod = "GET"

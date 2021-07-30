@@ -394,7 +394,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             result.showErrorIfPresent()
             return
         }
-        let url = URL(string: String(format: "https://api.bitwave.tv/v1/odysee/live/%@", channelClaim!.claimId!))
+        let url = URL(string: String(format: "https://api.live.odysee.com/v1/odysee/live/%@", channelClaim!.claimId!))
         let session = URLSession.shared
         var req = URLRequest(url: url!)
         req.httpMethod = "GET"

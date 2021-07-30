@@ -526,7 +526,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 let videoSize = try FileManager.default.attributesOfItem(atPath: videoUrl.path)[.size] as! Int
                 let contentLength = headerData.count + videoSize + footerData.count
                 
-                var req = URLRequest(url: URL(string: Lbry.lbrytvConnectionString)!)
+                var req = URLRequest(url: Lbry.uploadURL)
                 req.httpMethod = "POST"
                 req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
                 req.setValue(String(contentLength), forHTTPHeaderField: "Content-Length")

@@ -14,7 +14,8 @@ import Foundation
 
 final class Lbry {
     static let ttlCLaimSearchValue = 120000
-    static let lbrytvURL = URL(string: "https://api.lbry.tv/api/v1/proxy")!
+    static let lbrytvURL = URL(string: "https://api.na-backend.odysee.com/api/v1/proxy")!
+    static let uploadURL = URL(string: "https://publish.na-backend.odysee.com/v1")!
     static let lbrytvConnectionString = lbrytvURL.absoluteString
     static let keyShared = "shared"
     static let sharedPreferenceVersion = "0.1"
