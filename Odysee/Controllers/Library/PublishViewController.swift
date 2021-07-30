@@ -50,6 +50,12 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     
     let namePrefixFormat = "odysee.com/%@"
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "PublishForm", AnalyticsParameterScreenClass: "PublishViewController"])
