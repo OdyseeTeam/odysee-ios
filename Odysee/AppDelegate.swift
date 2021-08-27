@@ -28,6 +28,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var currentFileViewController: FileViewController?
     var playerObserverAdded: Bool = false
     
+    // One-time only lazily activate the Audio Session when playing a file.
+    // This prevents the app from taking over the audio stream on launch.
+    lazy var lazyPlayer: AVPlayer? = {
+        do {
+            try AVAudioSession.sharedInstance().setActive(true, options: [])
+        } catch {
+            print("Lazy AVAudioSession activation failed! \(error)")
+        }
+        return self.player
+    }()
+    
     var mainController: MainViewController {
         return mainViewController as! MainViewController
     }
@@ -147,7 +158,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget { [unowned self] event in
             if self.player != nil {
-                self.player!.play()
+                self.lazyPlayer!.play()
                 return .success
             }
             
@@ -156,7 +167,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget { [unowned self] event in
             if self.player != nil {
-                self.player!.pause()
+                self.lazyPlayer!.pause()
                 return .success
             }
             

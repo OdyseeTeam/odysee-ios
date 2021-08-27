@@ -79,7 +79,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         do {
             // enable audio in silent mode
             try AVAudioSession.sharedInstance().setCategory(.playback)
-            try AVAudioSession.sharedInstance().setActive(true, options: [])
         } catch {
             // pass
         }
