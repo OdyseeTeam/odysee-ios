@@ -111,7 +111,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     var commentsDisabledChecked = false
     var commentsDisabled = false
-    var commentsViewPresented = false
+    var commentsViewPresented = false 
     var commentAsPicker: UIPickerView!
     var claim: Claim?
     var claimUrl: LbryUri?
