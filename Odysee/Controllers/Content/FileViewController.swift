@@ -699,7 +699,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         avpc.delegate = appDelegate.mainController
         if (!forceInit && appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == singleClaim.claimId) {
-            avpc.player = appDelegate.player
+            avpc.player = appDelegate.lazyPlayer
             playerConnected = true
             return
         }
@@ -714,7 +714,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         appDelegate.player = AVPlayer(playerItem: playerItem)
 
         appDelegate.registerPlayerObserver()
-        avpc.player = appDelegate.player
+        avpc.player = appDelegate.lazyPlayer
         playerConnected = true
         playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
         
@@ -762,7 +762,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func connectPlayer() {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if appDelegate.player != nil {
-            avpc.player = appDelegate.player
+            avpc.player = appDelegate.lazyPlayer
         }
         playerConnected = true
     }
