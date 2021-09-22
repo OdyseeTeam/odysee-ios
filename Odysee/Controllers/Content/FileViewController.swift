@@ -128,6 +128,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var playerObserverAdded = false
     var imageViewerActive = false
     var otherContentWebUrl: String? = nil
+    var currentStreamUrl: URL? = nil
+    var streamInfoUrl: URL? = nil
     
     var commentsPageSize: Int = 50
     var commentsCurrentPage: Int = 1
@@ -160,6 +162,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var currentPlaylistPage = 1
     var playlistLastPageReached = false
     let playlistPageSize = 50
+    let checkLivestreamTranscodeInterval: Double = 30 // 30 seconds
+    var checkLivestreamTranscodeTimer = Timer()
+    var checkLivestreamTranscodeScheduled = false
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -368,16 +373,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     */
     
-    func loadLivestream() {
-        if !isLivestream {
-            return
-        }
-        
-        loadInitialChatMessages()
-        
-        let url = URL(string: String(format: "https://api.live.odysee.com/v1/odysee/live/%@", claim!.signingChannel!.claimId!))
+    @objc func loadStreamInfo() {
         let session = URLSession.shared
-        var req = URLRequest(url: url!)
+        var req = URLRequest(url: streamInfoUrl!)
         req.httpMethod = "GET"
         
         let task = session.dataTask(with: req, completionHandler: { data, response, error in
@@ -396,12 +394,23 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     }
                     
                     if let streamUrl = (livestreamData["url"] as? String).flatMap(URL.init) {
+                        if self.currentStreamUrl != nil && self.currentStreamUrl == streamUrl {
+                            // no change
+                            if (self.checkLivestreamTranscodeScheduled) {
+                                self.checkLivestreamTranscodeTimer.invalidate()
+                            }
+                            return
+                        }
                         let headers: Dictionary<String, String> = [
                             "Referer": "https://bitwave.tv"
                         ]
                         DispatchQueue.main.async {
-                            self.initializePlayerWithUrl(singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers, forceInit: true)
+                            self.initializePlayerWithUrl(
+                                singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers, forceInit: true)
                         }
+                        self.currentStreamUrl = streamUrl
+                        // schedule livestream transcoded check
+                        self.checkLivestreamTranscoded()
                     }
                 }
             } catch {
@@ -412,11 +421,29 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         task.resume();
     }
     
+    func loadLivestream() {
+        if !isLivestream {
+            return
+        }
+        
+        loadInitialChatMessages()
+        
+        streamInfoUrl = URL(string: String(format: "https://api.live.odysee.com/v1/odysee/live/%@", claim!.signingChannel!.claimId!))
+        loadStreamInfo()
+    }
+    
     func displayLivestreamOffline() {
         DispatchQueue.main.async {
             self.livestreamOfflinePlaceholder.isHidden = false
             self.livestreamOfflineMessageView.isHidden = false
             self.livestreamOfflineLabel.text = String(format: String.localized("%@ isn't live right now. Check back later to watch the stream."), self.claim!.signingChannel!.name!)
+        }
+    }
+    
+    func checkLivestreamTranscoded() {
+        if !checkLivestreamTranscodeScheduled {
+            checkLivestreamTranscodeTimer = Timer.scheduledTimer(timeInterval: checkLivestreamTranscodeInterval, target: self, selector: #selector(self.loadStreamInfo), userInfo: nil, repeats: true)
+            checkLivestreamTranscodeScheduled = true
         }
     }
     
