@@ -1,0 +1,25 @@
+name: CI
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+  lint:
+    runs-on: macOS-latest
+    env:
+      MINT_PATH: ${{ github.workspace }}/mint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Cache Mint dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ env.MINT_PATH }}
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: ${{ runner.os }}-mint-
+      - name: Install mint
+        run: brew install mint
+      - name: Bootstrap mint dependencies
+        run: mint bootstrap --link
+      - name: SwiftFormat
+        run: swiftformat . --lint --verbose
