@@ -12,6 +12,13 @@ The app can be launched by opening **Odysee** from the app list on your device.
 ## Running from Source
 Clone the repository and open the project in XCode. Click the Build and run current scheme button to build the project and launch the app in one of the available simulators or a connected device.
 
+### Setup Firebase
+We use Firebase for analytics calls throughout the codebase. You'll need the `Odysee/GoogleService-Info.plist` file to exist for the Xcode project to compile. However, this file is in `.gitignore`, so you’ll need your own local copy after you clone this repo. Create it from the provided sample by running this command in the root directory:
+
+```
+cp ./Odysee/GoogleService-Info.plist.sample ./Odysee/GoogleService-Info.plist
+```
+
 ## Contributing
 Contributions to this project are welcome, encouraged, and compensated. For more details, see https://lbry.com/faq/contributing
 
