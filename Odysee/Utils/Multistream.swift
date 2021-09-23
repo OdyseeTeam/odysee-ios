@@ -7,7 +7,7 @@
 
 import Foundation
 
-fileprivate let kBufferSize = 1024 * 1024
+private let kBufferSize = 1024 * 1024
 
 class Multistream: InputStream, StreamDelegate {
     private let streams: [InputStream]
@@ -24,23 +24,29 @@ class Multistream: InputStream, StreamDelegate {
     override var streamStatus: Stream.Status {
         return input.streamStatus
     }
+
     override func open() {
         input.open()
         output.open()
     }
+
     override func close() {
         input.close()
     }
+
     override func setProperty(_ property: Any?, forKey key: Stream.PropertyKey) -> Bool {
         input.setProperty(property, forKey: key)
     }
+
     override func property(forKey key: Stream.PropertyKey) -> Any? {
         return input.property(forKey: key)
     }
+
     override func schedule(in aRunLoop: RunLoop, forMode mode: RunLoop.Mode) {
         input.schedule(in: aRunLoop, forMode: mode)
         output.schedule(in: aRunLoop, forMode: mode)
     }
+
     override var delegate: StreamDelegate? {
         get {
             return input.delegate
@@ -49,15 +55,20 @@ class Multistream: InputStream, StreamDelegate {
             input.delegate = newValue
         }
     }
+
     override var hasBytesAvailable: Bool {
         return input.hasBytesAvailable
     }
+
     override func read(_ buffer: UnsafeMutablePointer<UInt8>, maxLength len: Int) -> Int {
         assert(input.streamStatus == .open)
         return input.read(buffer, maxLength: len)
     }
-    override func getBuffer(_ buffer: UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>,
-                            length len: UnsafeMutablePointer<Int>) -> Bool {
+
+    override func getBuffer(
+        _ buffer: UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>,
+        length len: UnsafeMutablePointer<Int>
+    ) -> Bool {
         return input.getBuffer(buffer, length: len)
     }
 
@@ -65,7 +76,7 @@ class Multistream: InputStream, StreamDelegate {
     // Don't mess with the streams otherwise.
     init(streams: [InputStream]) {
         self.streams = streams
-        assert(!streams.contains { $0.streamStatus != .open})
+        assert(!streams.contains { $0.streamStatus != .open })
         var read: Unmanaged<CFReadStream>?
         var write: Unmanaged<CFWriteStream>?
         CFStreamCreateBoundPair(nil, &read, &write, kBufferSize)
@@ -74,7 +85,7 @@ class Multistream: InputStream, StreamDelegate {
         super.init(data: Data())
         output.delegate = self
     }
-    
+
     private func openNextInput() -> Bool {
         if let currentIndex = currentInputIndex {
             streams[currentIndex].close()
@@ -89,7 +100,7 @@ class Multistream: InputStream, StreamDelegate {
         }
         return false
     }
-    
+
     @discardableResult private func refillBuffer() -> Bool {
         let bytesRead: Int = buffer.withUnsafeMutableBytes { ptr in
             let y = ptr.bindMemory(to: UInt8.self).baseAddress!

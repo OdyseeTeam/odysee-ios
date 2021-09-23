@@ -8,14 +8,13 @@
 import UIKit
 
 class RewardTableViewCell: UITableViewCell {
+    @IBOutlet var titleLabel: UILabel!
+    @IBOutlet var descriptionLabel: UILabel!
+    @IBOutlet var uptoLabel: UILabel!
+    @IBOutlet var amountLabel: UILabel!
 
-    @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var descriptionLabel: UILabel!
-    @IBOutlet weak var uptoLabel: UILabel!
-    @IBOutlet weak var amountLabel: UILabel!
-    
     var currentReward: Reward?
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code

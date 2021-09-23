@@ -8,15 +8,14 @@
 import UIKit
 
 class CreateChannelViewController: UIViewController, UITextFieldDelegate {
-    
     var frDelegate: FirstRunDelegate?
     var firstRunFlow: Bool = false
-    
-    @IBOutlet weak var preloadView: UIView!
-    @IBOutlet weak var scrollView: UIScrollView!
-    
-    @IBOutlet weak var channelNameField: UITextField!
-    @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+
+    @IBOutlet var preloadView: UIView!
+    @IBOutlet var scrollView: UIScrollView!
+
+    @IBOutlet var channelNameField: UITextField!
+    @IBOutlet var loadingIndicator: UIActivityIndicatorView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,47 +26,47 @@ class CreateChannelViewController: UIViewController, UITextFieldDelegate {
         scrollView.isHidden = true
         loadAndCheckChannels()
     }
-    
-    /*
-    // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-    
+    /*
+     // MARK: - Navigation
+
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+         // Get the new view controller using segue.destination.
+         // Pass the selected object to the new view controller.
+     }
+     */
+
     func startLoading() {
         DispatchQueue.main.async {
             self.channelNameField.isEnabled = false
             self.loadingIndicator.isHidden = false
         }
     }
-    
+
     func finishLoading() {
         DispatchQueue.main.async {
             self.channelNameField.isEnabled = true
             self.loadingIndicator.isHidden = true
         }
     }
-    
+
     func loadAndCheckChannels() {
         frDelegate?.requestStarted()
-        
+
         Lbry.apiCall(
             method: Lbry.Methods.claimList,
             params: .init(claimType: [.channel], page: 1, pageSize: 999)
         )
         .subscribeResult(didLoadChannels)
     }
-    
+
     func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
         guard case let .success(page) = result else {
             frDelegate?.requestFinished(showSkip: true, showContinue: false)
             return
         }
-        
+
         if !page.items.isEmpty {
             // Channels already exist, no need to show the "Create First Channel" view
             frDelegate?.requestFinished(showSkip: true, showContinue: false)
@@ -77,7 +76,7 @@ class CreateChannelViewController: UIViewController, UITextFieldDelegate {
             presentView()
         }
     }
-    
+
     func presentView() {
         DispatchQueue.main.async {
             self.preloadView.isHidden = true
@@ -85,11 +84,11 @@ class CreateChannelViewController: UIViewController, UITextFieldDelegate {
             self.channelNameField.becomeFirstResponder()
         }
     }
-    
+
     @IBAction func channelNameFieldChanged(_ sender: UITextField) {
         frDelegate?.updateFirstChannelName(sender.text!)
     }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         if !(textField.text ?? "").isBlank {

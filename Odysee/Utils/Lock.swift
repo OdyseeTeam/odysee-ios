@@ -24,7 +24,7 @@ final class Lock {
         defer { os_unfair_lock_unlock(&lock) }
         return try f()
     }
-    
+
     @inline(__always) func assertOwner() { os_unfair_lock_assert_owner(&lock) }
     @inline(__always) func assertNotOwner() { os_unfair_lock_assert_not_owner(&lock) }
 }

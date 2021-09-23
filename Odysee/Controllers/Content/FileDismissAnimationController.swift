@@ -7,19 +7,20 @@
 
 import UIKit
 
-class FileDismissAnimationController : NSObject, UIViewControllerAnimatedTransitioning {
+class FileDismissAnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return 0.5
     }
-    
+
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
         guard let fromView = transitionContext.view(forKey: .from),
-              let toView = transitionContext.view(forKey: .to) else {
+              let toView = transitionContext.view(forKey: .to)
+        else {
             assertionFailure()
             return
         }
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        
+
         transitionContext.containerView.insertSubview(toView, belowSubview: fromView)
         UIView.performWithoutAnimation {
             // We'll fade the header in as it grows so it looks nicer.
@@ -31,12 +32,16 @@ class FileDismissAnimationController : NSObject, UIViewControllerAnimatedTransit
             // in correctly. We hide it during the transition then fade it back in.
             appDelegate.mainController.notificationBadgeView.alpha = 0
         }
-        
-        UIView.animate(withDuration: transitionDuration(using: transitionContext),
-                       delay: 0,
-                       options: .curveLinear) {
-            fromView.transform = CGAffineTransform(translationX: 0,
-                                                   y: transitionContext.containerView.bounds.height)
+
+        UIView.animate(
+            withDuration: transitionDuration(using: transitionContext),
+            delay: 0,
+            options: .curveLinear
+        ) {
+            fromView.transform = CGAffineTransform(
+                translationX: 0,
+                y: transitionContext.containerView.bounds.height
+            )
             appDelegate.mainController.toggleHeaderVisibility(hidden: false)
             appDelegate.mainController.headerArea.alpha = 1
         } completion: { _ in

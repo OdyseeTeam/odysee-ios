@@ -53,7 +53,7 @@ struct ClaimSearchParams: Encodable {
     var orderBy: [String]?
 }
 
-struct AddressUnusedParams: Encodable { }
+struct AddressUnusedParams: Encodable {}
 
 struct ChannelAbandonParams: Encodable {
     var claimId: String

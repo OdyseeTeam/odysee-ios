@@ -47,7 +47,7 @@ class ImagePrefetchingController {
             }
         }
     }
-    
+
     // NOTE: The index paths in this method do NOT necessarily refer to indexes
     // in the data source. For instance, if you delete all the items, you'll get
     // cancelPrefetch for the items you had beforehand. The index paths only

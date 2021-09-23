@@ -17,19 +17,23 @@ struct LbryNotification: Decodable {
     var createdAt: String?
     var activeAt: String?
     var notificationParameters: NotificationParameters?
-    
+
     var title: String? {
-        return notificationParameters != nil && notificationParameters!.device != nil ? notificationParameters!.device!.title : nil
+        return notificationParameters != nil && notificationParameters!.device != nil ? notificationParameters!.device!
+            .title : nil
     }
+
     var text: String? {
-        return notificationParameters != nil && notificationParameters!.device != nil ? notificationParameters!.device!.text : nil
+        return notificationParameters != nil && notificationParameters!.device != nil ? notificationParameters!.device!
+            .text : nil
     }
+
     var targetUrl: String? {
         if notificationParameters != nil {
             if notificationParameters!.device != nil {
                 return notificationParameters!.device!.target
             }
-            
+
             if notificationParameters!.dynamic != nil {
                 if notificationParameters!.dynamic!.channelURI != nil {
                     return notificationParameters!.dynamic!.channelURI
@@ -39,26 +43,37 @@ struct LbryNotification: Decodable {
                 }
             }
         }
-        
+
         return nil
     }
+
     var author: String? {
-        return notificationParameters != nil && notificationParameters!.dynamic != nil ? notificationParameters!.dynamic!.commentAuthor : nil
+        return notificationParameters != nil && notificationParameters!.dynamic != nil ? notificationParameters!
+            .dynamic!.commentAuthor : nil
     }
-    
+
     private enum CodingKeys: String, CodingKey {
-        case id = "id", notificationRule = "notification_rule", isAppReadable = "is_app_readable", isRead = "is_read", isSeen = "is_seen", isDeleted = "is_deleted", createdAt = "created_at", activeAt = "active_at", notificationParameters = "notification_parameters"
+        case id
+        case notificationRule = "notification_rule"
+        case isAppReadable = "is_app_readable"
+        case isRead = "is_read"
+        case isSeen = "is_seen"
+        case isDeleted = "is_deleted"
+        case createdAt = "created_at"
+        case activeAt = "active_at"
+        case notificationParameters = "notification_parameters"
     }
-    
+
     struct NotificationParameters: Decodable {
         var dynamic: Dynamic?
         var device: Device?
-        
+
         private enum CodingKeys: String, CodingKey {
-            case dynamic = "dynamic", device = "device"
+            case dynamic
+            case device
         }
     }
-    
+
     struct Dynamic: Decodable {
         var claimName: String?
         var channelUrl: String?
@@ -68,13 +83,19 @@ struct LbryNotification: Decodable {
         var comment: String?
         var parentId: String?
         var commentAuthor: String?
-        
+
         private enum CodingKeys: String, CodingKey {
-            case claimName = "claim_name", channelUrl = "channel_url", channelURI = "channelURI", claimTitle = "claim_title",
-                 hash = "hash", comment = "comment", parentId = "parent_id", commentAuthor = "comment_author"
+            case claimName = "claim_name"
+            case channelUrl = "channel_url"
+            case channelURI
+            case claimTitle = "claim_title"
+            case hash
+            case comment
+            case parentId = "parent_id"
+            case commentAuthor = "comment_author"
         }
     }
-    
+
     struct Device: Decodable {
         var name: String?
         var text: String?
@@ -83,9 +104,15 @@ struct LbryNotification: Decodable {
         var target: String?
         var imageUrl: String?
         var isDataOnly: Bool?
-        
+
         private enum CodingKeys: String, CodingKey {
-            case name = "name", text = "text", type = "type", title = "title", target = "target", imageUrl = "image_url", isDataOnly = "is_data_only"
+            case name
+            case text
+            case type
+            case title
+            case target
+            case imageUrl = "image_url"
+            case isDataOnly = "is_data_only"
         }
     }
 }

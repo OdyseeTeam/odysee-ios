@@ -14,18 +14,19 @@ struct Transaction: Decodable, Hashable {
     var timestamp: Int64?
     var txid: String?
     var value: String?
-    
+
     var abandonInfo: [TransactionInfo]?
     var claimInfo: [TransactionInfo]?
     var purchaseInfo: [TransactionInfo]?
     var supportInfo: [TransactionInfo]?
     var updateInfo: [TransactionInfo]?
-    
+
     var description: String {
         if let abandonInfo = abandonInfo {
             if abandonInfo.count > 0 {
                 if abandonInfo.count == 1 {
-                    return String.localized(abandonInfo[0].balanceDelta! == abandonInfo[0].amount! ? "Unlock" : "Abandon")
+                    return String
+                        .localized(abandonInfo[0].balanceDelta! == abandonInfo[0].amount! ? "Unlock" : "Abandon")
                 } else {
                     return String.localized("Unlock")
                 }
@@ -38,7 +39,8 @@ struct Transaction: Decodable, Hashable {
         }
         if let updateInfo = updateInfo {
             if updateInfo.count > 0 {
-                return String.localized(updateInfo[0].claimName!.starts(with: "@") ? "Channel Update" : "Publish Update")
+                return String
+                    .localized(updateInfo[0].claimName!.starts(with: "@") ? "Channel Update" : "Publish Update")
             }
         }
         if let supportInfo = supportInfo {
@@ -46,10 +48,11 @@ struct Transaction: Decodable, Hashable {
                 return String.localized(supportInfo[0].isTip! ? "Tip" : "Support")
             }
         }
-        
-        return String.localized(value!.starts(with: "-") || (fee != nil && fee!.starts(with: "-")) ? "Spend" : "Receive")
+
+        return String
+            .localized(value!.starts(with: "-") || (fee != nil && fee!.starts(with: "-")) ? "Spend" : "Receive")
     }
-    
+
     var claim: Claim? {
         if let claimInfo = claimInfo {
             if claimInfo.count > 0 {
@@ -59,7 +62,7 @@ struct Transaction: Decodable, Hashable {
                 return result
             }
         }
-        
+
         if let updateInfo = claimInfo {
             if updateInfo.count > 0 {
                 let result = Claim()
@@ -76,17 +79,26 @@ struct Transaction: Decodable, Hashable {
                 return result
             }
         }
-        
+
         return nil
     }
-    
+
     var actualValue: String? {
         return value
     }
-    
-    
+
     private enum CodingKeys: String, CodingKey {
-        case confirmations, date, fee, timestamp, txid, value, abandonInfo = "abandon_info", claimInfo = "claim_info", purchaseInfo = "purchase_info", supportInfo = "support_info", updateInfo = "update_info"
+        case confirmations
+        case date
+        case fee
+        case timestamp
+        case txid
+        case value
+        case abandonInfo = "abandon_info"
+        case claimInfo = "claim_info"
+        case purchaseInfo = "purchase_info"
+        case supportInfo = "support_info"
+        case updateInfo = "update_info"
     }
 
     struct TransactionInfo: Decodable {
@@ -97,16 +109,23 @@ struct Transaction: Decodable, Hashable {
         var claimName: String?
         var isTip: Bool?
         var nout: Int?
-        
+
         private enum CodingKeys: String, CodingKey {
-            case address, balanceDelta = "balance_delta", amount, claimId = "claim_id", claimName = "claim_name", isTip = "is_tip", nout = "nout"
+            case address
+            case balanceDelta = "balance_delta"
+            case amount
+            case claimId = "claim_id"
+            case claimName = "claim_name"
+            case isTip = "is_tip"
+            case nout
         }
     }
-    
+
     func hash(into hasher: inout Hasher) {
         txid?.hash(into: &hasher)
     }
-    static func ==(lhs: Transaction, rhs: Transaction) -> Bool {
+
+    static func == (lhs: Transaction, rhs: Transaction) -> Bool {
         return lhs.txid == rhs.txid
     }
 }

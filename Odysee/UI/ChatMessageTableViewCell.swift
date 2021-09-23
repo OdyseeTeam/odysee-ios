@@ -8,12 +8,11 @@
 import UIKit
 
 class ChatMessageTableViewCell: UITableViewCell {
+    @IBOutlet var nameLabel: UILabel!
+    @IBOutlet var messageLabel: UILabel!
 
-    @IBOutlet weak var nameLabel: UILabel!
-    @IBOutlet weak var messageLabel: UILabel!
-    
     var currentComment: Comment?
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -26,11 +25,11 @@ class ChatMessageTableViewCell: UITableViewCell {
     }
 
     func setComment(comment: Comment) {
-        if (currentComment != nil && comment.commentId != currentComment!.commentId) {
+        if currentComment != nil, comment.commentId != currentComment!.commentId {
             nameLabel.text = nil
             messageLabel.text = nil
         }
-     
+
         nameLabel.text = comment.channelName
         nameLabel.sizeToFit()
         messageLabel.text = comment.comment
