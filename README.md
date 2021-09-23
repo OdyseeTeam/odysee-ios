@@ -12,6 +12,11 @@ The app can be launched by opening **Odysee** from the app list on your device.
 ## Running from Source
 Clone the repository and open the project in XCode. Click the Build and run current scheme button to build the project and launch the app in one of the available simulators or a connected device.
 
+## Style and Formatting
+We use [`SwiftFormat`](https://github.com/nicklockwood/SwiftFormat) to enforce a consistent format for all Swift code. You can see our custom configuration in this repo’s `.swiftformat` file.
+
+`swiftformat . --lint` must pass before merging to `master`. To run it locally, first install it using [`Mint](https://github.com/yonaskolb/Mint) and `mint bootstrap --link`, and then run `swiftformat .` which will automatically format all of your Swift code. If any of your default Xcode text editing preferences are inconsistent with SwiftFormat, you can update those on your machine under Xcode > Preferences > Text Editing. You can also optionally install the SwiftFormat Xcode plugin and bind that to a custom key binding or to the file-save event.
+
 ## Contributing
 Contributions to this project are welcome, encouraged, and compensated. For more details, see https://lbry.com/faq/contributing
 
