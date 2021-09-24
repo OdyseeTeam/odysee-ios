@@ -23,15 +23,14 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         super.viewWillAppear(animated)
         self.view.isHidden = !Lbryio.isSignedIn()
     
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.notificationBadgeIcon.tintColor = Helper.primaryColor
-        appDelegate.mainController.notificationsViewActive = true
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.notificationBadgeIcon.tintColor = Helper.primaryColor
+        AppDelegate.shared.mainController.notificationsViewActive = true
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
         
         if (!Lbryio.isSignedIn()) {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
     
@@ -39,8 +38,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         super.viewDidAppear(animated)
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Notifications", AnalyticsParameterScreenClass: "NotificationsViewController"])
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
         
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
@@ -48,9 +46,8 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.notificationBadgeIcon.tintColor = UIColor.label
-        appDelegate.mainController.notificationsViewActive = false
+        AppDelegate.shared.mainController.notificationBadgeIcon.tintColor = UIColor.label
+        AppDelegate.shared.mainController.notificationsViewActive = false
     }
     
     override func viewDidLoad() {
@@ -80,8 +77,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         
         self.notifications = Lbryio.cachedNotifications
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.updateUnseenCount()
+            AppDelegate.shared.mainController.updateUnseenCount()
         }
             
         // send remote request
@@ -228,15 +224,13 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
     
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
     
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
     
@@ -261,8 +255,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         if notification.targetUrl != nil {
             markSingleNotificationRead(id: notification.id!)
             
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            if appDelegate.mainController.handleSpecialUrl(url: notification.targetUrl!) {
+            if AppDelegate.shared.mainController.handleSpecialUrl(url: notification.targetUrl!) {
                 self.navigationController?.popViewController(animated: true)
                 return
             }
@@ -272,12 +265,12 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                 if lbryUrl!.isChannelUrl() {
                     let vc = storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
                     let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
-                    appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+                    AppDelegate.shared.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
                 }
             }
         }

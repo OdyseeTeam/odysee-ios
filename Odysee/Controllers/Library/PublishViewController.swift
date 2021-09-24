@@ -52,16 +52,14 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "PublishForm", AnalyticsParameterScreenClass: "PublishViewController"])
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
         
         self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         self.navigationController?.interactivePopGestureRecognizer?.delegate = self
@@ -449,8 +447,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 self.showMessage(message: String.localized("Your video was successfully uploaded. It will be available in a few minutes."))
                 DispatchQueue.main.async {
                     self.navigationController?.popViewController(animated: true)
-                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                    appDelegate.mainTabViewController?.selectedIndex = 3
+                    AppDelegate.shared.mainTabViewController?.selectedIndex = 3
                 }
             })
         }
@@ -644,20 +641,17 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 

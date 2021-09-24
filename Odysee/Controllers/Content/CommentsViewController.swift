@@ -636,24 +636,20 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        AppDelegate.shared.mainController.showError(error: error)
     }
     
     func showError(message: String) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(message: message)
+        AppDelegate.shared.mainController.showError(message: message)
     }
     
     func showMessage(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showMessage(message: message)
+        AppDelegate.shared.mainController.showMessage(message: message)
     }
     
     func showUAView() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     struct CombinedReactionData {

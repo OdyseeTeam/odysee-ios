@@ -53,11 +53,10 @@ class HomeViewController: UIViewController,
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "Home", AnalyticsParameterScreenClass: "HomeViewController"])
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-        let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
+
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
+        let bottom = (AppDelegate.shared.mainTabViewController?.tabBar.frame.size.height)! + 2
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: bottom)
     }
     
     override func viewDidLoad() {
@@ -171,13 +170,12 @@ class HomeViewController: UIViewController,
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = claims[indexPath.row]
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
         
-        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        AppDelegate.shared.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

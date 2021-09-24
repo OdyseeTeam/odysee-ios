@@ -153,8 +153,7 @@ class InitViewController: UIViewController {
         }
         
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context = appDelegate.persistentContainer.newBackgroundContext()
+            let context = AppDelegate.shared.persistentContainer.newBackgroundContext()
             do {
                 try context.execute(asyncFetchRequest)
             } catch {

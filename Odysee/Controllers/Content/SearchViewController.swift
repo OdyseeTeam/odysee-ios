@@ -35,10 +35,8 @@ class SearchViewController: UIViewController,
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
         searchBar.becomeFirstResponder()
     }
     
@@ -190,8 +188,7 @@ class SearchViewController: UIViewController,
         if Lighthouse.containsFilteredKeyword(currentQuery!) {
             if let url = URL(string: String(format: "https://odysee.com/$/search?q=%@", currentQuery!)) {
                 let vc = SFSafariViewController(url: url)
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.present(vc, animated: true, completion: nil)
+                AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
             }
         }
     }
@@ -216,19 +213,17 @@ class SearchViewController: UIViewController,
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = claims[indexPath.row]
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if (claim.name!.starts(with: "@")) {
             // channel claim
             let vc = storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = claim
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         } else {
             // file claim
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = claim
-            appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+            AppDelegate.shared.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }
     

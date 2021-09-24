@@ -95,8 +95,7 @@ extension Result {
     func showErrorIfPresent() {
         assert(Thread.isMainThread)
         if case let .failure(error) = self {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 }

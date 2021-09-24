@@ -41,9 +41,8 @@ class UserAccountViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -253,8 +252,7 @@ class UserAccountViewController: UIViewController {
                     DispatchQueue.main.async {
                         Analytics.logEvent("email_verified", parameters: ["email": self.currentEmail!])
                         
-                        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                        appDelegate.mainController.checkUploadButton()
+                        AppDelegate.shared.mainController.checkUploadButton()
                         
                         // after email verification, finish with wallet sync
                         self.finishWithWalletSync()
@@ -268,15 +266,13 @@ class UserAccountViewController: UIViewController {
     
     func showErrorAlert(message: String) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showErrorAlert(message: message)
+            AppDelegate.shared.mainController.showErrorAlert(message: message)
         }
     }
     
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
     
@@ -490,7 +486,6 @@ class UserAccountViewController: UIViewController {
         
         finishWalletSyncStarted = true
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = self.storyboard?.instantiateViewController(identifier: "wallet_sync_vc") as! WalletSyncViewController
             vc.firstRunFlow = self.firstRunFlow
             vc.frDelegate = self.frDelegate
@@ -499,8 +494,8 @@ class UserAccountViewController: UIViewController {
                 self.frDelegate?.requestStarted()
                 self.frDelegate?.showViewController(vc)
             } else {
-                appDelegate.mainNavigationController?.popViewController(animated: false)
-                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
+                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
             }
         }
     }

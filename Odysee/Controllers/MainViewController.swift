@@ -50,24 +50,22 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         super.viewWillAppear(animated)
         checkAndShowFirstRun()
         checkUploadButton()
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.pendingOpenUrl != nil {
-            if handleSpecialUrl(url: appDelegate.pendingOpenUrl!) {
+        if AppDelegate.shared.pendingOpenUrl != nil {
+            if handleSpecialUrl(url: AppDelegate.shared.pendingOpenUrl!) {
                 return
             }
             
-            let lbryUrl = LbryUri.tryParse(url: appDelegate.pendingOpenUrl!, requireProto: false)
+            let lbryUrl = LbryUri.tryParse(url: AppDelegate.shared.pendingOpenUrl!, requireProto: false)
             if lbryUrl != nil {
                 if lbryUrl!.isChannelUrl() {
                     let vc = storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
                     let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
-                    appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+                    AppDelegate.shared.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
                 }
             }
         }
@@ -82,9 +80,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         } catch {
             // pass
         }
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainViewController = self
+        AppDelegate.shared.mainViewController = self
         
         notificationBadgeView.layer.cornerRadius = 6
         
@@ -139,19 +135,17 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     
     func checkAndShowFirstRun() {
         if !AppDelegate.hasCompletedFirstRun() {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = self.storyboard?.instantiateViewController(identifier: "fr_vc") as! FirstRunViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
     
     func checkAndShowYouTubeSync() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         guard !(Lbryio.Defaults.isYouTubeSyncDone) else {
             return
         }
         let vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     func stopAllTimers() {
@@ -173,9 +167,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         
         // clear the wallet address if it exists
         UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainNavigationController?.popToRootViewController(animated: false)
+        AppDelegate.shared.mainNavigationController?.popToRootViewController(animated: false)
         if let initvc = self.presentingViewController as? InitViewController {
             initvc.dismiss(animated: true, completion: {
                 initvc.runInit()
@@ -185,9 +177,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "main_nav" {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             self.mainNavigationController = segue.destination as? UINavigationController
-            appDelegate.mainNavigationController = self.mainNavigationController
+            AppDelegate.shared.mainNavigationController = self.mainNavigationController
         }
     }
     
@@ -203,17 +194,16 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     @IBAction func closeMiniPlayerTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if (appDelegate.player != nil) {
-            appDelegate.player?.pause()
-            appDelegate.player = nil
+        if (AppDelegate.shared.player != nil) {
+            AppDelegate.shared.player?.pause()
+            AppDelegate.shared.player = nil
             
-            appDelegate.resetPlayerObserver()
+            AppDelegate.shared.resetPlayerObserver()
         }
                                        
         miniPlayerTitleLabel.text = ""
         miniPlayerPublisherLabel.text = ""
-        appDelegate.currentClaim = nil
+        AppDelegate.shared.currentClaim = nil
         
         toggleMiniPlayer(hidden: true)
     }
@@ -223,35 +213,30 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         if (currentVc as? PublishViewController) != nil {
             return
         }
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func walletBalanceActionTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainTabViewController?.selectedIndex = 2
+        AppDelegate.shared.mainTabViewController?.selectedIndex = 2
         if notificationsViewActive {
-            appDelegate.mainNavigationController?.popViewController(animated: true)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
         }
     }
     
     @IBAction func searchActionTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "search_vc") as! SearchViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func notificationsActionTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if notificationsViewActive {
-            appDelegate.mainNavigationController?.popViewController(animated: true)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
             return
         }
         
         let vc = storyboard?.instantiateViewController(identifier: "notifications_vc") as! NotificationsViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func accountActionTapped(_ sender: Any) {
@@ -262,13 +247,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     @IBAction func openCurrentClaim(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if (appDelegate.currentClaim != nil) {
+        if (AppDelegate.shared.currentClaim != nil) {
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-            vc.claim = appDelegate.currentClaim
+            vc.claim = AppDelegate.shared.currentClaim
             
-            appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+            AppDelegate.shared.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }
     
@@ -368,13 +352,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     func updateMiniPlayer() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if (appDelegate.currentClaim != nil && appDelegate.player != nil) {
-            miniPlayerTitleLabel.text = appDelegate.currentClaim?.value?.title
-            miniPlayerPublisherLabel.text = appDelegate.currentClaim?.signingChannel?.value?.title
+        if (AppDelegate.shared.currentClaim != nil && AppDelegate.shared.player != nil) {
+            miniPlayerTitleLabel.text = AppDelegate.shared.currentClaim?.value?.title
+            miniPlayerPublisherLabel.text = AppDelegate.shared.currentClaim?.signingChannel?.value?.title
             
             let mediaViewLayer: CALayer = miniPlayerMediaView.layer
-            let playerLayer: AVPlayerLayer = AVPlayerLayer(player: appDelegate.player)
+            let playerLayer: AVPlayerLayer = AVPlayerLayer(player: AppDelegate.shared.player)
             playerLayer.frame = mediaViewLayer.bounds
             playerLayer.videoGravity = .resizeAspectFill
             let _ = mediaViewLayer.sublayers?.popLast()
@@ -510,15 +493,13 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                 OAuthSwift.handle(url: URL(string: url)!)
                 return true
             }
-            
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             if destination == "subscriptions" || destination == "subscription" || destination == "following" {
-                appDelegate.mainTabViewController?.selectedIndex = 1
+                AppDelegate.shared.mainTabViewController?.selectedIndex = 1
             } else if destination == "rewards" {
                 let vc = self.storyboard?.instantiateViewController(identifier: "rewards_vc") as! RewardsViewController
-                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
             } else if destination == "wallet" {
-                appDelegate.mainTabViewController?.selectedIndex = 2
+                AppDelegate.shared.mainTabViewController?.selectedIndex = 2
             }
             
             // TODO: invite | invites | discover | channels | library
@@ -562,9 +543,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     @IBAction func brandTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.mainTabViewController != nil && appDelegate.mainTabViewController?.selectedIndex != 0 {
-            appDelegate.mainTabViewController?.selectedIndex = 0
+        if AppDelegate.shared.mainTabViewController != nil && AppDelegate.shared.mainTabViewController?.selectedIndex != 0 {
+            AppDelegate.shared.mainTabViewController?.selectedIndex = 0
         }
     }
     

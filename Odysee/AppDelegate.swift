@@ -16,6 +16,10 @@ import CoreData
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, UITabBarControllerDelegate {
 
     static let keyLastTabIndex = "lastTabIndex"
+
+    static var shared: AppDelegate {
+        return UIApplication.shared.delegate as! AppDelegate
+    }
     
     weak var mainViewController: UIViewController?
     weak var mainTabViewController: UITabBarController?

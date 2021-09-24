@@ -143,7 +143,6 @@ class ClaimTableViewCell: UITableViewCell {
     @objc func publisherTapped(_ sender: Any) {
         if currentClaim!.signingChannel != nil {
             let channelClaim = currentClaim!.signingChannel!
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             
             let currentVc = UIApplication.currentViewController()
             if let channelVc = currentVc as? ChannelViewController {
@@ -153,9 +152,9 @@ class ClaimTableViewCell: UITableViewCell {
                 }
             }
             
-            let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+            let vc = AppDelegate.shared.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 }

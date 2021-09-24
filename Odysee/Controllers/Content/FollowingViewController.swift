@@ -56,22 +56,20 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.addWalletSyncObserver(key: keySyncObserver, observer: self)
+        AppDelegate.shared.mainController.addWalletSyncObserver(key: keySyncObserver, observer: self)
         self.view.isHidden = !Lbryio.isSignedIn()
         
         // check if current user is signed in
         if (!Lbryio.isSignedIn()) {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.removeWalletSyncObserver(key: keySyncObserver)
+        AppDelegate.shared.mainController.removeWalletSyncObserver(key: keySyncObserver)
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -84,11 +82,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             } else {
                 loadRemoteSubscriptions()
             }
-            
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-            let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
-            appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
+            AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
+            let bottom = (AppDelegate.shared.mainTabViewController?.tabBar.frame.size.height)! + 2
+            AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: bottom)
         }
     }
     
@@ -161,8 +157,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
         
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context = appDelegate.persistentContainer.newBackgroundContext()
+            let context = AppDelegate.shared.persistentContainer.newBackgroundContext()
             do {
                 try context.execute(asyncFetchRequest)
             } catch let error {
@@ -352,13 +347,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = claims[indexPath.row]
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
         
-        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        AppDelegate.shared.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -494,8 +487,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
         // persist the subscription to CoreData
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext! = AppDelegate.shared.persistentContainer.viewContext
             context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
             
             let subToSave = Subscription(context: context)
@@ -507,7 +499,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 self.subscriptions.append(subToSave)
             }
             
-            appDelegate.saveContext()
+            AppDelegate.shared.saveContext()
         }
         
         // TODO: wallet sync
@@ -519,8 +511,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func removeSubscription(url: String, channelName: String) {
         // remove the subscription from CoreData
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext! = AppDelegate.shared.persistentContainer.viewContext
             let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "url == %@", url)
             let subs = try! context.fetch(fetchRequest)
@@ -665,11 +656,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
     
     func syncCompleted() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Subscription")
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         do {
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext! = AppDelegate.shared.persistentContainer.viewContext
             try context.execute(deleteRequest)
         } catch {
             // pass

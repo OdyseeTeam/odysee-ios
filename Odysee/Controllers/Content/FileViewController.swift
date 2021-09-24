@@ -106,7 +106,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet weak var webView: WKWebView!
     @IBOutlet weak var dismissFileView: UIView!
 
-    let avpc = AVPlayerViewController()
+    let avPlayerVc = AVPlayerViewController()
     weak var commentsVc: CommentsViewController!
     
     var commentsDisabledChecked = false
@@ -148,7 +148,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var isTextContent = false
     var isImageContent = false
     var isOtherContent = false
-    var avpcInitialised = false
+    var avPlayerVcInitialised = false
     
     var loadingChannels = false
     var postingChat = false
@@ -163,11 +163,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.toggleMiniPlayer(hidden: true)
-        appDelegate.currentFileViewController = self
+
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
+        AppDelegate.shared.currentFileViewController = self
         
         if claim != nil && !isPlaylist {
             checkFollowing(claim!)
@@ -181,10 +180,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             if (claim!.name!.starts(with: "@")) {
                 // reposted channel, simply dismiss the view and show a channel view controller instead
                 self.navigationController?.popViewController(animated: false)
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                let vc = AppDelegate.shared.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                 vc.channelClaim = claim
-                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
 
                 return
             }
@@ -206,13 +204,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         
-        appDelegate.currentClaim = isTextContent || isImageContent || isOtherContent ? nil : claim
-        appDelegate.mainController.updateMiniPlayer()
+        AppDelegate.shared.currentClaim = isTextContent || isImageContent || isOtherContent ? nil : claim
+        AppDelegate.shared.mainController.updateMiniPlayer()
         
-        if (appDelegate.player != nil) {
-            appDelegate.mainController.toggleMiniPlayer(hidden: false)
+        if (AppDelegate.shared.player != nil) {
+            AppDelegate.shared.mainController.toggleMiniPlayer(hidden: false)
         }
     }
     
@@ -492,16 +489,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 contentInfoDescription.attributedText = messageString
                 otherContentWebUrl = url.odyseeString
             }
-        } else if !avpcInitialised {
-            avpc.allowsPictureInPicturePlayback = true
-            avpc.updatesNowPlayingInfoCenter = false
-            addChild(avpc)
+        } else if !avPlayerVcInitialised {
+            avPlayerVc.allowsPictureInPicturePlayback = true
+            avPlayerVc.updatesNowPlayingInfoCenter = false
+            addChild(avPlayerVc)
             
-            avpc.view.frame = mediaView.bounds
-            mediaView.addSubview(avpc.view)
-            avpc.didMove(toParent: self)
+            avPlayerVc.view.frame = mediaView.bounds
+            mediaView.addSubview(avPlayerVc.view)
+            avPlayerVc.didMove(toParent: self)
             
-            avpcInitialised = true
+            avPlayerVcInitialised = true
         }
         
         if let publisher = claim?.signingChannel {
@@ -574,8 +571,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBAction func contentInfoTapped(_ sender: Any) {
         if let url = URL(string: otherContentWebUrl ?? "") {
             let vc = SFSafariViewController(url: url)
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
         }
     }
     
@@ -695,30 +691,28 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         assert(Thread.isMainThread)
         
         livestreamOfflinePlaceholder.isHidden = true
-        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        avpc.delegate = appDelegate.mainController
-        if (!forceInit && appDelegate.player != nil && appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == singleClaim.claimId) {
-            avpc.player = appDelegate.lazyPlayer
+        avPlayerVc.delegate = AppDelegate.shared.mainController
+        if (!forceInit && AppDelegate.shared.player != nil && AppDelegate.shared.currentClaim != nil && AppDelegate.shared.currentClaim?.claimId == singleClaim.claimId) {
+            avPlayerVc.player = AppDelegate.shared.lazyPlayer
             playerConnected = true
             return
         }
         
-        appDelegate.currentClaim = singleClaim
-        appDelegate.player?.pause()
+        AppDelegate.shared.currentClaim = singleClaim
+        AppDelegate.shared.player?.pause()
         
-        appDelegate.playerObserverAdded = false
+        AppDelegate.shared.playerObserverAdded = false
         
         let asset = AVURLAsset(url: sourceUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let playerItem = AVPlayerItem(asset: asset)
-        appDelegate.player = AVPlayer(playerItem: playerItem)
+        AppDelegate.shared.player = AVPlayer(playerItem: playerItem)
 
-        appDelegate.registerPlayerObserver()
-        avpc.player = appDelegate.lazyPlayer
+        AppDelegate.shared.registerPlayerObserver()
+        avPlayerVc.player = AppDelegate.shared.lazyPlayer
         playerConnected = true
         playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
         
-        avpc.player!.play()
+        avPlayerVc.player!.play()
     }
     
     func displayRelatedPlaceholders() {
@@ -755,14 +749,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     func disconnectPlayer() {
-        avpc.player = nil
+        avPlayerVc.player = nil
         playerConnected = false
     }
     
     func connectPlayer() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.player != nil {
-            avpc.player = appDelegate.lazyPlayer
+        if AppDelegate.shared.player != nil {
+            avPlayerVc.player = AppDelegate.shared.lazyPlayer
         }
         playerConnected = true
     }
@@ -1110,9 +1103,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if object as AnyObject? === appDelegate.player {
-            if keyPath == "timeControlStatus" && appDelegate.player!.timeControlStatus == .playing {
+        if object as AnyObject? === AppDelegate.shared.player {
+            if keyPath == "timeControlStatus" && AppDelegate.shared.player!.timeControlStatus == .playing {
                 checkTimeToStart()
                 return
             }
@@ -1170,15 +1162,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 loadPlaylistItemClaim(claim)
                 return
             }
-            
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = claim
             
             // dismiss the current file view before displaying the new one
-            appDelegate.mainNavigationController?.popViewController(animated: false)
-            appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
+            AppDelegate.shared.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
         }
         
         if tableView == chatListView {
@@ -1200,8 +1190,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     @IBAction func reloadTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let player = appDelegate.player {
+        if let player = AppDelegate.shared.player {
             if player.rate != 0 && player.error == nil {
                 return
             }
@@ -1263,17 +1252,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBAction func publisherTapped(_ sender: Any) {
         let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let vc = appDelegate.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+            let vc = AppDelegate.shared.mainController.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
     
     func showUAView() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func followUnfollowTapped(_ sender: Any) {
@@ -1411,8 +1398,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
         // persist the subscription to CoreData
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext! = AppDelegate.shared.persistentContainer.viewContext
             context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
             
             let subToSave = Subscription(context: context)
@@ -1420,15 +1406,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             subToSave.channelName = channelName
             subToSave.isNotificationsDisabled = isNotificationsDisabled
             
-            appDelegate.saveContext()
+            AppDelegate.shared.saveContext()
         }
     }
     
     func removeSubscription(url: String, channelName: String) {
         // remove the subscription from CoreData
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext! = AppDelegate.shared.persistentContainer.viewContext
             let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "url == %@", url)
             let subs = try! context.fetch(fetchRequest)
@@ -1445,28 +1430,24 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
     
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        AppDelegate.shared.mainController.showError(error: error)
     }
     
     func showError(message: String) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(message: message)
+        AppDelegate.shared.mainController.showError(message: message)
     }
     
     func showMessage(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showMessage(message: message)
+        AppDelegate.shared.mainController.showMessage(message: message)
     }
     
     @IBAction func dismissFileViewTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let transition = CATransition()
         transition.duration = 0.2
         transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         transition.type = .push
         transition.subtype = .fromBottom
-        appDelegate.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
+        AppDelegate.shared.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
         self.navigationController?.popViewController(animated: false)
     }
     
@@ -1537,8 +1518,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBAction func reportActionTapped(_ sender: Any) {
         if let url = URL(string: String(format: "https://lbry.com/dmca/%@", claim!.claimId!)) {
             let vc = SFSafariViewController(url: url)
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
         }
     }
     

@@ -34,8 +34,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
     }
     
     override func viewDidLoad() {
@@ -131,8 +130,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         if currentStep == FirstRunViewController.stepUserAccount || currentStep == FirstRunViewController.stepRewardVerification {
             // user skipped sign in, so skip all other steps (or we're at the final step)
             AppDelegate.completeFirstRun()
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainNavigationController?.popViewController(animated: true)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
             return
         }
         
@@ -154,8 +152,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         } else if currentStep == FirstRunViewController.stepRewardVerification {
             // final step. Finish first run
             AppDelegate.completeFirstRun()
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainNavigationController?.popViewController(animated: true)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
         }
     }
     
@@ -278,20 +275,17 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 }

@@ -55,20 +55,19 @@ class TransactionTableViewCell: UITableViewCell {
     
     @objc func claimInfoTapped(_ sender: Any) {
         if tx != nil && tx!.claim != nil {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let claim = tx!.claim!
             let url = LbryUri.tryParse(url: String(format: "%@#%@", claim.name!, claim.claimId!), requireProto: false)
             if url != nil {
                 if claim.name!.starts(with: "@") {
-                    let vc = appDelegate.mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = url
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
                     // file claim
-                    let vc = appDelegate.mainViewController?.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = url
-                    appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+                    AppDelegate.shared.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
                 }
             }
         }
@@ -78,8 +77,7 @@ class TransactionTableViewCell: UITableViewCell {
         if tx != nil {
             if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, tx!.txid!)) {
                 let vc = SFSafariViewController(url: url)
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.present(vc, animated: true, completion: nil)
+                AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
             }
         }
     }

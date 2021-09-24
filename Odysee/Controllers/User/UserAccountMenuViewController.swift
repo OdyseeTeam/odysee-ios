@@ -52,38 +52,33 @@ class UserAccountMenuViewController: UIViewController {
     }
     
     @IBAction func signUpLoginTapped(_ sender: UIButton) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = self.storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
     
     @IBAction func goLiveTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = self.storyboard?.instantiateViewController(identifier: "go_live_vc") as! GoLiveViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
     
     @IBAction func channelsTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = self.storyboard?.instantiateViewController(identifier: "channel_manager_vc") as! ChannelManagerViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
     
     @IBAction func rewardsTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = self.storyboard?.instantiateViewController(identifier: "rewards_vc") as! RewardsViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
     
     @IBAction func signOutTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         presentingViewController?.dismiss(animated: false, completion: nil)
-        appDelegate.mainController.stopAllTimers()
-        appDelegate.mainController.resetUserAndViews()
+        AppDelegate.shared.mainController.stopAllTimers()
+        AppDelegate.shared.mainController.resetUserAndViews()
         
         let initVc = storyboard?.instantiateViewController(identifier: "init_vc") as! InitViewController
         let window = self.view.window!
@@ -93,15 +88,13 @@ class UserAccountMenuViewController: UIViewController {
     }
     
     @IBAction func youTubeSyncTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        
         var vc: UIViewController!
         if Lbryio.Defaults.isYouTubeSyncConnected {
             vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_status_vc") as! YouTubeSyncStatusViewController
         } else {
             vc = self.storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
         }
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
     
@@ -111,9 +104,8 @@ class UserAccountMenuViewController: UIViewController {
         // https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c
         if let url = URL(string: "https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c") {
             let vc = SFSafariViewController(url: url)
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             presentingViewController?.dismiss(animated: false, completion: nil)
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
         }
     }
     
@@ -121,9 +113,8 @@ class UserAccountMenuViewController: UIViewController {
         // https://odysee.com/@OdyseeHelp:b?view=about
         if let url = URL(string: "https://odysee.com/@OdyseeHelp:b?view=about") {
             let vc = SFSafariViewController(url: url)
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             presentingViewController?.dismiss(animated: false, completion: nil)
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
         }
     }
 

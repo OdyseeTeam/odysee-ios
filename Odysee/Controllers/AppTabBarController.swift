@@ -13,9 +13,8 @@ class AppTabBarController: UITabBarController {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainTabViewController = self
-        self.delegate = appDelegate
+        AppDelegate.shared.mainTabViewController = self
+        self.delegate = AppDelegate.shared
         
         let defaults = UserDefaults.standard
         if let lastIndex = defaults.value(forKey: AppDelegate.keyLastTabIndex) as? Int {

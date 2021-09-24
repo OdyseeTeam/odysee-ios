@@ -44,14 +44,13 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.addWalletObserver(key: keyBalanceObserver, observer: self)
+        AppDelegate.shared.mainController.addWalletObserver(key: keyBalanceObserver, observer: self)
         self.view.isHidden = !Lbryio.isSignedIn()
         
         if (!Lbryio.isSignedIn()) {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
     
@@ -67,16 +66,14 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
         
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-        let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
+        let bottom = (AppDelegate.shared.mainTabViewController?.tabBar.frame.size.height)! + 2
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: bottom)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.removeWalletObserver(key: keyBalanceObserver)
+        AppDelegate.shared.mainController.removeWalletObserver(key: keyBalanceObserver)
     }
     
     override func viewDidLoad() {
@@ -150,9 +147,8 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
     
     @IBAction func viewAllTapped(_ sender: UIButton) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "transactions_vc") as! TransactionsViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
     
     @IBAction func boostingMoreTapped(_ sender: Any) {
@@ -312,20 +308,17 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
     

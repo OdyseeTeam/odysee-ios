@@ -43,28 +43,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.currentFileViewController != nil {
-            appDelegate.currentFileViewController?.connectPlayer()
+        if AppDelegate.shared.currentFileViewController != nil {
+            AppDelegate.shared.currentFileViewController?.connectPlayer()
         }
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.currentFileViewController != nil && appDelegate.player != nil {
-            appDelegate.currentFileViewController?.disconnectPlayer()
-            appDelegate.setupRemoteTransportControls()
+        if AppDelegate.shared.currentFileViewController != nil && AppDelegate.shared.player != nil {
+            AppDelegate.shared.currentFileViewController?.disconnectPlayer()
+            AppDelegate.shared.setupRemoteTransportControls()
         }
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
         // Use this method to undo the changes made on entering the background.        
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.currentFileViewController != nil {
-            appDelegate.currentFileViewController?.connectPlayer()
+        if AppDelegate.shared.currentFileViewController != nil {
+            AppDelegate.shared.currentFileViewController?.connectPlayer()
         }
     }
 
@@ -78,26 +75,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func handleLaunchUrl(url: URL) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if (appDelegate.mainViewController != nil && appDelegate.mainNavigationController != nil) {
-            if appDelegate.mainController.handleSpecialUrl(url: url.absoluteString) {
+        if (AppDelegate.shared.mainViewController != nil && AppDelegate.shared.mainNavigationController != nil) {
+            if AppDelegate.shared.mainController.handleSpecialUrl(url: url.absoluteString) {
                 return
             }
             
             let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false)
             if lbryUrl != nil {
                 if lbryUrl!.isChannelUrl() {
-                    let vc = appDelegate.mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
-                    let vc = appDelegate.mainViewController?.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 }
             }
         } else {
-            appDelegate.pendingOpenUrl = url.absoluteString
+            AppDelegate.shared.pendingOpenUrl = url.absoluteString
         }
     }
 
