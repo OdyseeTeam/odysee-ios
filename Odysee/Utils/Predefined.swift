@@ -34,19 +34,37 @@ struct Predefined {
         Language(code: "ro", name: "Romanian"),
         Language(code: "hi", name: "Hindi"),
         Language(code: "el", name: "Greek"),
-        Language(code: "ca", name: "Catalan")
+        Language(code: "ca", name: "Catalan"),
     ]
-    
+
     static let licenses: [License] = [
         License(name: "None", url: nil),
         License(name: "Public domain", url: nil),
-        License(name: "Creative Commons Attribution 4.0 International", url: "https://creativecommons.org/licenses/by/4.0/legalcode"),
-        License(name: "Creative Commons Attribution-ShareAlike 4.0 International", url: "https://creativecommons.org/licenses/by-sa/4.0/legalcode"),
-        License(name: "Creative Commons Attribution-NoDerivatives 4.0 International", url: "https://creativecommons.org/licenses/by-nd/4.0/legalcode"),
-        License(name: "Creative Commons Attribution-NonCommercial 4.0 International", url: "https://creativecommons.org/licenses/by-nc/4.0/legalcode"),
-        License(name: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International", url: "https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode"),
-        License(name: "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International", url: "https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode"),
+        License(
+            name: "Creative Commons Attribution 4.0 International",
+            url: "https://creativecommons.org/licenses/by/4.0/legalcode"
+        ),
+        License(
+            name: "Creative Commons Attribution-ShareAlike 4.0 International",
+            url: "https://creativecommons.org/licenses/by-sa/4.0/legalcode"
+        ),
+        License(
+            name: "Creative Commons Attribution-NoDerivatives 4.0 International",
+            url: "https://creativecommons.org/licenses/by-nd/4.0/legalcode"
+        ),
+        License(
+            name: "Creative Commons Attribution-NonCommercial 4.0 International",
+            url: "https://creativecommons.org/licenses/by-nc/4.0/legalcode"
+        ),
+        License(
+            name: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International",
+            url: "https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode"
+        ),
+        License(
+            name: "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International",
+            url: "https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode"
+        ),
         License(name: "Copyrighted", url: nil),
-        License(name: "Other", url: nil)
+        License(name: "Other", url: nil),
     ]
 }

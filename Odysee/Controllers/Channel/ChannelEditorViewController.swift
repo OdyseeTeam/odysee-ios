@@ -8,84 +8,101 @@
 import Firebase
 import UIKit
 
-class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizerDelegate,
+    UIImagePickerControllerDelegate, UINavigationControllerDelegate
+{
+    @IBOutlet var coverImageView: UIImageView!
+    @IBOutlet var thumbnailImageView: UIImageView!
+    @IBOutlet var coverEditContainer: UIView!
+    @IBOutlet var thumbnailEditContainer: UIView!
 
-    @IBOutlet weak var coverImageView: UIImageView!
-    @IBOutlet weak var thumbnailImageView: UIImageView!
-    @IBOutlet weak var coverEditContainer: UIView!
-    @IBOutlet weak var thumbnailEditContainer: UIView!
-    
-    @IBOutlet weak var titleField: UITextField!
-    @IBOutlet weak var nameField: UITextField!
-    @IBOutlet weak var depositField: UITextField!
-    @IBOutlet weak var descriptionField: UITextView!
-    @IBOutlet weak var websiteField: UITextField!
-    @IBOutlet weak var emailField: UITextField!
-    
-    @IBOutlet weak var scrollView: UIScrollView!
-    @IBOutlet weak var optionalFieldsContainer: UIView!
-    @IBOutlet weak var toggleOptionalFieldsButton: UIButton!
-    
-    @IBOutlet weak var cancelButton: UIButton!
-    @IBOutlet weak var saveButton: UIButton!
-    @IBOutlet weak var savingIndicator: UIActivityIndicatorView!
-    @IBOutlet weak var uploadingIndicator: UIView!
-    
-    var currentClaim: Claim? = nil
+    @IBOutlet var titleField: UITextField!
+    @IBOutlet var nameField: UITextField!
+    @IBOutlet var depositField: UITextField!
+    @IBOutlet var descriptionField: UITextView!
+    @IBOutlet var websiteField: UITextField!
+    @IBOutlet var emailField: UITextField!
+
+    @IBOutlet var scrollView: UIScrollView!
+    @IBOutlet var optionalFieldsContainer: UIView!
+    @IBOutlet var toggleOptionalFieldsButton: UIButton!
+
+    @IBOutlet var cancelButton: UIButton!
+    @IBOutlet var saveButton: UIButton!
+    @IBOutlet var savingIndicator: UIActivityIndicatorView!
+    @IBOutlet var uploadingIndicator: UIView!
+
+    var currentClaim: Claim?
     var saveInProgress = false
     var nameFieldManualUpdate = false
     var selectingCover = false
     var selectingThumbnail = false
     var imageUploadInProgress = false
-    var currentCoverUrl: String? = nil
-    var currentThumbnailUrl: String? = nil
+    var currentCoverUrl: String?
+    var currentThumbnailUrl: String?
     var commentsVc: CommentsViewController!
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
         appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        Analytics.logEvent(AnalyticsEventScreenView, parameters: [AnalyticsParameterScreenName: "ChannelForm", AnalyticsParameterScreenClass: "ChannelEditorViewController"])
-        
-        self.navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        self.navigationController?.interactivePopGestureRecognizer?.delegate = self
+        Analytics.logEvent(
+            AnalyticsEventScreenView,
+            parameters: [
+                AnalyticsParameterScreenName: "ChannelForm",
+                AnalyticsParameterScreenClass: "ChannelEditorViewController",
+            ]
+        )
+
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         // Do any additional setup after loading the view.
         registerForKeyboardNotifications()
         thumbnailImageView.rounded()
         coverEditContainer.layer.cornerRadius = 18
         thumbnailEditContainer.layer.cornerRadius = 18
-        
+
         descriptionField.layer.borderColor = UIColor.systemGray5.cgColor
         descriptionField.layer.borderWidth = 1
         descriptionField.layer.cornerRadius = 4
-        
+
         depositField.text = Helper.minimumDepositString
         populateFieldsForEdit()
     }
-    
+
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }
-    
+
     func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(self.keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
     }
-    
+
     @objc func keyboardWillShow(notification: NSNotification) {
         let info = notification.userInfo
         let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        let contentInsets = UIEdgeInsets.init(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+        let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
         scrollView.contentInset = contentInsets
         scrollView.scrollIndicatorInsets = contentInsets
     }
@@ -95,12 +112,12 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         scrollView.contentInset = contentInsets
         scrollView.scrollIndicatorInsets = contentInsets
     }
-    
+
     func populateFieldsForEdit() {
         if currentClaim == nil {
             return
         }
-        
+
         nameField.isEnabled = false
         nameField.text = currentClaim?.name
         titleField.text = currentClaim?.value!.title ?? ""
@@ -109,50 +126,55 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         descriptionField.text = currentClaim?.value!.description ?? ""
         websiteField.text = currentClaim?.value!.websiteUrl ?? ""
         emailField.text = currentClaim?.value!.email ?? ""
-    
-        if currentClaim?.value!.cover != nil && !(currentClaim?.value!.cover!.url ?? "").isBlank {
+
+        if currentClaim?.value!.cover != nil, !(currentClaim?.value!.cover!.url ?? "").isBlank {
             let coverUrl = currentClaim!.value!.cover!.url!
             coverImageView.load(url: URL(string: coverUrl)!)
         }
-        if currentClaim?.value!.thumbnail != nil && !(currentClaim?.value!.thumbnail!.url ?? "").isBlank {
+        if currentClaim?.value!.thumbnail != nil, !(currentClaim?.value!.thumbnail!.url ?? "").isBlank {
             let thumbnailUrl = currentClaim!.value!.thumbnail!.url!
             thumbnailImageView.backgroundColor = UIColor.clear
             thumbnailImageView.load(url: URL(string: thumbnailUrl)!)
         }
     }
-    
+
     @IBAction func titleChanged(_ sender: UITextField) {
         let editMode = currentClaim != nil
-        if !nameFieldManualUpdate && !editMode {
+        if !nameFieldManualUpdate, !editMode {
             let title = titleField.text!
-            nameField.text = String(format: "@%@", title.replacingOccurrences(of: LbryUri.regexInvalidUri.pattern, with: "", options: .regularExpression)).lowercased()
+            nameField.text = String(
+                format: "@%@",
+                title.replacingOccurrences(of: LbryUri.regexInvalidUri.pattern, with: "", options: .regularExpression)
+            ).lowercased()
         }
     }
-    
+
     @IBAction func nameChanged(_ sender: UITextField) {
         nameFieldManualUpdate = true
     }
-    
+
     @IBAction func saveTapped(_ sender: UIButton) {
         if saveInProgress {
             return
         }
-        
+
         if imageUploadInProgress {
             showError(message: String.localized("Please wait for the pending image upload to finish"))
             return
         }
-        
+
         var name = nameField.text
         let deposit = Decimal(string: depositField.text!)
         let editMode = currentClaim != nil
-        
+
         if name != nil && !name!.starts(with: "@") {
             name = String(format: "@%@", name!)
         }
-        
+
         // Why are Swift substrings so complicated?! name[1:] / name.substring(1), maybe?
-        if name == nil || !LbryUri.isNameValid(String(name!.suffix(from: name!.index(name!.firstIndex(of: "@")!, offsetBy: 1)))) {
+        if name == nil || !LbryUri
+            .isNameValid(String(name!.suffix(from: name!.index(name!.firstIndex(of: "@")!, offsetBy: 1))))
+        {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
@@ -160,14 +182,16 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             showError(message: String.localized("A channel with the specified name already exists"))
             return
         }
-        
+
         if deposit == nil {
             showError(message: String.localized("Please enter a valid deposit amount"))
             return
         }
         if deposit! < Helper.minimumDeposit {
-            showError(message: String(format: String.localized("The minimum allowed deposit amount is %@"),
-                                      Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber)!))
+            showError(message: String(
+                format: String.localized("The minimum allowed deposit amount is %@"),
+                Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber)!
+            ))
             return
         }
         let prevDeposit: Decimal? = currentClaim != nil ? Decimal(string: currentClaim!.amount!) : 0
@@ -175,18 +199,17 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             showError(message: "Deposit cannot be higher than your wallet balance")
             return
         }
-        
-        
-        var options: Dictionary<String, Any> = [:]
+
+        var options: [String: Any] = [:]
         if !editMode {
             options["name"] = name
         } else {
             options["claim_id"] = currentClaim?.claimId
         }
-        
+
         options["bid"] = Helper.sdkAmountFormatter.string(from: deposit! as NSDecimalNumber)!
         options["blocking"] = true
-        
+
         if !(currentCoverUrl ?? "").isBlank {
             options["cover_url"] = currentCoverUrl!
         }
@@ -205,51 +228,67 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         if !(emailField.text ?? "").isBlank {
             options["email"] = emailField.text
         }
-        
+
         saveInProgress = true
         savingIndicator.isHidden = false
         toggleOptionalFieldsButton.isHidden = true
         checkControlStates()
         let method = editMode ? Lbry.methodChannelUpdate : Lbry.methodChannelCreate
-        Lbry.apiCall(method: method, params: options, connectionString: Lbry.lbrytvConnectionString, authToken: Lbryio.authToken, completion: { data, error in
-            guard let data = data, error == nil else {
-                self.showError(error: error)
+        Lbry.apiCall(
+            method: method,
+            params: options,
+            connectionString: Lbry.lbrytvConnectionString,
+            authToken: Lbryio.authToken,
+            completion: { data, error in
+                guard let data = data, error == nil else {
+                    self.showError(error: error)
+                    self.saveInProgress = false
+                    self.checkControlStates()
+                    return
+                }
+
                 self.saveInProgress = false
-                self.checkControlStates()
-                return
-            }
-            
-            self.saveInProgress = false
-            let result = data["result"] as? [String: Any]
-            let outputs = result?["outputs"] as? [[String: Any]]
-            if (outputs != nil) {
-                outputs?.forEach{ item in
-                    let data = try! JSONSerialization.data(withJSONObject: item, options: [.prettyPrinted, .sortedKeys])
-                    do {
-                        let claimResult: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                        if (claimResult != nil && !editMode) {
-                            Lbryio.logPublishEvent(claimResult!)
+                let result = data["result"] as? [String: Any]
+                let outputs = result?["outputs"] as? [[String: Any]]
+                if outputs != nil {
+                    outputs?.forEach { item in
+                        let data = try! JSONSerialization.data(
+                            withJSONObject: item,
+                            options: [.prettyPrinted, .sortedKeys]
+                        )
+                        do {
+                            let claimResult: Claim? = try JSONDecoder().decode(Claim.self, from: data)
+                            if claimResult != nil && !editMode {
+                                Lbryio.logPublishEvent(claimResult!)
+                            }
+                        } catch {
+                            print(error)
                         }
-                    } catch let error {
-                        print(error)
                     }
-                }
-                
-                DispatchQueue.main.async {
-                    self.showMessage(message: String.localized(editMode ? "The channel was successfully updated" : "The channel was successfully created"))
-                    if let vc = self.commentsVc {
-                        vc.loadChannels()
+
+                    DispatchQueue.main.async {
+                        self
+                            .showMessage(
+                                message: String
+                                    .localized(
+                                        editMode ? "The channel was successfully updated" :
+                                            "The channel was successfully created"
+                                    )
+                            )
+                        if let vc = self.commentsVc {
+                            vc.loadChannels()
+                        }
+                        self.navigationController?.popViewController(animated: true)
                     }
-                    self.navigationController?.popViewController(animated: true)
+                    return
                 }
-                return
+
+                self.showError(message: String.localized("An unknown error occurred. Please try again."))
+                self.checkControlStates()
             }
-            
-            self.showError(message: String.localized("An unknown error occurred. Please try again."))
-            self.checkControlStates()
-        })
+        )
     }
-        
+
     func checkControlStates() {
         DispatchQueue.main.async {
             if self.saveInProgress {
@@ -265,36 +304,36 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             }
         }
     }
-    
+
     @IBAction func backTapped(_ sender: Any) {
         if saveInProgress {
             return
         }
-        self.navigationController?.popViewController(animated: true)
+        navigationController?.popViewController(animated: true)
     }
-    
+
     @IBAction func coverImageTapped(_ sender: Any) {
         if imageUploadInProgress {
             showError(message: "Please wait for the pending image upload to finish")
             return
         }
-        
+
         selectingCover = true
         selectingThumbnail = false
         showImagePicker()
     }
-    
+
     @IBAction func thumbnailImageTapped(_ sender: Any) {
         if imageUploadInProgress {
             showError(message: "Please wait for the pending image upload to finish")
             return
         }
-        
+
         selectingCover = false
         selectingThumbnail = true
         showImagePicker()
     }
-    
+
     @IBAction func toggleOptionalFieldsTapped(_ sender: Any) {
         if optionalFieldsContainer.isHidden {
             optionalFieldsContainer.isHidden = false
@@ -304,7 +343,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             toggleOptionalFieldsButton.setTitle(String.localized("Show optional fields"), for: .normal)
         }
     }
-    
+
     func showImagePicker() {
         let pc = UIImagePickerController()
         pc.delegate = self
@@ -314,30 +353,33 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         pc.modalPresentationStyle = .overCurrentContext
         present(pc, animated: true)
     }
-    
+
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         selectingCover = false
         selectingThumbnail = false
         picker.dismiss(animated: true, completion: nil)
     }
-    
-    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+
+    func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+    ) {
         picker.dismiss(animated: true, completion: nil)
-        
+
         // update the corresponding imageview
         guard let image = info[.editedImage] as? UIImage else {
             selectingCover = false
             selectingThumbnail = false
             return
         }
-        
+
         if selectingCover {
             coverImageView.image = image
         } else if selectingThumbnail {
             thumbnailImageView.image = image
             thumbnailImageView.backgroundColor = UIColor.clear
         }
-        
+
         // TODO: Upload the image data
         imageUploadInProgress = true
         uploadingIndicator.isHidden = false
@@ -350,55 +392,56 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
                 self.showError(error: error)
                 return
             }
-            
+
             self.imageUploadInProgress = false
             DispatchQueue.main.async {
                 self.uploadingIndicator.isHidden = true
             }
-            
+
             if self.selectingCover {
                 self.currentCoverUrl = imageUrl
             } else if self.selectingThumbnail {
                 self.currentThumbnailUrl = imageUrl
             }
-            
+
             self.selectingCover = false
             self.selectingThumbnail = false
         })
     }
-    
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
     }
-    
+
     func showMessage(message: String?) {
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.showMessage(message: message)
         }
     }
+
     func showError(message: String?) {
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.showError(message: message)
         }
     }
+
     func showError(error: Error?) {
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.showError(error: error)
         }
     }
-    
+
     /*
-    // MARK: - Navigation
+     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+         // Get the new view controller using segue.destination.
+         // Pass the selected object to the new view controller.
+     }
+     */
 }

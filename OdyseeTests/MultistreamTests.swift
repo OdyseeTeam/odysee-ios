@@ -5,11 +5,10 @@
 //  Created by Adlai on 5/21/21.
 //
 
-import XCTest
 @testable import Odysee
+import XCTest
 
 class MultistreamTests: XCTestCase, StreamDelegate {
-
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
@@ -37,12 +36,12 @@ class MultistreamTests: XCTestCase, StreamDelegate {
         let ms = Multistream(streams: [stream1, stream2, stream3])
         ms.schedule(in: RunLoop.current, forMode: .default)
         ms.delegate = self
-        
+
         streamOpenExpectation = expectation(description: "stream is open")
         streamEndExpectation = expectation(description: "stream ended")
         ms.open()
         waitForExpectations(timeout: 10, handler: nil)
-        
+
         XCTAssertEqual("Hello, world: my name is Odysee! This is file data.", String(data: streamData, encoding: .utf8))
     }
 

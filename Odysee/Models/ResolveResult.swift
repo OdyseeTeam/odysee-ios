@@ -32,7 +32,7 @@ private struct ResolveError: Decodable, Error {
 private enum ResolveItemResult: Decodable {
     case failure(Error)
     case success(Claim)
-    
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         if let error = try container.decodeIfPresent(ResolveError.self, forKey: CodingKeys.error) {
