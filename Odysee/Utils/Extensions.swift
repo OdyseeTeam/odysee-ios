@@ -15,17 +15,18 @@ extension String {
         return !contains { !$0.isWhitespace && !$0.isNewline }
     }
 
-    subscript (bounds: CountableClosedRange<Int>) -> String {
+    subscript(bounds: CountableClosedRange<Int>) -> String {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         let end = index(startIndex, offsetBy: bounds.upperBound)
-        return String(self[start...end])
+        return String(self[start ... end])
     }
 
-    subscript (bounds: CountableRange<Int>) -> String {
+    subscript(bounds: CountableRange<Int>) -> String {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         let end = index(startIndex, offsetBy: bounds.upperBound)
-        return String(self[start..<end])
+        return String(self[start ..< end])
     }
+
     public static func localized(_ key: String, comment: String? = nil) -> String {
         return NSLocalizedString(key, comment: comment ?? "")
     }
@@ -33,19 +34,21 @@ extension String {
 
 extension UIImageView {
     func load(url: URL) {
-        self.pin_setImage(from: url)
+        pin_setImage(from: url)
     }
-    
+
     func rounded() {
-        self.layer.masksToBounds = false
-        self.layer.cornerRadius = self.frame.height / 2
-        self.clipsToBounds = true
+        layer.masksToBounds = false
+        layer.cornerRadius = frame.height / 2
+        clipsToBounds = true
     }
 }
 
 extension UIApplication {
-    class func currentViewController(_ viewController: UIViewController? = UIApplication.shared.windows.filter { $0.isKeyWindow }.first?.rootViewController
-) -> UIViewController? {
+    class func currentViewController(
+        _ viewController: UIViewController? = UIApplication.shared.windows
+            .filter { $0.isKeyWindow }.first?.rootViewController
+    ) -> UIViewController? {
         if let main = viewController as? MainViewController {
             return currentViewController(main.mainNavigationController)
         }
@@ -71,9 +74,11 @@ extension URLSession {
     }
 
     // A convenience wrapper for dataTask() that gives a Result instead of three optionals.
-    func dataTask(with request: URLRequest,
-                  completionHandler: @escaping (Result<DataTaskSuccess, Error>) -> Void) -> URLSessionDataTask {
-        return self.dataTask(with: request) { data, response, error in
+    func dataTask(
+        with request: URLRequest,
+        completionHandler: @escaping (Result<DataTaskSuccess, Error>) -> Void
+    ) -> URLSessionDataTask {
+        return dataTask(with: request) { data, response, error in
             let result = Result<DataTaskSuccess, Error> {
                 if let error = error {
                     throw error
@@ -128,18 +133,22 @@ extension NSDictionary: Encodable {
         var c = encoder.container(keyedBy: CodingKeys.self)
         for (k, v) in self {
             guard let keyString = k as? String else {
-                throw EncodingError.invalidValue(k, .init(codingPath: encoder.codingPath,
-                                                          debugDescription: "NSDictionary key"))
+                throw EncodingError.invalidValue(k, .init(
+                    codingPath: encoder.codingPath,
+                    debugDescription: "NSDictionary key"
+                ))
             }
             let nestedEncoder = c.superEncoder(forKey: .init(stringValue: keyString))
             guard let encodableValue = v as? Encodable else {
-                throw EncodingError.invalidValue(v, .init(codingPath: nestedEncoder.codingPath,
-                                                          debugDescription: "NSDictionary value"))
+                throw EncodingError.invalidValue(v, .init(
+                    codingPath: nestedEncoder.codingPath,
+                    debugDescription: "NSDictionary value"
+                ))
             }
             try encodableValue.encode(to: nestedEncoder)
         }
     }
-    
+
     // A dummy CodingKeys that lets you use any string you want.
     private struct CodingKeys: CodingKey {
         var stringValue: String
@@ -155,8 +164,10 @@ extension NSArray: Encodable {
         for v in self {
             let nestedEncoder = c.superEncoder()
             guard let encodableValue = v as? Encodable else {
-                throw EncodingError.invalidValue(v, .init(codingPath: nestedEncoder.codingPath,
-                                                          debugDescription: "NSArray"))
+                throw EncodingError.invalidValue(v, .init(
+                    codingPath: nestedEncoder.codingPath,
+                    debugDescription: "NSArray"
+                ))
             }
             try encodableValue.encode(to: nestedEncoder)
         }
@@ -175,8 +186,10 @@ extension NSNumber: Encodable {
         } else if let d = self as? Double {
             try c.encode(d)
         } else {
-            throw EncodingError.invalidValue(self, .init(codingPath: encoder.codingPath,
-                                                         debugDescription: "NSNumber"))
+            throw EncodingError.invalidValue(self, .init(
+                codingPath: encoder.codingPath,
+                debugDescription: "NSNumber"
+            ))
         }
     }
 }
@@ -204,6 +217,7 @@ extension Publisher {
                 }
             }, receiveValue: {
                 f(.success($0))
-            }))
+            })
+        )
     }
 }

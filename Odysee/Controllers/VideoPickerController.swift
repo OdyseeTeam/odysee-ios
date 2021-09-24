@@ -29,21 +29,23 @@ func makeVideoPickerController() -> VideoPickerController {
 
 // MARK: Private
 
-fileprivate class BaseVideoPickerController<Payload> : NSObject {
+private class BaseVideoPickerController<Payload>: NSObject {
     var payload: Payload?
     var pickingCompletion: PickVideoCompletion?
     var viewController: UIViewController?
-    
-    func startPicking(_ vc: UIViewController,
-                      sourceVC: UIViewController,
-                      completion: @escaping PickVideoCompletion) {
+
+    func startPicking(
+        _ vc: UIViewController,
+        sourceVC: UIViewController,
+        completion: @escaping PickVideoCompletion
+    ) {
         assert(Thread.isMainThread)
-        self.viewController = vc
-        self.pickingCompletion = completion
+        viewController = vc
+        pickingCompletion = completion
         vc.modalPresentationStyle = .overCurrentContext
         sourceVC.present(vc, animated: true)
     }
-    
+
     func didFinishPicking(_ newPayload: Payload?) {
         assert(Thread.isMainThread)
         if let newPayload = newPayload {
@@ -59,24 +61,24 @@ fileprivate class BaseVideoPickerController<Payload> : NSObject {
 // iOS<14 implementation based on UIImagePickerController
 
 @available(iOS, deprecated: 14)
-fileprivate final class LegacyVideoPickerController : BaseVideoPickerController<URL>,
-                                                      VideoPickerController,
-                                                      UIImagePickerControllerDelegate,
-                                                      UINavigationControllerDelegate {
-    
+private final class LegacyVideoPickerController: BaseVideoPickerController<URL>,
+    VideoPickerController,
+    UIImagePickerControllerDelegate,
+    UINavigationControllerDelegate
+{
     // MARK: VideoPickerController
 
     var pickedVideoName: String? {
         return payload?.lastPathComponent
     }
-    
+
     func pickVideo(from sourceVC: UIViewController, completion: @escaping PickVideoCompletion) {
         let vc = UIImagePickerController()
         vc.mediaTypes = [String(kUTTypeMovie)]
         vc.delegate = self
         startPicking(vc, sourceVC: sourceVC, completion: completion)
     }
-    
+
     func getVideoURL(completion: @escaping (Result<URL, Error>) -> Void) {
         let result = Result<URL, Error> {
             guard let url = payload else {
@@ -84,34 +86,35 @@ fileprivate final class LegacyVideoPickerController : BaseVideoPickerController<
             }
             return url
         }
-        
+
         DispatchQueue.global(qos: .userInitiated).async {
             completion(result)
         }
     }
-    
+
     // MARK: UIImagePickerControllerDelegate
 
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        self.didFinishPicking(nil)
+        didFinishPicking(nil)
     }
-    
-    func imagePickerController(_ picker: UIImagePickerController,
-                               didFinishPickingMediaWithInfo
-                                info: [UIImagePickerController.InfoKey : Any]) {
-        self.didFinishPicking(info[.mediaURL] as? URL)
+
+    func imagePickerController(
+        _ picker: UIImagePickerController,
+        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
+    ) {
+        didFinishPicking(info[.mediaURL] as? URL)
     }
 }
 
 // iOS 14 implementation based on PHPickerViewController
 
 @available(iOS 14, *)
-fileprivate final class ModernVideoPickerController : BaseVideoPickerController<NSItemProvider>,
-                                                      VideoPickerController,
-                                                      PHPickerViewControllerDelegate {
-    
+private final class ModernVideoPickerController: BaseVideoPickerController<NSItemProvider>,
+    VideoPickerController,
+    PHPickerViewControllerDelegate
+{
     // MARK: VideoPickerController
-    
+
     var pickedVideoName: String? {
         if let payload = payload {
             assert(payload.suggestedName != nil)
@@ -120,7 +123,7 @@ fileprivate final class ModernVideoPickerController : BaseVideoPickerController<
             return nil
         }
     }
-    
+
     func pickVideo(from sourceVC: UIViewController, completion: @escaping PickVideoCompletion) {
         var cfg = PHPickerConfiguration()
         cfg.filter = .videos
@@ -128,15 +131,15 @@ fileprivate final class ModernVideoPickerController : BaseVideoPickerController<
         vc.delegate = self
         startPicking(vc, sourceVC: sourceVC, completion: completion)
     }
-    
+
     func getVideoURL(completion: @escaping (Result<URL, Error>) -> Void) {
         guard let itemProvider = payload else {
             completion(.failure(GenericError("Please select a video")))
             return
         }
-    
+
         itemProvider.loadInPlaceFileRepresentation(forTypeIdentifier: String(kUTTypeMovie)) {
-            url, inPlace, error in
+            url, _, error in
             let result = Result<URL, Error> {
                 if let error = error {
                     throw error
@@ -149,11 +152,10 @@ fileprivate final class ModernVideoPickerController : BaseVideoPickerController<
             completion(result)
         }
     }
-    
+
     // MARK: PHPickerViewControllerDelegate
 
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         didFinishPicking(results.first?.itemProvider)
     }
 }
-

@@ -9,14 +9,14 @@ import Foundation
 import PINRemoteImage
 import UIKit
 
-fileprivate let kImageServerBaseURL = "https://image-processor.vanwanet.com/optimize/"
-fileprivate let kScale = UIScreen.main.scale
+private let kImageServerBaseURL = "https://image-processor.vanwanet.com/optimize/"
+private let kScale = UIScreen.main.scale
 
 struct ImageSpec {
     var size: CGSize?
     var quality: Int?
     var format: String? = "webp"
-    
+
     func appendPathSpecifier(to str: inout String) {
         if let size = size {
             str += "s:\(Int(size.width * kScale)):\(Int(size.height * kScale))/"
@@ -25,6 +25,7 @@ struct ImageSpec {
             str += "quality:\(quality)/"
         }
     }
+
     func appendFormatSpecifier(to str: inout String) {
         if let format = format {
             str += "@\(format)"

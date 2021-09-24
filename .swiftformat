@@ -1,0 +1,7 @@
+--enable wrapEnumCases,wrapSwitchCases
+--stripunusedargs closure-only
+--maxwidth 120
+--wraparguments before-first
+--wrapparameters before-first
+--wrapcollections before-first
+--wrapconditions after-first

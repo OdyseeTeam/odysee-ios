@@ -10,12 +10,11 @@ import CoreData
 import UIKit
 
 class InitViewController: UIViewController {
-
-    @IBOutlet weak var errorView: UIView!
-    @IBOutlet weak var errorLabel: UILabel!
-    @IBOutlet weak var loadingIndicator: UIActivityIndicatorView!
+    @IBOutlet var errorView: UIView!
+    @IBOutlet var errorLabel: UILabel!
+    @IBOutlet var loadingIndicator: UIActivityIndicatorView!
     var initErrorState = false
-    
+
     // Init process flow
     // 1. loadExchangeRate
     // 2. loadAndCacheRemoteSubscriptions
@@ -23,50 +22,50 @@ class InitViewController: UIViewController {
     func runInit() {
         let defaults = UserDefaults.standard
         Lbry.installationId = defaults.string(forKey: Lbry.keyInstallationId)
-        if ((Lbry.installationId ?? "").isBlank) {
+        if (Lbry.installationId ?? "").isBlank {
             Lbry.installationId = Lbry.generateId()
             defaults.set(Lbry.installationId, forKey: Lbry.keyInstallationId)
         }
-        
+
         Lbryio.authToken = Lbryio.Defaults.authToken
-        
-        Lbryio.loadExchangeRate(completion: { rate, error in
+
+        Lbryio.loadExchangeRate(completion: { _, _ in
             // don't bother with error checks here, simply proceed to authenticate
             self.loadCategories()
         })
     }
-    
+
     func loadCategories() {
-        ContentSources.loadCategories(completion: { categories, error  in
+        ContentSources.loadCategories(completion: { categories, error in
             guard let _ = categories, error == nil else {
                 // Categories have to be properly loaded for the home page
                 // If they are not properly loaded, display the startup error
                 self.showError()
                 return
             }
-            
+
             self.loadAndCacheSubscriptions()
-        });
+        })
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.runInit()
-        
+        runInit()
+
         errorView.layer.cornerRadius = 16
     }
-    
+
     func authenticateAndRegisterInstall() {
         do {
             try Lbryio.fetchCurrentUser(completion: { user, error in
-                if (error != nil || user == nil) {
+                if error != nil || user == nil {
                     // show a startup error message
                     self.initErrorState = true
                     self.showError() // TODO: Show more meaningful errors for /user/me failures?
                     return
                 }
-                
-                if (user != nil) {
+
+                if user != nil {
                     self.registerInstall()
                 }
             })
@@ -77,60 +76,71 @@ class InitViewController: UIViewController {
             showError()
         }
     }
-    
+
     func registerInstall() {
         Lbryio.newInstall(completion: { error in
-            if (error != nil) {
+            if error != nil {
                 // show error
                 self.initErrorState = true
                 self.showError()
                 return
             }
-            
+
             // successful authentication and install registration
             // open the main application interface
             DispatchQueue.main.async {
                 let main = self.storyboard!.instantiateViewController(identifier: "main_vc")
                 let window = self.view.window!
                 window.rootViewController = main
-                UIView.transition(with: window, duration: 0.2,
-                                  options: .transitionCrossDissolve, animations: nil)
+                UIView.transition(
+                    with: window,
+                    duration: 0.2,
+                    options: .transitionCrossDissolve,
+                    animations: nil
+                )
             }
         })
     }
-    
+
     // we only want to cache the URLs for followed channels (both local and remote) here
     func loadAndCacheSubscriptions() {
         do {
             // load local subscriptions
             loadLocalSubscriptions()
-            
+
             // check if there are remote subscriptions and load them too
             try Lbryio.get(resource: "subscription", action: "list", completion: { data, error in
                 guard let data = data, error == nil else {
                     self.authenticateAndRegisterInstall()
                     return
                 }
-                
-                if ((data as? NSNull) != nil) {
+
+                if (data as? NSNull) != nil {
                     self.authenticateAndRegisterInstall()
                     return
                 }
-                
+
                 if let subs = data as? [[String: Any]] {
                     for sub in subs {
-                        let jsonData = try! JSONSerialization.data(withJSONObject: sub, options: [.prettyPrinted, .sortedKeys])
+                        let jsonData = try! JSONSerialization.data(
+                            withJSONObject: sub,
+                            options: [.prettyPrinted, .sortedKeys]
+                        )
                         do {
-                            let subscription: LbrySubscription? = try JSONDecoder().decode(LbrySubscription.self, from: jsonData)
+                            let subscription: LbrySubscription? = try JSONDecoder()
+                                .decode(LbrySubscription.self, from: jsonData)
                             let channelName = subscription!.channelName!
-                            let subUrl = LbryUri.tryParse(url: String(format: "%@#%@", channelName, subscription!.claimId!), requireProto: false)
+                            let subUrl = LbryUri.tryParse(
+                                url: String(format: "%@#%@", channelName, subscription!.claimId!),
+                                requireProto: false
+                            )
                             Lbryio.addSubscription(sub: subscription!, url: subUrl!.description)
                         } catch {
                             // skip the sub if it failed to parse
                         }
                     }
                 }
-                
+
                 self.authenticateAndRegisterInstall()
             })
         } catch {
@@ -138,7 +148,7 @@ class InitViewController: UIViewController {
             authenticateAndRegisterInstall()
         }
     }
-    
+
     func loadLocalSubscriptions() {
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Subscription")
         fetchRequest.returnsObjectsAsFaults = false
@@ -151,7 +161,7 @@ class InitViewController: UIViewController {
                 }
             }
         }
-        
+
         DispatchQueue.main.async {
             let context = AppDelegate.shared.persistentContainer.newBackgroundContext()
             do {
@@ -161,38 +171,37 @@ class InitViewController: UIViewController {
             }
         }
     }
-    
+
     func showLoading() {
         DispatchQueue.main.async {
             self.loadingIndicator.isHidden = false
             self.errorView.isHidden = true
         }
     }
-    
+
     func showError() {
         DispatchQueue.main.async {
             self.loadingIndicator.isHidden = true
             self.errorView.isHidden = false
         }
     }
-    
+
     @IBAction func retryTapped(_ sender: UIButton) {
         showLoading()
         initErrorState = false
-        Lbryio.loadExchangeRate(completion: { rate, error in
+        Lbryio.loadExchangeRate(completion: { _, _ in
             // don't bother with error checks here, simply proceed to authenticate
             self.loadAndCacheSubscriptions()
         })
     }
 
     /*
-    // MARK: - Navigation
+     // MARK: - Navigation
 
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+     // In a storyboard-based application, you will often want to do a little preparation before navigation
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+         // Get the new view controller using segue.destination.
+         // Pass the selected object to the new view controller.
+     }
+     */
 }
