@@ -9,25 +9,27 @@ import AVFoundation
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
     var window: UIWindow?
 
-
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
         guard let windowScene = (scene as? UIWindowScene) else { return }
         windowScene.windows.forEach { $0.tintColor = Helper.primaryColor }
-        
+
         UIApplication.shared.beginReceivingRemoteControlEvents()
-        
+
         if let urlContext = connectionOptions.urlContexts.first {
             let url = urlContext.url
             handleLaunchUrl(url: url)
         }
     }
-    
+
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         guard let url = URLContexts.first?.url else { return }
         handleLaunchUrl(url: url)
@@ -59,7 +61,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
-        // Use this method to undo the changes made on entering the background.        
+        // Use this method to undo the changes made on entering the background.
         if AppDelegate.shared.currentFileViewController != nil {
             AppDelegate.shared.currentFileViewController?.connectPlayer()
         }
@@ -69,25 +71,27 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called as the scene transitions from the foreground to the background.
         // Use this method to save data, release shared resources, and store enough scene-specific state information
         // to restore the scene back to its current state.
-        
+
         // Save changes in the application's managed object context when the application transitions to the background.
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
     }
 
     func handleLaunchUrl(url: URL) {
-        if (AppDelegate.shared.mainViewController != nil && AppDelegate.shared.mainNavigationController != nil) {
+        if AppDelegate.shared.mainViewController != nil, AppDelegate.shared.mainNavigationController != nil {
             if AppDelegate.shared.mainController.handleSpecialUrl(url: url.absoluteString) {
                 return
             }
-            
+
             let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false)
             if lbryUrl != nil {
                 if lbryUrl!.isChannelUrl() {
-                    let vc = AppDelegate.shared.mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?
+                        .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
-                    let vc = AppDelegate.shared.mainViewController?.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?
+                        .instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 }
@@ -96,6 +100,4 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             AppDelegate.shared.pendingOpenUrl = url.absoluteString
         }
     }
-
 }
-

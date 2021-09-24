@@ -9,15 +9,14 @@ import SafariServices
 import UIKit
 
 class TransactionTableViewCell: UITableViewCell {
-    
     var tx: Transaction?
-    
-    @IBOutlet weak var descriptionLabel: UILabel!
-    @IBOutlet weak var amountLabel: UILabel!
-    @IBOutlet weak var txidLabel: UILabel!
-    @IBOutlet weak var dateLabel: UILabel!
-    @IBOutlet weak var claimInfoLabel: UILabel!
-    @IBOutlet weak var feeLabel: UILabel!
+
+    @IBOutlet var descriptionLabel: UILabel!
+    @IBOutlet var amountLabel: UILabel!
+    @IBOutlet var txidLabel: UILabel!
+    @IBOutlet var dateLabel: UILabel!
+    @IBOutlet var claimInfoLabel: UILabel!
+    @IBOutlet var feeLabel: UILabel!
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -33,46 +32,52 @@ class TransactionTableViewCell: UITableViewCell {
     func setTransaction(transaction: Transaction) {
         tx = transaction
         descriptionLabel.text = transaction.description
-        amountLabel.text = Helper.currencyFormatter4.string(from: Decimal(string: transaction.value!)! as NSDecimalNumber)
+        amountLabel.text = Helper.currencyFormatter4
+            .string(from: Decimal(string: transaction.value!)! as NSDecimalNumber)
         txidLabel.text = String(transaction.txid!.prefix(7))
-        
+
         claimInfoLabel.text = transaction.claim != nil ? transaction.claim!.name : ""
-        
-        if (transaction.timestamp == nil) {
+
+        if transaction.timestamp == nil {
             dateLabel.text = String.localized("Pending")
         } else {
             let date: Date = NSDate(timeIntervalSince1970: Double(transaction.timestamp!)) as Date
             dateLabel.text = Helper.shortRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
         }
         feeLabel.text = ""
-        
-        let claimInfoTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.claimInfoTapped(_:)))
+
+        let claimInfoTapGesture = UITapGestureRecognizer(target: self, action: #selector(claimInfoTapped(_:)))
         claimInfoLabel.addGestureRecognizer(claimInfoTapGesture)
-        
-        let txidTapGesture = UITapGestureRecognizer(target: self, action: #selector(self.txidTapped(_:)))
+
+        let txidTapGesture = UITapGestureRecognizer(target: self, action: #selector(txidTapped(_:)))
         txidLabel.addGestureRecognizer(txidTapGesture)
     }
-    
+
     @objc func claimInfoTapped(_ sender: Any) {
-        if tx != nil && tx!.claim != nil {
+        if tx != nil, tx!.claim != nil {
             let claim = tx!.claim!
             let url = LbryUri.tryParse(url: String(format: "%@#%@", claim.name!, claim.claimId!), requireProto: false)
             if url != nil {
                 if claim.name!.starts(with: "@") {
-                    let vc = AppDelegate.shared.mainViewController?.storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?
+                        .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = url
                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
                     // file claim
-                    let vc = AppDelegate.shared.mainViewController?.storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?
+                        .instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = url
-                    AppDelegate.shared.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+                    AppDelegate.shared.mainNavigationController?.view.layer.add(
+                        Helper.buildFileViewTransition(),
+                        forKey: kCATransition
+                    )
                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
                 }
             }
         }
     }
-    
+
     @objc func txidTapped(_ sender: Any) {
         if tx != nil {
             if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, tx!.txid!)) {
