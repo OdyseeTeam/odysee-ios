@@ -11,6 +11,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+      - name: Cache Mint dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ env.MINT_PATH }}
+          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+          restore-keys: ${{ runner.os }}-mint-
       - name: Install mint
         run: brew install mint
       - name: Bootstrap mint dependencies
