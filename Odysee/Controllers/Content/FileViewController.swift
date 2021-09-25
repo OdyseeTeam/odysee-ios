@@ -1553,7 +1553,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func removeSubscription(url: String, channelName: String) {
         // remove the subscription from CoreData
-        DispatchQueue.main.async { s
+        DispatchQueue.main.async {
             let context: NSManagedObjectContext! = AppDelegate.shared.persistentContainer.viewContext
             let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "url == %@", url)
