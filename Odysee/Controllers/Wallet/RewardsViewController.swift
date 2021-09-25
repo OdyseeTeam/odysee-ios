@@ -382,7 +382,6 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                                 // self.showRewardEligibleView()
                                 self.stopProcessing()
                                 self.showRewardsList()
-                                return
                             }
                         }
                     } catch {

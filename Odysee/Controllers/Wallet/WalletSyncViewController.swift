@@ -128,7 +128,6 @@ class WalletSyncViewController: UIViewController {
             Lbry.remoteWalletHash = walletSync?.hash
             self.currentWalletSync = walletSync
             self.processExistingWallet(password: "", walletSync: walletSync)
-            return
         })
     }
 

@@ -189,7 +189,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                     DispatchQueue.main.async {
                         self.showingSuggested = true
                         self.loadSuggestedFollows()
-                        return
                     }
                 }
 
