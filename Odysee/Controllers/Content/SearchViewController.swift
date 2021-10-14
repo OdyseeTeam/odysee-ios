@@ -104,14 +104,14 @@ class SearchViewController: UIViewController,
                     })
                 let winningClaim = winningClaims[0]
                 winningClaim.featured = true
-                
+
                 // check if the winning claim could be mature content
                 var isMature = false
                 if let tags = winningClaim.value?.tags {
                     isMature = tags.contains(where: Constants.MatureTags.contains)
                 }
-                
-                if (!isMature) {
+
+                if !isMature {
                     // in some cases, some mature content may not be properly tagged (possibly due to abuse)
                     // check the claim name, title or description just in case
                     for matureTag in Constants.MatureTags {
@@ -134,9 +134,9 @@ class SearchViewController: UIViewController,
                         }
                     }
                 }
-                
+
                 // only show the winning claim if it is not mature content
-                if (!isMature) {
+                if !isMature {
                     // if the claim is already in the search results, remove it so we can promote to the top
                     claims.removeAll(where: { $0.claimId == winningClaim.claimId })
                     claims.insert(winningClaim, at: 0)

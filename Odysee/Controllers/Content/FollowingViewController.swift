@@ -300,7 +300,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         loadingContent = true
-        
+
         let channelIds = !selectedChannelIds.isEmpty ?
             selectedChannelIds :
             following.compactMap { $0.claimId }

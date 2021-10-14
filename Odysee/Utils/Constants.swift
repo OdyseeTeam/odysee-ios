@@ -29,11 +29,11 @@ struct Constants {
         "ass",
         "fuck",
         "hentai",
-        
+
         // obnoxious, but necessary
         "pron",
         "p0rn",
         "pr0n",
-        "s3x"
+        "s3x",
     ]
 }
