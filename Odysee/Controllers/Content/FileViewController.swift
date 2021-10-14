@@ -129,8 +129,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var playRequestTime: Int64 = 0
     var playerObserverAdded = false
     var imageViewerActive = false
-    var otherContentWebUrl: String?
-
+    var otherContentWebUrl: String? = nil
+    var currentStreamUrl: URL? = nil
+    var streamInfoUrl: URL? = nil
+    
     var commentsPageSize: Int = 50
     var commentsCurrentPage: Int = 1
     var commentsLastPageReached: Bool = false
@@ -163,6 +165,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var playlistLastPageReached = false
     let playlistPageSize = 50
 
+    let checkLivestreamTranscodeInterval: Double = 30 // 30 seconds
+    var checkLivestreamTranscodeTimer = Timer()
+    var checkLivestreamTranscodeScheduled = false
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
@@ -394,20 +400,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
      }
      */
 
-    func loadLivestream() {
-        if !isLivestream {
-            return
-        }
-
-        loadInitialChatMessages()
-
-        let url =
-            URL(string: String(
-                format: "https://api.live.odysee.com/v1/odysee/live/%@",
-                claim!.signingChannel!.claimId!
-            ))
+    // In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        // Get the new view controller using segue.destination.
+        // Pass the selected object to the new view controller.
+    }
+    
+    @objc func loadStreamInfo() {
         let session = URLSession.shared
-        var req = URLRequest(url: url!)
+        var req = URLRequest(url: streamInfoUrl!)
         req.httpMethod = "GET"
 
         let task = session.dataTask(with: req, completionHandler: { data, response, error in
@@ -426,17 +427,23 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     }
 
                     if let streamUrl = (livestreamData["url"] as? String).flatMap(URL.init) {
-                        let headers: [String: String] = [
-                            "Referer": "https://bitwave.tv",
+                        if self.currentStreamUrl != nil && self.currentStreamUrl == streamUrl {
+                            // no change
+                            if (self.checkLivestreamTranscodeScheduled) {
+                                self.checkLivestreamTranscodeTimer.invalidate()
+                            }
+                            return
+                        }
+                        let headers: Dictionary<String, String> = [
+                            "Referer": "https://bitwave.tv"
                         ]
                         DispatchQueue.main.async {
                             self.initializePlayerWithUrl(
-                                singleClaim: self.claim!,
-                                sourceUrl: streamUrl,
-                                headers: headers,
-                                forceInit: true
-                            )
+                                singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers, forceInit: true)
                         }
+                        self.currentStreamUrl = streamUrl
+                        // schedule livestream transcoded check
+                        self.checkLivestreamTranscoded()
                     }
                 }
             } catch {
@@ -446,7 +453,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         })
         task.resume()
     }
-
+    
+    func loadLivestream() {
+        if !isLivestream {
+            return
+        }
+        
+        loadInitialChatMessages()
+        
+        streamInfoUrl = URL(string: String(format: "https://api.live.odysee.com/v1/odysee/live/%@", claim!.signingChannel!.claimId!))
+        loadStreamInfo()
+    }
+    
     func displayLivestreamOffline() {
         DispatchQueue.main.async {
             self.livestreamOfflinePlaceholder.isHidden = false
@@ -458,6 +476,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
 
+    func checkLivestreamTranscoded() {
+        if !checkLivestreamTranscodeScheduled {
+            checkLivestreamTranscodeTimer = Timer.scheduledTimer(timeInterval: checkLivestreamTranscodeInterval, target: self, selector: #selector(self.loadStreamInfo), userInfo: nil, repeats: true)
+            checkLivestreamTranscodeScheduled = true
+        }
+    }
+    
     func checkCommentsDisabled(commentsDisabled: Bool, currentClaim: Claim) {
         DispatchQueue.main.async {
             self.commentsDisabled = commentsDisabled
