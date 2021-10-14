@@ -300,23 +300,27 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         loadingContent = true
+        
+        let channelIds = !selectedChannelIds.isEmpty ?
+            selectedChannelIds :
+            following.compactMap { $0.claimId }
 
-        let releaseTimeValue = currentSortByIndex == 2 ? Helper
-            .buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
-        Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
-            params: .init(
-                claimType: [.stream],
-                page: currentPage,
-                pageSize: pageSize,
-                releaseTime: releaseTimeValue,
-                channelIds: !selectedChannelIds.isEmpty ?
-                    selectedChannelIds :
-                    following.compactMap { $0.claimId },
-                orderBy: Helper.sortByItemValues[currentSortByIndex]
+        if channelIds.count > 0 {
+            let releaseTimeValue = currentSortByIndex == 2 ? Helper
+                .buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
+            Lbry.apiCall(
+                method: Lbry.Methods.claimSearch,
+                params: .init(
+                    claimType: [.stream],
+                    page: currentPage,
+                    pageSize: pageSize,
+                    releaseTime: releaseTimeValue,
+                    channelIds: channelIds,
+                    orderBy: Helper.sortByItemValues[currentSortByIndex]
+                )
             )
-        )
-        .subscribeResult(didLoadSubscriptionContent)
+            .subscribeResult(didLoadSubscriptionContent)
+        }
     }
 
     func didLoadSubscriptionContent(_ result: Result<Page<Claim>, Error>) {

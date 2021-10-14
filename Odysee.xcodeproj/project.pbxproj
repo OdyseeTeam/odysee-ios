@@ -66,6 +66,7 @@
 		648F70D226307BC700885A2F /* HaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 648F70D126307BC700885A2F /* HaishinKit */; };
 		648F70D726307BF900885A2F /* GoLiveViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F70D626307BF900885A2F /* GoLiveViewController.swift */; };
 		649EA90626528D8D00F45129 /* launch_screen.png in Resources */ = {isa = PBXBuildFile; fileRef = 649EA90526528D8D00F45129 /* launch_screen.png */; };
+		649F023C2717F918009A5698 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 649F023B2717F918009A5698 /* Constants.swift */; };
 		64A26CE526974B7A00AE19DE /* PerfectMarkdown in Frameworks */ = {isa = PBXBuildFile; productRef = 64A26CE426974B7A00AE19DE /* PerfectMarkdown */; };
 		64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA70255DADFB00294E74 /* SearchViewController.swift */; };
 		64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA75255DB5B200294E74 /* Lighthouse.swift */; };
@@ -193,6 +194,7 @@
 		648F320B2575D52500E2CA51 /* UserAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountViewController.swift; sourceTree = "<group>"; };
 		648F70D626307BF900885A2F /* GoLiveViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoLiveViewController.swift; sourceTree = "<group>"; };
 		649EA90526528D8D00F45129 /* launch_screen.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = launch_screen.png; sourceTree = "<group>"; };
+		649F023B2717F918009A5698 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		64A6CA70255DADFB00294E74 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64A6CA75255DB5B200294E74 /* Lighthouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lighthouse.swift; sourceTree = "<group>"; };
 		64A6CA7A255DD34700294E74 /* AppTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarController.swift; sourceTree = "<group>"; };
@@ -315,6 +317,7 @@
 				64A6CA75255DB5B200294E74 /* Lighthouse.swift */,
 				CCDDA920265852910006035F /* Multistream.swift */,
 				641E7EB82608BDB100A79CD3 /* Predefined.swift */,
+				649F023B2717F918009A5698 /* Constants.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -714,6 +717,7 @@
 				642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */,
 				CC80EC0F2672A80700CA07DA /* Page.swift in Sources */,
 				64666B032587378400DF4608 /* ChannelEditorViewController.swift in Sources */,
+				649F023C2717F918009A5698 /* Constants.swift in Sources */,
 				642B6B07257A635300F17355 /* WalletSync.swift in Sources */,
 				646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */,
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
