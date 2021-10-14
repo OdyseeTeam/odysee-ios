@@ -105,11 +105,44 @@ class SearchViewController: UIViewController,
                 let winningClaim = winningClaims[0]
                 winningClaim.featured = true
 
-                // if the claim is already in the search results, remove it so we can promote to the top
-                claims.removeAll(where: { $0.claimId == winningClaim.claimId })
-                claims.insert(winningClaim, at: 0)
-                resultsListView.reloadData()
-                checkNoResults()
+                // check if the winning claim could be mature content
+                var isMature = false
+                if let tags = winningClaim.value?.tags {
+                    isMature = tags.contains(where: Constants.MatureTags.contains)
+                }
+
+                if !isMature {
+                    // in some cases, some mature content may not be properly tagged (possibly due to abuse)
+                    // check the claim name, title or description just in case
+                    for matureTag in Constants.MatureTags {
+                        // TODO: Move this check into a helper method?
+                        if winningClaim.name!.contains(matureTag) {
+                            isMature = true
+                            break
+                        }
+                        if let title = winningClaim.value?.title {
+                            if title.contains(matureTag) {
+                                isMature = true
+                                break
+                            }
+                        }
+                        if let description = winningClaim.value?.description {
+                            if description.contains(matureTag) {
+                                isMature = true
+                                break
+                            }
+                        }
+                    }
+                }
+
+                // only show the winning claim if it is not mature content
+                if !isMature {
+                    // if the claim is already in the search results, remove it so we can promote to the top
+                    claims.removeAll(where: { $0.claimId == winningClaim.claimId })
+                    claims.insert(winningClaim, at: 0)
+                    resultsListView.reloadData()
+                    checkNoResults()
+                }
             }
         }
     }
