@@ -223,7 +223,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         appDelegate.currentClaim = isTextContent || isImageContent || isOtherContent ? nil : claim
         appDelegate.mainController.updateMiniPlayer()
 
-        if appDelegate.player != nil {
+        if appDelegate.lazyPlayer != nil {
             appDelegate.mainController.toggleMiniPlayer(hidden: false)
         }
     }
@@ -803,7 +803,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         avpc.delegate = appDelegate.mainController
-        if !forceInit, appDelegate.player != nil, appDelegate.currentClaim != nil, appDelegate.currentClaim?
+        if !forceInit, appDelegate.lazyPlayer != nil, appDelegate.currentClaim != nil, appDelegate.currentClaim?
             .claimId == singleClaim.claimId
         {
             avpc.player = appDelegate.lazyPlayer
@@ -812,13 +812,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         appDelegate.currentClaim = singleClaim
-        appDelegate.player?.pause()
+        appDelegate.lazyPlayer?.pause()
 
         appDelegate.playerObserverAdded = false
 
         let asset = AVURLAsset(url: sourceUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let playerItem = AVPlayerItem(asset: asset)
-        appDelegate.player = AVPlayer(playerItem: playerItem)
+        appDelegate.lazyPlayer = AVPlayer(playerItem: playerItem)
 
         appDelegate.registerPlayerObserver()
         avpc.player = appDelegate.lazyPlayer
@@ -868,7 +868,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func connectPlayer() {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.player != nil {
+        if appDelegate.lazyPlayer != nil {
             avpc.player = appDelegate.lazyPlayer
         }
         playerConnected = true
@@ -1245,8 +1245,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         context: UnsafeMutableRawPointer?
     ) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if object as AnyObject? === appDelegate.player {
-            if keyPath == "timeControlStatus", appDelegate.player!.timeControlStatus == .playing {
+        if object as AnyObject? === appDelegate.lazyPlayer {
+            if keyPath == "timeControlStatus", appDelegate.lazyPlayer!.timeControlStatus == .playing {
                 checkTimeToStart()
                 return
             }

@@ -129,7 +129,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     func claimEmailReward(walletAddress: String, completion: @escaping (() -> Void)) {
         Lbryio.claimReward(type: "email_provided", walletAddress: walletAddress, completion: { data, error in
             guard let _ = data, error == nil else {
-                self.showError(error: error)
+                // self.showError(error: error)
                 completion()
                 return
             }
@@ -207,9 +207,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
 
     @IBAction func closeMiniPlayerTapped(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.player != nil {
-            appDelegate.player?.pause()
-            appDelegate.player = nil
+        if appDelegate.lazyPlayer != nil {
+            appDelegate.lazyPlayer?.pause()
+            appDelegate.lazyPlayer = nil
 
             appDelegate.resetPlayerObserver()
         }
@@ -380,12 +380,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
 
     func updateMiniPlayer() {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.currentClaim != nil, appDelegate.player != nil {
+        if appDelegate.currentClaim != nil, appDelegate.lazyPlayer != nil {
             miniPlayerTitleLabel.text = appDelegate.currentClaim?.value?.title
             miniPlayerPublisherLabel.text = appDelegate.currentClaim?.signingChannel?.value?.title
 
             let mediaViewLayer: CALayer = miniPlayerMediaView.layer
-            let playerLayer = AVPlayerLayer(player: appDelegate.player)
+            let playerLayer = AVPlayerLayer(player: appDelegate.lazyPlayer)
             playerLayer.frame = mediaViewLayer.bounds
             playerLayer.videoGravity = .resizeAspectFill
             _ = mediaViewLayer.sublayers?.popLast()

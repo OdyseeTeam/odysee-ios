@@ -43,9 +43,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     func registerPlayerObserver() {
-        if player != nil, !playerObserverAdded {
-            player!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
-            player!.currentItem!.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: [.new], context: nil)
+        if lazyPlayer != nil, !playerObserverAdded {
+            lazyPlayer!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
+            lazyPlayer!.currentItem!.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: [.new], context: nil)
             playerObserverAdded = true
         }
         NotificationCenter.default.addObserver(
@@ -68,8 +68,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         change: [NSKeyValueChangeKey: Any]?,
         context: UnsafeMutableRawPointer?
     ) {
-        if object as AnyObject? === player {
-            if keyPath == "timeControlStatus", player!.timeControlStatus == .playing {
+        if object as AnyObject? === lazyPlayer {
+            if keyPath == "timeControlStatus", lazyPlayer!.timeControlStatus == .playing {
                 if currentFileViewController != nil {
                     currentFileViewController!.checkTimeToStart()
                 }
@@ -77,7 +77,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             }
         }
 
-        if let player = player,
+        if let player = lazyPlayer,
            let item = player.currentItem,
            keyPath == "playbackLikelyToKeepUp",
            item.isPlaybackLikelyToKeepUp,
@@ -177,7 +177,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         // Add handler for Play / Pause Command
         commandCenter.playCommand.isEnabled = true
         commandCenter.playCommand.addTarget { [unowned self] _ in
-            if self.player != nil {
+            if self.lazyPlayer != nil {
                 self.lazyPlayer!.play()
                 return .success
             }
@@ -186,7 +186,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
         commandCenter.pauseCommand.isEnabled = true
         commandCenter.pauseCommand.addTarget { [unowned self] _ in
-            if self.player != nil {
+            if self.lazyPlayer != nil {
                 self.lazyPlayer!.pause()
                 return .success
             }
