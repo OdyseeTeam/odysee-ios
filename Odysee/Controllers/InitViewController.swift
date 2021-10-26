@@ -59,6 +59,16 @@ class InitViewController: UIViewController {
         do {
             try Lbryio.fetchCurrentUser(completion: { user, error in
                 if error != nil || user == nil {
+                    if let responseError = error as? LbryioResponseError {
+                        if responseError.code == 403 {
+                            // invalidated auth token, get a new one
+                            Lbryio.authToken = nil
+                            Lbryio.Defaults.reset()
+                            self.authenticateAndRegisterInstall()
+                            return
+                        }
+                    }
+                    
                     // show a startup error message
                     self.initErrorState = true
                     self.showError() // TODO: Show more meaningful errors for /user/me failures?
