@@ -1,5 +1,5 @@
 # Odysee iOS
-[![GitHub license](https://img.shields.io/github/license/lbryio/odysee-ios)](https://github.com/lbryio/odysee-ios/blob/master/LICENSE)
+[![GitHub license](https://img.shields.io/github/license/OdyseeTeam/odysee-ios?style=for-the-badge)](https://github.com/OdyseeTeam/odysee-ios/blob/master/LICENSE)
 
 The Odysee iOS app with wallet functionality.
 
@@ -25,13 +25,15 @@ We use [`SwiftFormat`](https://github.com/nicklockwood/SwiftFormat) to enforce a
 `swiftformat . --lint` must pass before merging to `master`. To run it locally, first install it using [`Mint](https://github.com/yonaskolb/Mint) and `mint bootstrap --link`, and then run `swiftformat .` which will automatically format all of your Swift code. If any of your default Xcode text editing preferences are inconsistent with SwiftFormat, you can update those on your machine under Xcode > Preferences > Text Editing. You can also optionally install the SwiftFormat Xcode plugin and bind that to a custom key binding or to the file-save event.
 
 ## Contributing
-Contributions to this project are welcome, encouraged, and compensated. For more details, see https://lbry.com/faq/contributing
+We :heart: contributions from everyone and contributions to this project are encouraged, and compensated. We welcome [bug reports](https://github.com/OdyseeTeam/odysee-ios/issues/), [bug fixes](https://github.com/OdyseeTeam/odysee-ios/pulls) and feedback is always appreciated. For more details, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## [![contributions welcome](https://img.shields.io/github/issues/OdyseeTeam/odysee-ios?style=for-the-badge&color=informational)](https://github.com/OdyseeTeam/odysee-ios/issues) [![GitHub contributors](https://img.shields.io/github/contributors/OdyseeTeam/odysee-ios?style=for-the-badge)](https://gitHub.com/OdyseeTeam/odysee-ios/graphs/contributors/)
 
 ## License
 This project is MIT licensed. For the full license, see [LICENSE](LICENSE).
 
 ## Security
-We take security seriously. Please contact security@lbry.com regarding any security issues. Our PGP key is [here](https://lbry.com/faq/gpg-key) if you need it.
+We take security seriously. Please contact security@odysee.com.
 
 ## Contact
-The primary contact for this project is [@akinwale](https://github.com/akinwale) (akinwale@lbry.com)
+The primary contact for this project is [@akinwale](https://github.com/akinwale) (akinwale.ariwodola@odysee.com)
