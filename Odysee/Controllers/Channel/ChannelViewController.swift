@@ -257,7 +257,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func checkCommentsDisabled(_ commentsDisabled: Bool) {
         DispatchQueue.main.async {
-            self.commentsDisabled = !commentsDisabled
+            self.commentsDisabled = commentsDisabled
             self.displayCommentsView()
         }
     }
