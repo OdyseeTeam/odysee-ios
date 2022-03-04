@@ -1439,6 +1439,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
                 unsubscribing: Lbryio.isFollowing(claim: channelClaim)
             )
+            
+            // check if the following tab is open to prevent a crash
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            if let vc = appDelegate.mainTabViewController?.selectedViewController as? FollowingViewController {
+                vc.removeFollowing(claim: channelClaim)
+            }
         }
     }
 
