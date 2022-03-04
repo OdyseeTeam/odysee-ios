@@ -445,7 +445,6 @@
 			children = (
 				649EA90526528D8D00F45129 /* launch_screen.png */,
 				64FBE79B25502A290082AF2E /* Odysee */,
-				64FBE7B525502A2D0082AF2E /* OdyseeTests */,
 				64FBE7C025502A2D0082AF2E /* OdyseeUITests */,
 				64FBE79A25502A290082AF2E /* Products */,
 				6411C0A0255B31C00018C3D5 /* Frameworks */,
@@ -481,6 +480,7 @@
 				64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */,
 				64D72BB4258C54B100F5C4E3 /* Secrets.plist */,
 				64D72BBE258CD8AE00F5C4E3 /* StoreConfig.storekit */,
+				64FBE7B525502A2D0082AF2E /* OdyseeTests */,
 			);
 			path = Odysee;
 			sourceTree = "<group>";
@@ -953,7 +953,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Odysee/Odysee.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 66QQKUW9TB;
+				DEVELOPMENT_TEAM = 7G9P9AM955;
 				INFOPLIST_FILE = Odysee/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -975,7 +975,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Odysee/Odysee.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 66QQKUW9TB;
+				DEVELOPMENT_TEAM = 7G9P9AM955;
 				INFOPLIST_FILE = Odysee/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
