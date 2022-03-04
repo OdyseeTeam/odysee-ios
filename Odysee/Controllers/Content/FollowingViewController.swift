@@ -2,7 +2,7 @@
 //  FollowingViewController.swift
 //  Odysee
 //
-//  Created by Akinwale Ariwodola on 28/11/2020.
+//  Created by Akinwale Ariwodola on 28/11/2020.´
 //
 
 import CoreData
@@ -96,6 +96,15 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             appDelegate.mainController.toggleHeaderVisibility(hidden: false)
             let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
             appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
+        }
+    }
+    
+    func removeFollowing(claim: Claim) {
+        DispatchQueue.main.async {
+            self.following.remove(claim)
+            self.claims.removeAll()
+            self.channelListView.reloadData()
+            self.contentListView.reloadData()
         }
     }
 
