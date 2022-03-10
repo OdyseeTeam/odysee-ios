@@ -1740,7 +1740,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func reportActionTapped(_ sender: Any) {
-        if let url = URL(string: String(format: "https://lbry.com/dmca/%@", claim!.claimId!)) {
+        if let url = URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", claim!.claimId!)) {
             let vc = SFSafariViewController(url: url)
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.present(vc, animated: true, completion: nil)
