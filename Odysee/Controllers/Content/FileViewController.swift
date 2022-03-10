@@ -786,7 +786,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             if isLivestream {
                 loadLivestream()
             } else if !isTextContent, !isImageContent, !isOtherContent {
-                initializePlayerWithUrl(singleClaim: claim!, sourceUrl: getStreamingUrl(claim: claim!))
+                getStreamingUrlAndInitializePlayer(claim!)
             }
         }
     }
@@ -924,17 +924,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         Lbryio.claimReward(type: "daily_view", walletAddress: receiveAddress!, completion: { _, _ in
             // don't do anything here
         })
-    }
-
-    func getStreamingUrl(claim: Claim) -> URL {
-        let claimName: String = claim.name!
-        let claimId: String = claim.claimId!
-        let str = String(
-            format: "https://cdn.lbryplayer.xyz/content/claims/%@/%@/stream",
-            claimName.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!,
-            claimId
-        )
-        return URL(string: str)!
     }
 
     func loadAndDisplayViewCount(_ singleClaim: Claim) {
@@ -1182,7 +1171,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         if !isTextContent, !isImageContent, !isOtherContent {
-            initializePlayerWithUrl(singleClaim: singleClaim, sourceUrl: getStreamingUrl(claim: singleClaim))
+            getStreamingUrlAndInitializePlayer(singleClaim)
         }
         loadAndDisplayViewCount(singleClaim)
         loadReactions(singleClaim)
@@ -1190,6 +1179,32 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         checkFollowing(singleClaim)
         checkNotificationsDisabled(singleClaim)
+    }
+    
+    func getStreamingUrlAndInitializePlayer(_ singleClaim: Claim) {
+        var params = [String: Any]()
+        params["uri"] = singleClaim.permanentUrl!
+        
+        Lbry.apiCall(
+            method: Lbry.methodGet,
+            params: params,
+            connectionString: Lbry.lbrytvConnectionString,
+            authToken: Lbryio.authToken,
+            completion: { data, error in
+                guard let data = data, error == nil else {
+                    self.showError(error: error)
+                    return
+                }
+                
+                if let result = data["result"] as? [String: Any] {
+                    if let streamingUrl = result["streaming_url"] as? String {
+                        DispatchQueue.main.async {
+                            self.initializePlayerWithUrl(singleClaim: singleClaim, sourceUrl: URL(string: streamingUrl)!)
+                        }
+                    }
+                }
+            }
+        )
     }
 
     func loadRelatedContent() {
