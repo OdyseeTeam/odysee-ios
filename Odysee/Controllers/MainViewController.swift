@@ -525,7 +525,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                 }
                 Lbry.walletBalance = balance
                 DispatchQueue.main.async {
-                    self.mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.available)
+                    self.mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.total)
                     self.walletObservers.values.forEach { observer in
                         observer.balanceUpdated(balance: balance)
                     }
