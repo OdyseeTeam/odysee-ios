@@ -64,6 +64,7 @@ final class Lbry {
     static let methodCommentCreate = "comment_create"
     static let methodStreamUpdate = "stream_update"
     static let methodChannelSign = "channel_sign"
+    static let methodGet = "get"
     static let methodPublish = "publish"
     static let methodCommentReact = "comment_react"
     static let methodCommentReactList = "comment_react_list"
