@@ -257,7 +257,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBAction func anywhereTapped(_ sender: Any) {
         sendAddressTextField.resignFirstResponder()
         sendAmountTextField.resignFirstResponder()
-    }
+    }  
 
     func balanceUpdated(balance: WalletBalance) {
         displayBalance(balance: balance)
