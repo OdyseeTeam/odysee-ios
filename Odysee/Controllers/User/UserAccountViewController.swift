@@ -75,10 +75,6 @@ class UserAccountViewController: UIViewController {
     }
 
     func registerForKeyboardNotifications() {
-        if firstRunFlow {
-            return
-        }
-
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillShow),
@@ -97,14 +93,21 @@ class UserAccountViewController: UIViewController {
         let info = notification.userInfo
         let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
         let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-        uaScrollView.contentInset = contentInsets
-        uaScrollView.scrollIndicatorInsets = contentInsets
+        
+        let height = UIScreen.main.bounds.height
+        let width = UIScreen.main.bounds.width
+        uaScrollView.contentSize = CGSize(width: width, height: height)
+        haveAccountLabel.isHidden = true
+        switchModeButton.isHidden = true
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
         let contentInsets = UIEdgeInsets.zero
         uaScrollView.contentInset = contentInsets
         uaScrollView.scrollIndicatorInsets = contentInsets
+        
+        haveAccountLabel.isHidden = false
+        switchModeButton.isHidden = false
     }
 
     @IBAction func closeButtonTapped(_ sender: Any) {
