@@ -256,11 +256,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if claim == nil, claimUrl != nil {
             resolveAndDisplayClaim()
         } else if let currentClaim = claim {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             if Lbryio
                 .isClaimBlocked(currentClaim) ||
                 (currentClaim.signingChannel != nil && Lbryio.isClaimBlocked(currentClaim.signingChannel!))
             {
                 displayClaimBlocked()
+            } else if (Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate)) {
+                displayClaimBlockedWithMessage(message: Helper.getCustomBlockedMessage(claimId: currentClaim.claimId!, appDelegate: appDelegate) ?? "")
             } else {
                 displayClaim()
                 if !isPlaylist {
@@ -304,10 +307,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func showClaimAndCheckFollowing() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if Lbryio
             .isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!))
         {
             displayClaimBlocked()
+        } else if (Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate)) {
+            displayClaimBlockedWithMessage(message: Helper.getCustomBlockedMessage(claimId: claim!.claimId!, appDelegate: appDelegate) ?? "")
         } else if let currentClaim = claim {
             displayClaim()
             if !isPlaylist {
@@ -370,13 +376,17 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func displayClaimBlocked() {
+        displayClaimBlockedWithMessage(message: "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications.")
+    }
+    
+    func displayClaimBlockedWithMessage(message: String) {
         DispatchQueue.main.async {
             self.resolvingView.isHidden = false
             self.resolvingLoadingIndicator.isHidden = true
             self.resolvingImageView.image = UIImage(named: "spaceman_sad")
             self.resolvingLabel.text = String
                 .localized(
-                    "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications."
+                    message
                 )
             self.resolvingCloseButton.isHidden = false
         }
