@@ -333,10 +333,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                     self.currentLocale = OdyseeLocale()
                     self.currentLocale?.continent = result["continent"] as? String
                     self.currentLocale?.country = result["country"] as? String
-                    self.currentLocale?.isEUMember = true //result["is_eu_member"] as? Bool
-                    
-                    print("**********")
-                    print(self.currentLocale!)
+                    self.currentLocale?.isEUMember = result["is_eu_member"] as? Bool
                     
                     self.loadCustomBlockedRules()
                 }
@@ -384,9 +381,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                             self.customBlockRulesMap[claimId] = cbRules!
                         }
                     }
-                    
-                    print("************")
-                    print(self.customBlockRulesMap)
                 }
             })
         } catch {

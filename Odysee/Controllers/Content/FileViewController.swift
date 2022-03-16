@@ -262,8 +262,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 (currentClaim.signingChannel != nil && Lbryio.isClaimBlocked(currentClaim.signingChannel!))
             {
                 displayClaimBlocked()
-            } else if (Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate)) {
-                displayClaimBlockedWithMessage(message: Helper.getCustomBlockedMessage(claimId: currentClaim.claimId!, appDelegate: appDelegate) ?? "")
+            } else if (Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate) ||
+                        Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate)) {
+                displayClaimBlockedWithMessage(message: Helper.getCustomBlockedMessage(claimId: currentClaim.claimId!, appDelegate: appDelegate)
+                                                ?? (Helper.getCustomBlockedMessage(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate) ?? ""))
             } else {
                 displayClaim()
                 if !isPlaylist {
@@ -312,8 +314,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             .isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!))
         {
             displayClaimBlocked()
-        } else if (Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate)) {
-            displayClaimBlockedWithMessage(message: Helper.getCustomBlockedMessage(claimId: claim!.claimId!, appDelegate: appDelegate) ?? "")
+        } else if (Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate) ||
+                    Helper.isCustomBlocked(claimId:  claim!.signingChannel!.claimId!, appDelegate: appDelegate)) {
+            displayClaimBlockedWithMessage(message: Helper.getCustomBlockedMessage(claimId:  claim!.claimId!, appDelegate: appDelegate)
+                                        ?? (Helper.getCustomBlockedMessage(claimId:  claim!.signingChannel!.claimId!, appDelegate: appDelegate) ?? ""))
         } else if let currentClaim = claim {
             displayClaim()
             if !isPlaylist {
