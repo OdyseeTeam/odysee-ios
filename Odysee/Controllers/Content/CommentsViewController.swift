@@ -259,7 +259,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         guard case let .success(page) = result else {
             return
         }
-        print("****Calling didLoadChannels?")
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels
@@ -276,7 +275,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     func checkNoComments() {
         DispatchQueue.main.async {
-            print("****CommentCount=" + String(describing: self.comments.count))
             self.noCommentsLabel.isHidden = self.comments.count > 0
         }
     }

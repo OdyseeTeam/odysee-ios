@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = 64019A0D269C101D00E16A51 /* ImageScrollView */; };
+		6402A30327E14C8800113E26 /* OdyseeLocale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6402A30227E14C8800113E26 /* OdyseeLocale.swift */; };
 		640BEF2F2587A8FA0019B840 /* LbryNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640BEF2E2587A8FA0019B840 /* LbryNotification.swift */; };
 		640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640BEF332587DB5D0019B840 /* NotificationTableViewCell.swift */; };
 		641108DC255A8D7D00F0FB8A /* Lbryio.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641108DB255A8D7D00F0FB8A /* Lbryio.swift */; };
@@ -24,6 +25,7 @@
 		641615052581267B003A2194 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 641615042581267B003A2194 /* GoogleService-Info.plist */; };
 		641682D825ACBA7800BCDC3A /* CommentsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641682D725ACBA7800BCDC3A /* CommentsViewController.swift */; };
 		641AFAE925B606E000218BD9 /* UAButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641AFAE825B606E000218BD9 /* UAButton.swift */; };
+		641B3E2727E0EFCC0089E816 /* CustomBlockRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641B3E2627E0EFCC0089E816 /* CustomBlockRule.swift */; };
 		641E7EB92608BDB100A79CD3 /* Predefined.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E7EB82608BDB100A79CD3 /* Predefined.swift */; };
 		641E7EC12608BE0C00A79CD3 /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E7EC02608BE0C00A79CD3 /* Language.swift */; };
 		641E7EC62608BE5800A79CD3 /* License.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E7EC52608BE5700A79CD3 /* License.swift */; };
@@ -125,6 +127,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6402A30227E14C8800113E26 /* OdyseeLocale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLocale.swift; sourceTree = "<group>"; };
 		640BEF2E2587A8FA0019B840 /* LbryNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryNotification.swift; sourceTree = "<group>"; };
 		640BEF332587DB5D0019B840 /* NotificationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTableViewCell.swift; sourceTree = "<group>"; };
 		641108DB255A8D7D00F0FB8A /* Lbryio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lbryio.swift; sourceTree = "<group>"; };
@@ -140,6 +143,7 @@
 		641615042581267B003A2194 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		641682D725ACBA7800BCDC3A /* CommentsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsViewController.swift; sourceTree = "<group>"; };
 		641AFAE825B606E000218BD9 /* UAButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAButton.swift; sourceTree = "<group>"; };
+		641B3E2627E0EFCC0089E816 /* CustomBlockRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomBlockRule.swift; sourceTree = "<group>"; };
 		641E7EB82608BDB100A79CD3 /* Predefined.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Predefined.swift; sourceTree = "<group>"; };
 		641E7EC02608BE0C00A79CD3 /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		641E7EC52608BE5700A79CD3 /* License.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = License.swift; sourceTree = "<group>"; };
@@ -298,6 +302,8 @@
 				641E7EC02608BE0C00A79CD3 /* Language.swift */,
 				CC80EC0E2672A80700CA07DA /* Page.swift */,
 				641E7EC52608BE5700A79CD3 /* License.swift */,
+				641B3E2627E0EFCC0089E816 /* CustomBlockRule.swift */,
+				6402A30227E14C8800113E26 /* OdyseeLocale.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -718,6 +724,7 @@
 				CC80EC0F2672A80700CA07DA /* Page.swift in Sources */,
 				64666B032587378400DF4608 /* ChannelEditorViewController.swift in Sources */,
 				649F023C2717F918009A5698 /* Constants.swift in Sources */,
+				641B3E2727E0EFCC0089E816 /* CustomBlockRule.swift in Sources */,
 				642B6B07257A635300F17355 /* WalletSync.swift in Sources */,
 				646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */,
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
@@ -736,6 +743,7 @@
 				641108E7255AA2BC00F0FB8A /* InitViewController.swift in Sources */,
 				64666AFB25872BE000DF4608 /* ChannelManagerViewController.swift in Sources */,
 				64666AF62587290200DF4608 /* ChannelListTableViewCell.swift in Sources */,
+				6402A30327E14C8800113E26 /* OdyseeLocale.swift in Sources */,
 				640BEF2F2587A8FA0019B840 /* LbryNotification.swift in Sources */,
 				64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */,
 				CC015766267A9C1100F96EFE /* ImageURLs.swift in Sources */,
