@@ -262,10 +262,25 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 (currentClaim.signingChannel != nil && Lbryio.isClaimBlocked(currentClaim.signingChannel!))
             {
                 displayClaimBlocked()
-            } else if (Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate) ||
-                        Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate)) {
-                displayClaimBlockedWithMessage(message: Helper.getCustomBlockedMessage(claimId: currentClaim.claimId!, appDelegate: appDelegate)
-                                                ?? (Helper.getCustomBlockedMessage(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate) ?? ""))
+            } else if Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate) ||
+                Helper.isCustomBlocked(
+                    claimId: currentClaim.signingChannel!.claimId!,
+                    appDelegate: appDelegate
+                )
+            {
+                displayClaimBlockedWithMessage(
+                    message: Helper
+                        .getCustomBlockedMessage(claimId: currentClaim.claimId!, appDelegate: appDelegate)
+                        ??
+                        (
+                            Helper
+                                .getCustomBlockedMessage(
+                                    claimId: currentClaim.signingChannel!
+                                        .claimId!,
+                                    appDelegate: appDelegate
+                                ) ?? ""
+                        )
+                )
             } else {
                 displayClaim()
                 if !isPlaylist {
@@ -314,10 +329,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             .isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!))
         {
             displayClaimBlocked()
-        } else if (Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate) ||
-                    Helper.isCustomBlocked(claimId:  claim!.signingChannel!.claimId!, appDelegate: appDelegate)) {
-            displayClaimBlockedWithMessage(message: Helper.getCustomBlockedMessage(claimId:  claim!.claimId!, appDelegate: appDelegate)
-                                        ?? (Helper.getCustomBlockedMessage(claimId:  claim!.signingChannel!.claimId!, appDelegate: appDelegate) ?? ""))
+        } else if Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate) ||
+            Helper.isCustomBlocked(claimId: claim!.signingChannel!.claimId!, appDelegate: appDelegate)
+        {
+            displayClaimBlockedWithMessage(
+                message: Helper
+                    .getCustomBlockedMessage(claimId: claim!.claimId!, appDelegate: appDelegate)
+                    ??
+                    (
+                        Helper
+                            .getCustomBlockedMessage(
+                                claimId: claim!.signingChannel!.claimId!,
+                                appDelegate: appDelegate
+                            ) ?? ""
+                    )
+            )
         } else if let currentClaim = claim {
             displayClaim()
             if !isPlaylist {
@@ -380,9 +406,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func displayClaimBlocked() {
-        displayClaimBlockedWithMessage(message: "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications.")
+        displayClaimBlockedWithMessage(
+            message: "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications."
+        )
     }
-    
+
     func displayClaimBlockedWithMessage(message: String) {
         DispatchQueue.main.async {
             self.resolvingView.isHidden = false
@@ -1194,11 +1222,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         checkFollowing(singleClaim)
         checkNotificationsDisabled(singleClaim)
     }
-    
+
     func getStreamingUrlAndInitializePlayer(_ singleClaim: Claim) {
         var params = [String: Any]()
         params["uri"] = singleClaim.permanentUrl!
-        
+
         Lbry.apiCall(
             method: Lbry.methodGet,
             params: params,
@@ -1209,11 +1237,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     self.showError(error: error)
                     return
                 }
-                
+
                 if let result = data["result"] as? [String: Any] {
                     if let streamingUrl = result["streaming_url"] as? String {
                         DispatchQueue.main.async {
-                            self.initializePlayerWithUrl(singleClaim: singleClaim, sourceUrl: URL(string: streamingUrl)!)
+                            self.initializePlayerWithUrl(
+                                singleClaim: singleClaim,
+                                sourceUrl: URL(string: streamingUrl)!
+                            )
                         }
                     }
                 }
@@ -1468,7 +1499,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
                 unsubscribing: Lbryio.isFollowing(claim: channelClaim)
             )
-            
+
             // check if the following tab is open to prevent a crash
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             if let vc = appDelegate.mainTabViewController?.selectedViewController as? FollowingViewController {

@@ -9,7 +9,7 @@ import Foundation
 
 final class Lighthouse {
     static let connectionString = "https://lighthouse.lbry.com"
-    
+
     static var relatedContentCache: [String: Any] = [:]
 
     static let keywordsForEmptyResults = [
@@ -30,7 +30,9 @@ final class Lighthouse {
         for keyword in keywordsForEmptyResults {
             let pattern = String(format: "\\b%@\\b", NSRegularExpression.escapedPattern(for: keyword))
             let trimmedQuery = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmedQuery.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil || trimmedQuery == keyword {
+            if trimmedQuery
+                .range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil || trimmedQuery == keyword
+            {
                 return true
             }
         }
@@ -54,7 +56,9 @@ final class Lighthouse {
         for keyword in keywordsForEmptyResults {
             let pattern = String(format: "\\b%@\\b", NSRegularExpression.escapedPattern(for: keyword))
             let trimmedQuery = rawQuery.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-            if trimmedQuery.range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil || trimmedQuery == keyword {
+            if trimmedQuery
+                .range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil || trimmedQuery == keyword
+            {
                 completion([], nil)
                 return
             }

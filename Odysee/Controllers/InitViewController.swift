@@ -68,7 +68,7 @@ class InitViewController: UIViewController {
                             return
                         }
                     }
-                    
+
                     // show a startup error message
                     self.initErrorState = true
                     self.showError() // TODO: Show more meaningful errors for /user/me failures?

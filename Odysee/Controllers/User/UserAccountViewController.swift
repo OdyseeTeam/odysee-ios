@@ -93,7 +93,7 @@ class UserAccountViewController: UIViewController {
         let info = notification.userInfo
         let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
         let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-        
+
         let height = UIScreen.main.bounds.height
         let width = UIScreen.main.bounds.width
         uaScrollView.contentSize = CGSize(width: width, height: height)
@@ -105,7 +105,7 @@ class UserAccountViewController: UIViewController {
         let contentInsets = UIEdgeInsets.zero
         uaScrollView.contentInset = contentInsets
         uaScrollView.scrollIndicatorInsets = contentInsets
-        
+
         haveAccountLabel.isHidden = false
         switchModeButton.isHidden = false
     }

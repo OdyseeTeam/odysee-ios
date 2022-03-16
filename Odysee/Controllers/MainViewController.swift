@@ -31,7 +31,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     var loadingNotifications = false
     var notificationsViewActive = false
     var channels: [Claim] = []
-    var customBlockRulesMap: Dictionary<String, [CustomBlockRule]> = [:]
+    var customBlockRulesMap: [String: [CustomBlockRule]] = [:]
     var currentLocale: OdyseeLocale?
 
     var mainNavigationController: UINavigationController!
@@ -322,7 +322,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             // pass
         }
     }
-    
+
     func loadLocaleAndCustomBlockedRules() {
         do {
             try Lbryio.get(resource: "locale", action: "get", options: [:], completion: { data, error in
@@ -334,7 +334,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                     self.currentLocale?.continent = result["continent"] as? String
                     self.currentLocale?.country = result["country"] as? String
                     self.currentLocale?.isEUMember = result["is_eu_member"] as? Bool
-                    
+
                     self.loadCustomBlockedRules()
                 }
             })
@@ -342,7 +342,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             // pass
         }
     }
-        
+
     func loadCustomBlockedRules() {
         do {
             try Lbryio.get(resource: "geo", action: "blocked_list", options: [:], completion: { data, error in
@@ -350,22 +350,33 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                     return
                 }
 
-                if let result = data as? [String: Any]
-                {
+                if let result = data as? [String: Any] {
                     if let livestreams = result["livestreams"] as? [String: Any] {
                         // parse block rules for livestreams
                         livestreams.forEach { claimId, value in
                             var cbRules: [CustomBlockRule] = []
                             if let rules = value as? [String: [Any]] {
-                                cbRules += self.parseCustomBlockRules(rules: rules["countries"], type: CustomBlockContentType.livestreams, scope: CustomBlockScope.country)
-                                cbRules += self.parseCustomBlockRules(rules: rules["continents"], type: CustomBlockContentType.livestreams, scope: CustomBlockScope.continent)
-                                cbRules += self.parseCustomBlockRules(rules: rules["specials"], type: CustomBlockContentType.livestreams, scope: CustomBlockScope.special)
+                                cbRules += self.parseCustomBlockRules(
+                                    rules: rules["countries"],
+                                    type: CustomBlockContentType.livestreams,
+                                    scope: CustomBlockScope.country
+                                )
+                                cbRules += self.parseCustomBlockRules(
+                                    rules: rules["continents"],
+                                    type: CustomBlockContentType.livestreams,
+                                    scope: CustomBlockScope.continent
+                                )
+                                cbRules += self.parseCustomBlockRules(
+                                    rules: rules["specials"],
+                                    type: CustomBlockContentType.livestreams,
+                                    scope: CustomBlockScope.special
+                                )
                             }
-                            
+
                             self.customBlockRulesMap[claimId] = cbRules
                         }
                     }
-                    
+
                     if let videos = result["videos"] as? [String: Any] {
                         videos.forEach { claimId, value in
                             var cbRules: [CustomBlockRule]? = self.customBlockRulesMap[claimId]
@@ -373,11 +384,23 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                                 cbRules = []
                             }
                             if let rules = value as? [String: [Any]] {
-                                cbRules! += self.parseCustomBlockRules(rules: rules["countries"], type: CustomBlockContentType.videos, scope: CustomBlockScope.country)
-                                cbRules! += self.parseCustomBlockRules(rules: rules["continents"], type: CustomBlockContentType.videos, scope: CustomBlockScope.continent)
-                                cbRules! += self.parseCustomBlockRules(rules: rules["specials"], type: CustomBlockContentType.videos, scope: CustomBlockScope.special)
+                                cbRules! += self.parseCustomBlockRules(
+                                    rules: rules["countries"],
+                                    type: CustomBlockContentType.videos,
+                                    scope: CustomBlockScope.country
+                                )
+                                cbRules! += self.parseCustomBlockRules(
+                                    rules: rules["continents"],
+                                    type: CustomBlockContentType.videos,
+                                    scope: CustomBlockScope.continent
+                                )
+                                cbRules! += self.parseCustomBlockRules(
+                                    rules: rules["specials"],
+                                    type: CustomBlockContentType.videos,
+                                    scope: CustomBlockScope.special
+                                )
                             }
-                            
+
                             self.customBlockRulesMap[claimId] = cbRules!
                         }
                     }
@@ -387,16 +410,20 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             // pass
         }
     }
-    
-    func parseCustomBlockRules(rules: [Any]?, type: CustomBlockContentType, scope: CustomBlockScope) -> [CustomBlockRule] {
-        if (rules == nil) {
+
+    func parseCustomBlockRules(
+        rules: [Any]?,
+        type: CustomBlockContentType,
+        scope: CustomBlockScope
+    ) -> [CustomBlockRule] {
+        if rules == nil {
             return []
         }
-        
+
         var cbRules: [CustomBlockRule] = []
         rules!.forEach { rule in
             if let indvRule = rule as? [String: Any] {
-                var cbRule: CustomBlockRule = CustomBlockRule()
+                var cbRule = CustomBlockRule()
                 cbRule.type = type
                 cbRule.scope = scope
                 cbRule.id = indvRule["id"] as? String
@@ -406,7 +433,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                 cbRules.append(cbRule)
             }
         }
-        
+
         return cbRules
     }
 

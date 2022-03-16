@@ -45,7 +45,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func registerPlayerObserver() {
         if lazyPlayer != nil, !playerObserverAdded {
             lazyPlayer!.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
-            lazyPlayer!.currentItem!.addObserver(self, forKeyPath: "playbackLikelyToKeepUp", options: [.new], context: nil)
+            lazyPlayer!.currentItem!.addObserver(
+                self,
+                forKeyPath: "playbackLikelyToKeepUp",
+                options: [.new],
+                context: nil
+            )
             playerObserverAdded = true
         }
         NotificationCenter.default.addObserver(

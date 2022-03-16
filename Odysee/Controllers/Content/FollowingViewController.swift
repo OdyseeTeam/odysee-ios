@@ -98,7 +98,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
         }
     }
-    
+
     func removeFollowing(claim: Claim) {
         DispatchQueue.main.async {
             self.following.remove(claim)

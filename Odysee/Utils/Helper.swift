@@ -302,54 +302,56 @@ final class Helper {
             }
         }
     }
-    
+
     static func isCustomBlocked(claimId: String, appDelegate: AppDelegate) -> Bool {
         var isBlocked = false
         if let rules = appDelegate.mainController.customBlockRulesMap[claimId],
-           let locale = appDelegate.mainController.currentLocale {
+           let locale = appDelegate.mainController.currentLocale
+        {
             for rule in rules {
-                if (rule.scope == CustomBlockScope.special && "eu-only" == rule.id?.lowercased() && locale.isEUMember!) {
+                if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only", locale.isEUMember! {
                     isBlocked = true
                     break
                 }
-                
-                if (rule.scope == CustomBlockScope.continent && rule.id?.lowercased() == locale.continent?.lowercased()) {
+
+                if rule.scope == CustomBlockScope.continent, rule.id?.lowercased() == locale.continent?.lowercased() {
                     isBlocked = true
                     break
                 }
-                
-                if (rule.scope == CustomBlockScope.country && rule.id?.lowercased() == locale.country?.lowercased()) {
+
+                if rule.scope == CustomBlockScope.country, rule.id?.lowercased() == locale.country?.lowercased() {
                     isBlocked = true
                     break
                 }
             }
         }
-        
+
         return isBlocked
     }
-    
+
     static func getCustomBlockedMessage(claimId: String, appDelegate: AppDelegate) -> String? {
         var message: String?
         if let rules = appDelegate.mainController.customBlockRulesMap[claimId],
-           let locale = appDelegate.mainController.currentLocale {
+           let locale = appDelegate.mainController.currentLocale
+        {
             for rule in rules {
-                if (rule.scope == CustomBlockScope.special && "eu-only" == rule.id?.lowercased() && locale.isEUMember!) {
+                if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only", locale.isEUMember! {
                     message = rule.message!
                     break
                 }
-                
-                if (rule.scope == CustomBlockScope.continent && rule.id?.lowercased() == locale.continent?.lowercased()) {
+
+                if rule.scope == CustomBlockScope.continent, rule.id?.lowercased() == locale.continent?.lowercased() {
                     message = rule.message!
                     break
                 }
-                
-                if (rule.scope == CustomBlockScope.country && rule.id?.lowercased() == locale.country?.lowercased()) {
+
+                if rule.scope == CustomBlockScope.country, rule.id?.lowercased() == locale.country?.lowercased() {
                     message = rule.message!
                     break
                 }
             }
         }
-        
+
         return message
     }
 }
