@@ -1240,7 +1240,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
                 if let result = data["result"] as? [String: Any] {
                     if let streamingUrl = result["streaming_url"] as? String,
-                       let sourceUrl = URL(string: streamingUrl.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!) {
+                       let sourceUrl = URL(
+                           string: streamingUrl
+                               .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
+                       )
+                    {
                         DispatchQueue.main.async {
                             self.initializePlayerWithUrl(
                                 singleClaim: singleClaim,
