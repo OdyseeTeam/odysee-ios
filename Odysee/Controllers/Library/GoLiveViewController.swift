@@ -255,29 +255,33 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return false
         }
 
-        var effectiveAmount = Decimal(0)
         let channel = channels[0]
         if channel.confirmations! < 1 {
+            channelErrorLabel.isHidden = false
             channelErrorLabel.text = String
                 .localized("Your channel is still pending. Please wait a couple of minutes and try again.")
             return false
         }
 
-        if let meta = channel.meta {
-            effectiveAmount = Decimal(string: meta.effectiveAmount!)!
-        }
-        if effectiveAmount < GoLiveViewController.minStreamStake {
-            channelErrorLabel.text = String(
-                format: String
-                    .localized(
-                        "You need to have at least %@ credits staked (directly or through supports) on %@ to be able to livestream."
-                    ),
-                String(describing: GoLiveViewController.minStreamStake),
-                channel.name!
-            )
-            return false
-        }
-
+        // Disabled due to lack of server side checking for now
+//        var effectiveAmount = Decimal(0)
+//        if let meta = channel.meta {
+//            effectiveAmount = Decimal(string: meta.effectiveAmount!)!
+//        }
+//        if effectiveAmount < GoLiveViewController.minStreamStake {
+//            channelErrorLabel.isHidden = false
+//            channelErrorLabel.text = String(
+//                format: String
+//                    .localized(
+//                        "You need to have at least %@ credits staked (directly or through supports) on %@ to be able to livestream."
+//                    ),
+//                String(describing: GoLiveViewController.minStreamStake),
+//                channel.name!
+//            )
+//            return false
+//        }
+        
+        channelErrorLabel.isHidden = true
         return true
     }
 
