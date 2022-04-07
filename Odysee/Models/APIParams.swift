@@ -38,6 +38,7 @@ struct ClaimListParams: Encodable {
 
 struct ClaimSearchParams: Encodable {
     var claimType: [ClaimType]?
+    var streamTypes: [StreamType]?
     var noTotals: Bool? = true // server defaults to false, but we dont need totals.
     var page: Int?
     var pageSize: Int?

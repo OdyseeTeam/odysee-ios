@@ -141,7 +141,8 @@ class HomeViewController: UIViewController,
         Lbry.apiCall(
             method: Lbry.Methods.claimSearch,
             params: .init(
-                claimType: [.stream],
+                claimType: [.stream, .repost],
+                streamTypes: [.audio, .video],
                 page: currentPage,
                 pageSize: pageSize,
                 releaseTime: isWildWest ?

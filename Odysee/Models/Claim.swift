@@ -14,6 +14,15 @@ enum ClaimType: String, Codable {
     case collection
 }
 
+enum StreamType: String, Codable {
+    case audio
+    case binary
+    case document
+    case image
+    case model
+    case video
+}
+
 class Claim: Decodable, Equatable, Hashable {
     var address: String?
     var amount: String?
