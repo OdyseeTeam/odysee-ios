@@ -362,13 +362,13 @@
 		64666B08258737A200DF4608 /* Content */ = {
 			isa = PBXGroup;
 			children = (
+				641682D725ACBA7800BCDC3A /* CommentsViewController.swift */,
 				CCDDA9162655C1340006035F /* FileDismissAnimationController.swift */,
 				644F76AD25592F8400813451 /* FileViewController.swift */,
 				64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */,
 				64FBE7A025502A290082AF2E /* HomeViewController.swift */,
 				64A6CA70255DADFB00294E74 /* SearchViewController.swift */,
 				646E54E9257E565000BEBFBE /* SupportViewController.swift */,
-				641682D725ACBA7800BCDC3A /* CommentsViewController.swift */,
 			);
 			path = Content;
 			sourceTree = "<group>";

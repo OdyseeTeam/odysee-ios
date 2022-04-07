@@ -36,10 +36,15 @@ class ClaimTableViewCell: UITableViewCell {
         if claim.claimId == "placeholder" || claim.claimId == "new" {
             return []
         }
+        
+        var actualClaim: Claim = claim
+        if (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) {
+            actualClaim = claim.repostedClaim!
+        }
 
         var result = [URL]()
-        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
-            let isChannel = claim.name?.starts(with: "@") ?? false
+        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init) {
+            let isChannel = actualClaim.name?.starts(with: "@") ?? false
             let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
             result.append(thumbnailUrl.makeImageURL(spec: spec))
         }
@@ -47,7 +52,13 @@ class ClaimTableViewCell: UITableViewCell {
     }
 
     func setClaim(claim: Claim) {
-        if currentClaim != nil && claim.claimId != currentClaim!.claimId {
+        var actualClaim: Claim = claim
+        if (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) {
+            print("*****Repost: " + claim.repostedClaim!.name!)
+            actualClaim = claim.repostedClaim!
+        }
+        
+        if currentClaim != nil && actualClaim.claimId != currentClaim!.claimId {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
             thumbnailImageView.pin_cancelImageDownload()
             thumbnailImageView.image = nil
@@ -57,22 +68,22 @@ class ClaimTableViewCell: UITableViewCell {
             channelImageView.backgroundColor = nil
         }
 
-        backgroundColor = claim.featured ? UIColor.black : nil
+        backgroundColor = actualClaim.featured ? UIColor.black : nil
 
-        thumbnailImageView.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
-        titleLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
-        publisherLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
-        publishTimeLabel.backgroundColor = claim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
-        durationView.isHidden = claim.claimId == "placeholder" || claim.claimId == "new"
+        thumbnailImageView.backgroundColor = actualClaim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
+        titleLabel.backgroundColor = actualClaim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
+        publisherLabel.backgroundColor = actualClaim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
+        publishTimeLabel.backgroundColor = actualClaim.claimId == "placeholder" ? UIColor.systemGray5 : UIColor.clear
+        durationView.isHidden = actualClaim.claimId == "placeholder" || actualClaim.claimId == "new"
 
-        if claim.claimId == "placeholder" {
+        if actualClaim.claimId == "placeholder" {
             titleLabel.text = nil
             publisherLabel.text = nil
             publishTimeLabel.text = nil
             return
         }
 
-        if claim.claimId == "new" {
+        if actualClaim.claimId == "new" {
             titleLabel.text = String.localized("New Upload")
             publisherLabel.text = nil
             publishTimeLabel.text = nil
@@ -80,21 +91,21 @@ class ClaimTableViewCell: UITableViewCell {
             return
         }
 
-        currentClaim = claim
+        currentClaim = actualClaim
 
-        let isChannel = claim.name!.starts(with: "@")
+        let isChannel = actualClaim.name!.starts(with: "@")
         channelImageView.isHidden = !isChannel
         thumbnailImageView.isHidden = isChannel
 
-        titleLabel.textColor = claim.featured ? UIColor.white : nil
-        titleLabel.text = isChannel ? claim.name : claim.value?.title
-        publisherLabel.text = isChannel ? claim.name : claim.signingChannel?.name
-        if claim.value?.source == nil, !isChannel {
+        titleLabel.textColor = actualClaim.featured ? UIColor.white : nil
+        titleLabel.text = isChannel ? actualClaim.name : actualClaim.value?.title
+        publisherLabel.text = isChannel ? actualClaim.name : actualClaim.signingChannel?.name
+        if actualClaim.value?.source == nil, !isChannel {
             publisherLabel.text = "LIVE"
         }
 
         // load thumbnail url
-        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
+        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init) {
             if isChannel {
                 channelImageView.load(url: thumbnailUrl.makeImageURL(spec: Self.channelImageSpec))
             } else {
@@ -110,12 +121,12 @@ class ClaimTableViewCell: UITableViewCell {
             }
         }
 
-        var releaseTime = Double(claim.value?.releaseTime ?? "0")!
+        var releaseTime = Double(actualClaim.value?.releaseTime ?? "0")!
         if releaseTime == 0 {
-            releaseTime = Double(claim.timestamp ?? 0)
+            releaseTime = Double(actualClaim.timestamp ?? 0)
         }
 
-        publishTimeLabel.textColor = claim.featured ? UIColor.white : nil
+        publishTimeLabel.textColor = actualClaim.featured ? UIColor.white : nil
         if releaseTime > 0 {
             let date = Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
             publishTimeLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
@@ -124,8 +135,8 @@ class ClaimTableViewCell: UITableViewCell {
         }
 
         var duration: Int64 = 0
-        if claim.value?.video != nil || claim.value?.audio != nil {
-            let streamInfo = claim.value?.video ?? claim.value?.audio
+        if actualClaim.value?.video != nil || actualClaim.value?.audio != nil {
+            let streamInfo = actualClaim.value?.video ?? actualClaim.value?.audio
             duration = streamInfo?.duration ?? 0
         }
 
