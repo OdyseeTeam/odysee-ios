@@ -54,7 +54,6 @@ class ClaimTableViewCell: UITableViewCell {
     func setClaim(claim: Claim) {
         var actualClaim: Claim = claim
         if (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) {
-            print("*****Repost: " + claim.repostedClaim!.name!)
             actualClaim = claim.repostedClaim!
         }
         
