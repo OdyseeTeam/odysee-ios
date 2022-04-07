@@ -250,7 +250,8 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         .subscribeResult(didLoadChannels)
     }
 
-    func canStreamOnChannel(_ channel: Claim?) -> Bool {
+    /// Checks if it's possible to stream on `channel`, and update the error label with the reason if not.
+    func checkCanStreamOnChannel(_ channel: Claim?) -> Bool {
         if channel == nil {
             return false
         }
@@ -329,7 +330,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             // check the selected picker item
             if self.channels.count > 0 {
                 self.selectedChannel = self.channels[self.channelPicker.selectedRow(inComponent: 0)]
-                _ = self.canStreamOnChannel(self.selectedChannel)
+                _ = self.checkCanStreamOnChannel(self.selectedChannel)
             }
         }
     }
@@ -342,7 +343,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
 
-        if !canStreamOnChannel(selectedChannel) {
+        if !checkCanStreamOnChannel(selectedChannel) {
             showError(message: String.localized("Please select a valid channel to continue"))
             return
         }
@@ -504,7 +505,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selectedChannel = channels[row]
-        _ = canStreamOnChannel(selectedChannel)
+        _ = checkCanStreamOnChannel(selectedChannel)
     }
 
     @IBAction func selectImageTapped(_ sender: UIButton) {
