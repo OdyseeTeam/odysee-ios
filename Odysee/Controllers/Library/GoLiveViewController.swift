@@ -250,34 +250,39 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         .subscribeResult(didLoadChannels)
     }
 
-    func canStreamOnChannel(_ channel: Claim?) -> Bool {
+    /// Checks if it's possible to stream on `channel`, and update the error label with the reason if not.
+    func checkCanStreamOnChannel(_ channel: Claim?) -> Bool {
         if channel == nil {
             return false
         }
 
-        var effectiveAmount = Decimal(0)
         let channel = channels[0]
         if channel.confirmations! < 1 {
+            channelErrorLabel.isHidden = false
             channelErrorLabel.text = String
                 .localized("Your channel is still pending. Please wait a couple of minutes and try again.")
             return false
         }
 
-        if let meta = channel.meta {
-            effectiveAmount = Decimal(string: meta.effectiveAmount!)!
-        }
-        if effectiveAmount < GoLiveViewController.minStreamStake {
-            channelErrorLabel.text = String(
-                format: String
-                    .localized(
-                        "You need to have at least %@ credits staked (directly or through supports) on %@ to be able to livestream."
-                    ),
-                String(describing: GoLiveViewController.minStreamStake),
-                channel.name!
-            )
-            return false
-        }
-
+        // Disabled due to lack of server side checking for now
+//        var effectiveAmount = Decimal(0)
+//        if let meta = channel.meta {
+//            effectiveAmount = Decimal(string: meta.effectiveAmount!)!
+//        }
+//        if effectiveAmount < GoLiveViewController.minStreamStake {
+//            channelErrorLabel.isHidden = false
+//            channelErrorLabel.text = String(
+//                format: String
+//                    .localized(
+//                        "You need to have at least %@ credits staked (directly or through supports) on %@ to be able to livestream."
+//                    ),
+//                String(describing: GoLiveViewController.minStreamStake),
+//                channel.name!
+//            )
+//            return false
+//        }
+        
+        channelErrorLabel.isHidden = true
         return true
     }
 
@@ -325,7 +330,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             // check the selected picker item
             if self.channels.count > 0 {
                 self.selectedChannel = self.channels[self.channelPicker.selectedRow(inComponent: 0)]
-                _ = self.canStreamOnChannel(self.selectedChannel)
+                _ = self.checkCanStreamOnChannel(self.selectedChannel)
             }
         }
     }
@@ -338,7 +343,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
 
-        if !canStreamOnChannel(selectedChannel) {
+        if !checkCanStreamOnChannel(selectedChannel) {
             showError(message: String.localized("Please select a valid channel to continue"))
             return
         }
@@ -500,7 +505,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         selectedChannel = channels[row]
-        _ = canStreamOnChannel(selectedChannel)
+        _ = checkCanStreamOnChannel(selectedChannel)
     }
 
     @IBAction func selectImageTapped(_ sender: UIButton) {
