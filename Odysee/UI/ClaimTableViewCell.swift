@@ -10,8 +10,8 @@ import UIKit
 class ClaimTableViewCell: UITableViewCell {
     static let nib = UINib(nibName: "ClaimTableViewCell", bundle: nil)
     static let spacemanImage = UIImage(named: "spaceman")
-    static let thumbImageSpec = ImageSpec(size: CGSize(width: 160, height: 90))
-    static let channelImageSpec = ImageSpec(size: CGSize(width: 90, height: 90))
+    static let thumbImageSpec = ImageSpec(size: CGSize(width: 390, height: 220))
+    static let channelImageSpec = ImageSpec(size: CGSize(width: 100, height: 0))
 
     @IBOutlet var channelImageView: UIImageView!
     @IBOutlet var thumbnailImageView: UIImageView!

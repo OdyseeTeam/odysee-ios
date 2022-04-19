@@ -19,6 +19,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var subscribeUnsubscribeInProgress = false
     var livestreamTimer = Timer()
     let livestreamTimerInterval: Double = 60 // 1 minute
+    let coverImageSpec = ImageSpec(size: CGSize(width: 0, height: 0), quality: 95)
 
     @IBOutlet var thumbnailImageView: UIImageView!
     @IBOutlet var coverImageView: UIImageView!
@@ -276,14 +277,16 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             )
 
             if channelClaim?.value?.thumbnail != nil {
-                thumbnailImageView.load(url: URL(string: (channelClaim?.value?.thumbnail?.url)!)!)
+                let optimisedThumbUrl = URL(string: (channelClaim?.value?.thumbnail?.url)!)!.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+                thumbnailImageView.load(url: optimisedThumbUrl)
             } else {
                 thumbnailImageView.image = UIImage(named: "spaceman")
                 thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
             }
 
             if channelClaim?.value?.cover != nil {
-                coverImageView.load(url: URL(string: (channelClaim?.value?.cover?.url)!)!)
+                let optimisedCoverUrl = URL(string: (channelClaim?.value?.cover?.url)!)!.makeImageURL(spec: coverImageSpec)
+                coverImageView.load(url: optimisedCoverUrl)
             } else {
                 coverImageView.image = UIImage(named: "spaceman_cover")
             }

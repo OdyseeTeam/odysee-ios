@@ -9,7 +9,7 @@ import Foundation
 import PINRemoteImage
 import UIKit
 
-private let kImageServerBaseURL = "https://image-processor.vanwanet.com/optimize/"
+private let kImageServerBaseURL = "https://thumbnails.odycdn.com/optimize/"
 private let kScale = UIScreen.main.scale
 
 struct ImageSpec {

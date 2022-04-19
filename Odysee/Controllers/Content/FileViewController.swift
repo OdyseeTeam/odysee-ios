@@ -168,6 +168,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     let checkLivestreamTranscodeInterval: Double = 30 // 30 seconds
     var checkLivestreamTranscodeTimer = Timer()
     var checkLivestreamTranscodeScheduled = false
+    let bigThumbSpec = ImageSpec(size: CGSize(width: 0, height: 0), quality: 95)
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -592,7 +593,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             } else if isImageContent {
                 var thumbnailDisplayUrl = contentUrl
                 if !(singleClaim.value?.thumbnail?.url ?? "").isBlank {
-                    thumbnailDisplayUrl = URL(string: singleClaim.value!.thumbnail!.url!)!
+                    thumbnailDisplayUrl =  URL(string: singleClaim.value!.thumbnail!.url!)!.makeImageURL(spec: bigThumbSpec)
                 }
                 contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
                 PINRemoteImageManager.shared().downloadImage(with: contentUrl!) { result in
@@ -662,7 +663,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 livestreamerNameLabel.text = singleClaim.signingChannel?.name
             }
             if singleClaim.signingChannel?.value != nil, singleClaim.signingChannel?.value?.thumbnail != nil {
-                thumbnailUrl = URL(string: singleClaim.signingChannel!.value!.thumbnail!.url!)!
+                thumbnailUrl = URL(string: singleClaim.signingChannel!.value!.thumbnail!.url!)!.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
             }
         } else {
             publisherTitleLabel.text = String.localized("Anonymous")
@@ -670,10 +671,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         if thumbnailUrl != nil {
+            let optimisedThumbUrl = thumbnailUrl?.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
             if !isLivestream {
-                publisherImageView.load(url: thumbnailUrl!)
+                publisherImageView.load(url: optimisedThumbUrl!)
             } else {
-                livestreamerImageView.load(url: thumbnailUrl!)
+                livestreamerImageView.load(url: optimisedThumbUrl!)
             }
         } else {
             if !isLivestream {

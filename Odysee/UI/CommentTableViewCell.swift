@@ -46,8 +46,9 @@ class CommentTableViewCell: UITableViewCell {
     func displayAuthorImage() {
         if currentComment?.channelUrl != nil {
             if let thumbnailUrl = authorImageMap[currentComment!.channelUrl!] {
+                let optimisedUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
                 authorThumbnailView.backgroundColor = UIColor.clear
-                authorThumbnailView.load(url: thumbnailUrl)
+                authorThumbnailView.load(url: optimisedUrl)
             } else {
                 authorThumbnailView.image = UIImage(named: "spaceman")
                 authorThumbnailView.backgroundColor = Helper.lightPrimaryColor
