@@ -330,7 +330,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         {
             displayClaimBlocked()
         } else if Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate) ||
-            Helper.isCustomBlocked(claimId: claim!.signingChannel!.claimId!, appDelegate: appDelegate)
+                    (claim!.signingChannel != nil && Helper.isCustomBlocked(claimId: claim!.signingChannel!.claimId!, appDelegate: appDelegate))
         {
             displayClaimBlockedWithMessage(
                 message: Helper
