@@ -504,7 +504,51 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         loadInitialChatMessages()
+        loadLivestreamNew()
+    }
 
+    func loadLivestreamNew() {
+        let session = URLSession.shared
+        let checkLiveUrl = URL(string: String(format: "https://api.odysee.live/livestream/is_live?channel_claim_id=%@", self.claim!.signingChannel!.claimId!))!
+        var req = URLRequest(url: checkLiveUrl)
+        req.httpMethod = "GET"
+
+        let task = session.dataTask(with: req, completionHandler: { data, response, error in
+            guard let data = data, error == nil else {
+                // handle error
+                self.showError(message: "The livestream could not be loaded right now. Please try again later.")
+                return
+            }
+            do {
+                let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                if let livestreamData = response?["data"] as? [String: Any] {
+                    let live = livestreamData["Live"] as? Bool ?? false
+                    if (!live) {
+                        self.loadLivestreamLegacy()
+                        return
+                    }
+                    
+                    if let streamUrl = (livestreamData["VideoURL"] as? String).flatMap(URL.init) {
+                        let headers: [String: String] = [
+                            "Referer": "https://bitwave.tv",
+                        ]
+                        DispatchQueue.main.async {
+                            self.initializePlayerWithUrl(
+                                singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers, forceInit: true
+                            )
+                        }
+                        self.currentStreamUrl = streamUrl
+                    }
+                }
+            } catch {
+                // use the old approach
+                self.loadLivestreamLegacy()
+            }
+        })
+        task.resume()
+    }
+    
+    func loadLivestreamLegacy() {
         streamInfoUrl =
             URL(string: String(
                 format: "https://api.live.odysee.com/v1/odysee/live/%@",
