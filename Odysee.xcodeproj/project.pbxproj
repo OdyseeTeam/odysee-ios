@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		530525AB28125CCE00D92A2E /* Txo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 530525AA28125CCE00D92A2E /* Txo.swift */; };
 		64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = 64019A0D269C101D00E16A51 /* ImageScrollView */; };
 		6402A30327E14C8800113E26 /* OdyseeLocale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6402A30227E14C8800113E26 /* OdyseeLocale.swift */; };
 		640BEF2F2587A8FA0019B840 /* LbryNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640BEF2E2587A8FA0019B840 /* LbryNotification.swift */; };
@@ -127,6 +128,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		530525AA28125CCE00D92A2E /* Txo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Txo.swift; sourceTree = "<group>"; };
 		6402A30227E14C8800113E26 /* OdyseeLocale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLocale.swift; sourceTree = "<group>"; };
 		640BEF2E2587A8FA0019B840 /* LbryNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryNotification.swift; sourceTree = "<group>"; };
 		640BEF332587DB5D0019B840 /* NotificationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTableViewCell.swift; sourceTree = "<group>"; };
@@ -296,6 +298,7 @@
 				6413273D2556E86000CBB6B8 /* Claim.swift */,
 				642B6B0B257AB9F200F17355 /* WalletBalance.swift */,
 				642B6B10257B4CBC00F17355 /* Transaction.swift */,
+				530525AA28125CCE00D92A2E /* Txo.swift */,
 				646E4A5E259CF13A0008C9C8 /* Comment.swift */,
 				CC015767267C1A0B00F96EFE /* ResolveResult.swift */,
 				CC3A1E7726853D7E00683E28 /* APIParams.swift */,
@@ -696,6 +699,7 @@
 				645912222620789E00B2ABA5 /* ChatMessageTableViewCell.swift in Sources */,
 				CC015768267C1A0B00F96EFE /* ResolveResult.swift in Sources */,
 				64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */,
+				530525AB28125CCE00D92A2E /* Txo.swift in Sources */,
 				64BAFBB22609ED5900BD4B9A /* LibraryViewController.swift in Sources */,
 				641327442556EB2200CBB6B8 /* LbryUri.swift in Sources */,
 				64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */,

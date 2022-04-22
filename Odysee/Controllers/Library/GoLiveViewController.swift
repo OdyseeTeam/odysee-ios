@@ -24,6 +24,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     var selectedChannel: Claim?
     var thumbnailUploadInProgress: Bool = false
     var currentThumbnailUrl: String?
+    var waitForConfirmationTimer: Timer?
     static let minStreamStake = Decimal(50)
 
     @IBOutlet var precheckView: UIView!
@@ -357,6 +358,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
         precheckView.isHidden = false
         precheckLoadingView.isHidden = false
+        precheckLabel.text = String.localized("Please wait, your livestream claim is pending confirmation.")
         livestreamOptionsView.isHidden = true
         createLivestreamClaim(title: title!, channel: channel)
     }
@@ -454,6 +456,30 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         )
     }
 
+    func waitForConfirmation(txid: String, channel: Claim) {
+        DispatchQueue.main.async {
+            self.waitForConfirmationTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { timer in
+                Lbry.apiCall(
+                    method: Lbry.Methods.txoList,
+                    params: .init(
+                        type: [.stream],
+                        txid: txid
+                    )
+                ).subscribeResult(didLoadTxo)
+
+                func didLoadTxo(_ result: Result<Page<Txo>, Error>) {
+                    if case let .success(page) = result,
+                       let confirmations = page.items.first?.confirmations,
+                       confirmations > 0 {
+                        self.signAndSetupStream(channel: channel)
+
+                        self.waitForConfirmationTimer?.invalidate()
+                    }
+                }
+            }
+        }
+    }
+
     func createLivestreamClaim(title: String, channel: Claim) {
         // check eligibility? (50 credits fked on channel)
         let deposit = Decimal(0.001)
@@ -475,7 +501,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard let data = data, error == nil else {
                     DispatchQueue.main.async {
                         self.precheckLoadingView.isHidden = true
                         self.spacemanImage.image = UIImage(named: "spaceman_sad")
@@ -485,8 +511,14 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                     return
                 }
 
-                // The claim was successfully set up. Create the stream key and start
-                self.signAndSetupStream(channel: channel)
+                // The claim was successfully set up.
+                // Wait for the claim to be confirmed, then create the stream key and start
+                let result = data["result"] as? [String: Any]
+                guard let txid = result?["txid"] as? String else {
+                    self.displayRequirementNotMet(message: String.localized("Could not get txid from publish API call."))
+                    return
+                }
+                self.waitForConfirmation(txid: txid, channel: channel)
             }
         )
     }
