@@ -252,11 +252,10 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
     /// Checks if it's possible to stream on `channel`, and update the error label with the reason if not.
     func checkCanStreamOnChannel(_ channel: Claim?) -> Bool {
-        if channel == nil {
+        guard let channel = channel else {
             return false
         }
 
-        let channel = channels[0]
         if channel.confirmations! < 1 {
             channelErrorLabel.isHidden = false
             channelErrorLabel.text = String
@@ -347,6 +346,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             showError(message: String.localized("Please select a valid channel to continue"))
             return
         }
+        let channel = selectedChannel! // Confirmed non-nil by checkCanStreamOnChannel
 
         // check that there is a title
         let title = titleField.text
@@ -358,7 +358,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         precheckView.isHidden = false
         precheckLoadingView.isHidden = false
         livestreamOptionsView.isHidden = true
-        createLivestreamClaim(title: title!)
+        createLivestreamClaim(title: title!, channel: channel)
     }
 
     /* TODO: Determine if we want to be able to reuse existing claims
@@ -383,6 +383,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                      do {
                          let json = try JSONSerialization.data(withJSONObject: items[0], options: [.prettyPrinted, .sortedKeys])
                          let claim: Claim? = try JSONDecoder().decode(Claim.self, from: json)
+                         // TODO: Do not use self.channels[0]. Maybe get channel from claim.
                          self.signAndSetupStream(channel: self.channels[0])
                      } catch {
                          DispatchQueue.main.async {
@@ -398,8 +399,8 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
          })
      }*/
 
-    func signAndSetupStream(channel: Claim?) {
-        let options: [String: Any] = ["channel_id": channel!.claimId!, "hexdata": Helper.strToHex(channel!.name!)]
+    func signAndSetupStream(channel: Claim) {
+        let options: [String: Any] = ["channel_id": channel.claimId!, "hexdata": Helper.strToHex(channel.name!)]
         Lbry.apiCall(
             method: Lbry.methodChannelSign,
             params: options,
@@ -443,19 +444,18 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         )
     }
 
-    func createStreamKey(channel: Claim?, signature: String, signing_ts: String) -> String {
+    func createStreamKey(channel: Claim, signature: String, signing_ts: String) -> String {
         return String(
             format: "%@?d=%@&s=%@&t=%@",
-            channel!.claimId!,
-            Helper.strToHex(channel!.name!),
+            channel.claimId!,
+            Helper.strToHex(channel.name!),
             signature,
             signing_ts
         )
     }
 
-    func createLivestreamClaim(title: String) {
+    func createLivestreamClaim(title: String, channel: Claim) {
         // check eligibility? (50 credits fked on channel)
-        let channel = channels[0] // use the first channel
         let deposit = Decimal(0.001)
         let suffix = String(describing: Int(Date().timeIntervalSince1970))
         let options: [String: Any] = [
@@ -486,7 +486,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                 }
 
                 // The claim was successfully set up. Create the stream key and start
-                self.signAndSetupStream(channel: self.channels[0])
+                self.signAndSetupStream(channel: channel)
             }
         )
     }
