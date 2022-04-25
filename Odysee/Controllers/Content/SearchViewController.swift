@@ -99,8 +99,8 @@ class SearchViewController: UIViewController,
             if winningClaims.count > 0 {
                 winningClaims
                     .sort(by: {
-                        Decimal(string: $1.meta?.effectiveAmount ?? "0")! >
-                            Decimal(string: $0.meta?.effectiveAmount ?? "0")!
+                        Decimal(string: $0.meta?.effectiveAmount ?? "0")! >
+                            Decimal(string: $1.meta?.effectiveAmount ?? "0")!
                     })
                 let winningClaim = winningClaims[0]
                 winningClaim.featured = true
