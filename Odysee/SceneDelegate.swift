@@ -86,9 +86,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 return
             }
 
-            let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false)
-            if lbryUrl != nil {
-                if lbryUrl!.isChannelUrl() {
+            if let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false) {
+                if lbryUrl.isChannel {
                     let vc = appDelegate.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl

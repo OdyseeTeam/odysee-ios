@@ -283,9 +283,8 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                 return
             }
 
-            let lbryUrl = LbryUri.tryParse(url: notification.targetUrl!, requireProto: false)
-            if lbryUrl != nil {
-                if lbryUrl!.isChannelUrl() {
+            if let lbryUrl = LbryUri.tryParse(url: notification.targetUrl!, requireProto: false) {
+                if lbryUrl.isChannel {
                     let vc = storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
