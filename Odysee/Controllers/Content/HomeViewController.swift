@@ -13,9 +13,12 @@ import UIKit
 class HomeViewController: UIViewController,
     UITableViewDelegate,
     UITableViewDataSource,
+    UICollectionViewDataSource,
+    UICollectionViewDelegate,
     UIPickerViewDelegate,
     UIPickerViewDataSource,
-    UITableViewDataSourcePrefetching
+    UITableViewDataSourcePrefetching,
+    UICollectionViewDataSourcePrefetching
 {
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var claimListView: UITableView!
@@ -37,18 +40,26 @@ class HomeViewController: UIViewController,
     var categoryButtons: [UIButton] = []
 
     let pageSize: Int = 20
-    var currentPage: Int = 1
-    var lastPageReached: Bool = false
-    var loading: Bool = false
+    var claimsCurrentPage: Int = 1
+    var claimsLastPageReached: Bool = false
+    var livestreamsCurrentPage: Int = 1
+    var livestreamsLastPageReached: Bool = false
+    var loadingClaims: Bool = false
+    var loadingLivestreams: Bool = false
     var claims = OrderedSet<Claim>()
+    var livestreams = OrderedSet<LivestreamData>()
 
+    var livestreamsView: UIStackView!
+    var livestreamsLabel: UILabel!
+    var livestreamsCollectionView: UICollectionView!
     var sortByPicker: UIPickerView!
     var contentFromPicker: UIPickerView!
 
     var currentSortByIndex = 0 // default to Trending content
     var currentContentFromIndex = 1 // default to Past week
 
-    var prefetchController: ImagePrefetchingController!
+    var claimsPrefetchController: ImagePrefetchingController!
+    var livestreamsPrefetchController: ImagePrefetchingController!
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -67,9 +78,13 @@ class HomeViewController: UIViewController,
         super.viewDidLoad()
 
         buildDynamicCategories()
-        prefetchController = ImagePrefetchingController { [unowned self] indexPath in
+        claimsPrefetchController = ImagePrefetchingController { [unowned self] indexPath in
             let claim = self.claims[indexPath.row]
             return ClaimTableViewCell.imagePrefetchURLs(claim: claim)
+        }
+        livestreamsPrefetchController = ImagePrefetchingController { [unowned self] indexPath in
+            let claim = livestreams[indexPath.row].claim
+            return LivestreamCollectionViewCell.imagePrefetchURLs(claim: claim)
         }
         // Do any additional setup after loading the view.
         refreshControl.attributedTitle = NSAttributedString(string: String.localized("Pull down to refresh"))
@@ -77,6 +92,7 @@ class HomeViewController: UIViewController,
         refreshControl.tintColor = Helper.primaryColor
         claimListView.addSubview(refreshControl)
         claimListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
+        createLivestreamsView()
 
         loadingContainer.layer.cornerRadius = 20
 
@@ -113,23 +129,25 @@ class HomeViewController: UIViewController,
             if claims.count != oldCount {
                 claimListView.reloadData()
             }
-            lastPageReached = payload.isLastPage
+            claimsLastPageReached = payload.isLastPage
         }
-        loadingContainer.isHidden = true
-        loading = false
+        if !loadingLivestreams {
+            loadingContainer.isHidden = true
+        }
+        loadingClaims = false
         checkNoContent()
         refreshControl.endRefreshing()
     }
 
     func loadClaims() {
         assert(Thread.isMainThread)
-        if loading {
+        if loadingClaims {
             return
         }
 
         noContentView.isHidden = true
         loadingContainer.isHidden = false
-        loading = true
+        loadingClaims = true
 
         // Capture category index for use in sorting, before leaving main thread.
         let category = currentCategoryIndex
@@ -143,7 +161,7 @@ class HomeViewController: UIViewController,
             params: .init(
                 claimType: [.stream, .repost],
                 streamTypes: [.audio, .video],
-                page: currentPage,
+                page: claimsCurrentPage,
                 pageSize: pageSize,
                 releaseTime: isWildWest ?
                     Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) :
@@ -167,6 +185,76 @@ class HomeViewController: UIViewController,
             }
         )
         .subscribeResult(didLoadClaims)
+    }
+
+    func loadLivestreams() {
+        assert(Thread.isMainThread)
+        if loadingLivestreams {
+            return
+        }
+
+        loadingContainer.isHidden = false
+        loadingLivestreams = true
+
+        DispatchQueue.global().async { [self] in
+            OdyseeLivestream.listLivestreams { result in
+                if case let .success(infos) = result {
+                    if infos.count > 0 {
+                        DispatchQueue.main.async {
+                            livestreamsCollectionView.isHidden = false
+                            livestreamsLabel.text = String.localized("Livestreams")
+                        }
+
+                        Lbry.apiCall(
+                            method: Lbry.Methods.claimSearch,
+                            params: .init(
+                                claimType: [.stream],
+                                page: livestreamsCurrentPage,
+                                pageSize: pageSize,
+                                hasNoSource: true,
+                                claimIds: Array(infos.keys)
+                            )
+                        ).subscribeResult { result in
+                            if case let .success(payload) = result {
+                                let oldCount = livestreams.count
+                                for claim in payload.items {
+                                    let livestreamInfo = infos[claim.claimId!]
+                                    let livestreamData = LivestreamData(
+                                        startTime: livestreamInfo?.startTime ?? Date(),
+                                        viewerCount: livestreamInfo?.viewerCount ?? 0,
+                                        claim: claim
+                                    )
+                                    livestreams.append(livestreamData)
+                                }
+                                if livestreams.count != oldCount {
+                                    livestreamsCollectionView.reloadData()
+                                }
+                                livestreamsLastPageReached = payload.isLastPage
+
+                                if !loadingClaims {
+                                    loadingContainer.isHidden = true
+                                }
+                                loadingLivestreams = false
+                            }
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            livestreamsCollectionView.isHidden = true
+                            livestreamsLabel.text = String.localized("No livestreams to display at this time. Please try again later.")
+                            if !loadingClaims {
+                                loadingContainer.isHidden = true
+                            }
+                            loadingLivestreams = false
+                        }
+                    }
+                } else if case let .failure(error) = result {
+                    DispatchQueue.main.async {
+                        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                        appDelegate.mainController.showError(message: error.localizedDescription)
+                    }
+                }
+            }
+        }
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -195,22 +283,64 @@ class HomeViewController: UIViewController,
         appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
     }
 
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return livestreams.count
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "livestream_cell", for: indexPath) as! LivestreamCollectionViewCell
+
+        let livestream = livestreams[indexPath.row]
+        cell.setInfo(claim: livestream.claim, startTime: livestream.startTime, viewerCount: livestream.viewerCount)
+
+        return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
+        collectionView.cellForItem(at: indexPath)?.contentView.backgroundColor = .systemGray4
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
+        collectionView.cellForItem(at: indexPath)?.contentView.backgroundColor = nil
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+
+        let claim = livestreams[indexPath.row].claim
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = storyboard?.instantiateViewController(withIdentifier: "file_view_vc") as! FileViewController
+        vc.claim = claim
+
+        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+    }
+
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if claimListView.contentOffset.y >= (claimListView.contentSize.height - claimListView.bounds.size.height) {
-            if !loading, !lastPageReached {
-                currentPage += 1
+            if !loadingClaims, !claimsLastPageReached {
+                claimsCurrentPage += 1
                 loadClaims()
             }
             return
         }
 
-        guard !refreshControl.isRefreshing, !loading else {
+        if livestreamsCollectionView.contentOffset.x >= (livestreamsCollectionView.contentSize.width - livestreamsCollectionView.bounds.size.width) {
+            if !loadingLivestreams, !livestreamsLastPageReached {
+                livestreamsCurrentPage += 1
+                loadLivestreams()
+            }
+            return
+        }
+
+        guard !refreshControl.isRefreshing, !loadingClaims, !loadingLivestreams else {
             return
         }
 
         if claimListView.contentOffset.y < -300 {
             resetContent()
             loadClaims()
+            loadLivestreams()
             refreshControl.beginRefreshing()
         }
     }
@@ -245,14 +375,25 @@ class HomeViewController: UIViewController,
         currentCategoryIndex = categories.firstIndex(of: category!)!
         resetContent()
         loadClaims()
+
+        if currentCategoryIndex == Self.categoryIndexWildWest {
+            claimListView.tableHeaderView = livestreamsView
+            loadLivestreams()
+        } else {
+            claimListView.tableHeaderView = nil
+        }
     }
 
     func resetContent() {
         assert(Thread.isMainThread)
-        currentPage = 1
-        lastPageReached = false
+        claimsCurrentPage = 1
+        claimsLastPageReached = false
+        livestreamsCurrentPage = 1
+        livestreamsLastPageReached = false
         claims.removeAll()
+        livestreams.removeAll()
         claimListView.reloadData()
+        livestreamsCollectionView.reloadData()
     }
 
     func selectCategoryButton(button: UIButton) {
@@ -344,21 +485,69 @@ class HomeViewController: UIViewController,
     }
 
     @objc func refresh(_ sender: AnyObject) {
-        if loading {
+        if loadingClaims {
             return
         }
 
         resetContent()
         loadClaims()
+        if currentCategoryIndex == Self.categoryIndexWildWest {
+            loadLivestreams()
+        }
+    }
+
+    func createLivestreamsView() {
+        livestreamsLabel = UILabel()
+        livestreamsLabel.translatesAutoresizingMaskIntoConstraints = false
+        livestreamsLabel.text = String.localized("Livestreams")
+        livestreamsLabel.numberOfLines = 0
+        let titleHeight = livestreamsLabel.intrinsicContentSize.height
+
+        let collectionViewFrame = CGRect(x: 0, y: 0, width: 0, height: 233)
+        let collectionViewLayout = UICollectionViewFlowLayout()
+        collectionViewLayout.scrollDirection = .horizontal
+        collectionViewLayout.itemSize = CGSize(width: 256, height: 213)
+        collectionViewLayout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+
+        livestreamsCollectionView = UICollectionView(frame: collectionViewFrame, collectionViewLayout: collectionViewLayout)
+        livestreamsCollectionView.autoresizingMask = .flexibleWidth
+
+        livestreamsCollectionView.dataSource = self
+        livestreamsCollectionView.delegate = self
+        livestreamsCollectionView.prefetchDataSource = self
+
+        livestreamsCollectionView.register(LivestreamCollectionViewCell.nib, forCellWithReuseIdentifier: "livestream_cell")
+
+        let livestreamsViewFrame = CGRect(x: 0, y: 0, width: 0, height: 233 + titleHeight)
+        livestreamsView = UIStackView(frame: livestreamsViewFrame)
+        livestreamsView.axis = .vertical
+        livestreamsView.alignment = .trailing // HACK to prevent conflicting leading constraint
+
+        livestreamsView.addArrangedSubview(livestreamsLabel)
+        livestreamsView.addArrangedSubview(livestreamsCollectionView)
+        NSLayoutConstraint.activate([
+            livestreamsLabel.leadingAnchor.constraint(equalTo: livestreamsView.leadingAnchor, constant: 18),
+            livestreamsCollectionView.leadingAnchor.constraint(equalTo: livestreamsView.leadingAnchor)
+        ])
     }
 
     // MARK: UITableViewDataSourcePrefetching
 
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        prefetchController.prefetch(at: indexPaths)
+        claimsPrefetchController.prefetch(at: indexPaths)
     }
 
     func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
-        prefetchController.cancelPrefetching(at: indexPaths)
+        claimsPrefetchController.cancelPrefetching(at: indexPaths)
+    }
+
+    // MARK: UICollectionViewDataSourcePrefetching
+
+    func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
+        livestreamsPrefetchController.prefetch(at: indexPaths)
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cancelPrefetchingForItemsAt indexPaths: [IndexPath]) {
+        livestreamsPrefetchController.cancelPrefetching(at: indexPaths)
     }
 }
