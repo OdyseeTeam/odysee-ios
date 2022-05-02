@@ -19,20 +19,30 @@ struct OdyseeLivestream {
 
             let result = try decoder.decode(OLResult.self, from: data)
             if result.success && result.error == nil, let data = result.data {
-                let livestreamInfos = Dictionary(uniqueKeysWithValues: data
-                                            .filter { $0.activeClaim.claimId != "Confirming" }
-                                            .map {
-                    ($0.activeClaim.claimId, LivestreamInfo(startTime: $0.startTime, viewerCount: $0.viewerCount))
-                })
+                let livestreamInfos = Dictionary(
+                    uniqueKeysWithValues: data
+                        .filter { $0.activeClaim.claimId != "Confirming" }
+                        .map {
+                            (
+                                $0.activeClaim.claimId,
+                                LivestreamInfo(startTime: $0.startTime, viewerCount: $0.viewerCount)
+                            )
+                        }
+                )
                 completion(.success(livestreamInfos))
+                return
             } else if result.data == nil,
                       let error = result.error,
                       let trace = result.trace {
                 completion(.failure(OdyseeLivestreamError.runtimeError("\(error)\n---Trace---\n\(trace)")))
+                return
             }
         } catch {
             completion(.failure(error))
+            return
         }
+
+        completion(.failure(OdyseeLivestreamError.noBranchTaken))
     }
 
     struct OLResult: Decodable {
@@ -81,6 +91,16 @@ struct LivestreamData: Hashable {
     var claim: Claim
 }
 
-enum OdyseeLivestreamError: Error {
+enum OdyseeLivestreamError: LocalizedError {
+    case noBranchTaken
     case runtimeError(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .noBranchTaken:
+            return String.localized("No result logic branch taken")
+        case let .runtimeError(message):
+            return String(format: String.localized("Runtime error: %@"), message)
+        }
+    }
 }

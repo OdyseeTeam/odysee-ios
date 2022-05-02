@@ -202,49 +202,50 @@ class HomeViewController: UIViewController,
         DispatchQueue.global().async { [self] in
             OdyseeLivestream.listLivestreams { result in
                 if case let .success(infos) = result {
-                    if infos.count > 0 {
-                        DispatchQueue.main.async {
-                            livestreamsCollectionView.isHidden = false
-                            livestreamsLabel.text = String.localized("Livestreams")
-                        }
-
-                        Lbry.apiCall(
-                            method: Lbry.Methods.claimSearch,
-                            params: .init(
-                                claimType: [.stream],
-                                page: livestreamsCurrentPage,
-                                pageSize: pageSize,
-                                hasNoSource: true,
-                                notChannelIds: wildWestExcludedChannelIds,
-                                claimIds: Array(infos.keys)
-                            )
-                        ).subscribeResult { result in
-                            if case let .success(payload) = result {
-                                let oldCount = livestreams.count
-                                for claim in payload.items {
-                                    let livestreamInfo = infos[claim.claimId!]
-                                    let livestreamData = LivestreamData(
-                                        startTime: livestreamInfo?.startTime ?? Date(),
-                                        viewerCount: livestreamInfo?.viewerCount ?? 0,
-                                        claim: claim
-                                    )
-                                    livestreams.append(livestreamData)
-                                }
-                                if livestreams.count != oldCount {
-                                    livestreamsCollectionView.reloadData()
-                                }
-                                livestreamsLastPageReached = payload.isLastPage
-
-                                if !loadingClaims {
-                                    loadingContainer.isHidden = true
-                                }
-                                loadingLivestreams = false
-                            }
-                        }
-                    } else {
+                    guard infos.count > 0 else {
                         DispatchQueue.main.async {
                             livestreamsCollectionView.isHidden = true
                             livestreamsLabel.text = String.localized("No livestreams to display at this time. Please try again later.")
+                            if !loadingClaims {
+                                loadingContainer.isHidden = true
+                            }
+                            loadingLivestreams = false
+                        }
+                        return
+                    }
+
+                    DispatchQueue.main.async {
+                        livestreamsCollectionView.isHidden = false
+                        livestreamsLabel.text = String.localized("Livestreams")
+                    }
+
+                    Lbry.apiCall(
+                        method: Lbry.Methods.claimSearch,
+                        params: .init(
+                            claimType: [.stream],
+                            page: livestreamsCurrentPage,
+                            pageSize: pageSize,
+                            hasNoSource: true,
+                            notChannelIds: wildWestExcludedChannelIds,
+                            claimIds: Array(infos.keys)
+                        )
+                    ).subscribeResult { result in
+                        if case let .success(payload) = result {
+                            let oldCount = livestreams.count
+                            for claim in payload.items {
+                                let livestreamInfo = infos[claim.claimId!]
+                                let livestreamData = LivestreamData(
+                                    startTime: livestreamInfo?.startTime ?? Date(),
+                                    viewerCount: livestreamInfo?.viewerCount ?? 0,
+                                    claim: claim
+                                )
+                                livestreams.append(livestreamData)
+                            }
+                            if livestreams.count != oldCount {
+                                livestreamsCollectionView.reloadData()
+                            }
+                            livestreamsLastPageReached = payload.isLastPage
+
                             if !loadingClaims {
                                 loadingContainer.isHidden = true
                             }
