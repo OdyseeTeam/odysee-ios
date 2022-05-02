@@ -19,16 +19,19 @@ struct ContentSources {
 
     static func loadCategories(completion: @escaping ([Category]?, Error?) -> Void) {
         let defaults = UserDefaults.standard
-        if let csCacheString = defaults.string(forKey: defaultsKey) {
-            let csCache = try! JSONDecoder().decode(ContentSourceCache.self, from: csCacheString.data(using: .utf8)!)
-            if let diff = Calendar.current.dateComponents([.hour], from: csCache.lastUpdated, to: Date()).hour,
-               diff < 24
-            {
-                ContentSources.DynamicContentCategories = csCache.categories
-                completion(csCache.categories, nil)
-                return
+
+        do {
+            if let csCacheString = defaults.string(forKey: defaultsKey) {
+                let csCache = try JSONDecoder().decode(ContentSourceCache.self, from: csCacheString.data(using: .utf8)!)
+                if let diff = Calendar.current.dateComponents([.hour], from: csCache.lastUpdated, to: Date()).hour,
+                   diff < 24
+                {
+                    ContentSources.DynamicContentCategories = csCache.categories
+                    completion(csCache.categories, nil)
+                    return
+                }
             }
-        }
+        } catch { /* Fall through to loadRemoteCategories */ }
 
         loadRemoteCategories(completion: completion)
     }
