@@ -81,15 +81,17 @@ struct ContentSources {
                                 if let contentSource = langData[key] as? [String: Any] {
                                     if let label = contentSource["label"] as? String,
                                        let name = contentSource["name"] as? String,
-                                       let channelIds = contentSource["channelIds"] as? [String],
                                        let sortOrder = contentSource["sortOrder"] as? Int
                                     {
+                                        let channelIds = contentSource["channelIds"] as? [String] ?? []
+                                        let excludedChannelIds = contentSource["excludedChannelIds"] as? [String] ?? []
                                         let category = Category(
                                             sortOrder: sortOrder,
                                             key: key,
                                             name: name,
                                             label: label,
-                                            channelIds: channelIds
+                                            channelIds: channelIds,
+                                            excludedChannelIds: excludedChannelIds
                                         )
                                         categories.append(category)
                                     }
@@ -132,6 +134,7 @@ struct ContentSources {
         var name: String?
         var label: String?
         var channelIds: [String] = []
+        var excludedChannelIds: [String] = []
     }
 
     struct ContentSourceCache: Codable {

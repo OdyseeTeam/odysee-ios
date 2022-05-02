@@ -32,10 +32,12 @@ class HomeViewController: UIViewController,
     static var categoryIndexWildWest: Int = -1
     static let categoryNameGeneral: String = "general"
     static let categoryNameMovies: String = "movies"
+    static let categoryNameWildWest: String = "wildwest"
 
     let refreshControl = UIRefreshControl()
     var categories: [String] = []
     var channelIds: [[String]?] = []
+    var wildWestExcludedChannelIds: [String]? = []
     var currentCategoryIndex: Int = 0
     var categoryButtons: [UIButton] = []
 
@@ -113,11 +115,11 @@ class HomeViewController: UIViewController,
             if category.name == Self.categoryNameMovies {
                 Self.categoryIndexMovies = idx
             }
+            if category.name == Self.categoryNameWildWest {
+                wildWestExcludedChannelIds = category.excludedChannelIds
+                Self.categoryIndexWildWest = idx
+            }
         }
-
-        categories.append(String.localized("Wild West"))
-        channelIds.append([])
-        Self.categoryIndexWildWest = categories.count - 1
     }
 
     func didLoadClaims(_ result: Result<Page<Claim>, Error>) {
@@ -170,6 +172,7 @@ class HomeViewController: UIViewController,
                 currentCategoryIndex == Self.categoryIndexMovies ? 20 : 5,
                 notTags: Constants.MatureTags,
                 channelIds: isWildWest ? nil : channelIds[currentCategoryIndex],
+                notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
                 orderBy: isWildWest ?
                     ["trending_group", "trending_mixed"]
                     : Helper.sortByItemValues[currentSortByIndex]
@@ -212,6 +215,7 @@ class HomeViewController: UIViewController,
                                 page: livestreamsCurrentPage,
                                 pageSize: pageSize,
                                 hasNoSource: true,
+                                notChannelIds: wildWestExcludedChannelIds,
                                 claimIds: Array(infos.keys)
                             )
                         ).subscribeResult { result in
