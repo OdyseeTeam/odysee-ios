@@ -1996,8 +1996,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             messages.append(contentsOf: page.items)
             messages.sort(by: { $1.timestamp ?? 0 > $0.timestamp ?? 0 })
             chatListView.reloadData()
-            let indexPath = IndexPath(row: messages.count - 1, section: 0)
-            chatListView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+            if messages.count >= 1 {
+                let indexPath = IndexPath(row: messages.count - 1, section: 0)
+                chatListView.scrollToRow(at: indexPath, at: .bottom, animated: true)
+            }
         }
     }
 
