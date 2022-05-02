@@ -106,6 +106,9 @@ class HomeViewController: UIViewController,
         if claims.count == 0 {
             loadClaims()
         }
+        if livestreams.count == 0 {
+            loadLivestreams()
+        }
     }
 
     func buildDynamicCategories() {
@@ -201,20 +204,39 @@ class HomeViewController: UIViewController,
 
         DispatchQueue.global().async { [self] in
             OdyseeLivestream.listLivestreams { result in
-                if case let .success(infos) = result {
-                    guard infos.count > 0 else {
-                        DispatchQueue.main.async {
-                            livestreamsCollectionView.isHidden = true
-                            livestreamsLabel.text = String.localized("No livestreams to display at this time. Please try again later.")
-                            if !loadingClaims {
-                                loadingContainer.isHidden = true
+                if case var .success(infos) = result {
+                    let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
+                    if !isWildWest {
+                        infos = infos.filter { channelIds[currentCategoryIndex]?.contains($0.value.channelClaimId) ?? false }
+
+                        guard infos.count > 0 else {
+                            DispatchQueue.main.async {
+                                claimListView.tableHeaderView = nil
+                                if !loadingClaims {
+                                    loadingContainer.isHidden = true
+                                }
+                                loadingLivestreams = false
                             }
-                            loadingLivestreams = false
+                            return
                         }
-                        return
+                    } else {
+                        guard infos.count > 0 else {
+                            // Livestreams are "expected" in Wild West so show no livestreams message
+                            DispatchQueue.main.async {
+                                claimListView.tableHeaderView = livestreamsView
+                                livestreamsCollectionView.isHidden = true
+                                livestreamsLabel.text = String.localized("No livestreams to display at this time. Please try again later.")
+                                if !loadingClaims {
+                                    loadingContainer.isHidden = true
+                                }
+                                loadingLivestreams = false
+                            }
+                            return
+                        }
                     }
 
                     DispatchQueue.main.async {
+                        claimListView.tableHeaderView = livestreamsView
                         livestreamsCollectionView.isHidden = false
                         livestreamsLabel.text = String.localized("Livestreams")
                     }
@@ -226,7 +248,7 @@ class HomeViewController: UIViewController,
                             page: livestreamsCurrentPage,
                             pageSize: pageSize,
                             hasNoSource: true,
-                            notChannelIds: wildWestExcludedChannelIds,
+                            notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
                             claimIds: Array(infos.keys)
                         )
                     ).subscribeResult { result in
@@ -380,13 +402,7 @@ class HomeViewController: UIViewController,
         currentCategoryIndex = categories.firstIndex(of: category!)!
         resetContent()
         loadClaims()
-
-        if currentCategoryIndex == Self.categoryIndexWildWest {
-            claimListView.tableHeaderView = livestreamsView
-            loadLivestreams()
-        } else {
-            claimListView.tableHeaderView = nil
-        }
+        loadLivestreams()
     }
 
     func resetContent() {
@@ -496,9 +512,7 @@ class HomeViewController: UIViewController,
 
         resetContent()
         loadClaims()
-        if currentCategoryIndex == Self.categoryIndexWildWest {
-            loadLivestreams()
-        }
+        loadLivestreams()
     }
 
     func createLivestreamsView() {

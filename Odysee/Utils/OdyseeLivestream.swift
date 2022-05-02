@@ -25,7 +25,11 @@ struct OdyseeLivestream {
                         .map {
                             (
                                 $0.activeClaim.claimId,
-                                LivestreamInfo(startTime: $0.startTime, viewerCount: $0.viewerCount)
+                                LivestreamInfo(
+                                    startTime: $0.startTime,
+                                    viewerCount: $0.viewerCount,
+                                    channelClaimId: $0.channelClaimId
+                                )
                             )
                         }
                 )
@@ -62,11 +66,13 @@ struct OdyseeLivestream {
     struct OLLivestream: Decodable {
         var startTime: Date
         var viewerCount: Int
+        var channelClaimId: String
         var activeClaim: OLClaim
 
         enum CodingKeys: String, CodingKey {
             case startTime = "Start"
             case viewerCount = "ViewerCount"
+            case channelClaimId = "ChannelClaimID"
             case activeClaim = "ActiveClaim"
         }
     }
@@ -83,6 +89,7 @@ struct OdyseeLivestream {
 struct LivestreamInfo: Hashable {
     var startTime: Date
     var viewerCount: Int
+    var channelClaimId: String
 }
 
 struct LivestreamData: Hashable {
