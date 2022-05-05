@@ -5799,8 +5799,11 @@
                                     <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DED-pq-EGI">
                                         <rect key="frame" x="4" y="212" width="406" height="24"/>
                                         <subviews>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8PH-TD-6Ni">
-                                                <rect key="frame" x="8" y="4" width="390" height="16"/>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8PH-TD-6Ni">
+                                                <rect key="frame" x="8" y="4" width="390" height="32"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="32" id="JCe-rh-YAL"/>
+                                                </constraints>
                                                 <fontDescription key="fontDescription" type="system" pointSize="13"/>
                                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                                 <nil key="highlightedColor"/>
@@ -5870,7 +5873,6 @@
                                     <constraint firstItem="FZX-xm-zP4" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="top" id="9rI-PC-yZ7"/>
                                     <constraint firstItem="FZX-xm-zP4" firstAttribute="leading" secondItem="hZs-fq-qQ6" secondAttribute="leading" id="Etu-tl-qWn"/>
                                     <constraint firstAttribute="trailing" secondItem="FZX-xm-zP4" secondAttribute="trailing" id="H3o-hT-d5A"/>
-                                    <constraint firstItem="DED-pq-EGI" firstAttribute="top" secondItem="FZX-xm-zP4" secondAttribute="bottom" id="Is7-3k-Sle"/>
                                     <constraint firstAttribute="trailing" secondItem="b5M-lr-1ir" secondAttribute="trailing" id="TB8-l9-6yZ"/>
                                     <constraint firstAttribute="height" constant="240" id="UmT-3v-Pm5"/>
                                     <constraint firstItem="FZX-xm-zP4" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="top" id="awR-6G-mHy"/>
