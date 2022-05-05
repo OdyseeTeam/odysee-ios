@@ -388,7 +388,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         Lbry.apiCall(
             method: Lbry.Methods.claimSearch,
             params: .init(
-                claimType: [.stream],
+                claimType: [.stream, .repost],
                 page: currentPage,
                 pageSize: pageSize,
                 releaseTime: releaseTimeValue,
