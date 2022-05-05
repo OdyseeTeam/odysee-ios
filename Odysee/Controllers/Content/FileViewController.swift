@@ -1496,11 +1496,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         commentsVc.didMove(toParent: self)
 
         commentsContainerView.isHidden = false
+        closeOtherContentButton.isHidden = true
         commentsViewPresented = true
     }
 
     func closeCommentsView() {
         commentsContainerView.isHidden = true
+        closeOtherContentButton.isHidden = false
         view.endEditing(true)
     }
 
