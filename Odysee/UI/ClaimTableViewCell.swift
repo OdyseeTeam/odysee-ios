@@ -22,6 +22,10 @@ class ClaimTableViewCell: UITableViewCell {
     @IBOutlet var durationLabel: UILabel!
 
     var currentClaim: Claim?
+    var reposterChannelClaim: Claim?
+
+    var reposterOverlay: UIStackView!
+    var reposterLabel: UILabel!
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -30,6 +34,7 @@ class ClaimTableViewCell: UITableViewCell {
         channelImageView.rounded()
         channelImageView.backgroundColor = Helper.lightPrimaryColor
         thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
+        createRepostOverlay()
     }
 
     static func imagePrefetchURLs(claim: Claim) -> [URL] {
@@ -54,7 +59,12 @@ class ClaimTableViewCell: UITableViewCell {
     func setClaim(claim: Claim) {
         var actualClaim: Claim = claim
         if claim.valueType == ClaimType.repost && claim.repostedClaim != nil {
+            reposterOverlay.isHidden = false
+            reposterChannelClaim = claim.signingChannel
+            reposterLabel.text = reposterChannelClaim?.name ?? claim.shortUrl
             actualClaim = claim.repostedClaim!
+        } else {
+            reposterOverlay.isHidden = true
         }
 
         if currentClaim != nil && actualClaim.claimId != currentClaim!.claimId {
@@ -149,6 +159,41 @@ class ClaimTableViewCell: UITableViewCell {
         }
     }
 
+    private func createRepostOverlay() {
+        reposterOverlay = UIStackView()
+        reposterOverlay.backgroundColor = Helper.primaryColor.withAlphaComponent(0.8)
+        reposterOverlay.bounds = CGRect(x: 0, y: 0, width: 116, height: 30)
+        reposterOverlay.layer.anchorPoint = CGPoint(x: 0.5, y: 0)
+        reposterOverlay.layer.position = CGPoint(x: 20, y: 20)
+        reposterOverlay.transform = CGAffineTransform(rotationAngle: -45.0 / 180.0 * .pi)
+        reposterOverlay.axis = .vertical
+        reposterOverlay.alignment = .center
+        contentView.addSubview(reposterOverlay)
+        reposterOverlay.isHidden = true
+
+        let imageView = UIImageView(image: UIImage(systemName: "arrow.triangle.2.circlepath")!)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.tintColor = .white
+        reposterOverlay.addArrangedSubview(imageView)
+        addConstraints([
+            imageView.widthAnchor.constraint(equalToConstant: 18),
+            imageView.heightAnchor.constraint(equalToConstant: 14)
+        ])
+
+        reposterLabel = UILabel()
+        reposterLabel.translatesAutoresizingMaskIntoConstraints = false
+        reposterLabel.textColor = .white
+        reposterLabel.textAlignment = .center
+        reposterLabel.font = .systemFont(ofSize: 12)
+        reposterOverlay.addArrangedSubview(reposterLabel)
+        addConstraints([
+            reposterLabel.widthAnchor.constraint(equalTo: reposterOverlay.widthAnchor, constant: -25)
+        ])
+
+        let reposterTapGesture = UITapGestureRecognizer(target: self, action: #selector(reposterTapped(_:)))
+        reposterOverlay.addGestureRecognizer(reposterTapGesture)
+    }
+
     @objc func publisherTapped(_ sender: Any) {
         if currentClaim!.signingChannel != nil {
             let channelClaim = currentClaim!.signingChannel!
@@ -164,6 +209,24 @@ class ClaimTableViewCell: UITableViewCell {
 
             let vc = appDelegate.mainController.storyboard?
                 .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+            vc.channelClaim = channelClaim
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
+    @objc func reposterTapped(_ sender: Any) {
+        if let channelClaim = reposterChannelClaim {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
+            if let currentVc = UIApplication.currentViewController() as? ChannelViewController {
+                if currentVc.channelClaim?.claimId == channelClaim.claimId {
+                    // if we already have the channel page open, don't do anything
+                    return
+                }
+            }
+
+            let vc = appDelegate.mainController.storyboard?
+                .instantiateViewController(withIdentifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
             appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         }
