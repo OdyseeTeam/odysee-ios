@@ -167,11 +167,13 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             let touchPoint = longPressGestureRecognizer.location(in: channelListView)
             if let indexPath = channelListView.indexPathForRow(at: touchPoint) {
                 let claim: Claim = channels[indexPath.row]
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                let vc = appDelegate.mainController.storyboard?
-                    .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
-                vc.channelClaim = claim
-                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                if claim.claimId != "new" {
+                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                    let vc = appDelegate.mainController.storyboard?
+                        .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                    vc.channelClaim = claim
+                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                }
             }
         }
     }
