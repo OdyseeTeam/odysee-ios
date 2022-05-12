@@ -1503,7 +1503,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func closeCommentsView() {
         commentsContainerView.isHidden = true
-        closeOtherContentButton.isHidden = false
+        if isTextContent || isImageContent || isOtherContent {
+            closeOtherContentButton.isHidden = false
+        }
         view.endEditing(true)
     }
 
