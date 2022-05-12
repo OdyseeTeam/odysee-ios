@@ -702,7 +702,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return channels.map { $0.name }[row]
+        return channels.map(\.name)[row]
     }
 
     func showError(error: Error?) {

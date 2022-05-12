@@ -203,7 +203,7 @@ final class Lbry {
             completion(nil, e)
             return
         }
-        let task = URLSession.shared.dataTask(with: req, completionHandler: { data, response, error in
+        let task = URLSession.shared.dataTask(with: req, completionHandler: { data, _, error in
             guard let data = data, error == nil else {
                 // handle error
                 completion(nil, error)

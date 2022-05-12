@@ -22,4 +22,4 @@ jobs:
       - name: Bootstrap mint dependencies
         run: mint bootstrap --link
       - name: SwiftFormat
-        run: swiftformat . --lint --verbose
+        run: swiftformat . --lint --verbose --swiftversion 5.3 --disable redundantReturn,andOperator,wrap

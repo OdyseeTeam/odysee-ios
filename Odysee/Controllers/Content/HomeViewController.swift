@@ -185,8 +185,8 @@ class HomeViewController: UIViewController,
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = claims[indexPath.row]
-        let actualClaim = (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) ? claim.repostedClaim! : claim;
-        
+        let actualClaim = (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) ? claim.repostedClaim! : claim
+
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = actualClaim

@@ -266,7 +266,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 displayClaimBlocked()
             } else if Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate) ||
                 (currentClaim.signingChannel != nil) &&
-                        (Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate))
+                (Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate))
             {
                 displayClaimBlockedWithMessage(
                     message: Helper
@@ -330,7 +330,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         {
             displayClaimBlocked()
         } else if Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate) ||
-                    (claim!.signingChannel != nil && Helper.isCustomBlocked(claimId: claim!.signingChannel!.claimId!, appDelegate: appDelegate))
+            (claim!.signingChannel != nil && Helper.isCustomBlocked(
+                claimId: claim!.signingChannel!.claimId!,
+                appDelegate: appDelegate
+            ))
         {
             displayClaimBlockedWithMessage(
                 message: Helper
@@ -453,7 +456,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         var req = URLRequest(url: streamInfoUrl!)
         req.httpMethod = "GET"
 
-        let task = session.dataTask(with: req, completionHandler: { data, response, error in
+        let task = session.dataTask(with: req, completionHandler: { data, _, error in
             guard let data = data, error == nil else {
                 // handle error
                 self.showError(message: "The livestream could not be loaded right now. Please try again later.")
@@ -508,11 +511,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func loadLivestreamNew() {
         let session = URLSession.shared
-        let checkLiveUrl = URL(string: String(format: "https://api.odysee.live/livestream/is_live?channel_claim_id=%@", self.claim!.signingChannel!.claimId!))!
+        let checkLiveUrl = URL(string: String(
+            format: "https://api.odysee.live/livestream/is_live?channel_claim_id=%@",
+            claim!.signingChannel!.claimId!
+        ))!
         var req = URLRequest(url: checkLiveUrl)
         req.httpMethod = "GET"
 
-        let task = session.dataTask(with: req, completionHandler: { data, response, error in
+        let task = session.dataTask(with: req, completionHandler: { data, _, error in
             guard let data = data, error == nil else {
                 // handle error
                 self.showError(message: "The livestream could not be loaded right now. Please try again later.")
@@ -522,11 +528,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 if let livestreamData = response?["data"] as? [String: Any] {
                     let live = livestreamData["Live"] as? Bool ?? false
-                    if (!live) {
+                    if !live {
                         self.loadLivestreamLegacy()
                         return
                     }
-                    
+
                     if let streamUrl = (livestreamData["VideoURL"] as? String).flatMap(URL.init) {
                         let headers: [String: String] = [
                             "Referer": "https://bitwave.tv",
@@ -546,7 +552,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         })
         task.resume()
     }
-    
+
     func loadLivestreamLegacy() {
         streamInfoUrl =
             URL(string: String(
@@ -598,7 +604,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
         }
     }
-    
+
     func displayClaimContentFromUrl(singleClaim: Claim, contentType: String, contentUrl: URL?) {
         if isTextContent {
             webView.isHidden = false
@@ -609,7 +615,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         } else if isImageContent {
             var thumbnailDisplayUrl = contentUrl
             if !(singleClaim.value?.thumbnail?.url ?? "").isBlank {
-                thumbnailDisplayUrl =  URL(string: singleClaim.value!.thumbnail!.url!)!.makeImageURL(spec: bigThumbSpec)
+                thumbnailDisplayUrl = URL(string: singleClaim.value!.thumbnail!.url!)!.makeImageURL(spec: bigThumbSpec)
             }
             contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
             PINRemoteImageManager.shared().downloadImage(with: contentUrl!) { result in
@@ -682,7 +688,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     if let result = data["result"] as? [String: Any] {
                         if let contentUrl = result["streaming_url"] as? String {
                             DispatchQueue.main.async {
-                                self.displayClaimContentFromUrl(singleClaim: singleClaim, contentType: contentType!, contentUrl: URL(string: contentUrl))
+                                self.displayClaimContentFromUrl(
+                                    singleClaim: singleClaim,
+                                    contentType: contentType!,
+                                    contentUrl: URL(string: contentUrl)
+                                )
                             }
                         }
                     }
@@ -881,16 +891,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         relatedOrPlaylistTitle.text = isPlaylist ? claim?.value?.title : String.localized("Related Content")
 
         displayRelatedPlaceholders()
-        
+
         if !isPlaylist {
             // for a playlist, we need to do a claim_search for the list of claim IDs first, and then display the first result
             connectChatSocket()
             displaySingleClaim(claim!)
-            
+
             // check if the content is paid
             if let fee = claim?.value?.fee {
                 let amount = Decimal(string: fee.amount!)
-                if (amount! > 0) {
+                if amount! > 0 {
                     let alert = UIAlertController(
                         title: String.localized("Paid content not supported"),
                         message: String.localized("Paid content is not supported in the app at this time. Please go to odysee.com to purchase and view paid content."),

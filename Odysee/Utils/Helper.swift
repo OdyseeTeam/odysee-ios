@@ -206,7 +206,7 @@ final class Helper {
     }
 
     static func miniPlayerBottomWithoutTabBar() -> CGFloat {
-        let window = UIApplication.shared.windows.filter { $0.isKeyWindow }.first!
+        let window = UIApplication.shared.windows.filter(\.isKeyWindow).first!
         let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
         return CGFloat(window.frame.maxY - safeAreaFrame.maxY + 2)
     }

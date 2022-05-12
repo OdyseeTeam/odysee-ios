@@ -387,7 +387,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         context: UnsafeMutableRawPointer?
     ) {
         if keyPath == "contentSize" {
-            if (change?[.newKey]) != nil {
+            if change?[.newKey] != nil {
                 let contentHeight: CGFloat = recentTransactionsListView.contentSize.height
                 recentTxListHeightConstraint.constant = contentHeight
             }

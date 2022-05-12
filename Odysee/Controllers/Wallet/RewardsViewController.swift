@@ -232,6 +232,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                 self.rewards = self.allRewards.filter { !$0.claimed }
             } else {
                 // Claimed
+                // swiftformat:disable:next preferKeyPath
                 self.rewards = self.allRewards.filter { $0.claimed }
             }
 

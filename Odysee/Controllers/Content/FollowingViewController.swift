@@ -312,7 +312,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
         let channelIds = !selectedChannelIds.isEmpty ?
             selectedChannelIds :
-            following.compactMap { $0.claimId }
+            following.compactMap(\.claimId)
 
         if channelIds.count > 0 {
             let releaseTimeValue = currentSortByIndex == 2 ? Helper
@@ -626,7 +626,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         Lbry.apiCall(
             method: Lbry.Methods.resolve,
             params: .init(
-                urls: subscriptions.compactMap { $0.url }
+                urls: subscriptions.compactMap(\.url)
             )
         )
         .subscribeResult { result in

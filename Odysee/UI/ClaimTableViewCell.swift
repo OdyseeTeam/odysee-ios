@@ -36,9 +36,9 @@ class ClaimTableViewCell: UITableViewCell {
         if claim.claimId == "placeholder" || claim.claimId == "new" {
             return []
         }
-        
+
         var actualClaim: Claim = claim
-        if (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) {
+        if claim.valueType == ClaimType.repost && claim.repostedClaim != nil {
             actualClaim = claim.repostedClaim!
         }
 
@@ -53,10 +53,10 @@ class ClaimTableViewCell: UITableViewCell {
 
     func setClaim(claim: Claim) {
         var actualClaim: Claim = claim
-        if (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) {
+        if claim.valueType == ClaimType.repost && claim.repostedClaim != nil {
             actualClaim = claim.repostedClaim!
         }
-        
+
         if currentClaim != nil && actualClaim.claimId != currentClaim!.claimId {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
             thumbnailImageView.pin_cancelImageDownload()
