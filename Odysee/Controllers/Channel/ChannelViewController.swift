@@ -646,7 +646,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
     }
 
-    func checkNotificationsDisabled() {
+    func checkNotificationsDisabled(showMessage: Bool = false) {
         if !Lbryio.isFollowing(claim: channelClaim!) {
             return
         }
@@ -654,8 +654,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         DispatchQueue.main.async {
             if Lbryio.isNotificationsDisabledForSub(claim: self.channelClaim!) {
                 self.bellIconView.image = UIImage(systemName: "bell.fill")
+                if showMessage {
+                    self.showMessage(message: String.localized("You will not receive notifications for this channel"))
+                }
             } else {
                 self.bellIconView.image = UIImage(systemName: "bell.slash.fill")
+                if showMessage {
+                    self.showMessage(message: String.localized("You will receive all notifications"))
+                }
             }
         }
     }
@@ -692,16 +698,33 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             showUAView()
             return
         }
-        subscribeOrUnsubscribe(
-            claim: channelClaim!,
-            notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim!),
-            unsubscribing: Lbryio.isFollowing(claim: channelClaim!)
-        )
+        if Lbryio.isFollowing(claim: channelClaim!) {
+            let alert = UIAlertController(
+                title: String.localized("Stop following channel?"),
+                message: String.localized("Are you sure you want to stop following this channel?"),
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
+                self.subscribeOrUnsubscribe(
+                    claim: self.channelClaim!,
+                    notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: self.channelClaim!),
+                    unsubscribing: true
+                )
 
-        // check if the following tab is open to prevent a crash
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let vc = appDelegate.mainTabViewController?.selectedViewController as? FollowingViewController {
-            vc.removeFollowing(claim: channelClaim!)
+                // check if the following tab is open to prevent a crash
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                if let vc = appDelegate.mainTabViewController?.selectedViewController as? FollowingViewController {
+                    vc.removeFollowing(claim: self.channelClaim!)
+                }
+            })
+            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
+            present(alert, animated: true, completion: nil)
+        } else {
+            subscribeOrUnsubscribe(
+                claim: channelClaim!,
+                notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim!),
+                unsubscribing: false
+            )
         }
     }
 
@@ -766,7 +789,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     }
 
                     self.checkFollowing()
-                    self.checkNotificationsDisabled()
+                    self.checkNotificationsDisabled(showMessage: true)
 
                     Lbryio.subscriptionsDirty = true
                     Lbry.saveSharedUserState(completion: { success, err in
