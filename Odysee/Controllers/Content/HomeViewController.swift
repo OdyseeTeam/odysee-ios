@@ -113,7 +113,7 @@ class HomeViewController: UIViewController,
 
     func buildDynamicCategories() {
         for (idx, category) in ContentSources.DynamicContentCategories.enumerated() {
-            categories.append(String.localized(category.label!))
+            categories.append(String.localized(category.label))
             channelIds.append(category.channelIds)
             if category.name == Self.categoryNameMovies {
                 Self.categoryIndexMovies = idx

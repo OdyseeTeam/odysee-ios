@@ -13,7 +13,7 @@ struct ContentSources {
     static let regionCodeBR = "BR" // special check for pt-BR
 
     static let defaultsKey = "ContentSourcesCache"
-    static let endpoint = "https://odysee.com/$/api/content/v1/get"
+    static let endpoint = "https://odysee.com/$/api/content/v2/get"
 
     static var DynamicContentCategories: [Category] = []
 
@@ -73,12 +73,12 @@ struct ContentSources {
                             languageKey = String(format: "%@-%@", languageKey, regionCode)
                         }
 
-                        if let langData = data[languageKey] as? [String: Any] ??
-                            data[languageCodeEN] as? [String: Any]
+                        if let langData = data[languageKey] as? [String: Any] ?? data[languageCodeEN] as? [String: Any],
+                           let langCategories = langData["categories"] as? [String: Any]
                         {
-                            let keys = Array(langData.keys)
+                            let keys = Array(langCategories.keys)
                             for key in keys {
-                                if let contentSource = langData[key] as? [String: Any] {
+                                if let contentSource = langCategories[key] as? [String: Any] {
                                     if let label = contentSource["label"] as? String,
                                        let name = contentSource["name"] as? String,
                                        let sortOrder = contentSource["sortOrder"] as? Int
@@ -100,7 +100,7 @@ struct ContentSources {
                         }
                     }
 
-                    categories.sort(by: { $0.sortOrder ?? 1 < $1.sortOrder ?? 1 })
+                    categories.sort(by: { $0.sortOrder < $1.sortOrder })
                     ContentSources.DynamicContentCategories = categories
 
                     // cache the categories
@@ -129,10 +129,10 @@ struct ContentSources {
     }
 
     struct Category: Codable {
-        var sortOrder: Int?
-        var key: String?
-        var name: String?
-        var label: String?
+        var sortOrder: Int
+        var key: String = ""
+        var name: String
+        var label: String
         var channelIds: [String] = []
         var excludedChannelIds: [String] = []
     }
