@@ -153,6 +153,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var isImageContent = false
     var isOtherContent = false
     var avpcInitialised = false
+    var shouldReload = true
 
     var loadingChannels = false
     var postingChat = false
@@ -212,7 +213,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
 
-        if claim != nil {
+        if claim != nil && shouldReload {
             showClaimAndCheckFollowing()
         }
     }
@@ -1516,7 +1517,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func closeCommentsView() {
         commentsContainerView.isHidden = true
-        closeOtherContentButton.isHidden = false
+        if isTextContent || isImageContent || isOtherContent {
+            closeOtherContentButton.isHidden = false
+        }
         view.endEditing(true)
     }
 
@@ -1797,11 +1800,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         case .cancelled:
             interactiveDismiss?.cancel()
             interactiveDismiss = nil
+            shouldReload = false
         case .ended:
             if (dismissPanRecognizer?.velocity(in: view).y ?? 0) > 0 {
                 interactiveDismiss?.finish()
             } else {
                 interactiveDismiss?.cancel()
+                shouldReload = false
             }
             interactiveDismiss = nil
         case .failed,
