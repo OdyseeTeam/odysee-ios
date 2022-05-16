@@ -327,9 +327,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 return
             }
 
-            let lbryUrl = LbryUri.tryParse(url: finalTarget, requireProto: false)
-            if lbryUrl != nil {
-                if lbryUrl!.isChannelUrl() {
+            if let lbryUrl = LbryUri.tryParse(url: finalTarget, requireProto: false) {
+                if lbryUrl.isChannel {
                     let vc = mainViewController?.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl

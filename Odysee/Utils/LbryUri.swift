@@ -73,10 +73,6 @@ struct LbryUri: CustomStringConvertible {
         return build(includeProto: true, protoDefault: LbryUri.protoDefault, vanity: true)
     }
 
-    func isChannelUrl() -> Bool {
-        return (!(channelName ?? "").isBlank && (streamName ?? "").isBlank) || (claimName ?? "").starts(with: "@")
-    }
-
     static func isNameValid(_ name: String?) -> Bool {
         return !(name ?? "").isBlank && regexInvalidUri
             .firstMatch(in: name!, options: [], range: NSRange(name!.startIndex..., in: name!)) == nil

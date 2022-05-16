@@ -30,6 +30,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
 
+    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let url = userActivity.webpageURL else { return }
+        handleLaunchUrl(url: url)
+    }
+
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
         guard let url = URLContexts.first?.url else { return }
         handleLaunchUrl(url: url)
@@ -86,9 +92,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 return
             }
 
-            let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false)
-            if lbryUrl != nil {
-                if lbryUrl!.isChannelUrl() {
+            if let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false) {
+                if lbryUrl.isChannel {
                     let vc = appDelegate.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
