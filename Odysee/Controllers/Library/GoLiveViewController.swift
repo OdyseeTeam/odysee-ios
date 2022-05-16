@@ -24,6 +24,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     var selectedChannel: Claim?
     var thumbnailUploadInProgress: Bool = false
     var currentThumbnailUrl: String?
+    var waitForConfirmationTimer: Timer?
     static let minStreamStake = Decimal(50)
 
     @IBOutlet var precheckView: UIView!
@@ -252,11 +253,10 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
     /// Checks if it's possible to stream on `channel`, and update the error label with the reason if not.
     func checkCanStreamOnChannel(_ channel: Claim?) -> Bool {
-        if channel == nil {
+        guard let channel = channel else {
             return false
         }
 
-        let channel = channels[0]
         if channel.confirmations! < 1 {
             channelErrorLabel.isHidden = false
             channelErrorLabel.text = String
@@ -347,6 +347,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             showError(message: String.localized("Please select a valid channel to continue"))
             return
         }
+        let channel = selectedChannel! // Confirmed non-nil by checkCanStreamOnChannel
 
         // check that there is a title
         let title = titleField.text
@@ -357,8 +358,9 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
         precheckView.isHidden = false
         precheckLoadingView.isHidden = false
+        precheckLabel.text = String.localized("Please wait, your livestream claim is pending confirmation.")
         livestreamOptionsView.isHidden = true
-        createLivestreamClaim(title: title!)
+        createLivestreamClaim(title: title!, channel: channel)
     }
 
     /* TODO: Determine if we want to be able to reuse existing claims
@@ -383,6 +385,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                      do {
                          let json = try JSONSerialization.data(withJSONObject: items[0], options: [.prettyPrinted, .sortedKeys])
                          let claim: Claim? = try JSONDecoder().decode(Claim.self, from: json)
+                         // TODO: Do not use self.channels[0]. Maybe get channel from claim.
                          self.signAndSetupStream(channel: self.channels[0])
                      } catch {
                          DispatchQueue.main.async {
@@ -398,8 +401,8 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
          })
      }*/
 
-    func signAndSetupStream(channel: Claim?) {
-        let options: [String: Any] = ["channel_id": channel!.claimId!, "hexdata": Helper.strToHex(channel!.name!)]
+    func signAndSetupStream(channel: Claim) {
+        let options: [String: Any] = ["channel_id": channel.claimId!, "hexdata": Helper.strToHex(channel.name!)]
         Lbry.apiCall(
             method: Lbry.methodChannelSign,
             params: options,
@@ -443,19 +446,42 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         )
     }
 
-    func createStreamKey(channel: Claim?, signature: String, signing_ts: String) -> String {
+    func createStreamKey(channel: Claim, signature: String, signing_ts: String) -> String {
         return String(
             format: "%@?d=%@&s=%@&t=%@",
-            channel!.claimId!,
-            Helper.strToHex(channel!.name!),
+            channel.claimId!,
+            Helper.strToHex(channel.name!),
             signature,
             signing_ts
         )
     }
 
-    func createLivestreamClaim(title: String) {
+    func waitForConfirmation(txid: String, channel: Claim) {
+        DispatchQueue.main.async {
+            self.waitForConfirmationTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { timer in
+                Lbry.apiCall(
+                    method: Lbry.Methods.txoList,
+                    params: .init(
+                        type: [.stream],
+                        txid: txid
+                    )
+                ).subscribeResult(didLoadTxo)
+
+                func didLoadTxo(_ result: Result<Page<Txo>, Error>) {
+                    if case let .success(page) = result,
+                       let confirmations = page.items.first?.confirmations,
+                       confirmations > 0 {
+                        self.signAndSetupStream(channel: channel)
+
+                        self.waitForConfirmationTimer?.invalidate()
+                    }
+                }
+            }
+        }
+    }
+
+    func createLivestreamClaim(title: String, channel: Claim) {
         // check eligibility? (50 credits fked on channel)
-        let channel = channels[0] // use the first channel
         let deposit = Decimal(0.001)
         let suffix = String(describing: Int(Date().timeIntervalSince1970))
         let options: [String: Any] = [
@@ -475,7 +501,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard let data = data, error == nil else {
                     DispatchQueue.main.async {
                         self.precheckLoadingView.isHidden = true
                         self.spacemanImage.image = UIImage(named: "spaceman_sad")
@@ -485,8 +511,14 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                     return
                 }
 
-                // The claim was successfully set up. Create the stream key and start
-                self.signAndSetupStream(channel: self.channels[0])
+                // The claim was successfully set up.
+                // Wait for the claim to be confirmed, then create the stream key and start
+                let result = data["result"] as? [String: Any]
+                guard let txid = result?["txid"] as? String else {
+                    self.displayRequirementNotMet(message: String.localized("Could not get txid from publish API call."))
+                    return
+                }
+                self.waitForConfirmation(txid: txid, channel: channel)
             }
         )
     }

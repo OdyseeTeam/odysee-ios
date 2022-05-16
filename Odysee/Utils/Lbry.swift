@@ -59,6 +59,7 @@ final class Lbry {
         static let addressUnused = Method<AddressUnusedParams, String>(name: "address_unused")
         static let channelAbandon = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
         static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
+        static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
     }
 
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.

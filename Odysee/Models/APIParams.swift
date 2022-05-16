@@ -65,3 +65,8 @@ struct TransactionListParams: Encodable {
     var page: Int?
     var pageSize: Int?
 }
+
+struct TxoListParams: Encodable {
+    var type: [ClaimType]?
+    var txid: String?
+}
