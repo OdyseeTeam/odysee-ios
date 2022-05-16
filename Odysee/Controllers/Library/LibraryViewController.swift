@@ -11,6 +11,19 @@ import UIKit
 class LibraryViewController: UIViewController {
     @IBOutlet var viewContainer: UIView!
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        view.isHidden = !Lbryio.isSignedIn()
+
+        // check if current user is signed in
+        if !Lbryio.isSignedIn() {
+            // show the sign in view
+            let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 

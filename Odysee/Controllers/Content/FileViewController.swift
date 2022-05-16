@@ -264,10 +264,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             {
                 displayClaimBlocked()
             } else if Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate) ||
-                Helper.isCustomBlocked(
-                    claimId: currentClaim.signingChannel!.claimId!,
-                    appDelegate: appDelegate
-                )
+                (currentClaim.signingChannel != nil) &&
+                        (Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate))
             {
                 displayClaimBlockedWithMessage(
                     message: Helper
@@ -866,11 +864,27 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         relatedOrPlaylistTitle.text = isPlaylist ? claim?.value?.title : String.localized("Related Content")
 
         displayRelatedPlaceholders()
-
+        
         if !isPlaylist {
             // for a playlist, we need to do a claim_search for the list of claim IDs first, and then display the first result
             connectChatSocket()
             displaySingleClaim(claim!)
+            
+            // check if the content is paid
+            if let fee = claim?.value?.fee {
+                let amount = Decimal(string: fee.amount!)
+                if (amount! > 0) {
+                    let alert = UIAlertController(
+                        title: String.localized("Paid content not supported"),
+                        message: String.localized("Paid content is not supported in the app at this time. Please go to odysee.com to purchase and view paid content."),
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in }))
+                    present(alert, animated: true, completion: nil)
+                }
+                return
+            }
+
             if isLivestream {
                 loadLivestream()
             } else if !isTextContent, !isImageContent, !isOtherContent {
@@ -1738,18 +1752,24 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(error: error)
+        }
     }
 
     func showError(message: String) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(message: message)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(message: message)
+        }
     }
 
     func showMessage(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showMessage(message: message)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showMessage(message: message)
+        }
     }
 
     @IBAction func dismissFileViewTapped(_ sender: Any) {

@@ -150,6 +150,7 @@ class HomeViewController: UIViewController,
                     releaseTimeValue,
                 limitClaimsPerChannel:
                 currentCategoryIndex == Self.categoryIndexMovies ? 20 : 5,
+                notTags: Constants.MatureTags,
                 channelIds: isWildWest ? nil : channelIds[currentCategoryIndex],
                 orderBy: isWildWest ?
                     ["trending_group", "trending_mixed"]
