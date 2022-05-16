@@ -458,6 +458,16 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
     func waitForConfirmation(txid: String, channel: Claim) {
         DispatchQueue.main.async {
+            func didLoadTxo(_ result: Result<Page<Txo>, Error>) {
+                if case let .success(page) = result,
+                   let confirmations = page.items.first?.confirmations,
+                   confirmations > 0 {
+                    self.signAndSetupStream(channel: channel)
+
+                    self.waitForConfirmationTimer?.invalidate()
+                }
+            }
+            
             self.waitForConfirmationTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { timer in
                 Lbry.apiCall(
                     method: Lbry.Methods.txoList,
@@ -466,16 +476,6 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                         txid: txid
                     )
                 ).subscribeResult(didLoadTxo)
-
-                func didLoadTxo(_ result: Result<Page<Txo>, Error>) {
-                    if case let .success(page) = result,
-                       let confirmations = page.items.first?.confirmations,
-                       confirmations > 0 {
-                        self.signAndSetupStream(channel: channel)
-
-                        self.waitForConfirmationTimer?.invalidate()
-                    }
-                }
             }
         }
     }

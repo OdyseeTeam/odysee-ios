@@ -598,6 +598,45 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
         }
     }
+    
+    func displayClaimContentFromUrl(singleClaim: Claim, contentType: String, contentUrl: URL?) {
+        if isTextContent {
+            webView.isHidden = false
+            contentInfoDescription.text = String.localized("Loading content...")
+            contentInfoLoading.isHidden = false
+            loadTextContent(url: contentUrl!, contentType: contentType)
+            logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
+        } else if isImageContent {
+            var thumbnailDisplayUrl = contentUrl
+            if !(singleClaim.value?.thumbnail?.url ?? "").isBlank {
+                thumbnailDisplayUrl =  URL(string: singleClaim.value!.thumbnail!.url!)!.makeImageURL(spec: bigThumbSpec)
+            }
+            contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
+            PINRemoteImageManager.shared().downloadImage(with: contentUrl!) { result in
+                guard let image = result.image else { return }
+                Thread.performOnMain {
+                    self.imageViewer.display(image: image)
+                }
+            }
+            contentInfoViewButton.isHidden = false
+            logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
+        } else if let url = LbryUri.tryParse(url: singleClaim.permanentUrl!, requireProto: false) {
+            contentInfoLoading.isHidden = true
+            let messageString = NSMutableAttributedString(string: String(
+                format: String
+                    .localized(
+                        "This content cannot be viewed in the Odysee app at this time. Please open %@ in your web browser."
+                    ),
+                url.odyseeString
+            ))
+            let range = messageString.mutableString.range(of: url.odyseeString)
+            if range.location != NSNotFound {
+                messageString.addAttribute(.link, value: url.odyseeString, range: range)
+            }
+            contentInfoDescription.attributedText = messageString
+            otherContentWebUrl = url.odyseeString
+        }
+    }
 
     func displaySingleClaim(_ singleClaim: Claim) {
         commentsDisabledChecked = false
@@ -627,43 +666,28 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             contentInfoViewButton.isHidden = true
             contentInfoImage.image = nil
 
-            let contentUrl = buildOtherContentUrl(singleClaim)
-            if isTextContent {
-                webView.isHidden = false
-                contentInfoDescription.text = String.localized("Loading content...")
-                contentInfoLoading.isHidden = false
-                loadTextContent(url: contentUrl!, contentType: contentType)
-                logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
-            } else if isImageContent {
-                var thumbnailDisplayUrl = contentUrl
-                if !(singleClaim.value?.thumbnail?.url ?? "").isBlank {
-                    thumbnailDisplayUrl =  URL(string: singleClaim.value!.thumbnail!.url!)!.makeImageURL(spec: bigThumbSpec)
-                }
-                contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
-                PINRemoteImageManager.shared().downloadImage(with: contentUrl!) { result in
-                    guard let image = result.image else { return }
-                    Thread.performOnMain {
-                        self.imageViewer.display(image: image)
+            var params = [String: Any]()
+            params["uri"] = singleClaim.permanentUrl!
+            Lbry.apiCall(
+                method: Lbry.methodGet,
+                params: params,
+                connectionString: Lbry.lbrytvConnectionString,
+                authToken: Lbryio.authToken,
+                completion: { data, error in
+                    guard let data = data, error == nil else {
+                        self.showError(error: error)
+                        return
+                    }
+
+                    if let result = data["result"] as? [String: Any] {
+                        if let contentUrl = result["streaming_url"] as? String {
+                            DispatchQueue.main.async {
+                                self.displayClaimContentFromUrl(singleClaim: singleClaim, contentType: contentType!, contentUrl: URL(string: contentUrl))
+                            }
+                        }
                     }
                 }
-                contentInfoViewButton.isHidden = false
-                logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
-            } else if let url = LbryUri.tryParse(url: singleClaim.permanentUrl!, requireProto: false) {
-                contentInfoLoading.isHidden = true
-                let messageString = NSMutableAttributedString(string: String(
-                    format: String
-                        .localized(
-                            "This content cannot be viewed in the Odysee app at this time. Please open %@ in your web browser."
-                        ),
-                    url.odyseeString
-                ))
-                let range = messageString.mutableString.range(of: url.odyseeString)
-                if range.location != NSNotFound {
-                    messageString.addAttribute(.link, value: url.odyseeString, range: range)
-                }
-                contentInfoDescription.attributedText = messageString
-                otherContentWebUrl = url.odyseeString
-            }
+            )
         } else if !avpcInitialised {
             avpc.allowsPictureInPicturePlayback = true
             avpc.updatesNowPlayingInfoCenter = false
@@ -753,15 +777,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.present(vc, animated: true, completion: nil)
         }
-    }
-
-    func buildOtherContentUrl(_ claim: Claim) -> URL? {
-        return URL(string: String(
-            format: "https://cdn.lbryplayer.xyz/api/v4/streams/free/%@/%@/%@",
-            claim.name!,
-            claim.claimId!,
-            String(claim.value!.source!.sdHash!.prefix(6))
-        ))
     }
 
     func loadTextContent(url: URL, contentType: String?) {
