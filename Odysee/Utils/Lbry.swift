@@ -31,7 +31,7 @@ final class Lbry {
 
     static func processPageOfClaims(_ page: inout Page<Claim>) {
         page.items.removeAll {
-            Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) || Lbryio.isClaimBlocked($0.signingChannel!) || Lbryio.isClaimFiltered($0.signingChannel!)
+            Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) || Lbryio.isClaimBlocked($0.signingChannel) || Lbryio.isClaimFiltered($0.signingChannel)
         }
         page.items.forEach(Lbry.addClaimToCache)
     }
