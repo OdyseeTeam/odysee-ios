@@ -558,6 +558,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func displayLivestreamOffline() {
         DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.lazyPlayer = nil
+
             self.avpc.view.isHidden = true
             self.livestreamOfflinePlaceholder.isHidden = false
             self.livestreamOfflineMessageView.isHidden = false
