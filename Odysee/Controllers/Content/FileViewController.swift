@@ -54,7 +54,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet var chatInputField: UITextField!
     @IBOutlet var chatListView: UITableView!
 
-    @IBOutlet var descriptionLabel: UILabel!
+    @IBOutlet var descriptionTextView: UITextView!
 
     @IBOutlet var followLabel: UILabel!
     @IBOutlet var followUnfollowIconView: UIImageView!
@@ -774,7 +774,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             titleAreaIconView.isHidden = true
         } else {
             // details
-            descriptionLabel.text = claim?.value?.description
+            descriptionTextView.text = claim?.value?.description
         }
     }
 
@@ -1901,8 +1901,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     @IBAction func titleAreaTapped(_ sender: Any) {
         if descriptionArea.isHidden {
-            descriptionArea.isHidden = (descriptionLabel.text ?? "").isBlank
-            descriptionDivider.isHidden = (descriptionLabel.text ?? "").isBlank
+            descriptionArea.isHidden = (descriptionTextView.text ?? "").isBlank
+            descriptionDivider.isHidden = (descriptionTextView.text ?? "").isBlank
             titleAreaIconView.image = UIImage(systemName: descriptionArea.isHidden ? "chevron.down" : "chevron.up")
         } else {
             descriptionArea.isHidden = true

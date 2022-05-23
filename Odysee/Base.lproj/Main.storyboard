@@ -6518,12 +6518,14 @@
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="e2q-KI-gju">
                                                 <rect key="frame" x="0.0" y="198.5" width="414" height="0.0"/>
                                                 <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ay4-T6-Be4">
-                                                        <rect key="frame" x="0.0" y="0.0" width="414" height="0.0"/>
+                                                    <textView opaque="NO" multipleTouchEnabled="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" scrollEnabled="NO" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="8aR-NN-XFQ" userLabel="Description Text View">
+                                                        <rect key="frame" x="0.0" y="0.0" width="414" height="30.5"/>
+                                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                        <color key="textColor" systemColor="labelColor"/>
                                                         <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
+                                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                        <dataDetectorType key="dataDetectorTypes" link="YES"/>
+                                                    </textView>
                                                 </subviews>
                                             </stackView>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0Bk-Nb-7Gz" userLabel="Divider">
@@ -6807,7 +6809,7 @@
                         <outlet property="contentInfoViewButton" destination="yOt-RI-fY3" id="945-Fj-gVM"/>
                         <outlet property="descriptionArea" destination="e2q-KI-gju" id="g6t-mD-MJf"/>
                         <outlet property="descriptionDivider" destination="0Bk-Nb-7Gz" id="fL0-eJ-l40"/>
-                        <outlet property="descriptionLabel" destination="Ay4-T6-Be4" id="irQ-kF-VfK"/>
+                        <outlet property="descriptionTextView" destination="8aR-NN-XFQ" id="arh-XD-65Z"/>
                         <outlet property="detailsScrollView" destination="hSv-c7-vMI" id="lXK-nk-sFo"/>
                         <outlet property="dismissFileView" destination="IzU-bX-6Of" id="s79-ob-wXH"/>
                         <outlet property="dismissPanRecognizer" destination="0h5-cd-N4G" id="HWX-3w-AZS"/>
