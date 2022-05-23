@@ -16,6 +16,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 {
     var channelClaim: Claim?
     var claimUrl: LbryUri?
+    var page: Int?
     var subscribeUnsubscribeInProgress = false
     var livestreamTimer = Timer()
     let livestreamTimerInterval: Double = 60 // 1 minute
@@ -171,6 +172,11 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         loadAndDisplayFollowerCount()
         loadContent()
         displayCommentsView()
+
+        if let page = page {
+            pageControl.currentPage = page
+            updateScrollViewForPage(page: pageControl.currentPage)
+        }
 
         checkFollowing()
         checkNotificationsDisabled()

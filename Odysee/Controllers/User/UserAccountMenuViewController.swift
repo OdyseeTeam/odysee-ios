@@ -111,24 +111,26 @@ class UserAccountMenuViewController: UIViewController {
     }
 
     @IBAction func communityGuidelinesTapped(_ sender: Any) {
-        // Open the web page for now until we support displaying text content
-
         // https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c
-        if let url = URL(string: "https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c") {
-            let vc = SFSafariViewController(url: url)
+        if let url = LbryUri.tryParse(url: "https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c", requireProto: false) {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+            vc.claimUrl = url
             presentingViewController?.dismiss(animated: false, completion: nil)
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
+            appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }
 
     @IBAction func helpAndSupportTapped(_ sender: Any) {
         // https://odysee.com/@OdyseeHelp:b?view=about
-        if let url = URL(string: "https://odysee.com/@OdyseeHelp:b?view=about") {
-            let vc = SFSafariViewController(url: url)
+        if let url = LbryUri.tryParse(url: "https://odysee.com/@OdyseeHelp:b", requireProto: false) {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let vc = storyboard?.instantiateViewController(withIdentifier: "channel_view_vc") as! ChannelViewController
+            vc.claimUrl = url
+            vc.page = 2
             presentingViewController?.dismiss(animated: false, completion: nil)
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 
