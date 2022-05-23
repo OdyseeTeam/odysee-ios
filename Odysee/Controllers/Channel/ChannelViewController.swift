@@ -441,7 +441,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         var req = URLRequest(url: url!)
         req.httpMethod = "GET"
 
-        let task = session.dataTask(with: req, completionHandler: { data, response, error in
+        let task = session.dataTask(with: req, completionHandler: { data, _, error in
             guard let data = data, error == nil else {
                 // handle error
                 return

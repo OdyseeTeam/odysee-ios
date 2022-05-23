@@ -591,7 +591,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 }
                 req.httpBodyStream = Multistream(streams: [headerStream, fileStream, footerStream])
 
-                let task = URLSession.shared.dataTask(with: req) { data, response, error in
+                let task = URLSession.shared.dataTask(with: req) { data, _, error in
                     guard let data = data, error == nil else {
                         completion(nil, error)
                         return

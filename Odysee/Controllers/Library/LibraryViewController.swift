@@ -23,7 +23,7 @@ class LibraryViewController: UIViewController {
             appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
 

@@ -281,7 +281,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 //            )
 //            return false
 //        }
-        
+
         channelErrorLabel.isHidden = true
         return true
     }
@@ -461,14 +461,15 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             func didLoadTxo(_ result: Result<Page<Txo>, Error>) {
                 if case let .success(page) = result,
                    let confirmations = page.items.first?.confirmations,
-                   confirmations > 0 {
+                   confirmations > 0
+                {
                     self.signAndSetupStream(channel: channel)
 
                     self.waitForConfirmationTimer?.invalidate()
                 }
             }
-            
-            self.waitForConfirmationTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { timer in
+
+            self.waitForConfirmationTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
                 Lbry.apiCall(
                     method: Lbry.Methods.txoList,
                     params: .init(
@@ -532,7 +533,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return channels.map { $0.name }[row]
+        return channels.map(\.name)[row]
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {

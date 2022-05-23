@@ -49,7 +49,7 @@ struct ContentSources {
             }
 
             do {
-                var respCode: Int = 0
+                var respCode = 0
                 if let httpResponse = response as? HTTPURLResponse {
                     respCode = httpResponse.statusCode
                 }
