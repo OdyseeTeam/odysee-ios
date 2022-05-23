@@ -99,44 +99,25 @@ class SearchViewController: UIViewController,
             if winningClaims.count > 0 {
                 winningClaims
                     .sort(by: {
-                        Decimal(string: $1.meta?.effectiveAmount ?? "0")! >
-                            Decimal(string: $0.meta?.effectiveAmount ?? "0")!
+                        Decimal(string: $0.meta?.effectiveAmount ?? "0")! >
+                            Decimal(string: $1.meta?.effectiveAmount ?? "0")!
                     })
                 let winningClaim = winningClaims[0]
                 winningClaim.featured = true
 
+                var canShow = true
+
                 // check if the winning claim could be mature content
-                var isMature = false
                 if let tags = winningClaim.value?.tags {
-                    isMature = tags.contains(where: Constants.MatureTags.contains)
+                    canShow = !tags.contains(where: Constants.MatureTags.contains)
                 }
 
-                if !isMature {
-                    // in some cases, some mature content may not be properly tagged (possibly due to abuse)
-                    // check the claim name, title or description just in case
-                    for matureTag in Constants.MatureTags {
-                        // TODO: Move this check into a helper method?
-                        if winningClaim.name!.contains(matureTag) {
-                            isMature = true
-                            break
-                        }
-                        if let title = winningClaim.value?.title {
-                            if title.contains(matureTag) {
-                                isMature = true
-                                break
-                            }
-                        }
-                        if let description = winningClaim.value?.description {
-                            if description.contains(matureTag) {
-                                isMature = true
-                                break
-                            }
-                        }
-                    }
-                }
+                // check if the winning claim is filtered or blocked
+                canShow = !Lbryio.isClaimFiltered(winningClaim) && canShow
+                canShow = !Lbryio.isClaimBlocked(winningClaim) && canShow
 
-                // only show the winning claim if it is not mature content
-                if !isMature {
+                // only show the winning claim if it is not mature content or blocked
+                if canShow {
                     // if the claim is already in the search results, remove it so we can promote to the top
                     claims.removeAll(where: { $0.claimId == winningClaim.claimId })
                     claims.insert(winningClaim, at: 0)
