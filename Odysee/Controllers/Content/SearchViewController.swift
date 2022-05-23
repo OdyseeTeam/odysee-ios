@@ -13,6 +13,8 @@ import UIKit
 class SearchViewController: UIViewController,
     UIGestureRecognizerDelegate,
     UISearchBarDelegate,
+    UIPickerViewDataSource,
+    UIPickerViewDelegate,
     UITableViewDelegate,
     UITableViewDataSource,
     UITableViewDataSourcePrefetching
@@ -21,7 +23,12 @@ class SearchViewController: UIViewController,
     @IBOutlet var getStartedView: UIStackView!
     @IBOutlet var noResultsView: UIStackView!
     @IBOutlet var noResultsLabel: UILabel!
+    @IBOutlet var filterButton: UIButton!
+    @IBOutlet var typePickerView: UIPickerView!
+    @IBOutlet var publishTimePicker: UIPickerView!
+    @IBOutlet var fileTypesView: UIStackView!
 
+    @IBOutlet var filterOptionsView: UIStackView!
     @IBOutlet var resultsListView: UITableView!
     @IBOutlet var loadingContainer: UIView!
 
@@ -31,7 +38,16 @@ class SearchViewController: UIViewController,
     var searching: Bool = false
     let pageSize = 20
     var claims = OrderedSet<Claim>()
+    var filteredClaims = OrderedSet<Claim>()
+    var winningClaim: Claim?
     var prefetchController: ImagePrefetchingController!
+
+    var showVideo = true
+    var showAudio = true
+    var showImage = true
+    var showText = true
+
+    let filterClaimTypes = ["Any", "File", "Channel"]
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -57,7 +73,7 @@ class SearchViewController: UIViewController,
         super.viewDidLoad()
 
         prefetchController = ImagePrefetchingController { [unowned self] indexPath in
-            ClaimTableViewCell.imagePrefetchURLs(claim: self.claims[indexPath.row])
+            ClaimTableViewCell.imagePrefetchURLs(claim: self.filteredClaims[indexPath.row])
         }
 
         loadingContainer.layer.cornerRadius = 20
@@ -66,6 +82,8 @@ class SearchViewController: UIViewController,
         searchBar.backgroundImage = UIImage()
 
         resultsListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
+        typePickerView.selectRow(0 /* Any */, inComponent: 0, animated: false)
+        publishTimePicker.selectRow(4 /* All Time */, inComponent: 0, animated: false)
     }
 
     func resolveWinning(query: String) {
@@ -119,10 +137,11 @@ class SearchViewController: UIViewController,
                 // only show the winning claim if it is not mature content or blocked
                 if canShow {
                     // if the claim is already in the search results, remove it so we can promote to the top
-                    claims.removeAll(where: { $0.claimId == winningClaim.claimId })
-                    claims.insert(winningClaim, at: 0)
+                    filteredClaims.removeAll(where: { $0.claimId == winningClaim.claimId })
+                    filteredClaims.insert(winningClaim, at: 0)
                     resultsListView.reloadData()
                     checkNoResults()
+                    self.winningClaim = winningClaim
                 }
             }
         }
@@ -183,7 +202,7 @@ class SearchViewController: UIViewController,
             let oldCount = claims.count
             claims.append(contentsOf: resolve.claims.values)
             if claims.count != oldCount {
-                resultsListView.reloadData()
+                filterClaims()
             }
 
             // try to resolve the winning claim after loading initial set of results
@@ -194,6 +213,55 @@ class SearchViewController: UIViewController,
         checkNoResults()
         searching = false
         loadingContainer.isHidden = true
+        filterButton.isEnabled = true
+    }
+
+    func filterClaims() {
+        filteredClaims = OrderedSet(claims.filter(shouldShowClaim))
+
+        // Add winning claim to top
+        if let winningClaim = winningClaim {
+            filteredClaims.removeAll(where: { $0.claimId == winningClaim.claimId })
+            filteredClaims.insert(winningClaim, at: 0)
+        }
+
+        resultsListView.reloadData()
+        checkNoResults()
+    }
+
+    func shouldShowClaim(claim: Claim) -> Bool {
+        // Claim Type
+        let filterType = filterClaimTypes[typePickerView.selectedRow(inComponent: 0)]
+        let filterByFile = filterType == filterClaimTypes[1]
+        let filterByChannel = filterType == filterClaimTypes[2]
+
+        if claim.valueType == .channel && (!filterByChannel && filterByFile) {
+            return false
+        }
+        if claim.valueType == .collection && (filterByChannel || filterByFile) {
+            return false
+        }
+        if claim.valueType == .stream,
+           let mediaType = claim.value?.source?.mediaType,
+           (filterByChannel && !filterByFile) ||
+           (mediaType.starts(with: MediaType.video.rawValue) && !showVideo) ||
+           (mediaType.starts(with: MediaType.audio.rawValue) && !showAudio) ||
+           (mediaType.starts(with: MediaType.image.rawValue) && !showImage) ||
+           (mediaType.starts(with: MediaType.text.rawValue) && !showText)
+        {
+            return false
+        }
+
+        // Publish Time
+        let contentFromTime = Int64(Helper.buildReleaseTime(
+            contentFrom: Helper.contentFromItemNames[publishTimePicker.selectedRow(inComponent: 0)]
+        )?.dropFirst() ?? "0") ?? 0
+        var claimReleaseTime = Int64(claim.value?.releaseTime ?? "0") ?? 0
+        if claimReleaseTime == 0 {
+            claimReleaseTime = claim.timestamp ?? 0
+        }
+
+        return claimReleaseTime > contentFromTime
     }
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -219,7 +287,7 @@ class SearchViewController: UIViewController,
     func checkNoResults() {
         assert(Thread.isMainThread)
         loadingContainer.isHidden = true
-        noResultsView.isHidden = !claims.isEmpty
+        noResultsView.isHidden = !filteredClaims.isEmpty
         noResultsLabel.text = Lighthouse.containsFilteredKeyword(currentQuery!) ?
             String
             .localized(
@@ -245,14 +313,49 @@ class SearchViewController: UIViewController,
         navigationController?.popViewController(animated: true)
     }
 
+    @IBAction func filterButtonTapped(_ sender: Any) {
+        UIView.animate(withDuration: 0.3) {
+            self.filterOptionsView.isHidden.toggle()
+        }
+    }
+
+    @IBAction func videoSwitchChanged(_ sender: UISwitch) {
+        showVideo = sender.isOn
+        filterClaims()
+    }
+
+    @IBAction func audioSwitchedChanged(_ sender: UISwitch) {
+        showAudio = sender.isOn
+        filterClaims()
+    }
+
+    @IBAction func imageSwitchChanged(_ sender: UISwitch) {
+        showImage = sender.isOn
+        filterClaims()
+    }
+
+    @IBAction func textSwitchChanged(_ sender: UISwitch) {
+        showText = sender.isOn
+        filterClaims()
+    }
+
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        if pickerView == typePickerView {
+            UIView.animate(withDuration: 0.3) {
+                self.fileTypesView.isHidden = pickerView.selectedRow(inComponent: 0) != 1 /* File */
+            }
+        }
+        filterClaims()
+    }
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return claims.count
+        return filteredClaims.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
 
-        let claim: Claim = claims[indexPath.row]
+        let claim: Claim = filteredClaims[indexPath.row]
         cell.setClaim(claim: claim)
 
         return cell
@@ -260,7 +363,7 @@ class SearchViewController: UIViewController,
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let claim: Claim = claims[indexPath.row]
+        let claim: Claim = filteredClaims[indexPath.row]
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if claim.name!.starts(with: "@") {
@@ -301,6 +404,26 @@ class SearchViewController: UIViewController,
         }
         resetSearch()
         search(query: searchBar.searchTextField.text, from: 0)
+    }
+
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        if pickerView == typePickerView {
+            return filterClaimTypes.count
+        } else {
+            return Helper.contentFromItemNames.count
+        }
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        if pickerView == typePickerView {
+            return filterClaimTypes[row]
+        } else {
+            return Helper.contentFromItemNames[row]
+        }
     }
 
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
