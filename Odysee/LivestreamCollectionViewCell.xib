@@ -88,7 +88,6 @@
                         </constraints>
                     </view>
                 </subviews>
-                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstItem="beA-GF-cHg" firstAttribute="top" secondItem="I4k-sK-dVx" secondAttribute="bottom" constant="8" id="Job-zP-kWa"/>
                     <constraint firstItem="I4k-sK-dVx" firstAttribute="leading" secondItem="ThH-Aw-3Pm" secondAttribute="leading" constant="8" id="SuD-HL-tOj"/>
