@@ -185,7 +185,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
 
-    func checkRepost() {
+    // Returns true if reposted claim is a channel
+    func checkRepost() -> Bool {
         if claim != nil, claim?.repostedClaim != nil {
             claim = claim?.repostedClaim
             if claim!.name!.starts(with: "@") {
@@ -197,11 +198,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 vc.channelClaim = claim
                 appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
 
-                return
+                return true
             }
-
-            claim = claim?.repostedClaim
         }
+        return false
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -213,7 +213,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
 
-        if claim != nil && shouldReload {
+        // Don't show claim while waiting for channel view to show
+        if claim != nil, shouldReload && !claim!.name!.starts(with: "@") {
             showClaimAndCheckFollowing()
         }
     }
@@ -247,7 +248,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         contentInfoViewButton.layer.masksToBounds = true
         contentInfoViewButton.layer.cornerRadius = 16
 
-        checkRepost()
         relatedContentListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
         featuredCommentThumbnail.rounded()
         livestreamOfflineMessageView.layer.cornerRadius = 8
@@ -258,6 +258,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if claim == nil, claimUrl != nil {
             resolveAndDisplayClaim()
         } else if let currentClaim = claim {
+            if checkRepost() {
+                return
+            }
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             if Lbryio
                 .isClaimBlocked(currentClaim) ||
@@ -324,6 +327,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func showClaimAndCheckFollowing() {
+        if checkRepost() {
+            return
+        }
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if Lbryio
             .isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!))
