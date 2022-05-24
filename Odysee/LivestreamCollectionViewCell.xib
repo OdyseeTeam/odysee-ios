@@ -46,6 +46,11 @@
                             <constraint firstAttribute="height" constant="27" id="xNR-WO-WAW"/>
                         </constraints>
                         <edgeInsets key="layoutMargins" top="4" left="4" bottom="4" right="4"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="6"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
                     </stackView>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="beA-GF-cHg">
                         <rect key="frame" x="8" y="143" width="240" height="70"/>

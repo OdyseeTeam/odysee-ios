@@ -25,7 +25,6 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         super.awakeFromNib()
         let publisherTapGesture = UITapGestureRecognizer(target: self, action: #selector(publisherTapped(_:)))
         publisherLabel.addGestureRecognizer(publisherTapGesture)
-        viewerCountStackView.layer.cornerRadius = 6
         thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
     }
 
