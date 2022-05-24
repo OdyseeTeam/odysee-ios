@@ -528,14 +528,20 @@ class HomeViewController: UIViewController,
         collectionViewLayout.itemSize = CGSize(width: 256, height: 213)
         collectionViewLayout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 
-        livestreamsCollectionView = UICollectionView(frame: collectionViewFrame, collectionViewLayout: collectionViewLayout)
+        livestreamsCollectionView = UICollectionView(
+            frame: collectionViewFrame,
+            collectionViewLayout: collectionViewLayout
+        )
         livestreamsCollectionView.autoresizingMask = .flexibleWidth
 
         livestreamsCollectionView.dataSource = self
         livestreamsCollectionView.delegate = self
         livestreamsCollectionView.prefetchDataSource = self
 
-        livestreamsCollectionView.register(LivestreamCollectionViewCell.nib, forCellWithReuseIdentifier: "livestream_cell")
+        livestreamsCollectionView.register(
+            LivestreamCollectionViewCell.nib,
+            forCellWithReuseIdentifier: "livestream_cell"
+        )
 
         let livestreamsViewFrame = CGRect(x: 0, y: 0, width: 0, height: 233 + titleHeight)
         livestreamsView = UIStackView(frame: livestreamsViewFrame)

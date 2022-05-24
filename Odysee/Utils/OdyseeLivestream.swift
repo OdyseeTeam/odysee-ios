@@ -37,7 +37,8 @@ struct OdyseeLivestream {
                 return
             } else if result.data == nil,
                       let error = result.error,
-                      let trace = result.trace {
+                      let trace = result.trace
+            {
                 completion(.failure(OdyseeLivestreamError.runtimeError("\(error)\n---Trace---\n\(trace)")))
                 return
             }
