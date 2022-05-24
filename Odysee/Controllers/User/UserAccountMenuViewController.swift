@@ -112,7 +112,10 @@ class UserAccountMenuViewController: UIViewController {
 
     @IBAction func communityGuidelinesTapped(_ sender: Any) {
         // https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c
-        if let url = LbryUri.tryParse(url: "https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c", requireProto: false) {
+        if let url = LbryUri.tryParse(
+            url: "https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c",
+            requireProto: false
+        ) {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claimUrl = url
