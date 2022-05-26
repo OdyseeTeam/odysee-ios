@@ -13,22 +13,25 @@ struct ContentSources {
     static let regionCodeBR = "BR" // special check for pt-BR
 
     static let defaultsKey = "ContentSourcesCache"
-    static let endpoint = "https://odysee.com/$/api/content/v1/get"
+    static let endpoint = "https://odysee.com/$/api/content/v2/get"
 
     static var DynamicContentCategories: [Category] = []
 
     static func loadCategories(completion: @escaping ([Category]?, Error?) -> Void) {
         let defaults = UserDefaults.standard
-        if let csCacheString = defaults.string(forKey: defaultsKey) {
-            let csCache = try! JSONDecoder().decode(ContentSourceCache.self, from: csCacheString.data(using: .utf8)!)
-            if let diff = Calendar.current.dateComponents([.hour], from: csCache.lastUpdated, to: Date()).hour,
-               diff < 24
-            {
-                ContentSources.DynamicContentCategories = csCache.categories
-                completion(csCache.categories, nil)
-                return
+
+        do {
+            if let csCacheString = defaults.string(forKey: defaultsKey) {
+                let csCache = try JSONDecoder().decode(ContentSourceCache.self, from: csCacheString.data(using: .utf8)!)
+                if let diff = Calendar.current.dateComponents([.hour], from: csCache.lastUpdated, to: Date()).hour,
+                   diff < 24
+                {
+                    ContentSources.DynamicContentCategories = csCache.categories
+                    completion(csCache.categories, nil)
+                    return
+                }
             }
-        }
+        } catch { /* Fall through to loadRemoteCategories */ }
 
         loadRemoteCategories(completion: completion)
     }
@@ -70,23 +73,25 @@ struct ContentSources {
                             languageKey = String(format: "%@-%@", languageKey, regionCode)
                         }
 
-                        if let langData = data[languageKey] as? [String: Any] ??
-                            data[languageCodeEN] as? [String: Any]
+                        if let langData = data[languageKey] as? [String: Any] ?? data[languageCodeEN] as? [String: Any],
+                           let langCategories = langData["categories"] as? [String: Any]
                         {
-                            let keys = Array(langData.keys)
+                            let keys = Array(langCategories.keys)
                             for key in keys {
-                                if let contentSource = langData[key] as? [String: Any] {
+                                if let contentSource = langCategories[key] as? [String: Any] {
                                     if let label = contentSource["label"] as? String,
                                        let name = contentSource["name"] as? String,
-                                       let channelIds = contentSource["channelIds"] as? [String],
                                        let sortOrder = contentSource["sortOrder"] as? Int
                                     {
+                                        let channelIds = contentSource["channelIds"] as? [String] ?? []
+                                        let excludedChannelIds = contentSource["excludedChannelIds"] as? [String] ?? []
                                         let category = Category(
                                             sortOrder: sortOrder,
                                             key: key,
                                             name: name,
                                             label: label,
-                                            channelIds: channelIds
+                                            channelIds: channelIds,
+                                            excludedChannelIds: excludedChannelIds
                                         )
                                         categories.append(category)
                                     }
@@ -95,7 +100,7 @@ struct ContentSources {
                         }
                     }
 
-                    categories.sort(by: { $0.sortOrder ?? 1 < $1.sortOrder ?? 1 })
+                    categories.sort(by: { $0.sortOrder < $1.sortOrder })
                     ContentSources.DynamicContentCategories = categories
 
                     // cache the categories
@@ -124,11 +129,12 @@ struct ContentSources {
     }
 
     struct Category: Codable {
-        var sortOrder: Int?
-        var key: String?
-        var name: String?
-        var label: String?
+        var sortOrder: Int
+        var key: String = ""
+        var name: String
+        var label: String
         var channelIds: [String] = []
+        var excludedChannelIds: [String] = []
     }
 
     struct ContentSourceCache: Codable {

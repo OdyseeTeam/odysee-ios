@@ -32,10 +32,12 @@ class HomeViewController: UIViewController,
     static var categoryIndexWildWest: Int = -1
     static let categoryNameGeneral: String = "general"
     static let categoryNameMovies: String = "movies"
+    static let categoryNameWildWest: String = "wildwest"
 
     let refreshControl = UIRefreshControl()
     var categories: [String] = []
     var channelIds: [[String]?] = []
+    var wildWestExcludedChannelIds: [String]? = []
     var currentCategoryIndex: Int = 0
     var categoryButtons: [UIButton] = []
 
@@ -104,20 +106,23 @@ class HomeViewController: UIViewController,
         if claims.count == 0 {
             loadClaims()
         }
+        if livestreams.count == 0 {
+            loadLivestreams()
+        }
     }
 
     func buildDynamicCategories() {
         for (idx, category) in ContentSources.DynamicContentCategories.enumerated() {
-            categories.append(String.localized(category.label!))
+            categories.append(String.localized(category.label))
             channelIds.append(category.channelIds)
             if category.name == Self.categoryNameMovies {
                 Self.categoryIndexMovies = idx
             }
+            if category.name == Self.categoryNameWildWest {
+                wildWestExcludedChannelIds = category.excludedChannelIds
+                Self.categoryIndexWildWest = idx
+            }
         }
-
-        categories.append(String.localized("Wild West"))
-        channelIds.append([])
-        Self.categoryIndexWildWest = categories.count - 1
     }
 
     func didLoadClaims(_ result: Result<Page<Claim>, Error>) {
@@ -170,6 +175,7 @@ class HomeViewController: UIViewController,
                 currentCategoryIndex == Self.categoryIndexMovies ? 20 : 5,
                 notTags: Constants.MatureTags,
                 channelIds: isWildWest ? nil : channelIds[currentCategoryIndex],
+                notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
                 orderBy: isWildWest ?
                     ["trending_group", "trending_mixed"]
                     : Helper.sortByItemValues[currentSortByIndex]
@@ -198,49 +204,70 @@ class HomeViewController: UIViewController,
 
         DispatchQueue.global().async { [self] in
             OdyseeLivestream.listLivestreams { result in
-                if case let .success(infos) = result {
-                    if infos.count > 0 {
-                        DispatchQueue.main.async {
-                            livestreamsCollectionView.isHidden = false
-                            livestreamsLabel.text = String.localized("Livestreams")
-                        }
+                if case var .success(infos) = result {
+                    let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
+                    if !isWildWest {
+                        infos = infos.filter { channelIds[currentCategoryIndex]?.contains($0.value.channelClaimId) ?? false }
 
-                        Lbry.apiCall(
-                            method: Lbry.Methods.claimSearch,
-                            params: .init(
-                                claimType: [.stream],
-                                page: livestreamsCurrentPage,
-                                pageSize: pageSize,
-                                hasNoSource: true,
-                                claimIds: Array(infos.keys)
-                            )
-                        ).subscribeResult { result in
-                            if case let .success(payload) = result {
-                                let oldCount = livestreams.count
-                                for claim in payload.items {
-                                    let livestreamInfo = infos[claim.claimId!]
-                                    let livestreamData = LivestreamData(
-                                        startTime: livestreamInfo?.startTime ?? Date(),
-                                        viewerCount: livestreamInfo?.viewerCount ?? 0,
-                                        claim: claim
-                                    )
-                                    livestreams.append(livestreamData)
-                                }
-                                if livestreams.count != oldCount {
-                                    livestreamsCollectionView.reloadData()
-                                }
-                                livestreamsLastPageReached = payload.isLastPage
-
+                        guard infos.count > 0 else {
+                            DispatchQueue.main.async {
+                                claimListView.tableHeaderView = nil
                                 if !loadingClaims {
                                     loadingContainer.isHidden = true
                                 }
                                 loadingLivestreams = false
                             }
+                            return
                         }
                     } else {
-                        DispatchQueue.main.async {
-                            livestreamsCollectionView.isHidden = true
-                            livestreamsLabel.text = String.localized("No livestreams to display at this time. Please try again later.")
+                        guard infos.count > 0 else {
+                            // Livestreams are "expected" in Wild West so show no livestreams message
+                            DispatchQueue.main.async {
+                                claimListView.tableHeaderView = livestreamsView
+                                livestreamsCollectionView.isHidden = true
+                                livestreamsLabel.text = String.localized("No livestreams to display at this time. Please try again later.")
+                                if !loadingClaims {
+                                    loadingContainer.isHidden = true
+                                }
+                                loadingLivestreams = false
+                            }
+                            return
+                        }
+                    }
+
+                    DispatchQueue.main.async {
+                        claimListView.tableHeaderView = livestreamsView
+                        livestreamsCollectionView.isHidden = false
+                        livestreamsLabel.text = String.localized("Livestreams")
+                    }
+
+                    Lbry.apiCall(
+                        method: Lbry.Methods.claimSearch,
+                        params: .init(
+                            claimType: [.stream],
+                            page: livestreamsCurrentPage,
+                            pageSize: pageSize,
+                            hasNoSource: true,
+                            notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
+                            claimIds: Array(infos.keys)
+                        )
+                    ).subscribeResult { result in
+                        if case let .success(payload) = result {
+                            let oldCount = livestreams.count
+                            for claim in payload.items {
+                                let livestreamInfo = infos[claim.claimId!]
+                                let livestreamData = LivestreamData(
+                                    startTime: livestreamInfo?.startTime ?? Date(),
+                                    viewerCount: livestreamInfo?.viewerCount ?? 0,
+                                    claim: claim
+                                )
+                                livestreams.append(livestreamData)
+                            }
+                            if livestreams.count != oldCount {
+                                livestreamsCollectionView.reloadData()
+                            }
+                            livestreamsLastPageReached = payload.isLastPage
+
                             if !loadingClaims {
                                 loadingContainer.isHidden = true
                             }
@@ -375,13 +402,7 @@ class HomeViewController: UIViewController,
         currentCategoryIndex = categories.firstIndex(of: category!)!
         resetContent()
         loadClaims()
-
-        if currentCategoryIndex == Self.categoryIndexWildWest {
-            claimListView.tableHeaderView = livestreamsView
-            loadLivestreams()
-        } else {
-            claimListView.tableHeaderView = nil
-        }
+        loadLivestreams()
     }
 
     func resetContent() {
@@ -491,9 +512,7 @@ class HomeViewController: UIViewController,
 
         resetContent()
         loadClaims()
-        if currentCategoryIndex == Self.categoryIndexWildWest {
-            loadLivestreams()
-        }
+        loadLivestreams()
     }
 
     func createLivestreamsView() {
