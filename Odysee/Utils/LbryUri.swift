@@ -219,7 +219,7 @@ struct LbryUri: CustomStringConvertible {
         }
         url.append(primaryClaimName ?? "")
         if vanity {
-            return url
+            return url.removingPercentEncoding ?? url
         }
 
         var secondaryClaimName: String?
@@ -257,7 +257,7 @@ struct LbryUri: CustomStringConvertible {
             url.append(String(secondaryBidPosition))
         }
 
-        return url
+        return url.removingPercentEncoding ?? url
     }
 
     static func tryParse(url: String, requireProto: Bool) -> LbryUri? {
