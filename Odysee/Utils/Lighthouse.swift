@@ -44,6 +44,9 @@ final class Lighthouse {
         size: Int,
         from: Int,
         relatedTo: String?,
+        claimType: ClaimType? = nil,
+        mediaTypes: [MediaType]? = nil,
+        sortBy: SortBy? = nil,
         completion: @escaping ([[String: Any]]?, Error?) -> Void
     ) {
         if !(relatedTo ?? "").isBlank {
@@ -77,6 +80,19 @@ final class Lighthouse {
         queryItems.append(URLQueryItem(name: "filters", value: "ios"))
         if !(relatedTo ?? "").isBlank {
             queryItems.append(URLQueryItem(name: "related_to", value: String(relatedTo!)))
+        }
+        if let claimType = claimType {
+            queryItems.append(URLQueryItem(name: "claimType", value: claimType.rawValue))
+
+            if claimType == .stream {
+                queryItems.append(URLQueryItem(
+                    name: "mediaType",
+                    value: mediaTypes?.map(\.rawValue).joined(separator: ",")
+                ))
+            }
+        }
+        if let sortBy = sortBy {
+            queryItems.append(URLQueryItem(name: "sort_by", value: sortBy.rawValue))
         }
 
         var urlComponents = URLComponents(string: String(format: "%@/search", connectionString))
@@ -112,5 +128,17 @@ final class Lighthouse {
             }
         })
         task.resume()
+    }
+
+    enum MediaType: String {
+        case video
+        case audio
+        case image
+        case text
+    }
+
+    enum SortBy: String {
+        case ascending = "^release_time"
+        case descending = "release_time"
     }
 }

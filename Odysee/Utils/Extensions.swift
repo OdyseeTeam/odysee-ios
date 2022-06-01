@@ -222,3 +222,32 @@ extension Publisher {
         )
     }
 }
+
+extension Collection {
+    /// Modified implementation of sorted(like:keyPath:) from SwifterSwift that applies a transform
+    ///
+    /// SwifterSwift: Sort an array like another array based on a key path. If the other array doesn't contain a certain value, it will be sorted last. If transform throws the element will be sorted last.
+    ///
+    ///        [MyStruct(x: 4), MyStruct(x: 2), MyStruct(x: 3)].sorted(like: [1, 2, 3], keyPath: \.x, transform: { $0 - 1 })
+    ///            -> [MyStruct(x: 1), MyStruct(x: 2), MyStruct(x: 3)]
+    ///
+    /// - Parameters:
+    ///   - otherArray: array containing elements in the desired order.
+    ///   - keyPath: keyPath indicating the property that the array should be sorted by
+    ///   - transform: function applying a transform on the keyPath property before sorting.
+    /// - Returns: sorted array.
+    func sorted<T: Hashable>(
+        like otherArray: [T],
+        keyPath: KeyPath<Element, T>,
+        transform: (T) throws -> T
+    ) -> [Element] {
+        let dict = otherArray.enumerated().reduce(into: [:]) { $0[$1.element] = $1.offset }
+        return sorted {
+            guard let thisElem = try? transform($0[keyPath: keyPath]) else { return false }
+            guard let otherElem = try? transform($1[keyPath: keyPath]) else { return true }
+            guard let thisIndex = dict[thisElem] else { return false }
+            guard let otherIndex = dict[otherElem] else { return true }
+            return thisIndex < otherIndex
+        }
+    }
+}

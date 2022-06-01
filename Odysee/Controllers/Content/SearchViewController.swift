@@ -24,8 +24,9 @@ class SearchViewController: UIViewController,
     @IBOutlet var noResultsView: UIStackView!
     @IBOutlet var noResultsLabel: UILabel!
     @IBOutlet var filterButton: UIButton!
-    @IBOutlet var typePickerView: UIPickerView!
+    @IBOutlet var typePicker: UIPickerView!
     @IBOutlet var publishTimePicker: UIPickerView!
+    @IBOutlet var sortByPicker: UIPickerView!
     @IBOutlet var fileTypesView: UIStackView!
 
     @IBOutlet var filterOptionsView: UIStackView!
@@ -35,7 +36,11 @@ class SearchViewController: UIViewController,
     var searchTask: DispatchWorkItem?
     var currentFrom = 0
     var currentQuery: String?
+    var currentClaimType: ClaimType?
+    var currentMediaTypes: [Lighthouse.MediaType] = [.video, .audio, .image, .text]
+    var currentSortBy: Lighthouse.SortBy?
     var searching: Bool = false
+    var lighthouseUrls = [String]()
     let pageSize = 20
     var claims = OrderedSet<Claim>()
     var filteredClaims = OrderedSet<Claim>()
@@ -48,6 +53,7 @@ class SearchViewController: UIViewController,
     var showText = true
 
     let filterClaimTypes = ["Any", "File", "Channel"]
+    let sortByOptions = ["Relevance", "Newest first", "Oldest First"]
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -82,7 +88,6 @@ class SearchViewController: UIViewController,
         searchBar.backgroundImage = UIImage()
 
         resultsListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
-        typePickerView.selectRow(0 /* Any */, inComponent: 0, animated: false)
         publishTimePicker.selectRow(4 /* All Time */, inComponent: 0, animated: false)
     }
 
@@ -151,8 +156,20 @@ class SearchViewController: UIViewController,
         return true
     }
 
-    func search(query: String?, from: Int) {
-        if (query ?? "").isBlank || (currentQuery == query && currentFrom == from) {
+    func search(
+        query: String?,
+        from: Int,
+        claimType: ClaimType?,
+        mediaTypes: [Lighthouse.MediaType],
+        sortBy: Lighthouse.SortBy?
+    ) {
+        if (query ?? "").isBlank ||
+            (currentQuery == query &&
+                currentFrom == from &&
+                currentClaimType == claimType &&
+                currentMediaTypes == mediaTypes &&
+                currentSortBy == sortBy)
+        {
             return
         }
 
@@ -167,21 +184,28 @@ class SearchViewController: UIViewController,
         searching = true
         currentQuery = query
         currentFrom = from
+        currentClaimType = claimType
+        currentMediaTypes = mediaTypes
+        currentSortBy = sortBy
         Lighthouse.search(
             rawQuery: query!,
             size: pageSize,
             from: currentFrom,
             relatedTo: nil,
+            claimType: claimType,
+            mediaTypes: mediaTypes,
+            sortBy: sortBy,
             completion: { results, _ in
                 guard let results = results, !results.isEmpty else {
                     DispatchQueue.main.async {
                         self.searching = false
+                        self.filteredClaims = []
                         self.checkNoResults()
                     }
                     return
                 }
 
-                let urls = results.compactMap { item in
+                self.lighthouseUrls = results.compactMap { item in
                     LbryUri.tryParse(
                         url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String),
                         requireProto: false
@@ -189,7 +213,7 @@ class SearchViewController: UIViewController,
                 }
                 Lbry.apiCall(
                     method: Lbry.Methods.resolve,
-                    params: .init(urls: urls)
+                    params: .init(urls: self.lighthouseUrls)
                 )
                 .subscribeResult(self.didResolveResults)
             }
@@ -199,8 +223,14 @@ class SearchViewController: UIViewController,
     func didResolveResults(_ result: Result<ResolveResult, Error>) {
         result.showErrorIfPresent()
         if case let .success(resolve) = result {
+            let urls = resolve.claims.values.sorted(
+                like: self.lighthouseUrls,
+                keyPath: \.permanentUrl!,
+                transform: LbryUri.normalize
+            )
+
             let oldCount = claims.count
-            claims.append(contentsOf: resolve.claims.values)
+            claims.append(contentsOf: urls)
             if claims.count != oldCount {
                 filterClaims()
             }
@@ -230,28 +260,6 @@ class SearchViewController: UIViewController,
     }
 
     func shouldShowClaim(claim: Claim) -> Bool {
-        // Claim Type
-        let filterType = filterClaimTypes[typePickerView.selectedRow(inComponent: 0)]
-        let filterByFile = filterType == filterClaimTypes[1]
-        let filterByChannel = filterType == filterClaimTypes[2]
-
-        if claim.valueType == .channel && (!filterByChannel && filterByFile) {
-            return false
-        }
-        if claim.valueType == .collection && (filterByChannel || filterByFile) {
-            return false
-        }
-        if claim.valueType == .stream,
-           let mediaType = claim.value?.source?.mediaType,
-           (filterByChannel && !filterByFile) ||
-           (mediaType.starts(with: MediaType.video.rawValue) && !showVideo) ||
-           (mediaType.starts(with: MediaType.audio.rawValue) && !showAudio) ||
-           (mediaType.starts(with: MediaType.image.rawValue) && !showImage) ||
-           (mediaType.starts(with: MediaType.text.rawValue) && !showText)
-        {
-            return false
-        }
-
         // Publish Time
         let contentFromTime = Int64(Helper.buildReleaseTime(
             contentFrom: Helper.contentFromItemNames[publishTimePicker.selectedRow(inComponent: 0)]
@@ -287,6 +295,7 @@ class SearchViewController: UIViewController,
     func checkNoResults() {
         assert(Thread.isMainThread)
         loadingContainer.isHidden = true
+        resultsListView.isHidden = filteredClaims.isEmpty
         noResultsView.isHidden = !filteredClaims.isEmpty
         noResultsLabel.text = Lighthouse.containsFilteredKeyword(currentQuery!) ?
             String
@@ -297,6 +306,34 @@ class SearchViewController: UIViewController,
             .localized(
                 "Oops! We could not find any content matching your search term. Please try again with something different."
             )
+    }
+
+    func claimType(for index: Int) -> ClaimType? {
+        let filterType = filterClaimTypes[index]
+        switch filterType {
+        case "File": return .stream
+        case "Channel": return .channel
+        case "Any": return nil
+        default: return nil
+        }
+    }
+
+    func mediaTypesFromFilter() -> [Lighthouse.MediaType] {
+        let videoType = showVideo ? Lighthouse.MediaType.video : nil
+        let audioType = showAudio ? Lighthouse.MediaType.audio : nil
+        let imageType = showImage ? Lighthouse.MediaType.image : nil
+        let textType = showText ? Lighthouse.MediaType.text : nil
+        return [videoType, audioType, imageType, textType].compactMap { $0 }
+    }
+
+    func sortBy(for index: Int) -> Lighthouse.SortBy? {
+        let sortBy = sortByOptions[index]
+        switch sortBy {
+        case "Oldest First": return .ascending
+        case "Newest first": return .descending
+        case "Relevance": return nil
+        default: return nil
+        }
     }
 
     @IBAction func noResultsViewTapped(_ sender: Any) {
@@ -321,31 +358,77 @@ class SearchViewController: UIViewController,
 
     @IBAction func videoSwitchChanged(_ sender: UISwitch) {
         showVideo = sender.isOn
-        filterClaims()
+        resetSearch()
+        search(
+            query: currentQuery,
+            from: currentFrom,
+            claimType: currentClaimType,
+            mediaTypes: mediaTypesFromFilter(),
+            sortBy: currentSortBy
+        )
     }
 
     @IBAction func audioSwitchedChanged(_ sender: UISwitch) {
         showAudio = sender.isOn
-        filterClaims()
+        resetSearch()
+        search(
+            query: currentQuery,
+            from: currentFrom,
+            claimType: currentClaimType,
+            mediaTypes: mediaTypesFromFilter(),
+            sortBy: currentSortBy
+        )
     }
 
     @IBAction func imageSwitchChanged(_ sender: UISwitch) {
         showImage = sender.isOn
-        filterClaims()
+        resetSearch()
+        search(
+            query: currentQuery,
+            from: currentFrom,
+            claimType: currentClaimType,
+            mediaTypes: mediaTypesFromFilter(),
+            sortBy: currentSortBy
+        )
     }
 
     @IBAction func textSwitchChanged(_ sender: UISwitch) {
         showText = sender.isOn
-        filterClaims()
+        resetSearch()
+        search(
+            query: currentQuery,
+            from: currentFrom,
+            claimType: currentClaimType,
+            mediaTypes: mediaTypesFromFilter(),
+            sortBy: currentSortBy
+        )
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if pickerView == typePickerView {
+        if pickerView == typePicker {
             UIView.animate(withDuration: 0.3) {
                 self.fileTypesView.isHidden = pickerView.selectedRow(inComponent: 0) != 1 /* File */
             }
+            resetSearch()
+            search(
+                query: currentQuery,
+                from: currentFrom,
+                claimType: claimType(for: pickerView.selectedRow(inComponent: 0)),
+                mediaTypes: currentMediaTypes,
+                sortBy: currentSortBy
+            )
+        } else if pickerView == sortByPicker {
+            resetSearch()
+            search(
+                query: currentQuery,
+                from: currentFrom,
+                claimType: currentClaimType,
+                mediaTypes: currentMediaTypes,
+                sortBy: sortBy(for: pickerView.selectedRow(inComponent: 0))
+            )
+        } else {
+            filterClaims()
         }
-        filterClaims()
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -388,7 +471,13 @@ class SearchViewController: UIViewController,
             .y >= (resultsListView.contentSize.height - resultsListView.bounds.size.height)
         {
             if !searching {
-                search(query: currentQuery, from: currentFrom + pageSize)
+                search(
+                    query: currentQuery,
+                    from: currentFrom + pageSize,
+                    claimType: currentClaimType,
+                    mediaTypes: currentMediaTypes,
+                    sortBy: currentSortBy
+                )
             }
         }
     }
@@ -403,7 +492,13 @@ class SearchViewController: UIViewController,
             return
         }
         resetSearch()
-        search(query: searchBar.searchTextField.text, from: 0)
+        search(
+            query: searchBar.searchTextField.text,
+            from: 0,
+            claimType: currentClaimType,
+            mediaTypes: currentMediaTypes,
+            sortBy: currentSortBy
+        )
     }
 
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -411,16 +506,20 @@ class SearchViewController: UIViewController,
     }
 
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        if pickerView == typePickerView {
+        if pickerView == typePicker {
             return filterClaimTypes.count
+        } else if pickerView == sortByPicker {
+            return sortByOptions.count
         } else {
             return Helper.contentFromItemNames.count
         }
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        if pickerView == typePickerView {
+        if pickerView == typePicker {
             return filterClaimTypes[row]
+        } else if pickerView == sortByPicker {
+            return sortByOptions[row]
         } else {
             return Helper.contentFromItemNames[row]
         }
