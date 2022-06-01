@@ -23,13 +23,6 @@ enum StreamType: String, Codable {
     case video
 }
 
-enum MediaType: String {
-    case video
-    case audio
-    case image
-    case text
-}
-
 class Claim: Decodable, Equatable, Hashable {
     var address: String?
     var amount: String?
