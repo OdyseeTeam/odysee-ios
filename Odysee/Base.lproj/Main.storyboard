@@ -6695,6 +6695,109 @@
                                     <outletCollection property="gestureRecognizers" destination="OfH-6p-L16" appends="YES" id="s4y-Gh-ixA"/>
                                 </connections>
                             </view>
+                            <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qd0-BA-FzN" userLabel="Player Rate View">
+                                <rect key="frame" x="233" y="50" width="75" height="31"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="QZC-gu-Wyg">
+                                    <rect key="frame" x="0.0" y="0.0" width="75" height="31"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="W5a-l8-KYo" userLabel="Player Rate Button">
+                                            <rect key="frame" x="0.0" y="0.0" width="75" height="31"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="75" id="EVF-8G-AJx"/>
+                                                <constraint firstAttribute="height" constant="31" id="bEN-Bx-lcg"/>
+                                            </constraints>
+                                            <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <state key="normal" title="Button"/>
+                                            <buttonConfiguration key="configuration" style="plain" title="1x"/>
+                                        </button>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="W5a-l8-KYo" firstAttribute="top" secondItem="QZC-gu-Wyg" secondAttribute="top" id="Dq5-E7-4K6"/>
+                                        <constraint firstItem="W5a-l8-KYo" firstAttribute="leading" secondItem="QZC-gu-Wyg" secondAttribute="leading" id="gHo-Ks-1Ey"/>
+                                    </constraints>
+                                </view>
+                                <constraints>
+                                    <constraint firstAttribute="height" secondItem="W5a-l8-KYo" secondAttribute="height" id="DVx-F3-BaY"/>
+                                    <constraint firstAttribute="width" secondItem="W5a-l8-KYo" secondAttribute="width" id="dTC-ha-JGN"/>
+                                </constraints>
+                                <blurEffect style="dark"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="8"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                </userDefinedRuntimeAttributes>
+                            </visualEffectView>
+                            <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="He6-U5-U2Z" userLabel="Jump Backward View">
+                                <rect key="frame" x="112" y="144" width="40" height="40"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="k7B-YO-huB">
+                                    <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrow.counterclockwise" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="0Yg-2r-dzf">
+                                            <rect key="frame" x="5" y="4" width="30" height="30"/>
+                                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="30" id="FaC-PB-4CU"/>
+                                                <constraint firstAttribute="width" constant="30" id="L9d-BQ-I80"/>
+                                            </constraints>
+                                        </imageView>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="0Yg-2r-dzf" firstAttribute="leading" secondItem="k7B-YO-huB" secondAttribute="leading" constant="5" id="P8n-0v-fsa"/>
+                                        <constraint firstAttribute="trailing" secondItem="0Yg-2r-dzf" secondAttribute="trailing" constant="5" id="hAo-Lo-yKw"/>
+                                        <constraint firstItem="0Yg-2r-dzf" firstAttribute="top" secondItem="k7B-YO-huB" secondAttribute="top" constant="5" id="kvJ-yF-Sfm"/>
+                                        <constraint firstAttribute="bottom" secondItem="0Yg-2r-dzf" secondAttribute="bottom" constant="5" id="s5R-hS-ptF"/>
+                                    </constraints>
+                                </view>
+                                <gestureRecognizers/>
+                                <blurEffect style="dark"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="8"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="1d7-hd-6sv" appends="YES" id="qjO-YK-AjW"/>
+                                </connections>
+                            </visualEffectView>
+                            <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qTa-5u-72f" userLabel="Jump Forward View">
+                                <rect key="frame" x="262" y="144" width="40" height="40"/>
+                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="Q5Y-va-8dj">
+                                    <rect key="frame" x="0.0" y="0.0" width="40" height="40"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="arrow.clockwise" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="Cln-uI-IbP">
+                                            <rect key="frame" x="5" y="4" width="30" height="30"/>
+                                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="30" id="3oR-Ck-cxU"/>
+                                                <constraint firstAttribute="width" constant="30" id="jc8-vM-f4D"/>
+                                            </constraints>
+                                        </imageView>
+                                    </subviews>
+                                    <gestureRecognizers/>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="Cln-uI-IbP" secondAttribute="trailing" constant="5" id="Uvi-y0-xXe"/>
+                                        <constraint firstAttribute="bottom" secondItem="Cln-uI-IbP" secondAttribute="bottom" constant="5" id="h43-Ws-7AB"/>
+                                        <constraint firstItem="Cln-uI-IbP" firstAttribute="top" secondItem="Q5Y-va-8dj" secondAttribute="top" constant="5" id="oWI-zv-096"/>
+                                        <constraint firstItem="Cln-uI-IbP" firstAttribute="leading" secondItem="Q5Y-va-8dj" secondAttribute="leading" constant="5" id="qXf-yh-cIC"/>
+                                    </constraints>
+                                </view>
+                                <gestureRecognizers/>
+                                <blurEffect style="dark"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="8"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="ltm-jn-pcu" appends="YES" id="CiU-5j-wpy"/>
+                                </connections>
+                            </visualEffectView>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VuG-8T-cXR" userLabel="Resolving Content View">
                                 <rect key="frame" x="0.0" y="44" width="414" height="818"/>
                                 <subviews>
@@ -6759,15 +6862,20 @@
                         <viewLayoutGuide key="safeArea" id="NdN-tQ-3r6"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="qTa-5u-72f" firstAttribute="centerY" secondItem="hZs-fq-qQ6" secondAttribute="centerY" id="1US-0b-o3F"/>
                             <constraint firstItem="Ia6-r3-4DT" firstAttribute="top" secondItem="NdN-tQ-3r6" secondAttribute="top" constant="16" id="65C-4u-W8L"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="trailing" secondItem="VuG-8T-cXR" secondAttribute="trailing" id="67J-iW-CXh"/>
                             <constraint firstItem="VuG-8T-cXR" firstAttribute="height" secondItem="NdN-tQ-3r6" secondAttribute="height" id="6ST-u5-0aK"/>
                             <constraint firstItem="J4Z-JJ-JZs" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="bottom" id="9LP-gD-rRi"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="trailing" secondItem="Ia6-r3-4DT" secondAttribute="trailing" constant="16" id="9PZ-3e-gfe"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="trailing" secondItem="hZs-fq-qQ6" secondAttribute="trailing" id="9k8-xU-Tdu"/>
+                            <constraint firstItem="Qd0-BA-FzN" firstAttribute="leading" secondItem="IzU-bX-6Of" secondAttribute="trailing" constant="8" id="BDE-h6-FNF"/>
                             <constraint firstItem="IzU-bX-6Of" firstAttribute="centerX" secondItem="u0E-KJ-ZkJ" secondAttribute="centerX" id="CPk-3i-L9w"/>
+                            <constraint firstItem="He6-U5-U2Z" firstAttribute="centerY" secondItem="hZs-fq-qQ6" secondAttribute="centerY" id="CWx-Z5-eLQ"/>
+                            <constraint firstItem="Qd0-BA-FzN" firstAttribute="top" secondItem="NdN-tQ-3r6" secondAttribute="top" constant="6" id="DrF-pj-85k"/>
                             <constraint firstItem="J4Z-JJ-JZs" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="EBx-V0-qST"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="trailing" secondItem="VuG-8T-cXR" secondAttribute="trailing" id="FTH-4f-XCU"/>
+                            <constraint firstItem="qTa-5u-72f" firstAttribute="centerX" secondItem="hZs-fq-qQ6" secondAttribute="centerX" constant="75" id="Gd4-qk-e6f"/>
                             <constraint firstItem="hSv-c7-vMI" firstAttribute="trailing" secondItem="NdN-tQ-3r6" secondAttribute="trailing" id="Hpo-UX-khn"/>
                             <constraint firstItem="hSv-c7-vMI" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="bottom" id="JEE-0W-JdI"/>
                             <constraint firstItem="71p-zu-OCP" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="McW-bo-rnI"/>
@@ -6779,6 +6887,7 @@
                             <constraint firstItem="hSv-c7-vMI" firstAttribute="bottom" secondItem="NdN-tQ-3r6" secondAttribute="bottom" id="X8X-Tz-8bu"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="bottom" secondItem="VuG-8T-cXR" secondAttribute="bottom" id="bvk-p1-7tC"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="trailing" secondItem="71p-zu-OCP" secondAttribute="trailing" id="cor-QB-hHB"/>
+                            <constraint firstItem="He6-U5-U2Z" firstAttribute="centerX" secondItem="hZs-fq-qQ6" secondAttribute="centerX" constant="-75" id="d2U-Eh-J12"/>
                             <constraint firstItem="hZs-fq-qQ6" firstAttribute="top" secondItem="NdN-tQ-3r6" secondAttribute="top" id="jJz-xI-Pnw"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="bottom" secondItem="GiF-qv-hoI" secondAttribute="bottom" id="l5G-oC-386"/>
                             <constraint firstItem="GiF-qv-hoI" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="m1L-5j-qxx"/>
@@ -6821,6 +6930,8 @@
                         <outlet property="followLabel" destination="VJr-LQ-OQt" id="pE9-sr-1n2"/>
                         <outlet property="followUnfollowIconView" destination="Nmg-EU-mTn" id="I4l-d8-cFv"/>
                         <outlet property="imageViewer" destination="71p-zu-OCP" id="ChP-zw-pie"/>
+                        <outlet property="jumpBackwardView" destination="He6-U5-U2Z" id="6Qz-iV-X3P"/>
+                        <outlet property="jumpForwardView" destination="qTa-5u-72f" id="pi2-xA-kH8"/>
                         <outlet property="livestreamChatView" destination="J4Z-JJ-JZs" id="op0-PM-jS1"/>
                         <outlet property="livestreamOfflineLabel" destination="8PH-TD-6Ni" id="rPA-QY-sKG"/>
                         <outlet property="livestreamOfflineMessageView" destination="DED-pq-EGI" id="VIp-dI-jKP"/>
@@ -6834,6 +6945,8 @@
                         <outlet property="mediaView" destination="hZs-fq-qQ6" id="4Jr-E5-zZv"/>
                         <outlet property="mediaViewHeightConstraint" destination="UmT-3v-Pm5" id="26L-pE-X3q"/>
                         <outlet property="noCommentsLabel" destination="BaS-K8-e0h" id="jcs-oX-mMc"/>
+                        <outlet property="playerRateButton" destination="W5a-l8-KYo" id="yRG-3V-dBk"/>
+                        <outlet property="playerRateView" destination="Qd0-BA-FzN" id="Xb8-cf-0PH"/>
                         <outlet property="publisherActionsArea" destination="2BG-Yt-hXv" id="K2q-B5-WE5"/>
                         <outlet property="publisherArea" destination="CSC-bu-5Wc" id="D0M-h4-Ay0"/>
                         <outlet property="publisherImageView" destination="Cpe-cx-PuS" id="a2f-gm-gzF"/>
@@ -6951,6 +7064,16 @@
                 <tapGestureRecognizer id="WWK-Je-j9u" userLabel="Content Info Description Tap Gesture Recognizer">
                     <connections>
                         <action selector="contentInfoTapped:" destination="Wx8-f6-Mvh" id="mHz-h4-Qxb"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="1d7-hd-6sv" userLabel="Jump Backward Tap Gesture Recognizer">
+                    <connections>
+                        <action selector="jumpBackwardTapped:" destination="Wx8-f6-Mvh" id="iPe-xo-Hcf"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="ltm-jn-pcu" userLabel="Jump Forward Tap Gesture Recognizer">
+                    <connections>
+                        <action selector="jumpForwardTapped:" destination="Wx8-f6-Mvh" id="q8d-nN-oRa"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
@@ -8068,6 +8191,7 @@
     </scenes>
     <resources>
         <image name="arrow.clockwise" catalog="system" width="115" height="128"/>
+        <image name="arrow.counterclockwise" catalog="system" width="115" height="128"/>
         <image name="arrow.triangle.2.circlepath.camera" catalog="system" width="128" height="94"/>
         <image name="bell.fill" catalog="system" width="128" height="124"/>
         <image name="bell.slash.fill" catalog="system" width="124" height="128"/>
