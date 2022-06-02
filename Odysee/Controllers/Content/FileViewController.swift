@@ -19,8 +19,8 @@ import UIKit
 import WebKit
 
 class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavigationControllerDelegate,
-    UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate, WebSocketDelegate,
-    WKNavigationDelegate
+    UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate,
+    UIPickerViewDelegate, UIPickerViewDataSource, WebSocketDelegate, WKNavigationDelegate
 {
     @IBOutlet var titleArea: UIView!
     @IBOutlet var publisherArea: UIView!
@@ -107,14 +107,20 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet var imageViewer: ImageScrollView!
     @IBOutlet var webView: WKWebView!
     @IBOutlet var dismissFileView: UIView!
+    @IBOutlet var playerRateView: UIVisualEffectView!
+    @IBOutlet var playerRateButton: UIButton!
+    @IBOutlet var jumpBackwardView: UIVisualEffectView!
+    @IBOutlet var jumpForwardView: UIVisualEffectView!
 
-    let avpc = AVPlayerViewController()
+    let avpc = TouchInterceptingAVPlayerViewController()
+    var avpcIsReadyObserver: NSKeyValueObservation?
     weak var commentsVc: CommentsViewController!
 
     var commentsDisabledChecked = false
     var commentsDisabled = false
     var commentsViewPresented = false
-    var commentAsPicker: UIPickerView!
+    var playerRatePicker: UIPickerView!
+    var selectedRateIndex: Int = 3 /* 1x */
     var claim: Claim?
     var claimUrl: LbryUri?
     var subscribeUnsubscribeInProgress = false
@@ -170,6 +176,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var checkLivestreamTranscodeTimer = Timer()
     var checkLivestreamTranscodeScheduled = false
     let bigThumbSpec = ImageSpec(size: CGSize(width: 0, height: 0), quality: 95)
+
+    let availableRates = ["0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x"]
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -239,6 +247,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     override func viewDidLoad() {
         super.viewDidLoad()
         relatedContentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
+
+        if #available(iOS 14.0, *) {
+            let rateActionHandler: UIActionHandler = { action in
+                self.playerRateButton.setTitle(action.title, for: .normal)
+                let rate = Float(action.title.dropLast()) ?? 1
+                self.avpc.player?.rate = rate
+            }
+            let rateActions = availableRates.map { title in UIAction(title: title, handler: rateActionHandler) }
+            playerRateButton.menu = UIMenu(title: "", children: rateActions)
+        } else {
+            playerRateButton.addTarget(self, action: #selector(playerRateTapped), for: .touchUpInside)
+        }
 
         registerForKeyboardNotifications()
 
@@ -711,6 +731,25 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             avpc.allowsPictureInPicturePlayback = true
             avpc.updatesNowPlayingInfoCenter = false
             addChild(avpc)
+
+            playerRateView.isHidden = false
+            jumpBackwardView.isHidden = false
+            jumpForwardView.isHidden = false
+            avpc.playerRateView = playerRateView
+            avpc.jumpBackwardView = jumpBackwardView
+            avpc.jumpForwardView = jumpForwardView
+            avpcIsReadyObserver = avpc.observe(\.player?.rate, options: .new) { avpc, _ in
+                if avpc.player?.rate ?? 0 > 0 {
+                    avpc.hideViewsTimer?.invalidate()
+                    avpc.hideViewsTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
+                        UIView.animate(withDuration: 0.3, delay: 0.5, options: .curveEaseIn) {
+                            avpc.playerRateView?.alpha = 0
+                            avpc.jumpBackwardView?.alpha = 0
+                            avpc.jumpForwardView?.alpha = 0
+                        }
+                    }
+                }
+            }
 
             avpc.view.frame = mediaView.bounds
             mediaView.addSubview(avpc.view)
@@ -1854,6 +1893,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
 
+    @IBAction func jumpBackwardTapped(_ sender: Any) {
+        if let player = avpc.player {
+            player.seek(to: CMTime(seconds: player.currentTime().seconds.advanced(by: -10), preferredTimescale: .max))
+        }
+    }
+
+    @IBAction func jumpForwardTapped(_ sender: Any) {
+        if let player = avpc.player {
+            player.seek(to: CMTime(seconds: player.currentTime().seconds.advanced(by: 10), preferredTimescale: .max))
+        }
+    }
+
     func navigationController(
         _ navigationController: UINavigationController,
         animationControllerFor operation: UINavigationController.Operation,
@@ -2142,6 +2193,37 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         })
     }
 
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return availableRates.count
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return availableRates[row]
+    }
+
+    @objc func playerRateTapped(_ sender: Any) {
+        let (picker, alert) = Helper.buildPickerActionSheet(
+            title: "Playback Speed",
+            dataSource: self,
+            delegate: self,
+            parent: self
+        ) { _ in
+            self.selectedRateIndex = self.playerRatePicker.selectedRow(inComponent: 0)
+            let selectedRate = self.availableRates[self.selectedRateIndex]
+            self.playerRateButton.setTitle(selectedRate, for: .normal)
+            let rate = Float(selectedRate.dropLast()) ?? 1
+            self.avpc.player?.rate = rate
+        }
+
+        picker.selectRow(selectedRateIndex, inComponent: 0, animated: false)
+        playerRatePicker = picker
+        present(alert, animated: true, completion: nil)
+    }
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == chatInputField {
             textField.resignFirstResponder()
@@ -2201,5 +2283,42 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return true
         }
         return false
+    }
+}
+
+class TouchInterceptingAVPlayerViewController: AVPlayerViewController {
+    var playerRateView: UIView?
+    var jumpBackwardView: UIView?
+    var jumpForwardView: UIView?
+    var hideViewsTimer: Timer?
+
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        super.touchesBegan(touches, with: event)
+        UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseIn) {
+            if let playerRateView = self.playerRateView,
+               let jumpForwardView = self.jumpForwardView,
+               let jumpBackwardView = self.jumpBackwardView
+            {
+                if playerRateView.alpha == 0 {
+                    playerRateView.alpha = 1
+                    jumpBackwardView.alpha = 1
+                    jumpForwardView.alpha = 1
+                    self.hideViewsTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
+                        UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseIn) {
+                            if self.player?.rate != 0 { // Do not hide when paused
+                                playerRateView.alpha = 0
+                                jumpBackwardView.alpha = 0
+                                jumpForwardView.alpha = 0
+                            }
+                        }
+                    }
+                } else {
+                    playerRateView.alpha = 0
+                    jumpBackwardView.alpha = 0
+                    jumpForwardView.alpha = 0
+                    self.hideViewsTimer?.invalidate()
+                }
+            }
+        }
     }
 }
