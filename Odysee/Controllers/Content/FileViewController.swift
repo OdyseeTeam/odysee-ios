@@ -93,6 +93,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet var slimeReactionCountLabel: UILabel!
     @IBOutlet var fireReactionImage: UIImageView!
     @IBOutlet var slimeReactionImage: UIImageView!
+    @IBOutlet var shareActionView: UIStackView!
 
     @IBOutlet var dismissPanRecognizer: UIPanGestureRecognizer!
 
@@ -1930,6 +1931,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if url != nil {
             let items = [url!.odyseeString]
             let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
+            vc.popoverPresentationController?.sourceView = shareActionView
             present(vc, animated: true)
         }
     }

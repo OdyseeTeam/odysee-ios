@@ -5723,6 +5723,7 @@
                         <outlet property="resolvingLabel" destination="6LG-W2-lxe" id="R9Q-Rw-Rrp"/>
                         <outlet property="resolvingLoadingIndicator" destination="Mjb-Nb-kuI" id="FZU-am-7Le"/>
                         <outlet property="resolvingView" destination="BgM-Yd-RRr" id="3wL-d1-5KI"/>
+                        <outlet property="shareView" destination="oYo-hX-j9P" id="PjU-W3-4dH"/>
                         <outlet property="sortByLabel" destination="FGY-Es-3Zy" id="SGb-yp-7Ok"/>
                         <outlet property="thumbnailImageView" destination="iDo-Pq-16l" id="Ido-5a-cua"/>
                         <outlet property="titleLabel" destination="QpJ-Yt-tWm" id="eSE-Zk-bbh"/>
@@ -6962,6 +6963,7 @@
                         <outlet property="resolvingLabel" destination="cTE-5u-8f2" id="Fgm-vq-p0k"/>
                         <outlet property="resolvingLoadingIndicator" destination="mHe-bk-hge" id="zxU-MG-jVv"/>
                         <outlet property="resolvingView" destination="VuG-8T-cXR" id="jyL-Mq-bXf"/>
+                        <outlet property="shareActionView" destination="im9-tm-NK6" id="DWz-WV-tVb"/>
                         <outlet property="slimeReactionCountLabel" destination="POZ-4c-0cs" id="e7S-hl-sMI"/>
                         <outlet property="slimeReactionImage" destination="g4I-Z3-L5y" id="EIq-RF-N5o"/>
                         <outlet property="streamerAreaActionsView" destination="nNF-Ha-rzf" id="zT5-XN-AK3"/>
