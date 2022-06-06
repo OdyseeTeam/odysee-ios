@@ -113,6 +113,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet var jumpBackwardView: UIVisualEffectView!
     @IBOutlet var jumpForwardView: UIVisualEffectView!
 
+    var mediaViewHeight: CGFloat = 0
+
     let avpc = TouchInterceptingAVPlayerViewController()
     var avpcIsReadyObserver: NSKeyValueObservation?
     weak var commentsVc: CommentsViewController!
@@ -226,6 +228,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if claim != nil, shouldReload && !claim!.name!.starts(with: "@") {
             showClaimAndCheckFollowing()
         }
+    }
+
+    override func viewDidLayoutSubviews() {
+        mediaViewHeight = mediaViewHeightConstraint.constant
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -693,7 +699,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         closeOtherContentButton.isHidden = true
         contentInfoView.isHidden = true
         mediaView.isHidden = false
-        mediaViewHeightConstraint.constant = 240
+        mediaViewHeightConstraint.constant = mediaViewHeight
 
         if isTextContent || isImageContent || isOtherContent {
             dismissFileView.isHidden = true
@@ -2187,6 +2193,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     webView.scrollView.isScrollEnabled = false
 
                     self.mediaView.isHidden = true
+                    self.mediaViewHeight = self.mediaViewHeightConstraint.constant
                     self.mediaViewHeightConstraint.constant = 0
                     self.contentInfoLoading.isHidden = true
                     self.contentInfoView.isHidden = true
