@@ -5877,7 +5877,9 @@
                                     <constraint firstItem="FZX-xm-zP4" firstAttribute="leading" secondItem="hZs-fq-qQ6" secondAttribute="leading" id="Etu-tl-qWn"/>
                                     <constraint firstAttribute="trailing" secondItem="FZX-xm-zP4" secondAttribute="trailing" id="H3o-hT-d5A"/>
                                     <constraint firstAttribute="trailing" secondItem="b5M-lr-1ir" secondAttribute="trailing" id="TB8-l9-6yZ"/>
-                                    <constraint firstAttribute="height" constant="240" id="UmT-3v-Pm5"/>
+                                    <constraint firstAttribute="height" constant="240" id="UmT-3v-Pm5">
+                                        <variation key="heightClass=regular-widthClass=regular" constant="480"/>
+                                    </constraint>
                                     <constraint firstItem="FZX-xm-zP4" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="top" id="awR-6G-mHy"/>
                                     <constraint firstAttribute="trailing" secondItem="FZX-xm-zP4" secondAttribute="trailing" id="dVh-9a-2cy"/>
                                     <constraint firstItem="DED-pq-EGI" firstAttribute="leading" secondItem="hZs-fq-qQ6" secondAttribute="leading" constant="4" id="gcr-ZF-nlb"/>
