@@ -843,6 +843,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             <meta charset="utf-8"/>
             <meta name="viewport" content="width=device-width, user-scalable=no"/>
             <style type="text/css">
+              :root { color-scheme: light dark; }
               body { font-family: sans-serif; padding: 16px; }
               img { width: 100%; }
               pre { white-space: pre-wrap; word-wrap: break-word; }
@@ -863,9 +864,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             <meta charset="utf-8"/>
             <meta name="viewport" content="width=device-width, user-scalable=no"/>
             <style type="text/css">
+              :root { color-scheme: light dark; }
               body { font-family: sans-serif; padding: 16px; }
               img { width: 100%; }
               pre { white-space: pre-wrap; word-wrap: break-word; }
+              a { color: #DE0050 }
             </style>
           </head>
           <body>
