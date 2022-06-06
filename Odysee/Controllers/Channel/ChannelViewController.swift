@@ -46,6 +46,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBOutlet var emailLabel: UILabel!
     @IBOutlet var descriptionLabel: UILabel!
 
+    @IBOutlet var shareView: UIView!
     @IBOutlet var followLabel: UILabel!
     @IBOutlet var followUnfollowIconView: UIImageView!
     @IBOutlet var bellView: UIView!
@@ -677,6 +678,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         if url != nil {
             let items = [url!.odyseeString]
             let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
+            vc.popoverPresentationController?.sourceView = shareView
             present(vc, animated: true)
         }
     }
