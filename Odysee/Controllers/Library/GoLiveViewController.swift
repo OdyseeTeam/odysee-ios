@@ -61,6 +61,13 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         registerForKeyboardNotifications()
         loadChannels()
         activateAudioSession()
+
+        if UITraitCollection.current.userInterfaceIdiom == .pad {
+            showMultitaskingWarning()
+        }
+    }
+
+    override func viewDidLayoutSubviews() {
         initStream()
     }
 
@@ -310,6 +317,16 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         precheckLoadingView.isHidden = true
         spacemanImage.image = UIImage(named: "spaceman_sad")
         precheckLabel.text = String.localized("An error occurred loading your channels. Please try again later.")
+    }
+
+    func showMultitaskingWarning() {
+        let alert = UIAlertController(
+            title: String.localized("Warning"),
+            message: String.localized("Streaming will pause and may not resume correctly if you use Multitasking"),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
 
     func displayRequirementNotMet(message: String) {
