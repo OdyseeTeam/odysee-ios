@@ -47,8 +47,11 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     let balanceTimerInterval: Double = 5 // 5 seconds
     let syncTimerInterval: Double = 300 // 5 minutes
 
+    let snackbar = Snackbar()
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        snackbar.sbLength = .long
         checkAndShowFirstRun()
         checkUploadButton()
 
@@ -515,10 +518,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let sb = Snackbar()
-            sb.sbLength = .long
-            sb.createWithText(message ?? "")
-            sb.show()
+            self.snackbar.backgroundColor = .darkGray
+            self.snackbar.createWithText(message ?? "")
         }
     }
 
@@ -530,12 +531,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let sb = Snackbar()
-            sb.sbLength = .long
-            sb.backgroundColor = UIColor.red
-            sb.textColor = UIColor.white
-            sb.createWithText(message ?? "")
-            sb.show()
+            self.snackbar.backgroundColor = .red
+            self.snackbar.createWithText(message ?? "")
         }
     }
 
