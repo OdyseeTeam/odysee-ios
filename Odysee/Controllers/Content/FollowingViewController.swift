@@ -349,10 +349,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     func showMessage(message: String?) {
-        let sb = Snackbar()
-        sb.sbLength = .long
-        sb.createWithText(message ?? "")
-        sb.show()
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showMessage(message: message)
+        }
     }
 
     @IBAction func doneTapped(_ sender: UIButton) {

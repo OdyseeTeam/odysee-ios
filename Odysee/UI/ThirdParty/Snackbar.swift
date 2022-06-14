@@ -32,12 +32,27 @@ class Snackbar: NSObject {
 
     private var action: (() -> Void)?
 
+    private var showingSnackbar = false
+    private var kbSize = CGSize.zero
+
     override init() {
         super.init()
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(rotate),
             name: UIDevice.orientationDidChangeNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
     }
@@ -100,6 +115,7 @@ class Snackbar: NSObject {
         case .long:
             animateBar(3)
         }
+        showingSnackbar = true
     }
 
     private func setupSnackbarView() {
@@ -111,13 +127,7 @@ class Snackbar: NSObject {
 
     fileprivate func animateBar(_ timerLength: Float) {
         UIView.animate(withDuration: 0.4, animations: {
-            self.snackbarView.frame = CGRect(
-                x: 0,
-                y: self.window.bounds.height - self.snackbarHeight,
-                width: self.window.frame.width,
-                height: self.snackbarHeight
-            )
-
+            self.updateSnackbarFrame()
             Timer.scheduledTimer(
                 timeInterval: TimeInterval(timerLength),
                 target: self,
@@ -128,6 +138,15 @@ class Snackbar: NSObject {
         })
     }
 
+    private func updateSnackbarFrame() {
+        snackbarView.frame = CGRect(
+            x: 0,
+            y: window.bounds.height - snackbarHeight - kbSize.height,
+            width: window.frame.width,
+            height: snackbarHeight
+        )
+    }
+
     // MARK: Selectors
 
     @objc private func actionButtonPress() {
@@ -136,6 +155,7 @@ class Snackbar: NSObject {
     }
 
     @objc private func hide() {
+        showingSnackbar = false
         UIView.animate(withDuration: 0.4, animations: {
             self.snackbarView.frame = CGRect(
                 x: 0,
@@ -159,5 +179,20 @@ class Snackbar: NSObject {
             width: window.frame.width * 25 / 100,
             height: snackbarHeight
         )
+    }
+
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        let info = notification.userInfo
+        kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+        if showingSnackbar {
+            updateSnackbarFrame()
+        }
+    }
+
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        kbSize = CGSize.zero
+        if showingSnackbar {
+            updateSnackbarFrame()
+        }
     }
 }
