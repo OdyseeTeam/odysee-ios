@@ -155,6 +155,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var dislikesContent = false
     var reacting = false
     var playerConnected = false
+    var playerRate: Float = 1
     var isLivestream = false
     var isPlaylist = false
     var isLive = false
@@ -260,6 +261,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 self.playerRateButton.setTitle(action.title, for: .normal)
                 let rate = Float(action.title.dropLast()) ?? 1
                 self.avpc.player?.rate = rate
+                self.playerRate = rate
             }
             let rateActions = availableRates.map { title in UIAction(title: title, handler: rateActionHandler) }
             playerRateButton.menu = UIMenu(title: "", children: rateActions)
@@ -2226,6 +2228,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             self.playerRateButton.setTitle(selectedRate, for: .normal)
             let rate = Float(selectedRate.dropLast()) ?? 1
             self.avpc.player?.rate = rate
+            self.playerRate = rate
         }
 
         picker.selectRow(selectedRateIndex, inComponent: 0, animated: false)
