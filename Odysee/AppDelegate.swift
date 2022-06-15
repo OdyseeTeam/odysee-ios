@@ -26,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var pendingOpenUrl: String?
     var currentFileViewController: FileViewController?
     var playerObserverAdded: Bool = false
+    var currentTimeControlStatus: AVPlayer.TimeControlStatus?
 
     // One-time only lazily activate the Audio Session when playing a file.
     // This prevents the app from taking over the audio stream on launch.
@@ -73,10 +74,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         change: [NSKeyValueChangeKey: Any]?,
         context: UnsafeMutableRawPointer?
     ) {
-        if object as AnyObject? === lazyPlayer {
+        if object as AnyObject? === lazyPlayer, currentTimeControlStatus != lazyPlayer!.timeControlStatus {
+            currentTimeControlStatus = lazyPlayer!.timeControlStatus
             if keyPath == "timeControlStatus", lazyPlayer!.timeControlStatus == .playing {
-                if currentFileViewController != nil {
-                    currentFileViewController!.checkTimeToStart()
+                if let currentFileViewController = currentFileViewController {
+                    currentFileViewController.checkTimeToStart()
+                    DispatchQueue.main.async {
+                        currentFileViewController.avpc.player?.rate = currentFileViewController.playerRate
+                    }
                 }
                 return
             }

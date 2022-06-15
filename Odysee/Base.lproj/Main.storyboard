@@ -6878,7 +6878,9 @@
                             <constraint firstItem="Qd0-BA-FzN" firstAttribute="top" secondItem="NdN-tQ-3r6" secondAttribute="top" constant="6" id="DrF-pj-85k"/>
                             <constraint firstItem="J4Z-JJ-JZs" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="EBx-V0-qST"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="trailing" secondItem="VuG-8T-cXR" secondAttribute="trailing" id="FTH-4f-XCU"/>
-                            <constraint firstItem="qTa-5u-72f" firstAttribute="centerX" secondItem="hZs-fq-qQ6" secondAttribute="centerX" constant="75" id="Gd4-qk-e6f"/>
+                            <constraint firstItem="qTa-5u-72f" firstAttribute="centerX" secondItem="hZs-fq-qQ6" secondAttribute="centerX" constant="75" id="Gd4-qk-e6f">
+                                <variation key="heightClass=regular-widthClass=regular" constant="150"/>
+                            </constraint>
                             <constraint firstItem="hSv-c7-vMI" firstAttribute="trailing" secondItem="NdN-tQ-3r6" secondAttribute="trailing" id="Hpo-UX-khn"/>
                             <constraint firstItem="hSv-c7-vMI" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="bottom" id="JEE-0W-JdI"/>
                             <constraint firstItem="71p-zu-OCP" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="McW-bo-rnI"/>
@@ -6890,7 +6892,9 @@
                             <constraint firstItem="hSv-c7-vMI" firstAttribute="bottom" secondItem="NdN-tQ-3r6" secondAttribute="bottom" id="X8X-Tz-8bu"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="bottom" secondItem="VuG-8T-cXR" secondAttribute="bottom" id="bvk-p1-7tC"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="trailing" secondItem="71p-zu-OCP" secondAttribute="trailing" id="cor-QB-hHB"/>
-                            <constraint firstItem="He6-U5-U2Z" firstAttribute="centerX" secondItem="hZs-fq-qQ6" secondAttribute="centerX" constant="-75" id="d2U-Eh-J12"/>
+                            <constraint firstItem="He6-U5-U2Z" firstAttribute="centerX" secondItem="hZs-fq-qQ6" secondAttribute="centerX" constant="-75" id="d2U-Eh-J12">
+                                <variation key="heightClass=regular-widthClass=regular" constant="-150"/>
+                            </constraint>
                             <constraint firstItem="hZs-fq-qQ6" firstAttribute="top" secondItem="NdN-tQ-3r6" secondAttribute="top" id="jJz-xI-Pnw"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="bottom" secondItem="GiF-qv-hoI" secondAttribute="bottom" id="l5G-oC-386"/>
                             <constraint firstItem="GiF-qv-hoI" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="m1L-5j-qxx"/>
