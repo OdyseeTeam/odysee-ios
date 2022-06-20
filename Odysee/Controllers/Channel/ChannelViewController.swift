@@ -44,7 +44,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBOutlet var emailStackView: UIView!
     @IBOutlet var websiteLabel: UILabel!
     @IBOutlet var emailLabel: UILabel!
-    @IBOutlet var descriptionLabel: UILabel!
+    @IBOutlet var descriptionTextView: UITextView!
 
     @IBOutlet var shareView: UIView!
     @IBOutlet var followLabel: UILabel!
@@ -308,15 +308,15 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             if (website ?? "").isBlank, (email ?? "").isBlank, (description ?? "").isBlank {
                 websiteStackView.isHidden = true
                 emailStackView.isHidden = true
-                descriptionLabel.isHidden = true
+                descriptionTextView.isHidden = true
                 noAboutContentView.isHidden = false
             } else {
                 websiteStackView.isHidden = (website ?? "").isBlank
                 websiteLabel.text = website ?? ""
                 emailStackView.isHidden = (email ?? "").isBlank
                 emailLabel.text = email ?? ""
-                descriptionLabel.isHidden = (description ?? "").isBlank
-                descriptionLabel.text = description
+                descriptionTextView.isHidden = (description ?? "").isBlank
+                descriptionTextView.text = description
                 noAboutContentView.isHidden = true
             }
         }
