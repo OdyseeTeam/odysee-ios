@@ -55,11 +55,15 @@ class ClaimTableViewCell: UITableViewCell {
         }
         return result
     }
-
+    
     func setClaim(claim: Claim) {
+        setClaim(claim: claim, showRepostOverlay: true)
+    }
+
+    func setClaim(claim: Claim, showRepostOverlay: Bool) {
         var actualClaim: Claim = claim
         if claim.valueType == ClaimType.repost && claim.repostedClaim != nil {
-            reposterOverlay.isHidden = false
+            reposterOverlay.isHidden = !showRepostOverlay
             reposterChannelClaim = claim.signingChannel
             reposterLabel.text = reposterChannelClaim?.name ?? claim.shortUrl
             actualClaim = claim.repostedClaim!

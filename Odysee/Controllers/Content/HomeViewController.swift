@@ -292,7 +292,7 @@ class HomeViewController: UIViewController,
         let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
 
         let claim: Claim = claims[indexPath.row]
-        cell.setClaim(claim: claim)
+        cell.setClaim(claim: claim, showRepostOverlay: false)
 
         return cell
     }
