@@ -164,11 +164,13 @@ class SearchViewController: UIViewController,
         sortBy: Lighthouse.SortBy?
     ) {
         if (query ?? "").isBlank ||
-            (currentQuery == query &&
-                currentFrom == from &&
-                currentClaimType == claimType &&
-                currentMediaTypes == mediaTypes &&
-                currentSortBy == sortBy)
+            (
+                currentQuery == query &&
+                    currentFrom == from &&
+                    currentClaimType == claimType &&
+                    currentMediaTypes == mediaTypes &&
+                    currentSortBy == sortBy
+            )
         {
             return
         }

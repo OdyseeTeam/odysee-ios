@@ -18,7 +18,7 @@ struct OdyseeLivestream {
             decoder.dateDecodingStrategy = .iso8601
 
             let result = try decoder.decode(OLResult.self, from: data)
-            if result.success && result.error == nil, let data = result.data {
+            if result.success, result.error == nil, let data = result.data {
                 let livestreamInfos = Dictionary(
                     uniqueKeysWithValues: data
                         .filter { $0.activeClaim.claimId != "Confirming" }

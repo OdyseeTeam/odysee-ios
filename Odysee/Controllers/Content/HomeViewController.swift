@@ -207,7 +207,8 @@ class HomeViewController: UIViewController,
                 if case var .success(infos) = result {
                     let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
                     if !isWildWest {
-                        infos = infos.filter { channelIds[currentCategoryIndex]?.contains($0.value.channelClaimId) ?? false }
+                        infos = infos
+                            .filter { channelIds[currentCategoryIndex]?.contains($0.value.channelClaimId) ?? false }
 
                         guard infos.count > 0 else {
                             DispatchQueue.main.async {
@@ -225,7 +226,8 @@ class HomeViewController: UIViewController,
                             DispatchQueue.main.async {
                                 claimListView.tableHeaderView = livestreamsView
                                 livestreamsCollectionView.isHidden = true
-                                livestreamsLabel.text = String.localized("No livestreams to display at this time. Please try again later.")
+                                livestreamsLabel.text = String
+                                    .localized("No livestreams to display at this time. Please try again later.")
                                 if !loadingClaims {
                                     loadingContainer.isHidden = true
                                 }
@@ -300,7 +302,8 @@ class HomeViewController: UIViewController,
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = claims[indexPath.row]
-        let actualClaim = (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) ? claim.repostedClaim! : claim
+        let actualClaim = (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) ? claim
+            .repostedClaim! : claim
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
@@ -314,8 +317,14 @@ class HomeViewController: UIViewController,
         return livestreams.count
     }
 
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "livestream_cell", for: indexPath) as! LivestreamCollectionViewCell
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "livestream_cell",
+            for: indexPath
+        ) as! LivestreamCollectionViewCell
 
         let livestream = livestreams[indexPath.row]
         cell.setInfo(claim: livestream.claim, startTime: livestream.startTime, viewerCount: livestream.viewerCount)
@@ -352,7 +361,9 @@ class HomeViewController: UIViewController,
             return
         }
 
-        if livestreamsCollectionView.contentOffset.x >= (livestreamsCollectionView.contentSize.width - livestreamsCollectionView.bounds.size.width) {
+        if livestreamsCollectionView.contentOffset
+            .x >= (livestreamsCollectionView.contentSize.width - livestreamsCollectionView.bounds.size.width)
+        {
             if !loadingLivestreams, !livestreamsLastPageReached {
                 livestreamsCurrentPage += 1
                 loadLivestreams()
@@ -552,7 +563,7 @@ class HomeViewController: UIViewController,
         livestreamsView.addArrangedSubview(livestreamsCollectionView)
         NSLayoutConstraint.activate([
             livestreamsLabel.leadingAnchor.constraint(equalTo: livestreamsView.leadingAnchor, constant: 18),
-            livestreamsCollectionView.leadingAnchor.constraint(equalTo: livestreamsView.leadingAnchor)
+            livestreamsCollectionView.leadingAnchor.constraint(equalTo: livestreamsView.leadingAnchor),
         ])
     }
 

@@ -226,7 +226,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         navigationController?.interactivePopGestureRecognizer?.delegate = self
 
         // Don't show claim while waiting for channel view to show
-        if claim != nil, shouldReload && !claim!.name!.starts(with: "@") {
+        if claim != nil, shouldReload, !claim!.name!.starts(with: "@") {
             showClaimAndCheckFollowing()
         }
     }
@@ -298,7 +298,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 displayClaimBlocked()
             } else if Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate) ||
                 (currentClaim.signingChannel != nil) &&
-                (Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate))
+                Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate)
             {
                 displayClaimBlockedWithMessage(
                     message: Helper
@@ -798,7 +798,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 livestreamerNameLabel.text = singleClaim.signingChannel?.name
             }
             if singleClaim.signingChannel?.value != nil, singleClaim.signingChannel?.value?.thumbnail != nil {
-                thumbnailUrl = URL(string: singleClaim.signingChannel!.value!.thumbnail!.url!)!.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+                thumbnailUrl = URL(string: singleClaim.signingChannel!.value!.thumbnail!.url!)!
+                    .makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
             }
         } else {
             publisherTitleLabel.text = String.localized("Anonymous")

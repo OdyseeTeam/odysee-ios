@@ -43,7 +43,7 @@ class ClaimTableViewCell: UITableViewCell {
         }
 
         var actualClaim: Claim = claim
-        if claim.valueType == ClaimType.repost && claim.repostedClaim != nil {
+        if claim.valueType == ClaimType.repost, claim.repostedClaim != nil {
             actualClaim = claim.repostedClaim!
         }
 
@@ -55,7 +55,7 @@ class ClaimTableViewCell: UITableViewCell {
         }
         return result
     }
-    
+
     func setClaim(claim: Claim) {
         setClaim(claim: claim, showRepostOverlay: true)
     }
@@ -181,7 +181,7 @@ class ClaimTableViewCell: UITableViewCell {
         reposterOverlay.addArrangedSubview(imageView)
         addConstraints([
             imageView.widthAnchor.constraint(equalToConstant: 18),
-            imageView.heightAnchor.constraint(equalToConstant: 14)
+            imageView.heightAnchor.constraint(equalToConstant: 14),
         ])
 
         reposterLabel = UILabel()
@@ -191,7 +191,7 @@ class ClaimTableViewCell: UITableViewCell {
         reposterLabel.font = .systemFont(ofSize: 12)
         reposterOverlay.addArrangedSubview(reposterLabel)
         addConstraints([
-            reposterLabel.widthAnchor.constraint(equalTo: reposterOverlay.widthAnchor, constant: -25)
+            reposterLabel.widthAnchor.constraint(equalTo: reposterOverlay.widthAnchor, constant: -25),
         ])
 
         let reposterTapGesture = UITapGestureRecognizer(target: self, action: #selector(reposterTapped(_:)))

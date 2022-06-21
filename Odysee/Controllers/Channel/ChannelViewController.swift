@@ -284,7 +284,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             )
 
             if channelClaim?.value?.thumbnail != nil {
-                let optimisedThumbUrl = URL(string: (channelClaim?.value?.thumbnail?.url)!)!.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+                let optimisedThumbUrl = URL(string: (channelClaim?.value?.thumbnail?.url)!)!
+                    .makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
                 thumbnailImageView.load(url: optimisedThumbUrl)
             } else {
                 thumbnailImageView.image = UIImage(named: "spaceman")
@@ -292,7 +293,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
 
             if channelClaim?.value?.cover != nil {
-                let optimisedCoverUrl = URL(string: (channelClaim?.value?.cover?.url)!)!.makeImageURL(spec: coverImageSpec)
+                let optimisedCoverUrl = URL(string: (channelClaim?.value?.cover?.url)!)!
+                    .makeImageURL(spec: coverImageSpec)
                 coverImageView.load(url: optimisedCoverUrl)
             } else {
                 coverImageView.image = UIImage(named: "spaceman_cover")

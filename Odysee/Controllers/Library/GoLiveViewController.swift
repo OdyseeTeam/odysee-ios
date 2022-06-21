@@ -533,7 +533,11 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                 // Wait for the claim to be confirmed, then create the stream key and start
                 let result = data["result"] as? [String: Any]
                 guard let txid = result?["txid"] as? String else {
-                    self.displayRequirementNotMet(message: String.localized("Could not get txid from publish API call."))
+                    self
+                        .displayRequirementNotMet(
+                            message: String
+                                .localized("Could not get txid from publish API call.")
+                        )
                     return
                 }
                 self.waitForConfirmation(txid: txid, channel: channel)

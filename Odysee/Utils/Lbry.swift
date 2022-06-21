@@ -25,13 +25,21 @@ final class Lbry {
 
     static func processResolvedClaims(_ result: inout ResolveResult) {
         result.claims = result.claims.filter { !Lbryio.isClaimBlocked($0.value) && !Lbryio.isClaimFiltered($0.value) }
-        result.claims = result.claims.filter { !Lbryio.isClaimBlocked($0.value.signingChannel ?? Claim()) && !Lbryio.isClaimFiltered($0.value.signingChannel ?? Claim()) }
+        result.claims = result.claims
+            .filter {
+                !Lbryio.isClaimBlocked($0.value.signingChannel ?? Claim()) && !Lbryio
+                    .isClaimFiltered($0.value.signingChannel ?? Claim())
+            }
         result.claims.values.forEach(Lbry.addClaimToCache)
     }
 
     static func processPageOfClaims(_ page: inout Page<Claim>) {
         page.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) }
-        page.items.removeAll { Lbryio.isClaimBlocked($0.signingChannel ?? Claim()) || Lbryio.isClaimFiltered($0.signingChannel ?? Claim()) }
+        page.items
+            .removeAll {
+                Lbryio.isClaimBlocked($0.signingChannel ?? Claim()) || Lbryio
+                    .isClaimFiltered($0.signingChannel ?? Claim())
+            }
         page.items.forEach(Lbry.addClaimToCache)
     }
 

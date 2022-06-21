@@ -681,7 +681,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         var thumbnailUrl: URL?
         if channel.value != nil, channel.value?.thumbnail != nil {
-            thumbnailUrl = URL(string: channel.value!.thumbnail!.url!)!.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+            thumbnailUrl = URL(string: channel.value!.thumbnail!.url!)!
+                .makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
         }
 
         if thumbnailUrl != nil {

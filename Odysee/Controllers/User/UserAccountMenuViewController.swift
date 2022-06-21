@@ -120,7 +120,10 @@ class UserAccountMenuViewController: UIViewController {
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claimUrl = url
             presentingViewController?.dismiss(animated: false, completion: nil)
-            appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+            appDelegate.mainNavigationController?.view.layer.add(
+                Helper.buildFileViewTransition(),
+                forKey: kCATransition
+            )
             appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }
