@@ -216,20 +216,21 @@ class WalletSyncViewController: UIViewController {
                     return
                 }
 
-                let result = data["result"] as! [String: Any]
-                let hash = result["hash"] as! String
-                let walletData = result["data"] as! String
-                Lbryio.syncSet(oldHash: "", newHash: hash, data: walletData, completion: { remoteHash, error in
-                    guard let remoteHash = remoteHash, error == nil else {
-                        print(error!)
-                        return
+                if let result = data["result"] as? [String: Any] {
+                    if let hash = result["hash"] as? String, let walletData = result["data"] as? String {
+                        Lbryio.syncSet(oldHash: "", newHash: hash, data: walletData, completion: { remoteHash, error in
+                            guard let remoteHash = remoteHash, error == nil else {
+                                print(error!)
+                                return
+                            }
+
+                            Lbry.remoteWalletHash = remoteHash
+
+                            // we successfully created a new wallet record, wrap up
+                            self.closeWalletSync()
+                        })
                     }
-
-                    Lbry.remoteWalletHash = remoteHash
-
-                    // we successfully created a new wallet record, wrap up
-                    self.closeWalletSync()
-                })
+                }
             }
         )
     }

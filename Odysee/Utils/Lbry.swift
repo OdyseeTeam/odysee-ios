@@ -490,7 +490,7 @@ final class Lbry {
                         }
 
                         remoteWalletHash = walletSync.hash
-                        if walletSync.changed! || localWalletHash != remoteWalletHash {
+                        if walletSync.data != nil, walletSync.changed! || localWalletHash != remoteWalletHash {
                             // sync apply changes
                             var params = [String: Any]()
                             params["password"] = ""
@@ -575,31 +575,30 @@ final class Lbry {
                 }
 
                 if let result = data["result"] as? [String: Any] {
-                    let hash = result["hash"] as! String
-                    let walletData = result["data"] as! String
+                    if let hash = result["hash"] as? String, let walletData = result["data"] as? String {
+                        Lbry.localWalletHash = hash
+                        Lbryio.syncSet(
+                            oldHash: remoteWalletHash!,
+                            newHash: hash,
+                            data: walletData,
+                            completion: { remoteHash, error in
+                                guard let remoteHash = remoteHash, error == nil else {
+                                    self.walletSyncInProgress = false
+                                    self.checkPushSyncQueue()
+                                    print(error!)
+                                    return
+                                }
 
-                    Lbry.localWalletHash = hash
-                    Lbryio.syncSet(
-                        oldHash: remoteWalletHash!,
-                        newHash: hash,
-                        data: walletData,
-                        completion: { remoteHash, error in
-                            guard let remoteHash = remoteHash, error == nil else {
-                                self.walletSyncInProgress = false
-                                self.checkPushSyncQueue()
-                                print(error!)
-                                return
+                                Lbry.remoteWalletHash = remoteHash
+                                if Lbry.remoteWalletHash != Lbry.localWalletHash {
+                                    self.pullSyncWallet(completion: nil)
+                                } else {
+                                    self.walletSyncInProgress = false
+                                    self.checkPushSyncQueue()
+                                }
                             }
-
-                            Lbry.remoteWalletHash = remoteHash
-                            if Lbry.remoteWalletHash != Lbry.localWalletHash {
-                                self.pullSyncWallet(completion: nil)
-                            } else {
-                                self.walletSyncInProgress = false
-                                self.checkPushSyncQueue()
-                            }
-                        }
-                    )
+                        )
+                    }
 
                     return
                 }
