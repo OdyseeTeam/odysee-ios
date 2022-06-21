@@ -962,8 +962,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 let amount = Decimal(string: fee.amount!)
                 if amount! > 0 {
                     let alert = UIAlertController(
-                        title: String.localized("Paid content not supported"),
-                        message: String.localized("Paid content is not supported in the app at this time. Please go to odysee.com to purchase and view paid content."),
+                        title: String.localized("Content not supported"),
+                        message: String.localized("This content is not supported in the app at this time."),
                         preferredStyle: .alert
                     )
                     alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in }))

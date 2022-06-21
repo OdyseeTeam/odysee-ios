@@ -35,5 +35,11 @@ struct Constants {
         "p0rn",
         "pr0n",
         "s3x",
+
+        // even more, because Apple
+        "camporn",
+        "fetish",
+        "pornographic",
+        "pornography",
     ]
 }
