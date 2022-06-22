@@ -8,7 +8,7 @@
 import Foundation
 
 final class Lighthouse {
-    static let connectionString = "https://lighthouse.odysee.com"
+    static let connectionString = "https://lighthouse.odysee.tv"
 
     static var relatedContentCache: [String: Any] = [:]
 
