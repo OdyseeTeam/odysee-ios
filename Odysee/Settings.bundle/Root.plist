@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>StringsTable</key>
+	<string>Root</string>
+	<key>PreferenceSpecifiers</key>
+	<array>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Background Playback Mode</string>
+			<key>Key</key>
+			<string>BackgroundPlaybackMode</string>
+			<key>DefaultValue</key>
+			<real>0</real>
+			<key>Titles</key>
+			<array>
+				<string>Picture in Picture</string>
+				<string>Audio Only</string>
+			</array>
+			<key>Values</key>
+			<array>
+				<real>0</real>
+				<integer>1</integer>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

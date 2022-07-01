@@ -48,25 +48,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
     }
 
-    func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.currentFileViewController != nil {
-            appDelegate.currentFileViewController?.connectPlayer()
-        }
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-        // Called when the scene will move from an active state to an inactive state.
-        // This may occur due to temporary interruptions (ex. an incoming phone call).
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.currentFileViewController != nil, appDelegate.lazyPlayer != nil {
-            appDelegate.currentFileViewController?.disconnectPlayer()
-            appDelegate.setupRemoteTransportControls()
-        }
-    }
-
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
         // Use this method to undo the changes made on entering the background.
@@ -83,6 +64,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Save changes in the application's managed object context when the application transitions to the background.
         (UIApplication.shared.delegate as? AppDelegate)?.saveContext()
+        if UserDefaults.standard.integer(forKey: "BackgroundPlaybackMode") != 0 {
+            (UIApplication.shared.delegate as? AppDelegate)?.currentFileViewController?.disconnectPlayer()
+        }
     }
 
     func handleLaunchUrl(url: URL) {

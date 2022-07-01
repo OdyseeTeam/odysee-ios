@@ -7,6 +7,7 @@
 
 import AVFoundation
 import AVKit
+import MediaPlayer
 import OAuthSwift
 import UIKit
 
@@ -214,9 +215,14 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if appDelegate.lazyPlayer != nil {
             appDelegate.lazyPlayer?.pause()
+            appDelegate.lazyPlayer?.allowsExternalPlayback = false
+            appDelegate.playerObservers = nil
             appDelegate.lazyPlayer = nil
 
             appDelegate.resetPlayerObserver()
+
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+            UIApplication.shared.endReceivingRemoteControlEvents()
         }
 
         miniPlayerTitleLabel.text = ""
