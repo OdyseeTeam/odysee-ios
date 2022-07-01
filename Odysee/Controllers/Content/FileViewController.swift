@@ -1015,6 +1015,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
 
         avpc.player!.play()
+
+        if #available(iOS 14.2, *) {
+            avpc.canStartPictureInPictureAutomaticallyFromInline = true
+        }
+        if UserDefaults.standard.integer(forKey: "BackgroundPlaybackMode") != 0 {
+            avpc.allowsPictureInPicturePlayback = false
+        }
+
+        appDelegate.setupRemoteTransportControls()
     }
 
     func displayRelatedPlaceholders() {
@@ -1904,13 +1913,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     @IBAction func jumpBackwardTapped(_ sender: Any) {
         if let player = avpc.player {
-            player.seek(to: CMTime(seconds: player.currentTime().seconds.advanced(by: -10), preferredTimescale: .max))
+            player.seek(to: player.currentTime() - CMTime(seconds: 10, preferredTimescale: 1))
         }
     }
 
     @IBAction func jumpForwardTapped(_ sender: Any) {
         if let player = avpc.player {
-            player.seek(to: CMTime(seconds: player.currentTime().seconds.advanced(by: 10), preferredTimescale: .max))
+            player.seek(to: player.currentTime() + CMTime(seconds: 10, preferredTimescale: 1))
         }
     }
 
