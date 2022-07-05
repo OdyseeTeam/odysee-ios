@@ -1221,6 +1221,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         reacting = true
+        let oldLikesContent = likesContent
+        let oldNumLikes = numLikes
+        let oldDislikesContent = dislikesContent
+        let oldNumDislikes = numDislikes
         do {
             var remove = false
             let claimId = isPlaylist ? currentPlaylistClaim().claimId! : claim!.claimId!
@@ -1235,36 +1239,49 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 remove = true
                 options["remove"] = "true"
             }
+
+            if type == Helper.reactionTypeLike {
+                likesContent = !remove
+                numLikes += (remove ? -1 : 1)
+                if !remove, dislikesContent {
+                    numDislikes -= 1
+                    dislikesContent = false
+                }
+            }
+            if type == Helper.reactionTypeDislike {
+                dislikesContent = !remove
+                numDislikes += (remove ? -1 : 1)
+                if !remove, likesContent {
+                    numLikes -= 1
+                    likesContent = false
+                }
+            }
+            displayReactionCounts()
+            checkMyReactions()
+
             try Lbryio.post(resource: "reaction", action: "react", options: options, completion: { data, error in
+                self.reacting = false
+
                 guard let _ = data, error == nil else {
                     self.showError(error: error)
+                    self.likesContent = oldLikesContent
+                    self.numLikes = oldNumLikes
+                    self.dislikesContent = oldDislikesContent
+                    self.numDislikes = oldNumDislikes
+                    self.displayReactionCounts()
+                    self.checkMyReactions()
                     return
                 }
-
-                if type == Helper.reactionTypeLike {
-                    self.likesContent = !remove
-                    self.numLikes += (remove ? -1 : 1)
-                    if !remove, self.dislikesContent {
-                        self.numDislikes -= 1
-                        self.dislikesContent = false
-                    }
-                }
-                if type == Helper.reactionTypeDislike {
-                    self.dislikesContent = !remove
-                    self.numDislikes += (remove ? -1 : 1)
-                    if !remove, self.likesContent {
-                        self.numLikes -= 1
-                        self.likesContent = false
-                    }
-                }
-
-                self.displayReactionCounts()
-                self.checkMyReactions()
-                self.reacting = false
             })
         } catch {
             showError(error: error)
             reacting = false
+            likesContent = oldLikesContent
+            numLikes = oldNumLikes
+            dislikesContent = oldDislikesContent
+            numDislikes = oldNumDislikes
+            displayReactionCounts()
+            checkMyReactions()
         }
     }
 
