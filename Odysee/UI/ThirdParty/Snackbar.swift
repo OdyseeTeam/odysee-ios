@@ -167,18 +167,19 @@ class Snackbar: NSObject {
     }
 
     @objc private func rotate() {
-        snackbarView.frame = CGRect(
-            x: 0,
-            y: window.frame.height - snackbarHeight,
-            width: window.frame.width,
-            height: snackbarHeight
-        )
-        btn.frame = CGRect(
-            x: window.frame.width * 73 / 100,
-            y: 0,
-            width: window.frame.width * 25 / 100,
-            height: snackbarHeight
-        )
+        DispatchQueue.main.async {
+            if self.showingSnackbar {
+                self.updateSnackbarFrame()
+            } else {
+                self.hide()
+            }
+            self.btn.frame = CGRect(
+                x: self.window.frame.width * 73 / 100,
+                y: 0,
+                width: self.window.frame.width * 25 / 100,
+                height: self.snackbarHeight
+            )
+        }
     }
 
     @objc private func keyboardWillShow(notification: NSNotification) {
