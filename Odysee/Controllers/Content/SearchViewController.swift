@@ -38,12 +38,12 @@ class SearchViewController: UIViewController,
     var currentQuery: String?
     var currentClaimType: ClaimType?
     var currentMediaTypes: [Lighthouse.MediaType] = [.video, .audio, .image, .text]
+    var currentTimeFilter: Lighthouse.TimeFilter?
     var currentSortBy: Lighthouse.SortBy?
     var searching: Bool = false
     var lighthouseUrls = [String]()
     let pageSize = 20
     var claims = OrderedSet<Claim>()
-    var filteredClaims = OrderedSet<Claim>()
     var winningClaim: Claim?
     var prefetchController: ImagePrefetchingController!
 
@@ -79,7 +79,7 @@ class SearchViewController: UIViewController,
         super.viewDidLoad()
 
         prefetchController = ImagePrefetchingController { [unowned self] indexPath in
-            ClaimTableViewCell.imagePrefetchURLs(claim: self.filteredClaims[indexPath.row])
+            ClaimTableViewCell.imagePrefetchURLs(claim: self.claims[indexPath.row])
         }
 
         loadingContainer.layer.cornerRadius = 20
@@ -142,8 +142,8 @@ class SearchViewController: UIViewController,
                 // only show the winning claim if it is not mature content or blocked
                 if canShow {
                     // if the claim is already in the search results, remove it so we can promote to the top
-                    filteredClaims.removeAll(where: { $0.claimId == winningClaim.claimId })
-                    filteredClaims.insert(winningClaim, at: 0)
+                    claims.removeAll(where: { $0.claimId == winningClaim.claimId })
+                    claims.insert(winningClaim, at: 0)
                     resultsListView.reloadData()
                     checkNoResults()
                     self.winningClaim = winningClaim
@@ -161,6 +161,7 @@ class SearchViewController: UIViewController,
         from: Int,
         claimType: ClaimType?,
         mediaTypes: [Lighthouse.MediaType],
+        timeFilter: Lighthouse.TimeFilter?,
         sortBy: Lighthouse.SortBy?
     ) {
         if (query ?? "").isBlank ||
@@ -169,6 +170,7 @@ class SearchViewController: UIViewController,
                     currentFrom == from &&
                     currentClaimType == claimType &&
                     currentMediaTypes == mediaTypes &&
+                    currentTimeFilter == timeFilter &&
                     currentSortBy == sortBy
             )
         {
@@ -188,6 +190,7 @@ class SearchViewController: UIViewController,
         currentFrom = from
         currentClaimType = claimType
         currentMediaTypes = mediaTypes
+        currentTimeFilter = timeFilter
         currentSortBy = sortBy
         Lighthouse.search(
             rawQuery: query!,
@@ -196,12 +199,13 @@ class SearchViewController: UIViewController,
             relatedTo: nil,
             claimType: claimType,
             mediaTypes: mediaTypes,
+            timeFilter: timeFilter,
             sortBy: sortBy,
             completion: { results, _ in
                 guard let results = results, !results.isEmpty else {
                     DispatchQueue.main.async {
                         self.searching = false
-                        self.filteredClaims = []
+                        self.claims = []
                         self.checkNoResults()
                     }
                     return
@@ -234,7 +238,7 @@ class SearchViewController: UIViewController,
             let oldCount = claims.count
             claims.append(contentsOf: urls)
             if claims.count != oldCount {
-                filterClaims()
+                resultsListView.reloadData()
             }
 
             // try to resolve the winning claim after loading initial set of results
@@ -246,32 +250,6 @@ class SearchViewController: UIViewController,
         searching = false
         loadingContainer.isHidden = true
         filterButton.isEnabled = true
-    }
-
-    func filterClaims() {
-        filteredClaims = OrderedSet(claims.filter(shouldShowClaim))
-
-        // Add winning claim to top
-        if let winningClaim = winningClaim {
-            filteredClaims.removeAll(where: { $0.claimId == winningClaim.claimId })
-            filteredClaims.insert(winningClaim, at: 0)
-        }
-
-        resultsListView.reloadData()
-        checkNoResults()
-    }
-
-    func shouldShowClaim(claim: Claim) -> Bool {
-        // Publish Time
-        let contentFromTime = Int64(Helper.buildReleaseTime(
-            contentFrom: Helper.contentFromItemNames[publishTimePicker.selectedRow(inComponent: 0)]
-        )?.dropFirst() ?? "0") ?? 0
-        var claimReleaseTime = Int64(claim.value?.releaseTime ?? "0") ?? 0
-        if claimReleaseTime == 0 {
-            claimReleaseTime = claim.timestamp ?? 0
-        }
-
-        return claimReleaseTime > contentFromTime
     }
 
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
@@ -297,8 +275,8 @@ class SearchViewController: UIViewController,
     func checkNoResults() {
         assert(Thread.isMainThread)
         loadingContainer.isHidden = true
-        resultsListView.isHidden = filteredClaims.isEmpty
-        noResultsView.isHidden = !filteredClaims.isEmpty
+        resultsListView.isHidden = claims.isEmpty
+        noResultsView.isHidden = !claims.isEmpty
         noResultsLabel.text = Lighthouse.containsFilteredKeyword(currentQuery!) ?
             String
             .localized(
@@ -326,6 +304,18 @@ class SearchViewController: UIViewController,
         let imageType = showImage ? Lighthouse.MediaType.image : nil
         let textType = showText ? Lighthouse.MediaType.text : nil
         return [videoType, audioType, imageType, textType].compactMap { $0 }
+    }
+
+    func timeFilter(for index: Int) -> Lighthouse.TimeFilter? {
+        let timeFilter = Helper.contentFromItemNames[index]
+        switch timeFilter {
+        case "Past 24 hours": return .today
+        case "Past week": return .thisweek
+        case "Past month": return .thismonth
+        case "Past year": return .thisyear
+        case "All time": return nil
+        default: return nil
+        }
     }
 
     func sortBy(for index: Int) -> Lighthouse.SortBy? {
@@ -366,6 +356,7 @@ class SearchViewController: UIViewController,
             from: currentFrom,
             claimType: currentClaimType,
             mediaTypes: mediaTypesFromFilter(),
+            timeFilter: currentTimeFilter,
             sortBy: currentSortBy
         )
     }
@@ -378,6 +369,7 @@ class SearchViewController: UIViewController,
             from: currentFrom,
             claimType: currentClaimType,
             mediaTypes: mediaTypesFromFilter(),
+            timeFilter: currentTimeFilter,
             sortBy: currentSortBy
         )
     }
@@ -390,6 +382,7 @@ class SearchViewController: UIViewController,
             from: currentFrom,
             claimType: currentClaimType,
             mediaTypes: mediaTypesFromFilter(),
+            timeFilter: currentTimeFilter,
             sortBy: currentSortBy
         )
     }
@@ -402,6 +395,7 @@ class SearchViewController: UIViewController,
             from: currentFrom,
             claimType: currentClaimType,
             mediaTypes: mediaTypesFromFilter(),
+            timeFilter: currentTimeFilter,
             sortBy: currentSortBy
         )
     }
@@ -417,6 +411,7 @@ class SearchViewController: UIViewController,
                 from: currentFrom,
                 claimType: claimType(for: pickerView.selectedRow(inComponent: 0)),
                 mediaTypes: currentMediaTypes,
+                timeFilter: currentTimeFilter,
                 sortBy: currentSortBy
             )
         } else if pickerView == sortByPicker {
@@ -426,21 +421,30 @@ class SearchViewController: UIViewController,
                 from: currentFrom,
                 claimType: currentClaimType,
                 mediaTypes: currentMediaTypes,
+                timeFilter: currentTimeFilter,
                 sortBy: sortBy(for: pickerView.selectedRow(inComponent: 0))
             )
         } else {
-            filterClaims()
+            resetSearch()
+            search(
+                query: currentQuery,
+                from: currentFrom,
+                claimType: currentClaimType,
+                mediaTypes: currentMediaTypes,
+                timeFilter: timeFilter(for: pickerView.selectedRow(inComponent: 0)),
+                sortBy: currentSortBy
+            )
         }
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return filteredClaims.count
+        return claims.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
 
-        let claim: Claim = filteredClaims[indexPath.row]
+        let claim: Claim = claims[indexPath.row]
         cell.setClaim(claim: claim)
 
         return cell
@@ -448,7 +452,7 @@ class SearchViewController: UIViewController,
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let claim: Claim = filteredClaims[indexPath.row]
+        let claim: Claim = claims[indexPath.row]
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if claim.name!.starts(with: "@") {
@@ -478,6 +482,7 @@ class SearchViewController: UIViewController,
                     from: currentFrom + pageSize,
                     claimType: currentClaimType,
                     mediaTypes: currentMediaTypes,
+                    timeFilter: currentTimeFilter,
                     sortBy: currentSortBy
                 )
             }
@@ -499,6 +504,7 @@ class SearchViewController: UIViewController,
             from: 0,
             claimType: currentClaimType,
             mediaTypes: currentMediaTypes,
+            timeFilter: currentTimeFilter,
             sortBy: currentSortBy
         )
     }
