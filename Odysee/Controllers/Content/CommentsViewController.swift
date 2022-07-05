@@ -161,8 +161,10 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
 
+        DispatchQueue.main.async {
+            self.loadingContainer.isHidden = false
+        }
         commentsLoading = true
-        loadingContainer.isHidden = false
         let params: [String: Any] = [
             "claim_id": claimId!,
             "page": commentsCurrentPage,
@@ -310,6 +312,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         )
 
         commentAsPicker = picker
+        alert.popoverPresentationController?.sourceView = commentAsChannelLabel
         present(alert, animated: true, completion: nil)
     }
 
@@ -350,9 +353,19 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard let data = data, error == nil else {
                     self.showError(error: error)
                     return
+                }
+
+                if let result = data["result"] as? [String: Any],
+                   let error = result["error"] as? [String: Any],
+                   let message = error["message"] as? String
+                {
+                    self.showError(message: String(
+                        format: String.localized("Your comment could not be posted: %@"),
+                        message
+                    ))
                 }
 
                 // comment post successful
@@ -712,13 +725,17 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func showError(message: String) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(message: message)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(message: message)
+        }
     }
 
     func showMessage(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showMessage(message: message)
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showMessage(message: message)
+        }
     }
 
     func showUAView() {
