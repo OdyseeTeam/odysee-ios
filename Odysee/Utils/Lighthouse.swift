@@ -46,6 +46,7 @@ final class Lighthouse {
         relatedTo: String?,
         claimType: ClaimType? = nil,
         mediaTypes: [MediaType]? = nil,
+        timeFilter: TimeFilter? = nil,
         sortBy: SortBy? = nil,
         completion: @escaping ([[String: Any]]?, Error?) -> Void
     ) {
@@ -91,6 +92,9 @@ final class Lighthouse {
                 ))
             }
         }
+        if let timeFilter = timeFilter {
+            queryItems.append(URLQueryItem(name: "time_filter", value: timeFilter.rawValue))
+        }
         if let sortBy = sortBy {
             queryItems.append(URLQueryItem(name: "sort_by", value: sortBy.rawValue))
         }
@@ -135,6 +139,13 @@ final class Lighthouse {
         case audio
         case image
         case text
+    }
+
+    enum TimeFilter: String {
+        case today
+        case thisweek
+        case thismonth
+        case thisyear
     }
 
     enum SortBy: String {
