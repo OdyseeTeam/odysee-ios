@@ -1963,8 +1963,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBAction func shareActionTapped(_ sender: Any) {
         let shareClaim = isPlaylist ? currentPlaylistClaim() : claim!
         let url = LbryUri.tryParse(url: shareClaim.canonicalUrl!, requireProto: false)
-        if url != nil {
-            let items = [url!.odyseeString]
+        if let url = url {
+            let items: [Any] = [URL(string: url.odyseeString) ?? url.odyseeString]
             let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
             vc.popoverPresentationController?.sourceView = shareActionView
             present(vc, animated: true)

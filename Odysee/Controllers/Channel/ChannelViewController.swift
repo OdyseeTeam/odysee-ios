@@ -677,8 +677,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     @IBAction func shareActionTapped(_ sender: Any) {
         let url = LbryUri.tryParse(url: channelClaim!.shortUrl!, requireProto: false)
-        if url != nil {
-            let items = [url!.odyseeString]
+        if let url = url {
+            let items: [Any] = [URL(string: url.odyseeString) ?? url.odyseeString]
             let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
             vc.popoverPresentationController?.sourceView = shareView
             present(vc, animated: true)
