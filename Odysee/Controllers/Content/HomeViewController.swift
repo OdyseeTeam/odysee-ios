@@ -361,8 +361,8 @@ class HomeViewController: UIViewController,
             return
         }
 
-        if livestreamsCollectionView.contentOffset
-            .x >= (livestreamsCollectionView.contentSize.width - livestreamsCollectionView.bounds.size.width)
+        if scrollView == livestreamsCollectionView && livestreamsCollectionView.contentOffset.x >=
+            (livestreamsCollectionView.contentSize.width - livestreamsCollectionView.bounds.size.width)
         {
             if !loadingLivestreams, !livestreamsLastPageReached {
                 livestreamsCurrentPage += 1
