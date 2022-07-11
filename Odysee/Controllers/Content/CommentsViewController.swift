@@ -353,7 +353,10 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-                guard let data = data, error == nil else {
+                guard let data = data,
+                      let result = data["result"] as? [String: Any],
+                      result["error"] == nil, error == nil
+                else {
                     self.showError(error: error)
                     return
                 }
@@ -368,6 +371,32 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     ))
                 }
 
+                do {
+                    let commentData = try JSONSerialization.data(
+                        withJSONObject: result,
+                        options: [.prettyPrinted, .sortedKeys]
+                    )
+                    let comment = try JSONDecoder().decode(Comment.self, from: commentData)
+                    if let currentReplyToComment = self.currentReplyToComment {
+                        if currentReplyToComment.repliesLoaded ?? false {
+                            let parentIndex = self.indexForComment(currentReplyToComment)
+                            if parentIndex > -1 {
+                                self.comments.insert(comment, at: parentIndex + 1)
+                            }
+                        } else {
+                            DispatchQueue.main.async {
+                                self.loadReplies(currentReplyToComment)
+                            }
+                        }
+                    } else {
+                        self.comments.insert(comment, at: 0)
+                    }
+                    self.loadCommentReactions(commentIds: [comment.claimId!])
+                    self.resolveCommentAuthors(urls: [comment.channelUrl!])
+                } catch {
+                    self.showError(error: error)
+                }
+
                 // comment post successful
                 self.postingComment = false
                 DispatchQueue.main.async {
@@ -376,12 +405,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     self.replyToContainerView.isHidden = true
                     self.loadingContainer.isHidden = true
                     self.textViewDidChange(self.commentInput)
-                }
-
-                if self.currentReplyToComment != nil {
-                    self.loadReplies(self.currentReplyToComment!)
-                } else {
-                    self.loadComments()
+                    self.commentList.reloadData()
+                    self.checkNoComments()
                 }
 
                 self.currentReplyToComment = nil
