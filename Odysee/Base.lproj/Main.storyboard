@@ -3201,6 +3201,20 @@
                                                 </subviews>
                                                 <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
                                             </stackView>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="re0-fO-qfh" userLabel="Guidelines View">
+                                                <rect key="frame" x="0.0" y="1208" width="414" height="30.5"/>
+                                                <subviews>
+                                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="Hello" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="y5L-w0-aeA" userLabel="Guidelines Text View">
+                                                        <rect key="frame" x="16" y="0.0" width="382" height="30.5"/>
+                                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                        <color key="textColor" systemColor="labelColor"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                        <dataDetectorType key="dataDetectorTypes" link="YES"/>
+                                                    </textView>
+                                                </subviews>
+                                                <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
+                                            </stackView>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="H7N-kK-Eg8">
                                                 <rect key="frame" x="0.0" y="1208" width="414" height="77"/>
                                                 <subviews>
@@ -3272,6 +3286,7 @@
                         <outlet property="depositField" destination="xth-KK-9jb" id="KDZ-yT-l8C"/>
                         <outlet property="descriptionField" destination="iQJ-66-ZUi" id="BOW-9f-wx3"/>
                         <outlet property="generateThumbnailButton" destination="vec-ew-jqK" id="d9P-Cf-aUD"/>
+                        <outlet property="guidelinesTextView" destination="y5L-w0-aeA" id="jf6-Mm-rGr"/>
                         <outlet property="languagePickerView" destination="add-Qu-OSY" id="j8z-Ge-L9y"/>
                         <outlet property="licensePickerView" destination="o4E-8G-MgU" id="wyY-nm-tla"/>
                         <outlet property="nameField" destination="Rxg-Cs-CLK" id="j0E-CT-n0U"/>
@@ -7922,39 +7937,54 @@
                                                             <outlet property="delegate" destination="mdv-2k-dtK" id="j6Y-Pi-RHO"/>
                                                         </connections>
                                                     </textView>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0 / 2000" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7zu-JG-GFn">
-                                                        <rect key="frame" x="281.5" y="78.5" width="44.5" height="13.5"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c3F-U9-Otp">
-                                                        <rect key="frame" x="0.0" y="78.5" width="96" height="29"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                        <state key="normal" title="Post Comment">
-                                                            <color key="titleColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
-                                                        </state>
-                                                        <connections>
-                                                            <action selector="postCommentTapped:" destination="mdv-2k-dtK" eventType="touchUpInside" id="4dE-wB-G8b"/>
-                                                            <action selector="postCommentTapped:" destination="UG4-ee-FIj" eventType="touchUpInside" id="4fS-Lm-7xh"/>
-                                                        </connections>
-                                                    </button>
+                                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" text="Hello" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="pvH-eZ-nCw" userLabel="Guidelines Text View">
+                                                        <rect key="frame" x="0.0" y="78.5" width="326" height="30.5"/>
+                                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                                        <color key="textColor" systemColor="labelColor"/>
+                                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                        <dataDetectorType key="dataDetectorTypes" link="YES"/>
+                                                    </textView>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="PVQ-jS-TKC">
+                                                        <rect key="frame" x="0.0" y="113" width="326" height="29"/>
+                                                        <subviews>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c3F-U9-Otp">
+                                                                <rect key="frame" x="0.0" y="0.0" width="96" height="29"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                                <state key="normal" title="Post Comment">
+                                                                    <color key="titleColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
+                                                                </state>
+                                                                <connections>
+                                                                    <action selector="postCommentTapped:" destination="mdv-2k-dtK" eventType="touchUpInside" id="4dE-wB-G8b"/>
+                                                                    <action selector="postCommentTapped:" destination="UG4-ee-FIj" eventType="touchUpInside" id="4fS-Lm-7xh"/>
+                                                                </connections>
+                                                            </button>
+                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0 / 2000" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7zu-JG-GFn">
+                                                                <rect key="frame" x="281.5" y="0.0" width="44.5" height="13.5"/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                                                                <nil key="textColor"/>
+                                                                <nil key="highlightedColor"/>
+                                                            </label>
+                                                        </subviews>
+                                                    </stackView>
                                                 </subviews>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <constraints>
                                                     <constraint firstItem="Sp7-Sl-nD4" firstAttribute="top" secondItem="Lgf-Jn-yN6" secondAttribute="bottom" constant="4" id="0hh-P6-B7q"/>
                                                     <constraint firstItem="Lgf-Jn-yN6" firstAttribute="top" secondItem="YgH-58-g5n" secondAttribute="bottom" constant="4" id="2GX-6J-B8l"/>
+                                                    <constraint firstAttribute="trailing" secondItem="PVQ-jS-TKC" secondAttribute="trailing" constant="16" id="6b3-Cv-sil"/>
                                                     <constraint firstItem="YgH-58-g5n" firstAttribute="top" secondItem="tpD-MK-VUz" secondAttribute="top" id="7of-Xi-pki"/>
+                                                    <constraint firstAttribute="bottom" secondItem="PVQ-jS-TKC" secondAttribute="bottom" id="8h8-TA-JNk"/>
+                                                    <constraint firstItem="pvH-eZ-nCw" firstAttribute="top" secondItem="Sp7-Sl-nD4" secondAttribute="bottom" constant="4" id="I3x-ds-PV3"/>
                                                     <constraint firstAttribute="trailing" secondItem="Sp7-Sl-nD4" secondAttribute="trailing" constant="16" id="K6W-3u-NXV"/>
-                                                    <constraint firstItem="7zu-JG-GFn" firstAttribute="top" secondItem="Sp7-Sl-nD4" secondAttribute="bottom" constant="4" id="KWp-kM-1bk"/>
+                                                    <constraint firstItem="PVQ-jS-TKC" firstAttribute="leading" secondItem="tpD-MK-VUz" secondAttribute="leading" id="Qb3-xi-SBB"/>
                                                     <constraint firstItem="Lgf-Jn-yN6" firstAttribute="leading" secondItem="tpD-MK-VUz" secondAttribute="leading" id="RgY-vh-5b6"/>
-                                                    <constraint firstItem="c3F-U9-Otp" firstAttribute="leading" secondItem="tpD-MK-VUz" secondAttribute="leading" id="S2P-t8-3we"/>
                                                     <constraint firstAttribute="trailing" secondItem="Lgf-Jn-yN6" secondAttribute="trailing" id="cSW-QS-TAE"/>
+                                                    <constraint firstItem="pvH-eZ-nCw" firstAttribute="leading" secondItem="tpD-MK-VUz" secondAttribute="leading" id="cug-ML-oBj"/>
                                                     <constraint firstAttribute="trailing" secondItem="YgH-58-g5n" secondAttribute="trailing" id="dAc-Mf-KNw"/>
                                                     <constraint firstItem="Sp7-Sl-nD4" firstAttribute="leading" secondItem="tpD-MK-VUz" secondAttribute="leading" id="dQq-rX-ykl"/>
-                                                    <constraint firstAttribute="bottom" secondItem="c3F-U9-Otp" secondAttribute="bottom" constant="4" id="hlm-rx-7yg"/>
-                                                    <constraint firstItem="c3F-U9-Otp" firstAttribute="top" secondItem="Sp7-Sl-nD4" secondAttribute="bottom" constant="4" id="nie-4r-gjp"/>
-                                                    <constraint firstAttribute="trailing" secondItem="7zu-JG-GFn" secondAttribute="trailing" constant="16" id="xWf-2m-6To"/>
+                                                    <constraint firstItem="PVQ-jS-TKC" firstAttribute="top" secondItem="pvH-eZ-nCw" secondAttribute="bottom" constant="4" id="hQa-wE-yf0"/>
+                                                    <constraint firstAttribute="trailing" secondItem="pvH-eZ-nCw" secondAttribute="trailing" constant="16" id="rHi-kP-nrG"/>
                                                     <constraint firstItem="YgH-58-g5n" firstAttribute="leading" secondItem="tpD-MK-VUz" secondAttribute="leading" id="zGn-5w-Lsi"/>
                                                 </constraints>
                                             </view>
@@ -8273,6 +8303,7 @@
                         <outlet property="commentList" destination="cLO-Mr-vgT" id="mYc-dV-V1f"/>
                         <outlet property="commentListHeightConstraint" destination="M0z-wE-VTn" id="RXg-zF-sQl"/>
                         <outlet property="contentScrollView" destination="9Kj-jN-A6t" id="tkc-xn-ifJ"/>
+                        <outlet property="guidelinesTextView" destination="pvH-eZ-nCw" id="D5I-Xz-HDH"/>
                         <outlet property="loadingContainer" destination="fKY-o2-fSU" id="CtI-g5-OgP"/>
                         <outlet property="noCommentsLabel" destination="GEL-6m-rWy" id="kNZ-CY-y6u"/>
                         <outlet property="postCommentAreaView" destination="8ii-hy-A2Y" id="DBt-e3-9sz"/>
