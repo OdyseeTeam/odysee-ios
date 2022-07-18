@@ -18,6 +18,7 @@ final class Helper {
     static let txLinkPrefix = "https://explorer.lbry.com/tx"
     static let keyReceiveAddress = "walletReceiveAddress"
     static let keyFirstRunCompleted = "firstRunCompleted"
+    static let keyPostedCommentHideTos = "postedCommentHideTos"
     static let reactionTypeLike = "like"
     static let reactionTypeDislike = "dislike"
     static let tagDisableComments = "disable-comments"

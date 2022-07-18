@@ -25,6 +25,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     @IBOutlet var commentListHeightConstraint: NSLayoutConstraint!
     @IBOutlet var contentScrollView: UIScrollView!
     @IBOutlet var scrollViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet var guidelinesTextView: UITextView!
 
     @IBOutlet var replyToContainerView: UIView!
     @IBOutlet var replyToCommentLabel: UILabel!
@@ -83,6 +84,20 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             noCommentsLabel.text = String.localized("Comments are disabled.")
             noCommentsLabel.isHidden = false
             commentList.isHidden = true
+        }
+
+        let guidelinesString = String.localized(
+            "By continuing, you accept the Odysee Terms of Service and community guidelines.")
+        let attributed = try? NSMutableAttributedString(
+            data: guidelinesString.data(using: .utf8)!,
+            options: [.documentType: NSAttributedString.DocumentType.html],
+            documentAttributes: nil
+        )
+        guidelinesTextView.attributedText = attributed
+        guidelinesTextView.textColor = .label
+        guidelinesTextView.font = .systemFont(ofSize: 12)
+        if UserDefaults.standard.integer(forKey: Helper.keyPostedCommentHideTos) != 0 {
+            guidelinesTextView.heightAnchor.constraint(equalToConstant: 0).isActive = true
         }
 
         if comments.count > 0 {
@@ -322,6 +337,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     @IBAction func postCommentTapped(_ sender: UIButton) {
         commentInput.resignFirstResponder()
+        UserDefaults.standard.set(1, forKey: Helper.keyPostedCommentHideTos)
 
         if postingComment {
             return

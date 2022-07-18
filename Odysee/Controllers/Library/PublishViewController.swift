@@ -27,6 +27,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     @IBOutlet var depositField: UITextField!
     @IBOutlet var videoNameField: UITextField!
     @IBOutlet var selectVideoArea: UIView!
+    @IBOutlet var guidelinesTextView: UITextView!
 
     @IBOutlet var thumbnailImageView: UIImageView!
     @IBOutlet var channelPickerView: UIPickerView!
@@ -90,6 +91,17 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         descriptionField.layer.cornerRadius = 4
 
         uploadingIndicator.layer.cornerRadius = 16
+
+        let guidelinesString = String.localized(
+            "By continuing, you accept the Odysee Terms of Service and community guidelines.")
+        let attributed = try? NSMutableAttributedString(
+            data: guidelinesString.data(using: .utf8)!,
+            options: [.documentType: NSAttributedString.DocumentType.html],
+            documentAttributes: nil
+        )
+        guidelinesTextView.attributedText = attributed
+        guidelinesTextView.textColor = .label
+        guidelinesTextView.font = .systemFont(ofSize: 12)
 
         depositField.text = Helper.minimumDepositString
         loadChannels()

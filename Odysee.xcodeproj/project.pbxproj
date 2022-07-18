@@ -12,6 +12,7 @@
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
+		53FAD3FD288504C60000F980 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53FAD3FB288504C60000F980 /* Localizable.strings */; };
 		64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = 64019A0D269C101D00E16A51 /* ImageScrollView */; };
 		6402A30327E14C8800113E26 /* OdyseeLocale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6402A30227E14C8800113E26 /* OdyseeLocale.swift */; };
 		640BEF2F2587A8FA0019B840 /* LbryNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 640BEF2E2587A8FA0019B840 /* LbryNotification.swift */; };
@@ -137,6 +138,7 @@
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
+		53FAD3FC288504C60000F980 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Odysee/Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		6402A30227E14C8800113E26 /* OdyseeLocale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLocale.swift; sourceTree = "<group>"; };
 		640BEF2E2587A8FA0019B840 /* LbryNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryNotification.swift; sourceTree = "<group>"; };
 		640BEF332587DB5D0019B840 /* NotificationTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTableViewCell.swift; sourceTree = "<group>"; };
@@ -501,6 +503,7 @@
 				64D72BB4258C54B100F5C4E3 /* Secrets.plist */,
 				64D72BBE258CD8AE00F5C4E3 /* StoreConfig.storekit */,
 				532650E3286EAB1B00F0FF0B /* Settings.bundle */,
+				53FAD3FB288504C60000F980 /* Localizable.strings */,
 				64FBE7B525502A2D0082AF2E /* OdyseeTests */,
 			);
 			path = Odysee;
@@ -673,6 +676,7 @@
 				64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */,
 				64D72BB5258C54B100F5C4E3 /* Secrets.plist in Resources */,
 				641615052581267B003A2194 /* GoogleService-Info.plist in Resources */,
+				53FAD3FD288504C60000F980 /* Localizable.strings in Resources */,
 				64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */,
 				64FBE7A425502A290082AF2E /* Main.storyboard in Resources */,
 				532650E4286EAB1B00F0FF0B /* Settings.bundle in Resources */,
@@ -818,6 +822,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		53FAD3FB288504C60000F980 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				53FAD3FC288504C60000F980 /* Base */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
 		64FBE7A225502A290082AF2E /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
