@@ -354,6 +354,10 @@ final class Helper {
 
         return message
     }
+    
+    static func isChannelBlocked(claimId: String) -> Bool {
+        return Lbry.blockedChannels.map(\.claimId).contains(claimId)
+    }
 }
 
 struct GenericError: Error {

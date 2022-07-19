@@ -8,7 +8,7 @@
 import UIKit
 
 class CommentsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDataSource,
-    UIPickerViewDelegate, UITextViewDelegate
+    UIPickerViewDelegate, UITextViewDelegate, BlockChannelStatusObserver
 {
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var closeButton: UIButton!
@@ -97,6 +97,19 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         channelDriverView.isHidden = channels.count > 0
         channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if let mainVc = appDelegate.mainViewController as? MainViewController {
+            mainVc.addBlockChannelObserver(name: "comments", observer: self)
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if let mainVc = appDelegate.mainViewController as? MainViewController {
+            mainVc.removeBlockChannelObserver(name: "comments")
+        }
     }
 
     func registerForKeyboardNotifications() {
@@ -216,6 +229,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
                 self.commentsLoading = false
                 DispatchQueue.main.async {
+                    self.filterBlockedChannels(false)
                     self.loadingContainer.isHidden = true
                     self.commentList.reloadData()
                     self.checkNoComments()
@@ -767,6 +781,18 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+    }
+    
+    func filterBlockedChannels(_ reload: Bool) {
+        self.comments = self.comments.filter({ Helper.isChannelBlocked(claimId: $0.channelId!) })
+        if (reload) {
+            commentList.reloadData()
+        }
+    }
+    
+    func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
+        // simply use the mainViewController's blockedChannels list to filter
+        filterBlockedChannels(true)
     }
 
     struct CombinedReactionData {

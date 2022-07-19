@@ -38,8 +38,6 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             ]
         )
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
 

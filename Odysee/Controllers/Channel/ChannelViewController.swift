@@ -12,7 +12,7 @@ import SafariServices
 import UIKit
 
 class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UITableViewDelegate,
-    UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UITextViewDelegate
+    UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UITextViewDelegate, BlockChannelStatusObserver
 {
     var channelClaim: Claim?
     var claimUrl: LbryUri?
@@ -57,6 +57,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBOutlet var resolvingLoadingIndicator: UIActivityIndicatorView!
     @IBOutlet var resolvingLabel: UILabel!
     @IBOutlet var resolvingCloseButton: UIButton!
+    
+    @IBOutlet var blockUnblockLabel: UILabel!
 
     var sortByPicker: UIPickerView!
     var contentFromPicker: UIPickerView!
@@ -130,6 +132,11 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
         // Do any additional setup after loading the view
         thumbnailImageView.rounded()
+        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if let mainVc = appDelegate.mainViewController as? MainViewController {
+            mainVc.addBlockChannelObserver(name: "channel", observer: self)
+        }
 
         // TODO: If channelClaim is not set, resolve the claim url before displaying
         if channelClaim == nil, claimUrl != nil {
@@ -141,6 +148,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             displayCommentsView()
         } else {
             displayNothingAtLocation()
+        }
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if let mainVc = appDelegate.mainViewController as? MainViewController {
+            mainVc.removeBlockChannelObserver(name: "channel")
         }
     }
 
@@ -274,6 +289,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         resolvingView.isHidden = true
 
         if channelClaim?.value != nil {
+            blockUnblockLabel.text = String.localized(
+                Helper.isChannelBlocked(claimId: channelClaim!.claimId!) ?
+                "Unblock channel" : "Block channel")
+            
             Lbryio.areCommentsEnabled(
                 channelId: channelClaim!.claimId!,
                 channelName: channelClaim!.name!,
@@ -696,6 +715,39 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         vc.modalPresentationStyle = .overCurrentContext
         present(vc, animated: true)
     }
+    
+    @IBAction func blockUnblockActionTapped(_ sender: Any) {
+        if let current = channelClaim {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let isBlocked = Helper.isChannelBlocked(claimId: current.claimId!)
+            if let mainVc = appDelegate.mainViewController as? MainViewController {
+                if isBlocked {
+                    mainVc.removeBlockedChannel(claimId: current.claimId!)
+                } else {
+                    let alert = UIAlertController(
+                        title: String(format: String.localized("Block %@?"), current.name!),
+                        message: String(format: String.localized("Are you sure you want to block this channel? You will no longer see comments nor content from %@."), current.name!),
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
+                        mainVc.addBlockedChannel(claimId: current.claimId!, channelName: current.name!)
+                    }))
+                    alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+                    present(alert, animated: true)
+                }
+            }
+        }
+    }
+    
+    @IBAction func reportActionTapped(_ sender: Any) {
+        if let current = channelClaim {
+            if let url = URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", current.claimId!)) {
+                let vc = SFSafariViewController(url: url)
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                appDelegate.mainController.present(vc, animated: true, completion: nil)
+            }
+        }
+    }
 
     func showUAView() {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -852,6 +904,13 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             } catch {
                 // pass
             }
+        }
+    }
+    
+    func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
+        if let current = channelClaim {
+            blockUnblockLabel.text = String.localized(Helper.isChannelBlocked(claimId: current.claimId!) ?
+                                                      "Unblock channel" : "Block channel")
         }
     }
 
