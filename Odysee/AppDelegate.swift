@@ -59,9 +59,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             playerObservers?.append(lazyPlayer.observe(\.rate, options: .initial) { [unowned self] _, _ in
                 self.handlePlaybackChange()
             })
-            playerObservers?.append(lazyPlayer.observe(\.currentItem?.status, options: .initial) { [unowned self] _, _ in
-                self.handlePlaybackChange()
-            })
+            playerObservers?
+                .append(lazyPlayer.observe(\.currentItem?.status, options: .initial) { [unowned self] _, _ in
+                    self.handlePlaybackChange()
+                })
             playerObserverAdded = true
         }
         NotificationCenter.default.addObserver(

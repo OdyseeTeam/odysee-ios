@@ -7,6 +7,7 @@
 
 import AVFoundation
 import AVKit
+import CoreData
 import MediaPlayer
 import OAuthSwift
 import UIKit
@@ -49,6 +50,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     let syncTimerInterval: Double = 300 // 5 minutes
 
     let snackbar = Snackbar()
+
+    var blockChannelObservers = [String: BlockChannelStatusObserver?]()
+    var fetchContext: NSManagedObjectContext?
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -96,7 +100,26 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
 
         notificationBadgeView.layer.cornerRadius = 6
 
-        // Do any additional setup after loading the view.
+        // Load blocked channels
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "BlockedChannel")
+        fetchRequest.returnsObjectsAsFaults = false
+        let asyncFetchRequest = NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { asyncFetchResult in
+            guard let blockedChannels = asyncFetchResult.finalResult as? [BlockedChannel] else { return }
+            Lbry.blockedChannels = blockedChannels
+            DispatchQueue.main.async {
+                // notify observers, if any
+                self.notifyBlockChannelObservers()
+            }
+        }
+
+        fetchContext = appDelegate.persistentContainer.newBackgroundContext()
+        do {
+            try fetchContext?.execute(asyncFetchRequest)
+        } catch {
+            print("NSAsynchronousFetchRequest error: \(error)")
+        }
+
+        // Do any additional setup after loading the view
         startWalletBalanceTimer()
         startWalletSyncTimer()
         loadNotifications()
@@ -108,6 +131,16 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             checkAndClaimEmailReward(completion: {})
             checkAndShowYouTubeSync()
             loadChannels()
+        }
+    }
+
+    func addBlockChannelObserver(name: String, observer: BlockChannelStatusObserver) {
+        blockChannelObservers[name] = observer
+    }
+
+    func removeBlockChannelObserver(name: String) {
+        if let _ = blockChannelObservers[name] {
+            blockChannelObservers.removeValue(forKey: name)
         }
     }
 
@@ -747,6 +780,97 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
         coordinator.animate(alongsideTransition: nil) { _ in
             // Player pauses when returning from full screen
             playerViewController.player?.play()
+        }
+    }
+
+    func notifyBlockChannelObservers() {
+        for observer in blockChannelObservers.values {
+            if let observer = observer, Lbry.blockedChannels.count > 0 {
+                // use the first claim ID to trigger (this will be used after initial load or sync get)
+                observer.blockChannelStatusChanged(claimId: Lbry.blockedChannels[0].claimId!, isBlocked: true)
+            }
+        }
+    }
+
+    func addBlockedChannel(claimId: String, channelName: String, notifyAfter: Bool = false) {
+        // persist the subscription to CoreData
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+
+            let entity = BlockedChannel(context: context)
+            entity.claimId = claimId
+            entity.name = channelName
+
+            if !Lbry.blockedChannels.contains(entity) {
+                Lbry.blockedChannels.append(entity)
+            }
+
+            appDelegate.saveContext()
+
+            // notify the observers
+            if notifyAfter {
+                for observer in self.blockChannelObservers.values {
+                    if let observer = observer {
+                        observer.blockChannelStatusChanged(claimId: claimId, isBlocked: true)
+                    }
+                }
+
+                // NOTE: notifyAfter is set to false for loadSharedUserState, so we save state here (and avoid an infinite call loop)
+                // run a wallet sync operation to update "blocked"
+                Lbry.saveSharedUserState(completion: { success, err in
+                    guard err == nil else {
+                        // pass
+                        return
+                    }
+                    if success {
+                        // run wallet sync
+                        Lbry.pushSyncWallet()
+                    }
+                })
+            }
+        }
+    }
+
+    func removeBlockedChannel(claimId: String) {
+        // remove the subscription from CoreData
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let fetchRequest: NSFetchRequest<BlockedChannel> = BlockedChannel.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "claimId == %@", claimId)
+            let entities = try! context.fetch(fetchRequest)
+
+            if entities.count > 0 {
+                let entityToDelete = entities[0]
+                context.delete(entityToDelete)
+                Lbry.blockedChannels = Lbry.blockedChannels.filter { $0.claimId != entityToDelete.claimId }
+            }
+
+            do {
+                try context.save()
+
+                for observer in self.blockChannelObservers.values {
+                    if let observer = observer {
+                        observer.blockChannelStatusChanged(claimId: claimId, isBlocked: false)
+                    }
+                }
+
+                // run a wallet sync operation
+                Lbry.saveSharedUserState(completion: { success, err in
+                    guard err == nil else {
+                        // pass
+                        return
+                    }
+                    if success {
+                        // run wallet sync
+                        Lbry.pushSyncWallet()
+                    }
+                })
+            } catch {
+                // pass
+            }
         }
     }
 
