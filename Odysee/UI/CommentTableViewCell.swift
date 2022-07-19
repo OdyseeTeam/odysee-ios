@@ -155,7 +155,7 @@ class CommentTableViewCell: UITableViewCell {
                 preferredStyle: .alert
             )
             alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
-                mainVc.addBlockedChannel(claimId: comment.channelId!, channelName: comment.channelName!)
+                mainVc.addBlockedChannel(claimId: comment.channelId!, channelName: comment.channelName!, notifyAfter: true)
             }))
             alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
             mainVc.present(alert, animated: true)

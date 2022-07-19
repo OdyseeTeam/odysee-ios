@@ -785,7 +785,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     
     func notifyBlockChannelObservers() {
         for observer in self.blockChannelObservers.values {
-            if let observer = observer {
+            if let observer = observer, Lbry.blockedChannels.count > 0 {
                 // use the first claim ID to trigger (this will be used after initial load or sync get)
                 observer.blockChannelStatusChanged(claimId: Lbry.blockedChannels[0].claimId!, isBlocked: true)
             }
@@ -816,9 +816,20 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                         observer.blockChannelStatusChanged(claimId: claimId, isBlocked: true)
                     }
                 }
+                
+                // NOTE: notifyAfter is set to false for loadSharedUserState, so we save state here (and avoid an infinite call loop)
+                // run a wallet sync operation to update "blocked"
+                Lbry.saveSharedUserState(completion: { success, err in
+                    guard err == nil else {
+                        // pass
+                        return
+                    }
+                    if success {
+                        // run wallet sync
+                        Lbry.pushSyncWallet()
+                    }
+                })
             }
-            
-            // run a wallet sync operation to update "blocked"
         }
     }
 
@@ -847,6 +858,16 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                 }
                 
                 // run a wallet sync operation
+                Lbry.saveSharedUserState(completion: { success, err in
+                    guard err == nil else {
+                        // pass
+                        return
+                    }
+                    if success {
+                        // run wallet sync
+                        Lbry.pushSyncWallet()
+                    }
+                })
             } catch {
                 // pass
             }

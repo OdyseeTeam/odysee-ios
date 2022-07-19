@@ -730,7 +730,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                         preferredStyle: .alert
                     )
                     alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
-                        mainVc.addBlockedChannel(claimId: current.claimId!, channelName: current.name!)
+                        mainVc.addBlockedChannel(claimId: current.claimId!, channelName: current.name!, notifyAfter: true)
                     }))
                     alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
                     present(alert, animated: true)
