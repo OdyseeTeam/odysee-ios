@@ -354,9 +354,8 @@ final class Helper {
 
         return message
     }
-    
+
     static func isChannelBlocked(claimId: String) -> Bool {
-        print("***CheckBlocked1: " + String(describing: Lbry.blockedChannels.map(\.claimId)))
         return Lbry.blockedChannels.map(\.claimId).contains(claimId)
     }
 }

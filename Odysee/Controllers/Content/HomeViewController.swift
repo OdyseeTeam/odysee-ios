@@ -108,7 +108,7 @@ class HomeViewController: UIViewController,
         if let mainVc = appDelegate.mainViewController as? MainViewController {
             mainVc.addBlockChannelObserver(name: "home", observer: self)
         }
-        
+
         if claims.count == 0 {
             loadClaims()
         }
@@ -136,7 +136,7 @@ class HomeViewController: UIViewController,
         result.showErrorIfPresent()
         if case var .success(payload) = result {
             payload.items.removeAll { Helper.isChannelBlocked(claimId: $0.signingChannel!.claimId!) }
-            
+
             let oldCount = claims.count
             claims.append(contentsOf: payload.items)
             if claims.count != oldCount {
@@ -369,7 +369,7 @@ class HomeViewController: UIViewController,
             return
         }
 
-        if scrollView == livestreamsCollectionView && livestreamsCollectionView.contentOffset.x >=
+        if scrollView == livestreamsCollectionView, livestreamsCollectionView.contentOffset.x >=
             (livestreamsCollectionView.contentSize.width - livestreamsCollectionView.bounds.size.width)
         {
             if !loadingLivestreams, !livestreamsLastPageReached {
@@ -574,7 +574,7 @@ class HomeViewController: UIViewController,
             livestreamsCollectionView.leadingAnchor.constraint(equalTo: livestreamsView.leadingAnchor),
         ])
     }
-    
+
     func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
         claims.removeAll {
             Helper.isChannelBlocked(claimId: $0.signingChannel!.claimId!)

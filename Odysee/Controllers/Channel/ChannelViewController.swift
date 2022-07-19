@@ -57,7 +57,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBOutlet var resolvingLoadingIndicator: UIActivityIndicatorView!
     @IBOutlet var resolvingLabel: UILabel!
     @IBOutlet var resolvingCloseButton: UIButton!
-    
+
     @IBOutlet var blockUnblockLabel: UILabel!
 
     var sortByPicker: UIPickerView!
@@ -132,7 +132,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
         // Do any additional setup after loading the view
         thumbnailImageView.rounded()
-        
+
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if let mainVc = appDelegate.mainViewController as? MainViewController {
             mainVc.addBlockChannelObserver(name: "channel", observer: self)
@@ -150,7 +150,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             displayNothingAtLocation()
         }
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -291,8 +291,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         if channelClaim?.value != nil {
             blockUnblockLabel.text = String.localized(
                 Helper.isChannelBlocked(claimId: channelClaim!.claimId!) ?
-                "Unblock channel" : "Block channel")
-            
+                    "Unblock channel" : "Block channel"
+            )
+
             Lbryio.areCommentsEnabled(
                 channelId: channelClaim!.claimId!,
                 channelName: channelClaim!.name!,
@@ -715,7 +716,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         vc.modalPresentationStyle = .overCurrentContext
         present(vc, animated: true)
     }
-    
+
     @IBAction func blockUnblockActionTapped(_ sender: Any) {
         if let current = channelClaim {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -726,11 +727,21 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 } else {
                     let alert = UIAlertController(
                         title: String(format: String.localized("Block %@?"), current.name!),
-                        message: String(format: String.localized("Are you sure you want to block this channel? You will no longer see comments nor content from %@."), current.name!),
+                        message: String(
+                            format: String
+                                .localized(
+                                    "Are you sure you want to block this channel? You will no longer see comments nor content from %@."
+                                ),
+                            current.name!
+                        ),
                         preferredStyle: .alert
                     )
                     alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
-                        mainVc.addBlockedChannel(claimId: current.claimId!, channelName: current.name!, notifyAfter: true)
+                        mainVc.addBlockedChannel(
+                            claimId: current.claimId!,
+                            channelName: current.name!,
+                            notifyAfter: true
+                        )
                     }))
                     alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
                     present(alert, animated: true)
@@ -738,10 +749,12 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
         }
     }
-    
+
     @IBAction func reportActionTapped(_ sender: Any) {
         if let current = channelClaim {
-            if let url = URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", current.claimId!)) {
+            if let url =
+                URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", current.claimId!))
+            {
                 let vc = SFSafariViewController(url: url)
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 appDelegate.mainController.present(vc, animated: true, completion: nil)
@@ -906,11 +919,13 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
         }
     }
-    
+
     func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
         if let current = channelClaim {
-            blockUnblockLabel.text = String.localized(Helper.isChannelBlocked(claimId: current.claimId!) ?
-                                                      "Unblock channel" : "Block channel")
+            blockUnblockLabel.text = String.localized(
+                Helper.isChannelBlocked(claimId: current.claimId!) ?
+                    "Unblock channel" : "Block channel"
+            )
         }
     }
 

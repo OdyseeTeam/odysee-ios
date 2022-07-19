@@ -10,8 +10,8 @@ import Combine
 import CoreData
 import CryptoKit
 import Foundation
-import UIKit
 import os
+import UIKit
 
 final class Lbry {
     static let ttlCLaimSearchValue = 120_000
@@ -300,7 +300,6 @@ final class Lbry {
                 let value = shared!["value"] as! [String: Any]
                 let subscriptionUrls = value["subscriptions"] as? [String]
                 let following = value["following"] as? [[String: Any]]
-                
 
                 var sharedPrefSubs: [LbrySubscription] = []
                 for urlString in subscriptionUrls! {
@@ -311,7 +310,7 @@ final class Lbry {
                 }
 
                 processSharedPreferenceSubs(sharedPrefSubs)
-                
+
                 if let blockedUrls = value["blocked"] as? [String] {
                     processBlockedUrls(blockedUrls)
                 }
@@ -320,7 +319,7 @@ final class Lbry {
             completion(true, nil)
         })
     }
-    
+
     // move to main thread due to the appdelegate reference
     static func processBlockedUrls(_ blockedUrls: [String]) {
         DispatchQueue.main.async {
@@ -334,12 +333,16 @@ final class Lbry {
                 // pass
                 return
             }
-            
+
             if let mainVc = appDelegate.mainViewController as? MainViewController {
                 for aUrl in blockedUrls {
                     let lbryUrl = LbryUri.tryParse(url: aUrl, requireProto: false)
                     if let theUrl = lbryUrl {
-                        mainVc.addBlockedChannel(claimId: theUrl.claimId!, channelName: theUrl.channelName!, notifyAfter: false)
+                        mainVc.addBlockedChannel(
+                            claimId: theUrl.claimId!,
+                            channelName: theUrl.channelName!,
+                            notifyAfter: false
+                        )
                     }
                 }
                 mainVc.notifyBlockChannelObservers()
@@ -405,7 +408,7 @@ final class Lbry {
                     existingDataValid = true
                     let (subscriptionUrls, following) = buildSubscriptionUrlsAndFollowingPreferences()
                     let blockedUrls = buildBlockedUrlsPreference()
-                    
+
                     var newValue = shared!["value"] as! [String: Any]
                     newValue["subscriptions"] = subscriptionUrls
                     newValue["following"] = following
@@ -476,16 +479,19 @@ final class Lbry {
 
         return (subscriptionUrls, following)
     }
-    
+
     static func buildBlockedUrlsPreference() -> [String] {
         var blockedUrls: [String] = []
         for blockedChannel in Lbry.blockedChannels {
-            let url: LbryUri? = LbryUri.tryParse(url: String(format: "%@:%@", normalizeChannelName(blockedChannel.name!), blockedChannel.claimId!), requireProto: false)
+            let url: LbryUri? = LbryUri.tryParse(
+                url: String(format: "%@:%@", normalizeChannelName(blockedChannel.name!), blockedChannel.claimId!),
+                requireProto: false
+            )
             if let lbryUrl = url {
                 blockedUrls.append(lbryUrl.description)
             }
         }
-        
+
         return blockedUrls
     }
 

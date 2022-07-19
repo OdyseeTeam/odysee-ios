@@ -50,7 +50,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
     let syncTimerInterval: Double = 300 // 5 minutes
 
     let snackbar = Snackbar()
-    
+
     var blockChannelObservers = [String: BlockChannelStatusObserver?]()
     var fetchContext: NSManagedObjectContext?
 
@@ -111,7 +111,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                 self.notifyBlockChannelObservers()
             }
         }
-        
+
         fetchContext = appDelegate.persistentContainer.newBackgroundContext()
         do {
             try fetchContext?.execute(asyncFetchRequest)
@@ -133,11 +133,11 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             loadChannels()
         }
     }
-    
+
     func addBlockChannelObserver(name: String, observer: BlockChannelStatusObserver) {
         blockChannelObservers[name] = observer
     }
-    
+
     func removeBlockChannelObserver(name: String) {
         if let _ = blockChannelObservers[name] {
             blockChannelObservers.removeValue(forKey: name)
@@ -782,16 +782,16 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             playerViewController.player?.play()
         }
     }
-    
+
     func notifyBlockChannelObservers() {
-        for observer in self.blockChannelObservers.values {
+        for observer in blockChannelObservers.values {
             if let observer = observer, Lbry.blockedChannels.count > 0 {
                 // use the first claim ID to trigger (this will be used after initial load or sync get)
                 observer.blockChannelStatusChanged(claimId: Lbry.blockedChannels[0].claimId!, isBlocked: true)
             }
         }
     }
-    
+
     func addBlockedChannel(claimId: String, channelName: String, notifyAfter: Bool = false) {
         // persist the subscription to CoreData
         DispatchQueue.main.async {
@@ -800,23 +800,23 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
             context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
             let entity = BlockedChannel(context: context)
-            entity.claimId = claimId;
+            entity.claimId = claimId
             entity.name = channelName
-            
+
             if !Lbry.blockedChannels.contains(entity) {
                 Lbry.blockedChannels.append(entity)
             }
-            
+
             appDelegate.saveContext()
-            
+
             // notify the observers
-            if (notifyAfter) {
+            if notifyAfter {
                 for observer in self.blockChannelObservers.values {
                     if let observer = observer {
                         observer.blockChannelStatusChanged(claimId: claimId, isBlocked: true)
                     }
                 }
-                
+
                 // NOTE: notifyAfter is set to false for loadSharedUserState, so we save state here (and avoid an infinite call loop)
                 // run a wallet sync operation to update "blocked"
                 Lbry.saveSharedUserState(completion: { success, err in
@@ -850,13 +850,13 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
 
             do {
                 try context.save()
-                
+
                 for observer in self.blockChannelObservers.values {
                     if let observer = observer {
                         observer.blockChannelStatusChanged(claimId: claimId, isBlocked: false)
                     }
                 }
-                
+
                 // run a wallet sync operation
                 Lbry.saveSharedUserState(completion: { success, err in
                     guard err == nil else {

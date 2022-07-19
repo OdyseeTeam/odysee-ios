@@ -97,13 +97,13 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         channelDriverView.isHidden = channels.count > 0
         channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
-        
+
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if let mainVc = appDelegate.mainViewController as? MainViewController {
             mainVc.addBlockChannelObserver(name: "comments", observer: self)
         }
     }
-    
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -782,14 +782,14 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
-    
+
     func filterBlockedChannels(_ reload: Bool) {
-        self.comments = self.comments.filter({ Helper.isChannelBlocked(claimId: $0.channelId!) })
-        if (reload) {
+        comments = comments.filter { Helper.isChannelBlocked(claimId: $0.channelId!) }
+        if reload {
             commentList.reloadData()
         }
     }
-    
+
     func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
         // simply use the mainViewController's blockedChannels list to filter
         filterBlockedChannels(true)
