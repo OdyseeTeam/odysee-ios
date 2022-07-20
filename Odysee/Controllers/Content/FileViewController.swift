@@ -2246,6 +2246,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @objc func playerRateTapped(_ sender: Any) {
         let (picker, alert) = Helper.buildPickerActionSheet(
             title: "Playback Speed",
+            sourceView: playerRateButton,
             dataSource: self,
             delegate: self,
             parent: self

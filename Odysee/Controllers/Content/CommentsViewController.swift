@@ -312,6 +312,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         let (picker, alert) = Helper.buildPickerActionSheet(
             title: String.localized("Comment as"),
+            sourceView: commentAsChannelLabel,
             dataSource: self,
             delegate: self,
             parent: self,
@@ -326,7 +327,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         )
 
         commentAsPicker = picker
-        alert.popoverPresentationController?.sourceView = commentAsChannelLabel
         present(alert, animated: true, completion: nil)
     }
 
