@@ -67,7 +67,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         }
     }
 
-    override func viewDidLayoutSubviews() {
+    override func viewDidAppear(_ animated: Bool) {
         initStream()
     }
 
