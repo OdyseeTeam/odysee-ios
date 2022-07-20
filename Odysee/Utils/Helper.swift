@@ -155,6 +155,7 @@ final class Helper {
 
     static func buildPickerActionSheet(
         title: String,
+        sourceView: UIView,
         dataSource: UIPickerViewDataSource,
         delegate: UIPickerViewDelegate,
         parent: UIViewController,
@@ -167,6 +168,7 @@ final class Helper {
 
         let alert = UIAlertController(title: title, message: "", preferredStyle: .actionSheet)
         alert.addAction(UIAlertAction(title: String.localized("Done"), style: .default, handler: handler))
+        alert.popoverPresentationController?.sourceView = sourceView
 
         let vc = UIViewController()
         vc.preferredContentSize = CGSize(width: parent.view.frame.width, height: 160)

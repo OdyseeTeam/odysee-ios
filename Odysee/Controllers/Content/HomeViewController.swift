@@ -463,6 +463,7 @@ class HomeViewController: UIViewController,
     @IBAction func sortByLabelTapped(_ sender: Any) {
         let (picker, alert) = Helper.buildPickerActionSheet(
             title: String.localized("Sort content by"),
+            sourceView: sortByLabel,
             dataSource: self,
             delegate: self,
             parent: self,
@@ -487,6 +488,7 @@ class HomeViewController: UIViewController,
     @IBAction func contentFromLabelTapped(_ sender: Any) {
         let (picker, alert) = Helper.buildPickerActionSheet(
             title: String.localized("Content from"),
+            sourceView: contentFromLabel,
             dataSource: self,
             delegate: self,
             parent: self,

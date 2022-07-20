@@ -578,6 +578,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBAction func sortByLabelTapped(_ sender: Any) {
         let (picker, alert) = Helper.buildPickerActionSheet(
             title: String.localized("Sort content by"),
+            sourceView: sortByLabel,
             dataSource: self,
             delegate: self,
             parent: self,
@@ -606,6 +607,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBAction func contentFromLabelTapped(_ sender: Any) {
         let (picker, alert) = Helper.buildPickerActionSheet(
             title: String.localized("Content from"),
+            sourceView: contentFromLabel,
             dataSource: self,
             delegate: self,
             parent: self,
