@@ -33,6 +33,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet var livestreamOfflineMessageView: UIView!
     @IBOutlet var livestreamOfflineLabel: UILabel!
     @IBOutlet var livestreamerArea: UIView!
+    @IBOutlet var commentAsChannelLabel: UILabel!
 
     @IBOutlet var mediaView: UIView!
     @IBOutlet var reloadStreamView: UIView!
@@ -148,6 +149,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var commentsLoading: Bool = false
     var comments = OrderedSet<Comment>()
     var authorThumbnailMap = [String: URL]()
+    var commentAsPicker: UIPickerView!
+    var currentCommentAsIndex = -1
 
     var numLikes = 0
     var numDislikes = 0
@@ -2009,14 +2012,37 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
 
+    @IBAction func commentAsTapped(_ sender: Any) {
+        chatInputField.resignFirstResponder()
+
+        let (picker, alert) = Helper.buildPickerActionSheet(
+            title: String.localized("Comment as"),
+            sourceView: commentAsChannelLabel,
+            dataSource: self,
+            delegate: self,
+            parent: self,
+            handler: { _ in
+                let selectedIndex = self.commentAsPicker.selectedRow(inComponent: 0)
+                let prevIndex = self.currentCommentAsIndex
+                self.currentCommentAsIndex = selectedIndex
+                if prevIndex != self.currentCommentAsIndex {
+                    self.updateCommentAsChannel(self.currentCommentAsIndex)
+                }
+            }
+        )
+
+        commentAsPicker = picker
+        present(alert, animated: true, completion: nil)
+    }
+
     func loadComments(_ singleClaim: Claim) {
         if commentsDisabled || commentsLoading || isLivestream {
             return
         }
 
         commentsLoading = true
-        Lbry.apiCall(
-            method: Lbry.Methods.commentList,
+        Lbry.commentApiCall(
+            method: Lbry.CommentMethods.list,
             params: .init(
                 claimId: singleClaim.claimId!,
                 page: commentsCurrentPage,
@@ -2108,6 +2134,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
+        if currentCommentAsIndex == -1, !channels.isEmpty {
+            currentCommentAsIndex = 0
+            updateCommentAsChannel(0)
+        }
     }
 
     func connectChatSocket() {
@@ -2124,8 +2154,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        Lbry.apiCall(
-            method: Lbry.Methods.commentList,
+        Lbry.commentApiCall(
+            method: Lbry.CommentMethods.list,
             params: .init(
                 claimId: claim!.claimId!,
                 page: 1,
@@ -2232,16 +2262,25 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         })
     }
 
+    func updateCommentAsChannel(_ index: Int) {
+        if index < 0 || channels.count == 0 {
+            return
+        }
+
+        let channel = channels[index]
+        commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), channel.name!)
+    }
+
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
 
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return availableRates.count
+        return pickerView == playerRatePicker ? availableRates.count : channels.count
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return availableRates[row]
+        return pickerView == playerRatePicker ? availableRates[row] : channels[row].name
     }
 
     @objc func playerRateTapped(_ sender: Any) {
@@ -2282,44 +2321,44 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 showError(message: String.localized("Please wait while we load your channels"))
                 return false
             }
-            if channels.count == 0 {
-                showError(message: String.localized("Please create a channel before sending chat messages"))
+            if currentCommentAsIndex == -1 || channels.count == 0 {
+                showError(message: String.localized("You need to select a channel to post your comment as"))
                 return false
             }
 
-            let commentAsChannel = channels[0]
+            let commentAsChannel = channels[currentCommentAsIndex]
             DispatchQueue.main.async {
                 self.chatInputField.isEnabled = false
             }
 
-            let params: [String: Any] = [
-                "claim_id": claim!.claimId!,
-                "channel_id": commentAsChannel.claimId!,
-                "comment": chatInputField.text!,
-            ]
             Lbry.apiCall(
-                method: Lbry.methodCommentCreate,
-                params: params,
-                connectionString: Lbry.lbrytvConnectionString,
-                authToken: Lbryio.authToken,
-                completion: { data, error in
-                    guard let _ = data, error == nil else {
-                        self.showError(error: error)
-                        self.postingChat = false
-                        DispatchQueue.main.async {
-                            self.chatInputField.isEnabled = true
-                        }
-                        return
-                    }
-
-                    // comment post successful
-                    self.postingChat = false
-                    DispatchQueue.main.async {
-                        self.chatInputField.text = ""
-                        self.chatInputField.isEnabled = true
-                    }
-                }
+                method: Lbry.Methods.channelSign,
+                params: .init(
+                    channelId: commentAsChannel.claimId!,
+                    hexdata: Helper.strToHex(chatInputField.text!)
+                )
             )
+            .flatMap { channelSignResult in
+                Lbry.commentApiCall(
+                    method: Lbry.CommentMethods.create,
+                    params: .init(
+                        claimId: self.claim!.claimId!,
+                        channelId: commentAsChannel.claimId!,
+                        signature: channelSignResult.signature,
+                        signingTs: channelSignResult.signingTs,
+                        comment: self.chatInputField.text!
+                    )
+                )
+            }
+            .subscribeResult { result in
+                if case let .failure(error) = result {
+                    self.showError(error: error)
+                } else {
+                    self.chatInputField.text = ""
+                }
+                self.postingChat = false
+                self.chatInputField.isEnabled = true
+            }
 
             return true
         }
