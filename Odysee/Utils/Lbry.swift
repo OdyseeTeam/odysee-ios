@@ -17,6 +17,7 @@ final class Lbry {
     static let ttlCLaimSearchValue = 120_000
     static let lbrytvURL = URL(string: "https://api.na-backend.odysee.com/api/v1/proxy")!
     static let uploadURL = URL(string: "https://publish.na-backend.odysee.com/v1")!
+    static let commentronURL = URL(string: "https://comments.odysee.tv/api/v2")!
     static let lbrytvConnectionString = lbrytvURL.absoluteString
     static let keyShared = "shared"
     static let sharedPreferenceVersion = "0.1"
@@ -63,23 +64,28 @@ final class Lbry {
             defaultTransform: processPageOfClaims
         )
         static let streamAbandon = Method<StreamAbandonParams, Transaction>(name: "stream_abandon")
-        static let commentList = Method<CommentListParams, Page<Comment>>(name: "comment_list")
         static let addressUnused = Method<AddressUnusedParams, String>(name: "address_unused")
         static let channelAbandon = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
+        static let channelSign = Method<ChannelSignParams, ChannelSignResult>(name: "channel_sign")
         static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
         static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
     }
 
+    enum CommentMethods {
+        static let list = Method<CommentListParams, Page<Comment>>(name: "comment.List")
+        static let create = Method<CommentCreateParams, Comment>(name: "comment.Create")
+        static let reactList = Method<CommentReactListParams, ReactListResult>(name: "reaction.List")
+        static let react = Method<CommentReactParams, NilType>(name: "reaction.React")
+    }
+
+    struct NilType: Decodable {}
+
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
     static let methodChannelCreate = "channel_create"
     static let methodChannelUpdate = "channel_update"
-    static let methodCommentCreate = "comment_create"
     static let methodStreamUpdate = "stream_update"
-    static let methodChannelSign = "channel_sign"
     static let methodGet = "get"
     static let methodPublish = "publish"
-    static let methodCommentReact = "comment_react"
-    static let methodCommentReactList = "comment_react_list"
     static let methodPreferenceGet = "preference_get"
     static let methodPreferenceSet = "preference_set"
     static let methodSupportCreate = "support_create"
@@ -149,6 +155,20 @@ final class Lbry {
         var jsonrpc: String
         var error: APIError?
         var result: Wrapped?
+    }
+
+    // `transform` is run off-main to do things like sorting/filtering. Be cafeful!
+    // The returned publisher receives events on the main thread.
+    static func commentApiCall<Params: Encodable, ReturnType: Decodable>
+    (
+        method: Method<Params, ReturnType>,
+        params: Params,
+        url: URL = commentronURL,
+        transform: ((inout ReturnType) throws -> Void)? = nil
+    )
+        -> AnyPublisher<ReturnType, Error>
+    {
+        return apiCall(method: method, params: params, url: url, transform: transform)
     }
 
     // `transform` is run off-main to do things like sorting/filtering. Be cafeful!

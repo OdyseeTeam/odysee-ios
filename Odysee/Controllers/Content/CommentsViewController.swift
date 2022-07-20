@@ -100,14 +100,14 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             guidelinesTextView.heightAnchor.constraint(equalToConstant: 0).isActive = true
         }
 
-        if comments.count > 0 {
-            // comments already preloaded
-            loadCommentReactions(commentIds: comments.map { $0.commentId! })
-        }
-
         if channels.count > 0, currentCommentAsIndex == -1 {
             currentCommentAsIndex = 0
             updateCommentAsChannel(0)
+        }
+
+        if comments.count > 0 {
+            // comments already preloaded
+            loadCommentReactions(commentIds: comments.map { $0.commentId! })
         }
 
         channelDriverView.isHidden = channels.count > 0
@@ -193,64 +193,41 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             self.loadingContainer.isHidden = false
         }
         commentsLoading = true
-        let params: [String: Any] = [
-            "claim_id": claimId!,
-            "page": commentsCurrentPage,
-            "page_size": commentsPageSize,
-            "skip_validation": true,
-            "include_replies": false,
-        ]
-        Lbry.apiCall(
-            method: Lbry.Methods.commentList.name,
-            params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            completion: { data, error in
-                guard let data = data, error == nil else {
-                    print(error!)
-                    return
+        Lbry.commentApiCall(
+            method: Lbry.CommentMethods.list,
+            params: .init(
+                claimId: claimId!,
+                page: commentsCurrentPage,
+                pageSize: commentsPageSize,
+                skipValidation: true
+            )
+        )
+        .subscribeResult { result in
+            switch result {
+            case let .failure(error):
+                self.showError(error: error)
+            case let .success(page):
+                self.commentsLastPageReached = page.isLastPage
+                let loadedComments = page.items.filter {
+                    comment in !self.comments.contains(where: { $0.comment == comment.commentId })
                 }
+                self.comments.append(contentsOf: loadedComments)
 
-                let result = data["result"] as? [String: Any]
-                if let items = result?["items"] as? [[String: Any]] {
-                    if items.count < self.commentsPageSize {
-                        self.commentsLastPageReached = true
-                    }
-                    var loadedComments: [Comment] = []
-                    items.forEach { item in
-                        let data = try! JSONSerialization.data(
-                            withJSONObject: item,
-                            options: [.prettyPrinted, .sortedKeys]
-                        )
-                        do {
-                            let comment: Comment? = try JSONDecoder().decode(Comment.self, from: data)
-                            if comment != nil, !self.comments.contains(where: { $0.commentId == comment?.commentId }) {
-                                loadedComments.append(comment!)
-                            }
-                        } catch {
-                            print(error)
-                        }
-                    }
-                    self.comments.append(contentsOf: loadedComments)
-
-                    if loadedComments.count > 0 {
-                        self.loadCommentReactions(commentIds: loadedComments.map { $0.commentId! })
-                    }
-
-                    // resolve author map
-                    if self.comments.count > 0 {
-                        self.resolveCommentAuthors(urls: loadedComments.map { $0.channelUrl! })
-                    }
+                if loadedComments.count > 0 {
+                    self.loadCommentReactions(commentIds: loadedComments.map(\.commentId!))
+                }
+                // resolve author map
+                if self.comments.count > 0 {
+                    self.resolveCommentAuthors(urls: loadedComments.map(\.channelUrl!))
                 }
 
                 self.commentsLoading = false
-                DispatchQueue.main.async {
-                    self.filterBlockedChannels(false)
-                    self.loadingContainer.isHidden = true
-                    self.commentList.reloadData()
-                    self.checkNoComments()
-                }
+                self.filterBlockedChannels(false)
+                self.loadingContainer.isHidden = true
+                self.commentList.reloadData()
+                self.checkNoComments()
             }
-        )
+        }
     }
 
     func resolveCommentAuthors(urls: [String]) {
@@ -369,79 +346,59 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         postingComment = true
         loadingContainer.isHidden = false
-        var params: [String: Any] = [
-            "claim_id": claimId!,
-            "channel_id": channels[currentCommentAsIndex].claimId!,
-            "comment": commentInput.text!,
-        ]
-        if currentReplyToComment != nil {
-            params["parent_id"] = currentReplyToComment?.commentId!
-        }
+        let channel = channels[currentCommentAsIndex]
         Lbry.apiCall(
-            method: Lbry.methodCommentCreate,
-            params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
-            completion: { data, error in
-                guard let data = data,
-                      let result = data["result"] as? [String: Any],
-                      result["error"] == nil, error == nil
-                else {
-                    self.showError(error: error)
-                    return
-                }
-
-                if let result = data["result"] as? [String: Any],
-                   let error = result["error"] as? [String: Any],
-                   let message = error["message"] as? String
-                {
-                    self.showError(message: String(
-                        format: String.localized("Your comment could not be posted: %@"),
-                        message
-                    ))
-                }
-
-                do {
-                    let commentData = try JSONSerialization.data(
-                        withJSONObject: result,
-                        options: [.prettyPrinted, .sortedKeys]
-                    )
-                    let comment = try JSONDecoder().decode(Comment.self, from: commentData)
-                    if let currentReplyToComment = self.currentReplyToComment {
-                        if currentReplyToComment.repliesLoaded ?? false {
-                            let parentIndex = self.indexForComment(currentReplyToComment)
-                            if parentIndex > -1 {
-                                self.comments.insert(comment, at: parentIndex + 1)
-                            }
-                        } else {
-                            DispatchQueue.main.async {
-                                self.loadReplies(currentReplyToComment)
-                            }
+            method: Lbry.Methods.channelSign,
+            params: .init(
+                channelId: channel.claimId!,
+                hexdata: Helper.strToHex(commentInput.text!)
+            )
+        )
+        .flatMap { channelSignResult in
+            return Lbry.commentApiCall(
+                method: Lbry.CommentMethods.create,
+                params: .init(
+                    claimId: self.claimId!,
+                    channelId: channel.claimId!,
+                    signature: channelSignResult.signature,
+                    signingTs: channelSignResult.signingTs,
+                    comment: self.commentInput.text!,
+                    parentId: self.currentReplyToComment?.commentId
+                )
+            )
+        }
+        .subscribeResult { result in
+            switch result {
+            case let .failure(error):
+                self.showError(error: error)
+            case let .success(comment):
+                if let currentReplyToComment = self.currentReplyToComment {
+                    if currentReplyToComment.repliesLoaded ?? false {
+                        let parentIndex = self.indexForComment(currentReplyToComment)
+                        if parentIndex > -1 {
+                            self.comments.insert(comment, at: parentIndex + 1)
                         }
                     } else {
-                        self.comments.insert(comment, at: 0)
+                        self.loadReplies(currentReplyToComment)
                     }
-                    self.loadCommentReactions(commentIds: [comment.claimId!])
-                    self.resolveCommentAuthors(urls: [comment.channelUrl!])
-                } catch {
-                    self.showError(error: error)
+                } else {
+                    self.comments.insert(comment, at: 0)
                 }
+                // TODO: Reactions not loaded here as comment might not be available?
+                self.resolveCommentAuthors(urls: [comment.channelUrl!])
 
-                // comment post successful
                 self.postingComment = false
-                DispatchQueue.main.async {
-                    self.commentInput.text = ""
-                    self.replyToCommentLabel.text = ""
-                    self.replyToContainerView.isHidden = true
-                    self.loadingContainer.isHidden = true
-                    self.textViewDidChange(self.commentInput)
-                    self.commentList.reloadData()
-                    self.checkNoComments()
-                }
+                self.commentInput.text = ""
+                self.replyToCommentLabel.text = ""
+                self.replyToContainerView.isHidden = true
+                self.loadingContainer.isHidden = true
+                self.textViewDidChange(self.commentInput)
+                self.commentList.reloadData()
+                self.checkNoComments()
 
                 self.currentReplyToComment = nil
             }
-        )
+        }
     }
 
     @IBAction func closeTapped(_ sender: UIButton) {
@@ -475,70 +432,66 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func loadCommentReactions(commentIds: [String]) {
-        var params: [String: Any] = ["comment_ids": commentIds.joined(separator: ",")]
-        if channels.count > 0 {
-            // for now, always pick the first channel
-            // TODO: allow the user to set a default channel
-            params["channel_id"] = channels[0].claimId!
-        }
-
+        let channel = channels[currentCommentAsIndex]
         Lbry.apiCall(
-            method: Lbry.methodCommentReactList,
-            params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
-            completion: { data, error in
-                guard let data = data, error == nil else {
-                    print(error!)
-                    return
-                }
-
-                let result = data["result"] as? [String: Any]
-                var combined: [String: CombinedReactionData] = [:]
-                if let othersReactions = result!["others_reactions"] as? [String: Any] {
-                    for (commentId, reactionData) in othersReactions {
-                        if combined[commentId] == nil {
-                            combined[commentId] = CombinedReactionData()
-                        }
-                        combined[commentId]?.othersReactions = reactionData as? [String: Any]
-                    }
-                }
-                if let myReactions = result!["my_reactions"] as? [String: Any] {
-                    for (commentId, reactionData) in myReactions {
-                        if combined[commentId] == nil {
-                            combined[commentId] = CombinedReactionData()
-                            combined[commentId]?.othersReactions = [:]
-                        }
-                        combined[commentId]?.myReactions = reactionData as? [String: Any]
-                    }
-                }
-                for (commentId, combined) in combined {
-                    self.updateCommentReactions(
-                        commentId: commentId,
-                        otherReactionData: combined.othersReactions!,
-                        myReactionData: combined.myReactions
-                    )
-                }
-
-                DispatchQueue.main.async {
-                    self.commentList.reloadData()
-                }
-            }
+            method: Lbry.Methods.channelSign,
+            params: .init(
+                channelId: channel.claimId!,
+                hexdata: Helper.strToHex(channel.name!)
+            )
         )
+        .flatMap { channelSignResult in
+            Lbry.commentApiCall(
+                method: Lbry.CommentMethods.reactList,
+                params: .init(
+                    commentIds: commentIds.joined(separator: ","),
+                    channelName: channel.name!,
+                    channelId: channel.claimId!,
+                    signature: channelSignResult.signature,
+                    signingTs: channelSignResult.signingTs
+                )
+            )
+        }
+        .subscribeResult { result in
+            switch result {
+            case let .failure(error):
+                self.showError(error: error)
+            case let .success(reactions):
+                var combined = [String: CombinedReactionData]()
+                if let othersReactions = reactions.othersReactions {
+                    for (commentId, reactionData) in othersReactions {
+                        combined[commentId] = CombinedReactionData(
+                            othersLike: reactionData.like, othersDislike: reactionData.dislike
+                        )
+                    }
+                }
+                if let myReactions = reactions.myReactions {
+                    for (commentId, reactionData) in myReactions {
+                        if combined[commentId] != nil {
+                            combined[commentId]?.myLike = reactionData.like
+                            combined[commentId]?.myDislike = reactionData.dislike
+                        } else {
+                            combined[commentId] = CombinedReactionData(
+                                myLike: reactionData.like, myDislike: reactionData.dislike
+                            )
+                        }
+                    }
+                }
+                for (commentId, combinedReactionData) in combined {
+                    self.updateCommentReactions(commentId: commentId, combined: combinedReactionData)
+                }
+                self.commentList.reloadData()
+            }
+        }
     }
 
-    func updateCommentReactions(commentId: String, otherReactionData: [String: Any], myReactionData: [String: Any]?) {
+    func updateCommentReactions(commentId: String, combined: CombinedReactionData) {
         for i in comments.indices {
             if comments[i].commentId == commentId {
-                comments[i].numLikes = otherReactionData["like"] as? Int ?? 0
-                comments[i].numDislikes = otherReactionData["dislike"] as? Int ?? 0
-                if myReactionData != nil {
-                    comments[i].numLikes! += myReactionData!["like"] as! Int > 0 ? 1 : 0
-                    comments[i].numDislikes! += myReactionData!["dislike"] as! Int > 0 ? 1 : 0
-                    comments[i].isLiked = myReactionData!["like"] as! Int > 0
-                    comments[i].isDisliked = myReactionData!["dislike"] as! Int > 0
-                }
-                break
+                comments[i].numLikes = (combined.othersLike ?? 0) + ((combined.myLike ?? 0) > 0 ? 1 : 0)
+                comments[i].numDislikes = (combined.othersDislike ?? 0) + ((combined.myDislike ?? 0) > 0 ? 1 : 0)
+                comments[i].isLiked = combined.myLike ?? 0 > 0
+                comments[i].isDisliked = combined.myDislike ?? 0 > 0
             }
         }
     }
@@ -559,56 +512,56 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         reacting = true
-        var remove = false
-        var params: [String: Any] = [
-            "comment_ids": comment.commentId!,
-            "react_type": type,
-            "clear_types": type == Helper.reactionTypeLike ? Helper.reactionTypeDislike : Helper.reactionTypeLike,
-        ]
-        if (type == Helper.reactionTypeLike && (comment.isLiked ?? false)) ||
-            (type == Helper.reactionTypeDislike && (comment.isDisliked ?? false))
-        {
-            remove = true
-            params["remove"] = "true"
-        }
-        if channels.count > 0 {
-            // TODO: Default channel
-            params["channel_id"] = channels[0].claimId!
-        }
-        Lbry.apiCall(
-            method: Lbry.methodCommentReact,
-            params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
-            completion: { data, error in
-                guard let data = data, error == nil else {
-                    print(error!)
-                    return
-                }
+        let remove = (type == Helper.reactionTypeLike && (comment.isLiked ?? false)) ||
+            (type == Helper.reactionTypeDislike && (comment.isDisliked ?? false)) ? true : false
+        let channel = channels[currentCommentAsIndex]
 
-                _ = data["result"] as? [String: Any]
-                var updatedComment = comment
-                if type == Helper.reactionTypeLike {
-                    updatedComment.isLiked = !remove
-                    updatedComment.numLikes = (updatedComment.numLikes ?? 0) + (remove ? -1 : 1)
-                    if !remove, updatedComment.isDisliked ?? false {
-                        updatedComment.numDislikes = (updatedComment.numDislikes ?? 1) - 1
-                        updatedComment.isDisliked = false
-                    }
-                }
-                if type == Helper.reactionTypeDislike {
-                    updatedComment.isDisliked = !remove
-                    updatedComment.numDislikes = (updatedComment.numDislikes ?? 0) + (remove ? -1 : 1)
-                    if !remove, updatedComment.isLiked ?? false {
-                        updatedComment.numLikes = (updatedComment.numLikes ?? 1) - 1
-                        updatedComment.isLiked = false
-                    }
-                }
-
-                self.reacting = false
-                self.updateSingleCommentReactions(updatedComment)
+        var updatedComment = comment
+        if type == Helper.reactionTypeLike {
+            updatedComment.isLiked = !remove
+            updatedComment.numLikes = (updatedComment.numLikes ?? 0) + (remove ? -1 : 1)
+            if !remove, updatedComment.isDisliked ?? false {
+                updatedComment.numDislikes = (updatedComment.numDislikes ?? 1) - 1
+                updatedComment.isDisliked = false
             }
+        }
+        if type == Helper.reactionTypeDislike {
+            updatedComment.isDisliked = !remove
+            updatedComment.numDislikes = (updatedComment.numDislikes ?? 0) + (remove ? -1 : 1)
+            if !remove, updatedComment.isLiked ?? false {
+                updatedComment.numLikes = (updatedComment.numLikes ?? 1) - 1
+                updatedComment.isLiked = false
+            }
+        }
+        updateSingleCommentReactions(updatedComment)
+
+        Lbry.apiCall(
+            method: Lbry.Methods.channelSign,
+            params: .init(channelId: channel.claimId!, hexdata: Helper.strToHex(channel.name!))
         )
+        .flatMap { channelSignResult in
+            Lbry.commentApiCall(
+                method: Lbry.CommentMethods.react,
+                params: .init(
+                    commentIds: comment.commentId!,
+                    signature: channelSignResult.signature,
+                    signingTs: channelSignResult.signingTs,
+                    remove: remove,
+                    clearTypes: type == Helper.reactionTypeLike ? Helper.reactionTypeDislike : Helper.reactionTypeLike,
+                    type: type,
+                    channelId: channel.claimId!,
+                    channelName: channel.name!
+                )
+            )
+        }
+        .subscribeResult { result in
+            if case let .failure(error) = result {
+                self.showError(error: error)
+                // Set reactions back to original value
+                self.updateSingleCommentReactions(comment)
+            }
+            self.reacting = false
+        }
     }
 
     func updateSingleCommentReactions(_ comment: Comment) {
@@ -638,61 +591,41 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         commentsLoading = true
         loadingContainer.isHidden = false
-        let params: [String: Any] = [
-            "claim_id": claimId!,
-            "parent_id": parent.commentId!,
-            "page": 1,
-            "page_size": 999,
-            "skip_validation": true,
-            "include_replies": true,
-        ]
-        Lbry.apiCall(
-            method: Lbry.Methods.commentList.name,
-            params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            completion: { data, error in
-                guard let data = data, error == nil else {
-                    print(error!)
-                    return
+        Lbry.commentApiCall(
+            method: Lbry.CommentMethods.list,
+            params: .init(
+                claimId: claimId!,
+                parentId: parent.commentId!,
+                page: 1,
+                pageSize: 999,
+                skipValidation: true,
+                topLevel: false
+            )
+        )
+        .subscribeResult { result in
+            switch result {
+            case let .failure(error):
+                self.showError(error: error)
+            case let .success(page):
+                let loadedComments = page.items.filter {
+                    comment in !self.comments.contains(where: { $0.comment == comment.commentId })
                 }
 
-                let result = data["result"] as? [String: Any]
-                if let items = result?["items"] as? [[String: Any]] {
-                    var loadedComments: [Comment] = []
-                    items.forEach { item in
-                        let data = try! JSONSerialization.data(
-                            withJSONObject: item,
-                            options: [.prettyPrinted, .sortedKeys]
-                        )
-                        do {
-                            let comment: Comment? = try JSONDecoder().decode(Comment.self, from: data)
-                            if comment != nil, !self.comments.contains(where: { $0.commentId == comment?.commentId }) {
-                                loadedComments.append(comment!)
-                            }
-                        } catch {
-                            print(error)
-                        }
-                    }
-
-                    let parentIndex = self.indexForComment(parent)
-                    if parentIndex > -1 {
-                        self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
-
-                        if loadedComments.count > 0 {
-                            self.loadCommentReactions(commentIds: loadedComments.map { $0.commentId! })
-                            self.resolveCommentAuthors(urls: loadedComments.map { $0.channelUrl! })
-                        }
+                let parentIndex = self.indexForComment(parent)
+                if parentIndex > -1 {
+                    self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
+                    if loadedComments.count > 0 {
+                        self.loadCommentReactions(commentIds: loadedComments.map(\.commentId!))
+                        self.resolveCommentAuthors(urls: loadedComments.map(\.channelUrl!))
                     }
                 }
 
                 self.commentsLoading = false
                 self.setCommentRepliesLoaded(parent)
-                DispatchQueue.main.async {
-                    self.loadingContainer.isHidden = true
-                    self.commentList.reloadData()
-                }
+                self.loadingContainer.isHidden = true
+                self.commentList.reloadData()
             }
-        )
+        }
     }
 
     func setCommentRepliesLoaded(_ comment: Comment) {
@@ -771,7 +704,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return channels.map(\.name)[row]
+        return channels[row].name
     }
 
     func showError(error: Error?) {
@@ -812,7 +745,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     struct CombinedReactionData {
-        var othersReactions: [String: Any]?
-        var myReactions: [String: Any]?
+        var othersLike: Int?
+        var othersDislike: Int?
+        var myLike: Int?
+        var myDislike: Int?
     }
 }

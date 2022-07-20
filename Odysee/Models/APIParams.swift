@@ -14,16 +14,6 @@ struct ResolveParams: Encodable {
     var urls = [String]()
 }
 
-struct CommentListParams: Encodable {
-    var claimId: String
-    var channelId: String?
-    var channelName: String?
-    var page: Int?
-    var pageSize: Int?
-    var skipValidation: Bool?
-    var includeReplies: Bool?
-}
-
 struct StreamAbandonParams: Encodable {
     var claimId: String
     var blocking: Bool?
@@ -69,4 +59,9 @@ struct TransactionListParams: Encodable {
 struct TxoListParams: Encodable {
     var type: [ClaimType]?
     var txid: String?
+}
+
+struct ChannelSignParams: Encodable {
+    var channelId: String
+    var hexdata: String
 }

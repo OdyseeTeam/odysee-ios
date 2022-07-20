@@ -6105,10 +6105,23 @@
                                                 <nil key="textColor"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
+                                            <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Comment as" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RQJ-Hv-fIs" userLabel="Comment As Channel Label">
+                                                <rect key="frame" x="326.5" y="4" width="71.5" height="16"/>
+                                                <gestureRecognizers/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                                <nil key="textColor"/>
+                                                <nil key="highlightedColor"/>
+                                                <connections>
+                                                    <outletCollection property="gestureRecognizers" destination="nyU-9h-Xla" appends="YES" id="Zye-xD-VJ3"/>
+                                                </connections>
+                                            </label>
                                         </subviews>
                                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                         <constraints>
+                                            <constraint firstItem="RQJ-Hv-fIs" firstAttribute="top" secondItem="sl5-Hh-7Fz" secondAttribute="top" constant="4" id="D9h-O9-Doh"/>
+                                            <constraint firstAttribute="trailing" secondItem="RQJ-Hv-fIs" secondAttribute="trailing" constant="16" id="V6Q-cc-PL1"/>
                                             <constraint firstAttribute="bottom" secondItem="vWY-SP-cUz" secondAttribute="bottom" constant="4" id="XFN-Ep-pmB"/>
+                                            <constraint firstAttribute="bottom" secondItem="RQJ-Hv-fIs" secondAttribute="bottom" constant="4" id="gpW-Jf-GwX"/>
                                             <constraint firstItem="vWY-SP-cUz" firstAttribute="top" secondItem="sl5-Hh-7Fz" secondAttribute="top" constant="4" id="whQ-s9-aQe"/>
                                             <constraint firstItem="vWY-SP-cUz" firstAttribute="leading" secondItem="sl5-Hh-7Fz" secondAttribute="leading" constant="16" id="zEb-Py-bq7"/>
                                         </constraints>
@@ -7002,6 +7015,7 @@
                         <outlet property="chatInputField" destination="klQ-fC-wqe" id="mNL-1s-bA9"/>
                         <outlet property="chatListView" destination="sdu-U2-NfY" id="opq-OP-nr7"/>
                         <outlet property="closeOtherContentButton" destination="Ia6-r3-4DT" id="Xh7-aU-Jox"/>
+                        <outlet property="commentAsChannelLabel" destination="RQJ-Hv-fIs" id="DFX-gx-fDj"/>
                         <outlet property="commentExpandView" destination="ito-DF-oZn" id="KMc-jk-guq"/>
                         <outlet property="commentsContainerView" destination="GiF-qv-hoI" id="Pxf-Tg-cF9"/>
                         <outlet property="contentInfoDescription" destination="Akm-Tw-w5H" id="z4L-8e-c4X"/>
@@ -7148,6 +7162,11 @@
                 <tapGestureRecognizer id="ePl-Bl-nK9" userLabel="Livestreamer Area Tap Gesture Recognizer">
                     <connections>
                         <action selector="publisherTapped:" destination="Wx8-f6-Mvh" id="HJ7-Fl-AtV"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="nyU-9h-Xla" userLabel="Comment As Label Tap Gesture Recognizer">
+                    <connections>
+                        <action selector="commentAsTapped:" destination="Wx8-f6-Mvh" id="0Al-6g-yRP"/>
                     </connections>
                 </tapGestureRecognizer>
                 <tapGestureRecognizer id="oOL-0f-mTm" userLabel="Reload Tap Gesture Recognizer">

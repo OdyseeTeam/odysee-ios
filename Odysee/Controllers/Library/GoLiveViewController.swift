@@ -419,57 +419,36 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
      }*/
 
     func signAndSetupStream(channel: Claim) {
-        let options: [String: Any] = ["channel_id": channel.claimId!, "hexdata": Helper.strToHex(channel.name!)]
         Lbry.apiCall(
-            method: Lbry.methodChannelSign,
-            params: options,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
-            completion: { data, error in
-                guard let data = data, error == nil else {
-                    DispatchQueue.main.async {
-                        self.precheckLoadingView.isHidden = true
-                        self.spacemanImage.image = UIImage(named: "spaceman_sad")
-                        self.precheckLabel.text = String
-                            .localized("An error occurred trying to set up your livestream. Please try again later.")
-                    }
-                    return
-                }
-
-                if let result = data["result"] as? [String: Any] {
-                    let signature = result["signature"] as? String
-                    let signing_ts = result["signing_ts"] as? String
-                    self.streamKey = self.createStreamKey(
-                        channel: channel,
-                        signature: signature!,
-                        signing_ts: signing_ts!
-                    )
-
-                    DispatchQueue.main.async {
-                        self.precheckLoadingView.isHidden = true
-                        self.precheckView.isHidden = true
-                    }
-
-                    return
-                }
-
-                DispatchQueue.main.async {
-                    self.precheckLoadingView.isHidden = true
-                    self.spacemanImage.image = UIImage(named: "spaceman_sad")
-                    self.precheckLabel.text = String
-                        .localized("Your stream key could not be generated. Please try again later.")
-                }
-            }
+            method: Lbry.Methods.channelSign,
+            params: .init(channelId: channel.claimId!, hexdata: Helper.strToHex(channel.name!))
         )
+        .subscribeResult { result in
+            switch result {
+            case .failure:
+                self.precheckLoadingView.isHidden = true
+                self.spacemanImage.image = UIImage(named: "spaceman_sad")
+                self.precheckLabel.text = String
+                    .localized("Your stream key could not be generated. Please try again later.")
+            case let .success(data):
+                self.streamKey = self.createStreamKey(
+                    channel: channel,
+                    signature: data.signature,
+                    signingTs: data.signingTs
+                )
+                self.precheckLoadingView.isHidden = true
+                self.precheckView.isHidden = true
+            }
+        }
     }
 
-    func createStreamKey(channel: Claim, signature: String, signing_ts: String) -> String {
+    func createStreamKey(channel: Claim, signature: String, signingTs: String) -> String {
         return String(
             format: "%@?d=%@&s=%@&t=%@",
             channel.claimId!,
             Helper.strToHex(channel.name!),
             signature,
-            signing_ts
+            signingTs
         )
     }
 
