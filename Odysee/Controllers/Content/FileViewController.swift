@@ -1611,6 +1611,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         commentsVc.commentsDisabled = commentsDisabled
         commentsVc.comments = comments.elements
         commentsVc.authorThumbnailMap = authorThumbnailMap
+        commentsVc.commentsLastPageReached = commentsLastPageReached
 
         commentsVc.willMove(toParent: self)
         commentsContainerView.addSubview(commentsVc.view)
@@ -2035,7 +2036,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        commentsLastPageReached = page.items.count < page.pageSize
+        commentsLastPageReached = page.isLastPage
         let oldCount = comments.count
         comments.append(contentsOf: page.items)
         let newComments = comments.suffix(from: oldCount)
