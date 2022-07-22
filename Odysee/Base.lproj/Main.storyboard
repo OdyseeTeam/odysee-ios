@@ -3545,6 +3545,7 @@
                 <tapGestureRecognizer id="9iR-Vf-FY5" userLabel="Anywhere Tap Gesture Recognizer">
                     <connections>
                         <action selector="anywhereTapped:" destination="Lba-J3-7h3" id="249-lS-D7Q"/>
+                        <outlet property="delegate" destination="Lba-J3-7h3" id="krV-9C-Ugo"/>
                     </connections>
                 </tapGestureRecognizer>
                 <tapGestureRecognizer id="8NM-bn-GSW" userLabel="Channels Tap Gesture Recognizer">
