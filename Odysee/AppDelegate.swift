@@ -187,6 +187,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
             return .commandFailed
         }
+        commandCenter.togglePlayPauseCommand.isEnabled = true
+        commandCenter.togglePlayPauseCommand.addTarget { [unowned self] _ in
+            if let lazyPlayer = lazyPlayer {
+                if lazyPlayer.rate == 0 {
+                    lazyPlayer.play()
+                } else {
+                    lazyPlayer.pause()
+                }
+                return .success
+            }
+            return .commandFailed
+        }
 
         commandCenter.changePlaybackRateCommand.addTarget { [unowned self] event in
             if let lazyPlayer = lazyPlayer, let event = event as? MPChangePlaybackRateCommandEvent {
