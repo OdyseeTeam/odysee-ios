@@ -8,7 +8,7 @@
 import SafariServices
 import UIKit
 
-class UserAccountMenuViewController: UIViewController {
+class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet var contentView: UIView!
     @IBOutlet var signUpLoginButton: UIButton!
     @IBOutlet var loggedInMenu: UIView!
@@ -40,6 +40,10 @@ class UserAccountMenuViewController: UIViewController {
         if Lbryio.isSignedIn() {
             userEmailLabel.text = Lbryio.currentUser?.primaryEmail!
         }
+    }
+
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        return touch.view == gestureRecognizer.view
     }
 
     @IBAction func anywhereTapped(_ sender: Any) {
