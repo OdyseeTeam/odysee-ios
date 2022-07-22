@@ -85,11 +85,13 @@ struct ContentSources {
                                     {
                                         let channelIds = contentSource["channelIds"] as? [String] ?? []
                                         let excludedChannelIds = contentSource["excludedChannelIds"] as? [String] ?? []
+                                        let channelLimit = Int(contentSource["channelLimit"] as? String ?? "1") ?? 1
                                         let category = Category(
                                             sortOrder: sortOrder,
                                             key: key,
                                             name: name,
                                             label: label,
+                                            channelLimit: channelLimit,
                                             channelIds: channelIds,
                                             excludedChannelIds: excludedChannelIds
                                         )
@@ -133,6 +135,7 @@ struct ContentSources {
         var key: String = ""
         var name: String
         var label: String
+        var channelLimit: Int
         var channelIds: [String] = []
         var excludedChannelIds: [String] = []
     }
