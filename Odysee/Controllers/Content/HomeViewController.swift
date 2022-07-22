@@ -29,14 +29,13 @@ class HomeViewController: UIViewController,
     @IBOutlet var sortByLabel: UILabel!
     @IBOutlet var contentFromLabel: UILabel!
 
-    static var categoryIndexMovies: Int = -1
-    static var categoryIndexWildWest: Int = -1
-    static let categoryNameGeneral: String = "general"
-    static let categoryNameMovies: String = "movies"
-    static let categoryNameWildWest: String = "wildwest"
+    static var categoryIndexWildWest = -1
+    static let categoryKeyWildWest = "WILD_WEST"
+    static let categoryKeyPrimaryContent = "PRIMARY_CONTENT"
 
     let refreshControl = UIRefreshControl()
     var categories: [String] = []
+    var channelLimits: [Int] = []
     var channelIds: [[String]?] = []
     var wildWestExcludedChannelIds: [String]? = []
     var currentCategoryIndex: Int = 0
@@ -120,11 +119,9 @@ class HomeViewController: UIViewController,
     func buildDynamicCategories() {
         for (idx, category) in ContentSources.DynamicContentCategories.enumerated() {
             categories.append(String.localized(category.label))
+            channelLimits.append(category.channelLimit)
             channelIds.append(category.channelIds)
-            if category.name == Self.categoryNameMovies {
-                Self.categoryIndexMovies = idx
-            }
-            if category.name == Self.categoryNameWildWest {
+            if category.key == Self.categoryKeyWildWest {
                 wildWestExcludedChannelIds = category.excludedChannelIds
                 Self.categoryIndexWildWest = idx
             }
@@ -179,8 +176,7 @@ class HomeViewController: UIViewController,
                 releaseTime: isWildWest ?
                     Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) :
                     releaseTimeValue,
-                limitClaimsPerChannel:
-                currentCategoryIndex == Self.categoryIndexMovies ? 20 : 5,
+                limitClaimsPerChannel: channelLimits[currentCategoryIndex],
                 notTags: Constants.MatureTags,
                 channelIds: isWildWest ? nil : channelIds[currentCategoryIndex],
                 notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,

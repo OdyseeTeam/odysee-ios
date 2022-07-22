@@ -272,7 +272,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 pageSize: suggestedPageSize,
                 notChannelIds: following.map { $0.claimId! },
                 claimIds: ContentSources.DynamicContentCategories
-                    .filter { $0.name == HomeViewController.categoryNameGeneral }.first?.channelIds,
+                    .filter { $0.name == HomeViewController.categoryKeyPrimaryContent }.first?.channelIds,
                 orderBy: ["effective_amount"]
             )
         )
