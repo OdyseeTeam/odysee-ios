@@ -273,7 +273,7 @@ final class Helper {
             do {
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 if let respType = respData?["type"] as? String {
-                    if "success" == respType, let serveUrl = respData?["url"] as? String {
+                    if respType == "success", let serveUrl = respData?["url"] as? String {
                         completion(serveUrl, nil)
                         return
                     }
