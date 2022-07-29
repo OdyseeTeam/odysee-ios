@@ -132,14 +132,24 @@ struct LbryUri: CustomStringConvertible {
             }
         }
 
-        let streamOrChannelName = components[2]
+        var streamOrChannelName = components[2]
         let primaryModSeparator = components[3]
         let primaryModValue = components[4]
         let possibleStreamName = components[6]
         let secondaryModSeparator = components[7]
         let secondaryModValue = components[8]
-
-        let includesChannel = streamOrChannelName.starts(with: "@")
+        
+        var includesChannel = streamOrChannelName.starts(with: "@")
+        
+        // Note: Special URL handling
+        // The URL class actually strips the @ preceding channel names when parsing an actual URL, so we need to check for this
+        // and intelligently guess that this a canonical URL (contains a channel and a stream name)
+        // TODO: Unfortunately, if a user tries to access a channel URL directly, it will not work. Figure out a way around this scenario.
+        if (!includesChannel && !possibleStreamName.isEmpty && streamOrChannelName != possibleStreamName) {
+            streamOrChannelName = String(format: "@%@", streamOrChannelName) // Restore the @ if it was stripped and we have a canonical URL
+            includesChannel = true
+        }
+        
         let isChannel = includesChannel && possibleStreamName.isEmpty
         let channelName: String? = includesChannel && streamOrChannelName
             .count > 1 ?
