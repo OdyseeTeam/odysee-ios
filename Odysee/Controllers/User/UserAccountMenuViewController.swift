@@ -146,7 +146,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
             appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
-    
+
     @IBAction func deleteAccountTapped(_ sender: Any) {
         var handled = false
         if let user = Lbryio.currentUser {
@@ -157,25 +157,29 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                 let mc = MFMailComposeViewController()
                 mc.setToRecipients([to])
                 mc.setSubject(subject)
-                
+
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 if let mcDelegate = appDelegate.mainViewController as? MFMailComposeViewControllerDelegate {
                     mc.mailComposeDelegate = mcDelegate
                 }
-            
+
                 appDelegate.mainViewController?.present(mc, animated: true)
                 handled = true
-            } else if let url = URL(string: String(format: "mailto:\(to)?subject=%@", subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)) {
+            } else if let url = URL(string: String(
+                format: "mailto:\(to)?subject=%@",
+                subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+            )) {
                 if UIApplication.shared.canOpenURL(url) {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     handled = true
                 }
             }
-            
+
             if !handled {
                 let alert = UIAlertController(
                     title: String.localized("Delete Account"),
-                    message: String.localized("Please send an email to help@odysee.com requesting for your account to be deleted"),
+                    message: String
+                        .localized("Please send an email to help@odysee.com requesting for your account to be deleted"),
                     preferredStyle: .alert
                 )
                 alert.addAction(UIAlertAction(title: String.localized("OK"), style: .default, handler: { _ in
@@ -184,7 +188,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                 present(alert, animated: true)
             }
         }
-        
+
         if handled {
             presentingViewController?.dismiss(animated: false, completion: nil)
         }

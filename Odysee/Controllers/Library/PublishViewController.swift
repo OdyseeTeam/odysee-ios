@@ -93,7 +93,8 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         uploadingIndicator.layer.cornerRadius = 16
 
         let guidelinesString = String.localized(
-            "By continuing, you accept the Odysee Terms of Service and community guidelines.")
+            "By continuing, you accept the Odysee Terms of Service and community guidelines."
+        )
         let attributed = try? NSMutableAttributedString(
             data: guidelinesString.data(using: .utf8)!,
             options: [.documentType: NSAttributedString.DocumentType.html],

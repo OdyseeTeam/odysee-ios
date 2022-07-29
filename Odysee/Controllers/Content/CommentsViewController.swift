@@ -87,7 +87,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         let guidelinesString = String.localized(
-            "By continuing, you accept the Odysee Terms of Service and community guidelines.")
+            "By continuing, you accept the Odysee Terms of Service and community guidelines."
+        )
         let attributed = try? NSMutableAttributedString(
             data: guidelinesString.data(using: .utf8)!,
             options: [.documentType: NSAttributedString.DocumentType.html],
@@ -355,7 +356,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             )
         )
         .flatMap { channelSignResult in
-            return Lbry.commentApiCall(
+            Lbry.commentApiCall(
                 method: Lbry.CommentMethods.create,
                 params: .init(
                     claimId: self.claimId!,
