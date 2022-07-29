@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 09/12/2020.
 //
 
+import MessageUI
 import SafariServices
 import UIKit
 
@@ -19,6 +20,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     @IBOutlet var channelsLabel: UILabel!
     @IBOutlet var rewardsLabel: UILabel!
     @IBOutlet var invitesLabel: UILabel!
+    @IBOutlet var deleteAccountLabel: UILabel!
     @IBOutlet var signOutLabel: UILabel!
 
     override func viewDidLoad() {
@@ -35,6 +37,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         channelsLabel.isHidden = !Lbryio.isSignedIn()
         rewardsLabel.isHidden = !Lbryio.isSignedIn()
         // invitesLabel.isHidden = !Lbryio.isSignedIn()
+        deleteAccountLabel.isHidden = !Lbryio.isSignedIn()
         signOutLabel.isHidden = !Lbryio.isSignedIn()
 
         if Lbryio.isSignedIn() {
@@ -141,6 +144,49 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
             vc.page = 2
             presentingViewController?.dismiss(animated: false, completion: nil)
             appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        }
+    }
+    
+    @IBAction func deleteAccountTapped(_ sender: Any) {
+        var handled = false
+        if let user = Lbryio.currentUser {
+            let to = "hello@odysee.com"
+            let subject = String(format: "Request account deletion: %@", user.primaryEmail!)
+
+            if MFMailComposeViewController.canSendMail() {
+                let mc = MFMailComposeViewController()
+                mc.setToRecipients([to])
+                mc.setSubject(subject)
+                
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                if let mcDelegate = appDelegate.mainViewController as? MFMailComposeViewControllerDelegate {
+                    mc.mailComposeDelegate = mcDelegate
+                }
+            
+                appDelegate.mainViewController?.present(mc, animated: true)
+                handled = true
+            } else if let url = URL(string: String(format: "mailto:\(to)?subject=%@", subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)) {
+                if UIApplication.shared.canOpenURL(url) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                    handled = true
+                }
+            }
+            
+            if !handled {
+                let alert = UIAlertController(
+                    title: String.localized("Delete Account"),
+                    message: String.localized("Please send an email to help@odysee.com requesting for your account to be deleted"),
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: String.localized("OK"), style: .default, handler: { _ in
+                    self.presentingViewController?.dismiss(animated: false, completion: nil)
+                }))
+                present(alert, animated: true)
+            }
+        }
+        
+        if handled {
+            presentingViewController?.dismiss(animated: false, completion: nil)
         }
     }
 

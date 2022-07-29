@@ -9,10 +9,11 @@ import AVFoundation
 import AVKit
 import CoreData
 import MediaPlayer
+import MessageUI
 import OAuthSwift
 import UIKit
 
-class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
+class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMailComposeViewControllerDelegate {
     @IBOutlet var headerArea: UIView!
     @IBOutlet var headerAreaHeightConstraint: NSLayoutConstraint!
     @IBOutlet var miniPlayerBottomConstraint: NSLayoutConstraint!
@@ -872,6 +873,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate {
                 // pass
             }
         }
+    }
+
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
     }
 
     /*
