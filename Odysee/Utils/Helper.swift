@@ -240,13 +240,13 @@ final class Helper {
         let name = makeid()
         let boundary = "Boundary-\(UUID().uuidString)"
         var fieldData = "--\(boundary)\r\n"
-        fieldData.append("Content-Disposition: form-data; name=\"name\"\r\n\r\n\(name)\r\n")
+        fieldData.append("Content-Disposition: form-data; name=\"upload\"\r\n\r\n\(name)\r\n")
 
         let data = NSMutableData()
         data.append("--\(boundary)\r\n".data(using: .utf8, allowLossyConversion: false)!)
         data
             .append(
-                "Content-Disposition: form-data; name=\"file\"; filename=\"\(filename!)\"\r\n"
+                "Content-Disposition: form-data; name=\"file-input\"; filename=\"\(filename!)\"\r\n"
                     .data(using: .utf8, allowLossyConversion: false)!
             )
         data.append("Content-Type: \(mimeType!)\r\n\r\n".data(using: .utf8, allowLossyConversion: false)!)
@@ -258,7 +258,7 @@ final class Helper {
         reqBody.append(data as Data)
         reqBody.append("--\(boundary)--\r\n".data(using: .utf8, allowLossyConversion: false)!)
 
-        var req = URLRequest(url: URL(string: "https://spee.ch/api/claim/publish")!)
+        var req = URLRequest(url: URL(string: "https://thumbs.odycdn.com/upload")!)
         req.httpMethod = "POST"
         req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         req.setValue(String(reqBody.count), forHTTPHeaderField: "Content-Length")
@@ -272,10 +272,9 @@ final class Helper {
 
             do {
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                let success = respData?["success"] as? Bool
-                if success != nil, success! {
-                    if let responseData = respData?["data"] as? [String: Any] {
-                        completion(responseData["serveUrl"] as? String, nil)
+                if let respType = respData?["type"] as? String {
+                    if "success" == respType, let serveUrl = respData?["url"] as? String {
+                        completion(serveUrl, nil)
                         return
                     }
                 }
