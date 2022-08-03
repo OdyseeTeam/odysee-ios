@@ -764,10 +764,29 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         return false
     }
 
+    func playerViewControllerWillStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.pictureInPicturePlayingClaim = appDelegate.currentClaim
+    }
+
     func playerViewController(
         _ playerViewController: AVPlayerViewController,
         restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void
     ) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+
+        let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+        vc.claim = appDelegate.pictureInPicturePlayingClaim
+
+        if appDelegate.mainNavigationController?.topViewController == appDelegate.currentFileViewController {
+            appDelegate.mainNavigationController?.popViewController(animated: false)
+        }
+        appDelegate.mainNavigationController?.view.layer.add(
+            Helper.buildFileViewTransition(),
+            forKey: kCATransition
+        )
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+
         completionHandler(true)
     }
 
