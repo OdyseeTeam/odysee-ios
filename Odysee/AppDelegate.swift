@@ -23,6 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     var player: AVPlayer?
     var currentClaim: Claim?
+    var pictureInPicturePlayingClaim: Claim?
     var pendingOpenUrl: String?
     var currentFileViewController: FileViewController?
     var playerObserverAdded: Bool = false
