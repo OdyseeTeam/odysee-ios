@@ -335,9 +335,13 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
 
-        if currentCommentAsIndex == -1 || channels.count == 0 {
-            showError(message: String.localized("You need to select a channel to post your comment as"))
+        if channels.count == 0 {
+            showError(message: String.localized("You need to create a channel before you can post comments"))
             return
+        }
+
+        if currentCommentAsIndex == -1 {
+            showError(message: String.localized("No channel selected. This is probably a bug."))
         }
 
         if commentInput.text.count > Helper.commentMaxLength {
@@ -433,27 +437,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func loadCommentReactions(commentIds: [String]) {
-        let channel = channels[currentCommentAsIndex]
-        Lbry.apiCall(
-            method: Lbry.Methods.channelSign,
-            params: .init(
-                channelId: channel.claimId!,
-                hexdata: Helper.strToHex(channel.name!)
-            )
-        )
-        .flatMap { channelSignResult in
-            Lbry.commentApiCall(
-                method: Lbry.CommentMethods.reactList,
-                params: .init(
-                    commentIds: commentIds.joined(separator: ","),
-                    channelName: channel.name!,
-                    channelId: channel.claimId!,
-                    signature: channelSignResult.signature,
-                    signingTs: channelSignResult.signingTs
-                )
-            )
-        }
-        .subscribeResult { result in
+        let handler: (Result<ReactListResult, Error>) -> Void = { result in
             switch result {
             case let .failure(error):
                 self.showError(error: error)
@@ -484,6 +468,36 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 self.commentList.reloadData()
             }
         }
+
+        if currentCommentAsIndex == -1 || channels.count == 0 {
+            Lbry.commentApiCall(
+                method: Lbry.CommentMethods.reactList,
+                params: .init(commentIds: commentIds.joined(separator: ","))
+            )
+            .subscribeResult(handler)
+        } else {
+            let channel = channels[currentCommentAsIndex]
+            Lbry.apiCall(
+                method: Lbry.Methods.channelSign,
+                params: .init(
+                    channelId: channel.claimId!,
+                    hexdata: Helper.strToHex(channel.name!)
+                )
+            )
+            .flatMap { channelSignResult in
+                Lbry.commentApiCall(
+                    method: Lbry.CommentMethods.reactList,
+                    params: .init(
+                        commentIds: commentIds.joined(separator: ","),
+                        channelName: channel.name!,
+                        channelId: channel.claimId!,
+                        signature: channelSignResult.signature,
+                        signingTs: channelSignResult.signingTs
+                    )
+                )
+            }
+            .subscribeResult(handler)
+        }
     }
 
     func updateCommentReactions(commentId: String, combined: CombinedReactionData) {
@@ -504,8 +518,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         if channels.count == 0 {
-            showMessage(message: String.localized("You need to create a channel before you can react to comments"))
+            showError(message: String.localized("You need to create a channel before you can react to comments"))
             return
+        }
+
+        if currentCommentAsIndex == -1 {
+            showError(message: String.localized("No channel selected. This is probably a bug."))
         }
 
         if reacting {
@@ -734,7 +752,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func filterBlockedChannels(_ reload: Bool) {
-        comments = comments.filter { Helper.isChannelBlocked(claimId: $0.channelId!) }
+        comments.removeAll { Helper.isChannelBlocked(claimId: $0.channelId!) }
         if reload {
             commentList.reloadData()
         }

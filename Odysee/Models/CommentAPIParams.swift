@@ -42,6 +42,6 @@ struct CommentReactListParams: Encodable {
     var commentIds: String
     var channelName: String?
     var channelId: String?
-    var signature: String
-    var signingTs: String
+    var signature: String?
+    var signingTs: String?
 }
