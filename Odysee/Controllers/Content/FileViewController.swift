@@ -2321,9 +2321,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 showError(message: String.localized("Please wait while we load your channels"))
                 return false
             }
-            if currentCommentAsIndex == -1 || channels.count == 0 {
-                showError(message: String.localized("You need to select a channel to post your comment as"))
+            if channels.count == 0 {
+                showError(message: String.localized("You need to create a channel before you can post comments"))
                 return false
+            }
+            if currentCommentAsIndex == -1 {
+                showError(message: String.localized("No channel selected. This is probably a bug."))
             }
 
             let commentAsChannel = channels[currentCommentAsIndex]
