@@ -153,7 +153,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
             let to = "hello@odysee.com"
             let subject = String(format: "Request account deletion: %@", user.primaryEmail!)
 
-            if MFMailComposeViewController.canSendMail() {
+            /*if MFMailComposeViewController.canSendMail() {
                 let mc = MFMailComposeViewController()
                 mc.setToRecipients([to])
                 mc.setSubject(subject)
@@ -173,7 +173,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                     handled = true
                 }
-            }
+            }*/
 
             if !handled {
                 let alert = UIAlertController(
