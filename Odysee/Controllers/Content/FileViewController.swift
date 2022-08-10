@@ -947,6 +947,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func displayClaim() {
+        guard let _ = claim else {
+            displayNothingAtLocation()
+            return
+        }
+        
         isPlaylist = claim?.valueType == .collection
         isLivestream = !isPlaylist && claim?.value?.source == nil
         detailsScrollView.isHidden = isLivestream
