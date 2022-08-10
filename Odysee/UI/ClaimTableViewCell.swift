@@ -61,6 +61,10 @@ class ClaimTableViewCell: UITableViewCell {
     }
 
     func setClaim(claim: Claim, showRepostOverlay: Bool) {
+        guard let _ = claim.claimId else {
+            return
+        }
+        
         var actualClaim: Claim = claim
         if claim.valueType == ClaimType.repost && claim.repostedClaim != nil {
             reposterOverlay.isHidden = !showRepostOverlay

@@ -383,8 +383,12 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
 
-        let claim: Claim = claims[indexPath.row]
-        cell.setClaim(claim: claim)
+        if claims.count > indexPath.row {
+            let claim: Claim = claims[indexPath.row]
+            cell.setClaim(claim: claim)
+        } else {
+            cell.setClaim(claim: Claim())
+        }
 
         return cell
     }
