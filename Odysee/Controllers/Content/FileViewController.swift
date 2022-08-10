@@ -289,7 +289,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         // Do any additional setup after loading the view.
         if claim == nil, claimUrl != nil {
             resolveAndDisplayClaim()
-        } else if let currentClaim = claim {
+        } else if let currentClaim = claim, _ = currentClaim.claimId {
             if checkRepost() {
                 return
             }
