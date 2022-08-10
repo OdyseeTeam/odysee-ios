@@ -289,7 +289,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         // Do any additional setup after loading the view.
         if claim == nil, claimUrl != nil {
             resolveAndDisplayClaim()
-        } else if let currentClaim = claim, _ = currentClaim.claimId {
+        } else if let currentClaim = claim, let _ = currentClaim.claimId {
             if checkRepost() {
                 return
             }
@@ -951,7 +951,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             displayNothingAtLocation()
             return
         }
-        
+
         isPlaylist = claim?.valueType == .collection
         isLivestream = !isPlaylist && claim?.value?.source == nil
         detailsScrollView.isHidden = isLivestream

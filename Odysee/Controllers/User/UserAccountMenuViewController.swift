@@ -153,27 +153,27 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
             let to = "hello@odysee.com"
             let subject = String(format: "Request account deletion: %@", user.primaryEmail!)
 
-            /*if MFMailComposeViewController.canSendMail() {
-                let mc = MFMailComposeViewController()
-                mc.setToRecipients([to])
-                mc.setSubject(subject)
+            /* if MFMailComposeViewController.canSendMail() {
+                 let mc = MFMailComposeViewController()
+                 mc.setToRecipients([to])
+                 mc.setSubject(subject)
 
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                if let mcDelegate = appDelegate.mainViewController as? MFMailComposeViewControllerDelegate {
-                    mc.mailComposeDelegate = mcDelegate
-                }
+                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                 if let mcDelegate = appDelegate.mainViewController as? MFMailComposeViewControllerDelegate {
+                     mc.mailComposeDelegate = mcDelegate
+                 }
 
-                appDelegate.mainViewController?.present(mc, animated: true)
-                handled = true
-            } else if let url = URL(string: String(
-                format: "mailto:\(to)?subject=%@",
-                subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-            )) {
-                if UIApplication.shared.canOpenURL(url) {
-                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                    handled = true
-                }
-            }*/
+                 appDelegate.mainViewController?.present(mc, animated: true)
+                 handled = true
+             } else if let url = URL(string: String(
+                 format: "mailto:\(to)?subject=%@",
+                 subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+             )) {
+                 if UIApplication.shared.canOpenURL(url) {
+                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                     handled = true
+                 }
+             } */
 
             if !handled {
                 let alert = UIAlertController(
