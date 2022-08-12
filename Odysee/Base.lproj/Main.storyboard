@@ -8035,6 +8035,7 @@
                                             <constraint firstItem="tpD-MK-VUz" firstAttribute="leading" secondItem="U3v-g1-P45" secondAttribute="trailing" constant="16" id="WfJ-os-oTG"/>
                                             <constraint firstItem="U3v-g1-P45" firstAttribute="leading" secondItem="8ii-hy-A2Y" secondAttribute="leading" constant="16" id="abO-i7-cre"/>
                                             <constraint firstItem="tpD-MK-VUz" firstAttribute="top" secondItem="8ii-hy-A2Y" secondAttribute="top" id="fp1-Um-jIh"/>
+                                            <constraint firstAttribute="height" constant="142" id="ulf-cF-2jh" userLabel="Post Comment Area Height Constraint"/>
                                         </constraints>
                                     </view>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="cLO-Mr-vgT">
@@ -8342,6 +8343,7 @@
                         <outlet property="guidelinesTextView" destination="pvH-eZ-nCw" id="D5I-Xz-HDH"/>
                         <outlet property="loadingContainer" destination="fKY-o2-fSU" id="CtI-g5-OgP"/>
                         <outlet property="noCommentsLabel" destination="GEL-6m-rWy" id="kNZ-CY-y6u"/>
+                        <outlet property="postCommentAreaHeightConstraint" destination="ulf-cF-2jh" id="GTR-WK-hpo"/>
                         <outlet property="postCommentAreaView" destination="8ii-hy-A2Y" id="DBt-e3-9sz"/>
                         <outlet property="replyToCommentLabel" destination="fy7-hE-6JR" id="3Js-sJ-R1r"/>
                         <outlet property="replyToContainerView" destination="Lgf-Jn-yN6" id="y6m-5S-nde"/>
