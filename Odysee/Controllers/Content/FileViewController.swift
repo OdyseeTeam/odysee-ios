@@ -118,6 +118,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     let avpc = TouchInterceptingAVPlayerViewController()
     var avpcIsReadyObserver: NSKeyValueObservation?
+    var player: AVPlayer?
+    var playerStartedObserver: NSKeyValueObservation?
     weak var commentsVc: CommentsViewController!
 
     var commentsDisabledChecked = false
@@ -191,7 +193,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.toggleMiniPlayer(hidden: true)
+        if appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId {
+            appDelegate.mainController.toggleMiniPlayer(hidden: true)
+        }
         appDelegate.currentFileViewController = self
 
         if claim != nil, !isPlaylist {
@@ -242,7 +246,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         super.viewWillDisappear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
-        appDelegate.currentClaim = isTextContent || isImageContent || isOtherContent ? nil : claim
         appDelegate.mainController.updateMiniPlayer()
 
         if appDelegate.lazyPlayer != nil {
@@ -1009,30 +1012,41 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        appDelegate.currentClaim = singleClaim
-        appDelegate.lazyPlayer?.pause()
-
-        appDelegate.playerObserverAdded = false
-
         let asset = AVURLAsset(url: sourceUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let playerItem = AVPlayerItem(asset: asset)
-        appDelegate.lazyPlayer = AVPlayer(playerItem: playerItem)
+        player = AVPlayer(playerItem: playerItem)
+        avpc.player = player
 
-        appDelegate.registerPlayerObserver()
-        avpc.player = appDelegate.lazyPlayer
-        playerConnected = true
-        playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
+        playerStartedObserver = player?.observe(\.rate, options: .new) { [self] _, _ in
+            playerStartedObserver = nil
 
-        avpc.player!.play()
+            (appDelegate.mainViewController as? MainViewController)?.closeMiniPlayerTapped(self)
 
-        if #available(iOS 14.2, *) {
-            avpc.canStartPictureInPictureAutomaticallyFromInline = true
+            appDelegate.currentClaim = singleClaim
+            appDelegate.lazyPlayer?.pause()
+
+            appDelegate.lazyPlayer = player
+            avpc.player = appDelegate.lazyPlayer
+            player = nil
+
+            appDelegate.playerObserverAdded = false
+            appDelegate.registerPlayerObserver()
+            playerConnected = true
+            playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
+
+            if #available(iOS 14.2, *) {
+                avpc.canStartPictureInPictureAutomaticallyFromInline = true
+            }
+            if UserDefaults.standard.integer(forKey: "BackgroundPlaybackMode") != 0 {
+                avpc.allowsPictureInPicturePlayback = false
+            }
+
+            appDelegate.setupRemoteTransportControls()
         }
-        if UserDefaults.standard.integer(forKey: "BackgroundPlaybackMode") != 0 {
-            avpc.allowsPictureInPicturePlayback = false
-        }
 
-        appDelegate.setupRemoteTransportControls()
+        if appDelegate.lazyPlayer == nil {
+            avpc.player?.play()
+        }
     }
 
     func displayRelatedPlaceholders() {

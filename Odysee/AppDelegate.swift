@@ -92,7 +92,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 if let currentFileViewController = currentFileViewController {
                     currentFileViewController.checkTimeToStart()
                     DispatchQueue.main.async {
-                        currentFileViewController.avpc.player?.rate = currentFileViewController.playerRate
+                        self.lazyPlayer?.rate = currentFileViewController.playerRate
                     }
                 }
                 return
@@ -272,6 +272,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = currentItem.asset.duration.seconds
         nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = lazyPlayer.rate
         nowPlayingInfoCenter.nowPlayingInfo = nowPlayingInfo
+
+        (mainViewController as? MainViewController)?.miniPlayerPlayPauseButton.image = UIImage(
+            systemName: lazyPlayer.rate == 0 ? "play.fill" : "pause.fill"
+        )
     }
 
     private func makeMediaItem(_ image: UIImage) -> MPMediaItemArtwork {
