@@ -154,18 +154,20 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     @IBAction func deleteAccountTapped(_ sender: Any) {
         if let _ = Lbryio.currentUser {
             if !Lbry.ownChannels.isEmpty {
-                 let alert = UIAlertController(
-                     title: String.localized("Delete Account: Delete your Channels"),
-                     message: String
-                         .localized("You still have content and / or channels in your account. In order to close it, you will need to remove these manually. Please return and take these actions before closing the account."),
-                     preferredStyle: .alert
-                 )
-                 alert.addAction(UIAlertAction(title: String.localized("OK"), style: .default, handler: { _ in
-                     self.presentingViewController?.dismiss(animated: false, completion: nil)
-                 }))
-                 present(alert, animated: true)
-                 return
-             }
+                let alert = UIAlertController(
+                    title: String.localized("Delete Account: Delete your Channels"),
+                    message: String
+                        .localized(
+                            "You still have content and / or channels in your account. In order to close it, you will need to remove these manually. Please return and take these actions before closing the account."
+                        ),
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: String.localized("OK"), style: .default, handler: { _ in
+                    self.presentingViewController?.dismiss(animated: false, completion: nil)
+                }))
+                present(alert, animated: true)
+                return
+            }
 
             if let availableBalance = Lbry.walletBalance?.available, availableBalance > 1 {
                 let alert = UIAlertController(
@@ -242,7 +244,9 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         let alert = UIAlertController(
             title: String.localized("Confirm Delete Account"),
             message: String
-                .localized("If you wish to delete your account, please type the phrase 'I understand and I want to delete my account' in the text field below."),
+                .localized(
+                    "If you wish to delete your account, please type the phrase 'I understand and I want to delete my account' in the text field below."
+                ),
             preferredStyle: .alert
         )
         alert.addTextField(configurationHandler: nil)
@@ -261,7 +265,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         }))
         present(alert, animated: true)
     }
-    
+
     func didConfirmDeleteAccount() {
         do {
             try Lbryio.get(resource: "user", action: "delete", options: [:], completion: { data, error in
@@ -280,19 +284,28 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                         return
                     }
                 }
-                
+
                 // if we get to this stage, an error properly occurred
                 DispatchQueue.main.async {
-                    self.showError(message: String.localized("Your delete request could not be completed at this time. Please try again later."))
+                    self
+                        .showError(
+                            message: String
+                                .localized(
+                                    "Your delete request could not be completed at this time. Please try again later."
+                                )
+                        )
                     self.deleteAccountTapped(UIButton())
                 }
             })
         } catch {
-            self.showError(message: String.localized("An unknown error occurred with the delete request. Please try again later."))
-            self.deleteAccountTapped(UIButton())
+            showError(
+                message: String
+                    .localized("An unknown error occurred with the delete request. Please try again later.")
+            )
+            deleteAccountTapped(UIButton())
         }
     }
-    
+
     func finishDeleteAccount() {
         // sign out the user
         signOutTapped(UIButton())

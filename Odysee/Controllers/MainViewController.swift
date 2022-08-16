@@ -131,11 +131,11 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         if Lbryio.isSignedIn() {
             // check if the user is pending_delete
             if let pendingDeletion = Lbryio.currentUser?.pendingDeletion, pendingDeletion {
-                self.stopAllTimers()
-                self.resetUserAndViews()
+                stopAllTimers()
+                resetUserAndViews()
                 return
             }
-            
+
             checkAndClaimEmailReward(completion: {})
             checkAndShowYouTubeSync()
             loadChannels()
