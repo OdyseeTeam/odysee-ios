@@ -129,6 +129,13 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         loadLocaleAndCustomBlockedRules()
 
         if Lbryio.isSignedIn() {
+            // check if the user is pending_delete
+            if let pendingDeletion = Lbryio.currentUser?.pendingDeletion, pendingDeletion {
+                stopAllTimers()
+                resetUserAndViews()
+                return
+            }
+
             checkAndClaimEmailReward(completion: {})
             checkAndShowYouTubeSync()
             loadChannels()

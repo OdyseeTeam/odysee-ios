@@ -27,6 +27,7 @@ struct User: Decodable {
     var rewardStatusChangeTrigger: String?
     var youtubeChannels: [YoutubeChannel]?
     var deviceTypes: [String]?
+    var pendingDeletion: Bool?
 
     private enum CodingKeys: String, CodingKey {
         case createdAt = "created_at"

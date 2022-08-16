@@ -251,7 +251,7 @@ final class Lbryio {
 
                 if respCode >= 200, respCode < 300 {
                     if respData?["data"] == nil {
-                        completion(nil, nil)
+                        completion(true, nil)
                         return
                     }
                     completion(respData?["data"], nil)
