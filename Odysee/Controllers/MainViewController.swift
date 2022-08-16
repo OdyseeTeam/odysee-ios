@@ -22,6 +22,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     @IBOutlet var miniPlayerMediaView: UIView!
     @IBOutlet var miniPlayerTitleLabel: UILabel!
     @IBOutlet var miniPlayerPublisherLabel: UILabel!
+    @IBOutlet var miniPlayerPlayPauseButton: UIImageView!
 
     @IBOutlet var mainBalanceLabel: UILabel!
 
@@ -266,6 +267,19 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         toggleMiniPlayer(hidden: true)
     }
 
+    @IBAction func playPauseMiniPlayerTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if let lazyPlayer = appDelegate.lazyPlayer {
+            if lazyPlayer.rate == 0 {
+                lazyPlayer.play()
+                miniPlayerPlayPauseButton.image = UIImage(systemName: "pause.fill")
+            } else {
+                lazyPlayer.pause()
+                miniPlayerPlayPauseButton.image = UIImage(systemName: "play.fill")
+            }
+        }
+    }
+
     @IBAction func uploadTapped(_ sender: Any) {
         let currentVc = UIApplication.currentViewController()
         if (currentVc as? PublishViewController) != nil {
@@ -311,6 +325,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     @IBAction func openCurrentClaim(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if let _ = appDelegate.currentFileViewController {
+            appDelegate.mainNavigationController?.popViewController(animated: false)
+        }
         if appDelegate.currentClaim != nil {
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = appDelegate.currentClaim

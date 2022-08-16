@@ -232,6 +232,17 @@
                                         </subviews>
                                         <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
                                     </stackView>
+                                    <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="pause.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="SYE-EE-h4a" userLabel="Play Pause Button">
+                                        <rect key="frame" x="346" y="2" width="24" height="86"/>
+                                        <color key="tintColor" systemColor="labelColor"/>
+                                        <gestureRecognizers/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="24" id="h65-yR-jXm"/>
+                                        </constraints>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="9ns-eW-JdI" appends="YES" id="o8q-gJ-xxx"/>
+                                        </connections>
+                                    </imageView>
                                     <imageView clipsSubviews="YES" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="sharp_close_black_24pt" translatesAutoresizingMaskIntoConstraints="NO" id="5Fw-oG-SwQ">
                                         <rect key="frame" x="386" y="0.0" width="24" height="90"/>
                                         <color key="tintColor" systemColor="labelColor"/>
@@ -247,15 +258,18 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <gestureRecognizers/>
                                 <constraints>
+                                    <constraint firstAttribute="bottom" secondItem="SYE-EE-h4a" secondAttribute="bottom" id="7tn-cA-Tv4"/>
+                                    <constraint firstItem="SYE-EE-h4a" firstAttribute="top" secondItem="MkF-lQ-MQ4" secondAttribute="top" id="B7r-uP-vMw"/>
                                     <constraint firstItem="GdG-4w-vOQ" firstAttribute="leading" secondItem="MkF-lQ-MQ4" secondAttribute="leading" id="L01-p7-mFC"/>
-                                    <constraint firstItem="5Fw-oG-SwQ" firstAttribute="leading" secondItem="ZMe-Cs-ZmQ" secondAttribute="trailing" id="Q8j-qB-1Xf"/>
                                     <constraint firstItem="5Fw-oG-SwQ" firstAttribute="top" secondItem="MkF-lQ-MQ4" secondAttribute="top" id="VQY-eH-aCQ"/>
+                                    <constraint firstItem="SYE-EE-h4a" firstAttribute="trailing" secondItem="5Fw-oG-SwQ" secondAttribute="leading" constant="-16" id="Wb1-l6-gZb"/>
                                     <constraint firstItem="ZMe-Cs-ZmQ" firstAttribute="centerY" secondItem="MkF-lQ-MQ4" secondAttribute="centerY" id="dZs-Hm-V6u"/>
                                     <constraint firstAttribute="bottom" secondItem="GdG-4w-vOQ" secondAttribute="bottom" id="eXu-md-1QR"/>
                                     <constraint firstItem="GdG-4w-vOQ" firstAttribute="top" secondItem="MkF-lQ-MQ4" secondAttribute="top" id="hVg-K4-WGd"/>
                                     <constraint firstAttribute="trailing" secondItem="5Fw-oG-SwQ" secondAttribute="trailing" id="j1a-bI-CxK"/>
                                     <constraint firstAttribute="bottom" secondItem="5Fw-oG-SwQ" secondAttribute="bottom" id="mbT-qa-o1P"/>
                                     <constraint firstAttribute="height" constant="90" id="o7P-AO-yZU"/>
+                                    <constraint firstItem="ZMe-Cs-ZmQ" firstAttribute="trailing" secondItem="SYE-EE-h4a" secondAttribute="leading" id="rti-06-ZrV"/>
                                     <constraint firstItem="ZMe-Cs-ZmQ" firstAttribute="leading" secondItem="GdG-4w-vOQ" secondAttribute="trailing" id="sdr-Lg-Kgb"/>
                                 </constraints>
                                 <connections>
@@ -285,6 +299,7 @@
                         <outlet property="mainBalanceLabel" destination="3gz-dN-Qi8" id="X4p-4q-U8U"/>
                         <outlet property="miniPlayerBottomConstraint" destination="92u-Po-iNL" id="Sa5-vu-Bs8"/>
                         <outlet property="miniPlayerMediaView" destination="GdG-4w-vOQ" id="sdg-ta-Af2"/>
+                        <outlet property="miniPlayerPlayPauseButton" destination="SYE-EE-h4a" id="bk7-t2-3oM"/>
                         <outlet property="miniPlayerPublisherLabel" destination="EkP-1M-Aqs" id="2a0-qV-2ay"/>
                         <outlet property="miniPlayerTitleLabel" destination="07y-sU-PS6" id="ZEn-ij-ZF1"/>
                         <outlet property="miniPlayerView" destination="MkF-lQ-MQ4" id="pWH-2z-YS8"/>
@@ -298,6 +313,11 @@
                 <tapGestureRecognizer id="gWy-Py-4d1" userLabel="Close Mini Player Tap Gesture">
                     <connections>
                         <action selector="closeMiniPlayerTapped:" destination="NqH-oh-ggT" id="Tv4-sV-eRR"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="9ns-eW-JdI" userLabel="Play Pause Mini Player Tap Gesture Recognizer">
+                    <connections>
+                        <action selector="playPauseMiniPlayerTapped:" destination="NqH-oh-ggT" id="dbB-Es-2Mz"/>
                     </connections>
                 </tapGestureRecognizer>
                 <tapGestureRecognizer id="aTt-9P-bLh" userLabel="Restore File View Tap Gesture">
@@ -8402,6 +8422,7 @@
         <image name="line.3.horizontal.decrease.circle.fill" catalog="system" width="128" height="121"/>
         <image name="magnifyingglass" catalog="system" width="128" height="115"/>
         <image name="odysee_logo" width="307" height="306"/>
+        <image name="pause.fill" catalog="system" width="116" height="128"/>
         <image name="pencil" catalog="system" width="128" height="113"/>
         <image name="person.crop.circle" catalog="system" width="128" height="121"/>
         <image name="play.tv" catalog="system" width="128" height="97"/>
