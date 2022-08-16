@@ -752,7 +752,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func filterBlockedChannels(_ reload: Bool) {
-        comments.removeAll { Helper.isChannelBlocked(claimId: $0.channelId!) }
+        comments.removeAll { Helper.isChannelBlocked(claimId: $0.channelId) }
         if reload {
             commentList.reloadData()
         }

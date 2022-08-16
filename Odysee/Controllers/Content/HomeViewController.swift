@@ -132,7 +132,7 @@ class HomeViewController: UIViewController,
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
         if case var .success(payload) = result {
-            payload.items.removeAll { Helper.isChannelBlocked(claimId: $0.signingChannel!.claimId!) }
+            payload.items.removeAll { Helper.isChannelBlocked(claimId: $0.signingChannel?.claimId) }
 
             let oldCount = claims.count
             claims.append(contentsOf: payload.items)

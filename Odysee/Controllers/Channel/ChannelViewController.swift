@@ -290,7 +290,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
         if channelClaim?.value != nil {
             blockUnblockLabel.text = String.localized(
-                Helper.isChannelBlocked(claimId: channelClaim!.claimId!) ?
+                Helper.isChannelBlocked(claimId: channelClaim?.claimId) ?
                     "Unblock channel" : "Block channel"
             )
 
@@ -722,7 +722,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBAction func blockUnblockActionTapped(_ sender: Any) {
         if let current = channelClaim {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let isBlocked = Helper.isChannelBlocked(claimId: current.claimId!)
+            let isBlocked = Helper.isChannelBlocked(claimId: current.claimId)
             if let mainVc = appDelegate.mainViewController as? MainViewController {
                 if isBlocked {
                     mainVc.removeBlockedChannel(claimId: current.claimId!)
@@ -925,7 +925,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
         if let current = channelClaim {
             blockUnblockLabel.text = String.localized(
-                Helper.isChannelBlocked(claimId: current.claimId!) ?
+                Helper.isChannelBlocked(claimId: current.claimId) ?
                     "Unblock channel" : "Block channel"
             )
         }

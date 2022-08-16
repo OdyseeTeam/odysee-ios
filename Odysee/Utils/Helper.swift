@@ -357,7 +357,10 @@ final class Helper {
         return message
     }
 
-    static func isChannelBlocked(claimId: String) -> Bool {
+    static func isChannelBlocked(claimId: String?) -> Bool {
+        guard let _ = claimId else {
+            return false
+        }
         return Lbry.blockedChannels.map(\.claimId).contains(claimId)
     }
 }
