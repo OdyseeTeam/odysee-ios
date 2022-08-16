@@ -23,6 +23,10 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     @IBOutlet var deleteAccountLabel: UILabel!
     @IBOutlet var signOutLabel: UILabel!
 
+    let sweepWalletTarget = "bHg5cNFA8bF32CF6M8J3BndyZXqzreRjHz"
+    let forfeitCreditsVerfication = String.localized("I forfeit my credits")
+    let deleteAccountVerification = String.localized("I understand and I want to delete my account")
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -148,49 +152,163 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @IBAction func deleteAccountTapped(_ sender: Any) {
-        var handled = false
-        if let user = Lbryio.currentUser {
-            let to = "hello@odysee.com"
-            let subject = String(format: "Request account deletion: %@", user.primaryEmail!)
+        if let _ = Lbryio.currentUser {
+            if !Lbry.ownChannels.isEmpty {
+                 let alert = UIAlertController(
+                     title: String.localized("Delete Account: Delete your Channels"),
+                     message: String
+                         .localized("You still have content and / or channels in your account. In order to close it, you will need to remove these manually. Please return and take these actions before closing the account."),
+                     preferredStyle: .alert
+                 )
+                 alert.addAction(UIAlertAction(title: String.localized("OK"), style: .default, handler: { _ in
+                     self.presentingViewController?.dismiss(animated: false, completion: nil)
+                 }))
+                 present(alert, animated: true)
+                 return
+             }
 
-            /* if MFMailComposeViewController.canSendMail() {
-                 let mc = MFMailComposeViewController()
-                 mc.setToRecipients([to])
-                 mc.setSubject(subject)
-
-                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                 if let mcDelegate = appDelegate.mainViewController as? MFMailComposeViewControllerDelegate {
-                     mc.mailComposeDelegate = mcDelegate
-                 }
-
-                 appDelegate.mainViewController?.present(mc, animated: true)
-                 handled = true
-             } else if let url = URL(string: String(
-                 format: "mailto:\(to)?subject=%@",
-                 subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-             )) {
-                 if UIApplication.shared.canOpenURL(url) {
-                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
-                     handled = true
-                 }
-             } */
-
-            if !handled {
+            if let availableBalance = Lbry.walletBalance?.available, availableBalance > 1 {
                 let alert = UIAlertController(
-                    title: String.localized("Delete Account"),
+                    title: String.localized("Delete Account: Wallet Balance"),
                     message: String
-                        .localized("Please send an email to help@odysee.com requesting for your account to be deleted"),
+                        .localized(
+                            "You still have some credits in your account. You can either send these to a different account on the wallet page, or the credits will be returned to Odysee.\n\nIf you wish to forfeit these credits, please type 'I forfeit my credits' in the text field below"
+                        ),
                     preferredStyle: .alert
                 )
-                alert.addAction(UIAlertAction(title: String.localized("OK"), style: .default, handler: { _ in
-                    self.presentingViewController?.dismiss(animated: false, completion: nil)
-                }))
-                present(alert, animated: true)
-            }
-        }
+                alert.addTextField(configurationHandler: nil)
+                alert.addAction(UIAlertAction(title: String.localized("Delete Anyway"), style: .default, handler: { _ in
+                    let response = alert.textFields![0].text
+                    if response != self.forfeitCreditsVerfication {
+                        self.showError(message: String.localized("Please type the verification phrase to continue"))
+                        self.deleteAccountTapped(UIButton())
+                        return
+                    }
 
-        if handled {
-            presentingViewController?.dismiss(animated: false, completion: nil)
+                    // send out all credits if there are any
+                    if availableBalance > 1 {
+                        self.sweepCredits()
+                        return
+                    }
+
+                    self.confirmDeleteAccount()
+                }))
+                alert
+                    .addAction(UIAlertAction(
+                        title: String.localized("Retrieve Credits"),
+                        style: .cancel,
+                        handler: { _ in
+                            self.presentingViewController?.dismiss(animated: false, completion: nil)
+                        }
+                    ))
+                present(alert, animated: true)
+                return
+            }
+
+            confirmDeleteAccount()
+        }
+    }
+
+    func sweepCredits() {
+        let available = Lbry.walletBalance!.available! - 0.1
+
+        var params = [String: Any]()
+        params["addresses"] = [sweepWalletTarget]
+        params["amount"] = Helper.sdkAmountFormatter.string(from: available as NSDecimalNumber)!
+        params["blocking"] = true
+
+        Lbry.apiCall(
+            method: Lbry.methodWalletSend,
+            params: params,
+            connectionString: Lbry.lbrytvConnectionString,
+            authToken: Lbryio.authToken,
+            completion: { data, error in
+                guard let _ = data, error == nil else {
+                    DispatchQueue.main.async {
+                        self.showError(error: error)
+                        self.deleteAccountTapped(UIButton())
+                    }
+                    return
+                }
+
+                DispatchQueue.main.async {
+                    self.confirmDeleteAccount()
+                }
+            }
+        )
+    }
+
+    func confirmDeleteAccount() {
+        let alert = UIAlertController(
+            title: String.localized("Confirm Delete Account"),
+            message: String
+                .localized("If you wish to delete your account, please type the phrase 'I understand and I want to delete my account' in the text field below."),
+            preferredStyle: .alert
+        )
+        alert.addTextField(configurationHandler: nil)
+        alert.addAction(UIAlertAction(title: String.localized("Delete"), style: .default, handler: { _ in
+            let response = alert.textFields![0].text
+            if response != self.deleteAccountVerification {
+                self.showError(message: String.localized("Please type the verification phrase to continue"))
+                self.deleteAccountTapped(UIButton())
+                return
+            }
+
+            self.didConfirmDeleteAccount()
+        }))
+        alert.addAction(UIAlertAction(title: String.localized("Cancel"), style: .cancel, handler: { _ in
+            self.presentingViewController?.dismiss(animated: false, completion: nil)
+        }))
+        present(alert, animated: true)
+    }
+    
+    func didConfirmDeleteAccount() {
+        do {
+            try Lbryio.get(resource: "user", action: "delete", options: [:], completion: { data, error in
+                guard let data = data, error == nil else {
+                    DispatchQueue.main.async {
+                        self.showError(error: error)
+                        self.deleteAccountTapped(UIButton())
+                    }
+                    return
+                }
+                if let result = data as? Bool, result {
+                    // delete operation successfully completed
+                    DispatchQueue.main.async {
+                        self.presentingViewController?.dismiss(animated: false, completion: nil)
+                        self.finishDeleteAccount()
+                        return
+                    }
+                }
+                
+                // if we get to this stage, an error properly occurred
+                DispatchQueue.main.async {
+                    self.showError(message: String.localized("Your delete request could not be completed at this time. Please try again later."))
+                    self.deleteAccountTapped(UIButton())
+                }
+            })
+        } catch {
+            self.showError(message: String.localized("An unknown error occurred with the delete request. Please try again later."))
+            self.deleteAccountTapped(UIButton())
+        }
+    }
+    
+    func finishDeleteAccount() {
+        // sign out the user
+        signOutTapped(UIButton())
+    }
+
+    func showError(message: String) {
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(message: message)
+        }
+    }
+
+    func showError(error: Error?) {
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(error: error)
         }
     }
 
