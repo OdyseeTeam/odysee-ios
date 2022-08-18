@@ -269,9 +269,13 @@ class HomeViewController: UIViewController,
                                 )
                                 livestreams.append(livestreamData)
                             }
+                            livestreams.sort {
+                                $1.viewerCount < $0.viewerCount
+                            }
                             if livestreams.count != oldCount {
                                 livestreamsCollectionView.reloadData()
                             }
+
                             livestreamsLastPageReached = payload.isLastPage
 
                             if !loadingClaims {
