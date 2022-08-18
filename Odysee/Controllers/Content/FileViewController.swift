@@ -117,6 +117,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var mediaViewHeight: CGFloat = 0
 
     let avpc = TouchInterceptingAVPlayerViewController()
+    var currentPlayer: AVPlayer? // keep a strong reference to AVPlayer initialised in the file view
     var avpcIsReadyObserver: NSKeyValueObservation?
     weak var commentsVc: CommentsViewController!
 
@@ -742,6 +743,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         } else if !avpcInitialised {
             avpc.allowsPictureInPicturePlayback = true
             avpc.updatesNowPlayingInfoCenter = false
+            avpc.showsPlaybackControls = false
             addChild(avpc)
 
             playerRateView.isHidden = false
@@ -1016,10 +1018,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let asset = AVURLAsset(url: sourceUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let playerItem = AVPlayerItem(asset: asset)
-        appDelegate.lazyPlayer = AVPlayer(playerItem: playerItem)
+        self.currentPlayer = AVPlayer(playerItem: playerItem)
+        appDelegate.player = self.currentPlayer
 
         appDelegate.registerPlayerObserver()
-        avpc.player = appDelegate.lazyPlayer
+        avpc.player = self.currentPlayer
         playerConnected = true
         playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
 
