@@ -193,7 +193,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        if appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId {
+        if appDelegate.currentClaim != nil, appDelegate.currentClaim?.claimId == claim?.claimId {
             appDelegate.mainController.toggleMiniPlayer(hidden: true)
         }
         appDelegate.currentFileViewController = self
@@ -1015,12 +1015,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let asset = AVURLAsset(url: sourceUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let playerItem = AVPlayerItem(asset: asset)
-        self.currentPlayer = AVPlayer(playerItem: playerItem)
+        currentPlayer = AVPlayer(playerItem: playerItem)
 
         appDelegate.registerPlayerObserver()
         playerConnected = true
         playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
-        avpc.player = self.currentPlayer
+        avpc.player = currentPlayer
 
         playerStartedObserver = currentPlayer?.observe(\.rate, options: .new) { [self] _, _ in
             playerStartedObserver = nil
