@@ -117,8 +117,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var mediaViewHeight: CGFloat = 0
 
     let avpc = TouchInterceptingAVPlayerViewController()
+    var currentPlayer: AVPlayer? // keep a strong reference to AVPlayer initialised in the file view
     var avpcIsReadyObserver: NSKeyValueObservation?
-    var player: AVPlayer?
     var playerStartedObserver: NSKeyValueObservation?
     weak var commentsVc: CommentsViewController!
 
@@ -193,7 +193,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        if appDelegate.currentClaim != nil && appDelegate.currentClaim?.claimId == claim?.claimId {
+        if appDelegate.currentClaim != nil, appDelegate.currentClaim?.claimId == claim?.claimId {
             appDelegate.mainController.toggleMiniPlayer(hidden: true)
         }
         appDelegate.currentFileViewController = self
@@ -745,6 +745,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         } else if !avpcInitialised {
             avpc.allowsPictureInPicturePlayback = true
             avpc.updatesNowPlayingInfoCenter = false
+            avpc.showsPlaybackControls = false
             addChild(avpc)
 
             playerRateView.isHidden = false
@@ -1014,20 +1015,23 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let asset = AVURLAsset(url: sourceUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let playerItem = AVPlayerItem(asset: asset)
-        player = AVPlayer(playerItem: playerItem)
-        avpc.player = player
+        currentPlayer = AVPlayer(playerItem: playerItem)
 
-        playerStartedObserver = player?.observe(\.rate, options: .new) { [self] _, _ in
+        appDelegate.registerPlayerObserver()
+        playerConnected = true
+        playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
+        avpc.player = currentPlayer
+
+        playerStartedObserver = currentPlayer?.observe(\.rate, options: .new) { [self] _, _ in
             playerStartedObserver = nil
-
             (appDelegate.mainViewController as? MainViewController)?.closeMiniPlayerTapped(self)
 
             appDelegate.currentClaim = singleClaim
             appDelegate.lazyPlayer?.pause()
 
-            appDelegate.lazyPlayer = player
+            appDelegate.lazyPlayer = self.currentPlayer
             avpc.player = appDelegate.lazyPlayer
-            player = nil
+            self.currentPlayer = nil
 
             appDelegate.playerObserverAdded = false
             appDelegate.registerPlayerObserver()
