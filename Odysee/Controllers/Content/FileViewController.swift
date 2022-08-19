@@ -745,7 +745,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         } else if !avpcInitialised {
             avpc.allowsPictureInPicturePlayback = true
             avpc.updatesNowPlayingInfoCenter = false
-            avpc.showsPlaybackControls = false
             addChild(avpc)
 
             playerRateView.isHidden = false
