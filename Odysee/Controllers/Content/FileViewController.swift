@@ -1345,6 +1345,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     claimType: [.stream],
                     page: currentPlaylistPage,
                     pageSize: playlistPageSize,
+                    notTags: Constants.MatureTags,
                     claimIds: playlistClaims,
                     orderBy: Helper.sortByItemValues[1]
                 )

@@ -415,6 +415,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 page: currentPage,
                 pageSize: pageSize,
                 releaseTime: releaseTimeValue,
+                notTags: Constants.MatureTags,
                 channelIds: [channelClaim?.claimId ?? ""],
                 orderBy: Helper.sortByItemValues[currentSortByIndex]
             )
@@ -450,6 +451,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 page: 1,
                 pageSize: pageSize,
                 hasNoSource: true,
+                notTags: Constants.MatureTags,
                 channelIds: [channelClaim?.claimId ?? ""],
                 orderBy: Helper.sortByItemValues[1]
             )

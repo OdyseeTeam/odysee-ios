@@ -254,6 +254,7 @@ class HomeViewController: UIViewController,
                             page: livestreamsCurrentPage,
                             pageSize: pageSize,
                             hasNoSource: true,
+                            notTags: Constants.MatureTags,
                             notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
                             claimIds: Array(infos.keys)
                         )

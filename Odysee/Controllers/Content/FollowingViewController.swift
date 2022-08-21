@@ -270,6 +270,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 claimType: [.channel],
                 page: currentSuggestedPage,
                 pageSize: suggestedPageSize,
+                notTags: Constants.MatureTags,
                 notChannelIds: following.map { $0.claimId! },
                 claimIds: ContentSources.DynamicContentCategories
                     .filter { $0.name == HomeViewController.categoryKeyPrimaryContent }.first?.channelIds,
@@ -324,6 +325,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                     page: currentPage,
                     pageSize: pageSize,
                     releaseTime: releaseTimeValue,
+                    notTags: Constants.MatureTags,
                     channelIds: channelIds,
                     orderBy: Helper.sortByItemValues[currentSortByIndex]
                 )
