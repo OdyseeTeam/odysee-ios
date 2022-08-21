@@ -41,5 +41,30 @@ struct Constants {
         "fetish",
         "pornographic",
         "pornography",
+        
+        // Apple wants everything to be as clean as possible, US edition
+        "coon",
+        "coonass",
+        "coons",
+        "chinaman",
+        "chinamen",
+        "ching chong",
+        "cracker",
+        "crackers",
+        "nigger",
+        "niggers",
+        "raghead",
+        "ragheads",
+        "towelhead",
+        "towelheads",
+        "spic",
+        "spick",
+        "spics",
+        "spicks",
+        "spig",
+        "spik",
+        "spigs",
+        "spigotty",
+        "spiks"
     ]
 }
