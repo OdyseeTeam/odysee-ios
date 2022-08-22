@@ -22,7 +22,7 @@ cp ./Odysee/GoogleService-Info.plist.sample ./Odysee/GoogleService-Info.plist
 ## Style and Formatting
 We use [`SwiftFormat`](https://github.com/nicklockwood/SwiftFormat) to enforce a consistent format for all Swift code. You can see our custom configuration in this repo’s `.swiftformat` file.
 
-`swiftformat . --lint` must pass before merging to `master`. To run it locally, first install it using [`Mint](https://github.com/yonaskolb/Mint) and `mint bootstrap --link`, and then run `swiftformat .` which will automatically format all of your Swift code. If any of your default Xcode text editing preferences are inconsistent with SwiftFormat, you can update those on your machine under Xcode > Preferences > Text Editing. You can also optionally install the SwiftFormat Xcode plugin and bind that to a custom key binding or to the file-save event.
+`swiftformat . --lint` must pass before merging to `master`. To run it locally, first install it using [Mint](https://github.com/yonaskolb/Mint) and `mint bootstrap --link`, and then run `swiftformat .` which will automatically format all of your Swift code. If any of your default Xcode text editing preferences are inconsistent with SwiftFormat, you can update those on your machine under Xcode > Preferences > Text Editing. You can also optionally install the SwiftFormat Xcode plugin and bind that to a custom key binding or to the file-save event.
 
 ## Contributing
 We :heart: contributions from everyone and contributions to this project are encouraged, and compensated. We welcome [bug reports](https://github.com/OdyseeTeam/odysee-ios/issues/), [bug fixes](https://github.com/OdyseeTeam/odysee-ios/pulls) and feedback is always appreciated. For more details, see [CONTRIBUTING.md](CONTRIBUTING.md).
