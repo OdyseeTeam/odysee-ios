@@ -1,4 +1,6 @@
+--swiftversion 5.3
 --enable wrapEnumCases,wrapSwitchCases
+--disable redundantReturn,andOperator,trailingCommas
 --stripunusedargs closure-only
 --maxwidth 120
 --wraparguments before-first
