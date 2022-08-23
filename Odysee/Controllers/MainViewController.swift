@@ -374,7 +374,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     func loadAppleFilteredClaimIds() {
         Lbryio.appleFilteredClaimIds = Set([
             "71d6dcf296da0e5902ad01e59466512ddabbb232",
-            "48c11ff369ebc6dcf672dfa242158f3de1abdb60"
+            "48c11ff369ebc6dcf672dfa242158f3de1abdb60",
         ])
     }
 

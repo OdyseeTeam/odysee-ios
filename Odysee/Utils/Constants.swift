@@ -72,6 +72,6 @@ struct Constants {
         "spik",
         "spigs",
         "spigotty",
-        "spiks"
+        "spiks",
     ]
 }
