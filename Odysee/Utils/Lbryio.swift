@@ -114,6 +114,8 @@ final class Lbryio {
     static var latestNotificationId: Int64 = 0
     static var subscriptionsDirty = false
 
+    static var appleFilteredClaimIds = Set<String>()
+
     private static var filteredOutpoints = Set<Outpoint>()
     static func setFilteredOutpoints(_ val: Set<Outpoint>) {
         lock.withLock { filteredOutpoints = val }
@@ -571,6 +573,11 @@ final class Lbryio {
         }
 
         return true
+    }
+
+    static func isClaimAppleFiltered(_ claim: Claim) -> Bool {
+        guard let claimId = claim.claimId else { return false }
+        return appleFilteredClaimIds.contains(claimId)
     }
 
     static func isClaimFiltered(_ claim: Claim) -> Bool {

@@ -125,6 +125,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         startWalletBalanceTimer()
         startWalletSyncTimer()
         loadNotifications()
+        loadAppleFilteredClaimIds()
         loadBlockedOutpoints()
         loadFilteredOutpoints()
         loadLocaleAndCustomBlockedRules()
@@ -368,6 +369,13 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         } catch {
             // pass
         }
+    }
+
+    func loadAppleFilteredClaimIds() {
+        Lbryio.appleFilteredClaimIds = Set([
+            "71d6dcf296da0e5902ad01e59466512ddabbb232",
+            "48c11ff369ebc6dcf672dfa242158f3de1abdb60",
+        ])
     }
 
     func loadBlockedOutpoints() {
