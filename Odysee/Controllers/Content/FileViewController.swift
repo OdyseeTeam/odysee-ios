@@ -302,9 +302,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 (currentClaim.signingChannel != nil && Lbryio.isClaimBlocked(currentClaim.signingChannel!))
             {
                 displayClaimBlocked()
+            } else if Lbryio.isClaimAppleFiltered(currentClaim) ||
+                (
+                    currentClaim.signingChannel != nil && Lbryio
+                        .isClaimAppleFiltered(currentClaim.signingChannel!)
+                )
+            {
+                displayClaimBlockedWithMessage(message: "This content is not available on iOS")
             } else if Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate) ||
-                (currentClaim.signingChannel != nil) &&
-                Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate)
+                (
+                    currentClaim.signingChannel != nil &&
+                        Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate)
+                )
             {
                 displayClaimBlockedWithMessage(
                     message: Helper
@@ -370,6 +379,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             .isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!))
         {
             displayClaimBlocked()
+        } else if Lbryio.isClaimAppleFiltered(claim!) ||
+            (claim!.signingChannel != nil && Lbryio.isClaimAppleFiltered(claim!.signingChannel!))
+        {
+            displayClaimBlockedWithMessage(message: "This content is not available on iOS")
         } else if Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate) ||
             (claim!.signingChannel != nil && Helper.isCustomBlocked(
                 claimId: claim!.signingChannel!.claimId!,

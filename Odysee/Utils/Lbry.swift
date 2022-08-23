@@ -26,16 +26,20 @@ final class Lbry {
     static var pushWalletSyncQueueCount = 0
 
     static func processResolvedClaims(_ result: inout ResolveResult) {
-        result.claims = result.claims.filter {
-            !Lbryio.isClaimBlocked($0.value) &&
-                !Lbryio.isClaimAppleFiltered($0.value) &&
-                !Lbryio.isClaimFiltered($0.value)
-        }
-        result.claims = result.claims
-            .filter {
-                !Lbryio.isClaimBlocked($0.value.signingChannel ?? Claim()) && !Lbryio
-                    .isClaimFiltered($0.value.signingChannel ?? Claim())
+        // if there was only one value returned, this is a result for the File view
+        // Filtering will be handled on the file view instead
+        if result.claims.keys.count > 1 {
+            result.claims = result.claims.filter {
+                !Lbryio.isClaimBlocked($0.value) &&
+                    !Lbryio.isClaimAppleFiltered($0.value) &&
+                    !Lbryio.isClaimFiltered($0.value)
             }
+            result.claims = result.claims
+                .filter {
+                    !Lbryio.isClaimBlocked($0.value.signingChannel ?? Claim()) && !Lbryio
+                        .isClaimFiltered($0.value.signingChannel ?? Claim())
+                }
+        }
         result.claims.values.forEach(Lbry.addClaimToCache)
     }
 

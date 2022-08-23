@@ -56,6 +56,8 @@ struct Constants {
         "the great replacement",
         "kike",
         "kikes",
+        "jew",
+        "jews",
         "negro",
         "negroes",
         "nigger",
