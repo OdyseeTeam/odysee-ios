@@ -26,7 +26,10 @@ final class Lbry {
     static var pushWalletSyncQueueCount = 0
 
     static func processResolvedClaims(_ result: inout ResolveResult) {
-        result.claims = result.claims.filter { !Lbryio.isClaimBlocked($0.value) && !Lbryio.isClaimFiltered($0.value) }
+        result.claims = result.claims.filter {
+            !Lbryio.isClaimBlocked($0.value) &&
+            !Lbryio.isClaimAppleFiltered($0.value) &&
+            !Lbryio.isClaimFiltered($0.value) }
         result.claims = result.claims
             .filter {
                 !Lbryio.isClaimBlocked($0.value.signingChannel ?? Claim()) && !Lbryio
@@ -36,11 +39,11 @@ final class Lbry {
     }
 
     static func processPageOfClaims(_ page: inout Page<Claim>) {
-        page.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) }
+        page.items.removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) || Lbryio.isClaimAppleFiltered($0) }
         page.items
             .removeAll {
                 Lbryio.isClaimBlocked($0.signingChannel ?? Claim()) || Lbryio
-                    .isClaimFiltered($0.signingChannel ?? Claim())
+                    .isClaimFiltered($0.signingChannel ?? Claim()) || Lbryio.isClaimAppleFiltered($0.signingChannel ?? Claim())
             }
         page.items.forEach(Lbry.addClaimToCache)
     }

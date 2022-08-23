@@ -136,7 +136,7 @@ class SearchViewController: UIViewController,
                 }
 
                 // check if the winning claim is filtered or blocked
-                canShow = !Lbryio.isClaimFiltered(winningClaim) && canShow
+                canShow = !Lbryio.isClaimFiltered(winningClaim) && !Lbryio.isClaimAppleFiltered(winningClaim) && canShow
                 canShow = !Lbryio.isClaimBlocked(winningClaim) && canShow
 
                 // only show the winning claim if it is not mature content or blocked
