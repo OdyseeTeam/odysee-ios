@@ -372,14 +372,28 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     func loadAppleFilteredClaimIds() {
-        Lbryio.appleFilteredClaimIds = Set([
-            "71d6dcf296da0e5902ad01e59466512ddabbb232",
-            "48c11ff369ebc6dcf672dfa242158f3de1abdb60",
-            "94dc72ad26d750070cf1fabe1b50ccea173ac2b0",
-            "25ea58cb4cd034077dfbfd6bfcc13eff2ea5d3b0",
-            "8db1fdd2e15b7cc15afee543477998b1803dba4f",
-            "970e61fcf23d0121cb87d024f6af5ecbbd75e25f"
-        ])
+        do {
+            var options: [String: String] = [:]
+            options["platform"] = "ios"
+            options["with_claim_id"] = "true"
+            try Lbryio.get(resource: "file", action: "list_blocked", options: options, completion: { data, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+
+                if let result = data as? [[String: Any]] {
+                    for item in result {
+                        Lbryio.addAppleFilteredClaim(
+                            claimId: item["claim_id"] as? String,
+                            tag: item["tag_name"] as? String
+                        )
+                    }
+                    Lbryio.updateAppleFilteredClaimIds()
+                }
+            })
+        } catch {
+            // pass
+        }
     }
 
     func loadBlockedOutpoints() {

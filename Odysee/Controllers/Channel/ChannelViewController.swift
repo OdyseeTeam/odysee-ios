@@ -142,6 +142,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         if channelClaim == nil, claimUrl != nil {
             resolveAndDisplayClaim()
         } else if channelClaim != nil {
+            if Lbryio.isClaimAppleFiltered(channelClaim!) {
+                displayClaimBlockedWithMessage(
+                    message: Lbryio
+                        .getFilteredMessageForClaim(channelClaim!.claimId!, channelClaim!.claimId!)
+                )
+                return
+            }
+
             displayClaim()
             loadAndDisplayFollowerCount()
             loadContent()
@@ -251,6 +259,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         channelClaim = claim
+        if Lbryio.isClaimAppleFiltered(channelClaim!) {
+            displayClaimBlockedWithMessage(
+                message: Lbryio
+                    .getFilteredMessageForClaim(channelClaim!.claimId!, channelClaim!.claimId!)
+            )
+            return
+        }
+
         showClaimAndCheckFollowing()
     }
 
@@ -270,6 +286,19 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             self.resolvingLoadingIndicator.isHidden = true
             self.resolvingImageView.image = UIImage(named: "spaceman_sad")
             self.resolvingLabel.text = String.localized("There's nothing at this location.")
+            self.resolvingCloseButton.isHidden = false
+        }
+    }
+
+    func displayClaimBlockedWithMessage(message: String) {
+        DispatchQueue.main.async {
+            self.resolvingView.isHidden = false
+            self.resolvingLoadingIndicator.isHidden = true
+            self.resolvingImageView.image = UIImage(named: "spaceman_sad")
+            self.resolvingLabel.text = String
+                .localized(
+                    message
+                )
             self.resolvingCloseButton.isHidden = false
         }
     }
