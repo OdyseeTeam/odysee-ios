@@ -308,7 +308,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         .isClaimAppleFiltered(currentClaim.signingChannel!)
                 )
             {
-                displayClaimBlockedWithMessage(message: "This content is not available on iOS")
+                displayClaimBlockedWithMessage(
+                    message: Lbryio
+                        .getFilteredMessageForClaim(currentClaim.claimId!, currentClaim.signingChannel?.claimId ?? "")
+                )
             } else if Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate) ||
                 (
                     currentClaim.signingChannel != nil &&
@@ -382,7 +385,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         } else if Lbryio.isClaimAppleFiltered(claim!) ||
             (claim!.signingChannel != nil && Lbryio.isClaimAppleFiltered(claim!.signingChannel!))
         {
-            displayClaimBlockedWithMessage(message: "This content is not available on iOS")
+            displayClaimBlockedWithMessage(
+                message: Lbryio
+                    .getFilteredMessageForClaim(claim!.claimId!, claim!.signingChannel?.claimId ?? "")
+            )
         } else if Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate) ||
             (claim!.signingChannel != nil && Helper.isCustomBlocked(
                 claimId: claim!.signingChannel!.claimId!,

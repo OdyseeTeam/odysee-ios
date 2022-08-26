@@ -36,8 +36,9 @@ final class Lbry {
             }
             result.claims = result.claims
                 .filter {
-                    !Lbryio.isClaimBlocked($0.value.signingChannel ?? Claim()) && !Lbryio
-                        .isClaimFiltered($0.value.signingChannel ?? Claim())
+                    !Lbryio.isClaimBlocked($0.value.signingChannel ?? Claim()) &&
+                        !Lbryio.isClaimAppleFiltered($0.value.signingChannel ?? Claim()) &&
+                        !Lbryio.isClaimFiltered($0.value.signingChannel ?? Claim())
                 }
         }
         result.claims.values.forEach(Lbry.addClaimToCache)

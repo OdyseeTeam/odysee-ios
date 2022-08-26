@@ -114,7 +114,42 @@ final class Lbryio {
     static var latestNotificationId: Int64 = 0
     static var subscriptionsDirty = false
 
+    static var appleFilteredClaimsTagged = [String: String]()
     static var appleFilteredClaimIds = Set<String>()
+
+    static func addAppleFilteredClaim(claimId: String?, tag: String?) {
+        guard let claimId = claimId, let tag = tag else { return }
+        lock.withLock {
+            appleFilteredClaimsTagged[claimId] = tag
+        }
+    }
+
+    static func updateAppleFilteredClaimIds() {
+        lock.withLock {
+            appleFilteredClaimIds = Set(appleFilteredClaimsTagged.keys)
+        }
+    }
+
+    static func getFilteredMessageForClaim(_ claimId: String, _ signingClaimId: String) -> String {
+        var tag = appleFilteredClaimsTagged[claimId]
+        if tag == nil {
+            tag = appleFilteredClaimsTagged[signingClaimId]
+        }
+        if let tagName = tag {
+            switch tagName {
+            case "dmca":
+                return "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications."
+            case "internal-dmca-redflag":
+                return "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications."
+            case "filter-ios":
+                return "This content is not available on iOS"
+            default:
+                return "This content is not available on iOS"
+            }
+        }
+
+        return "This content is not available on iOS"
+    }
 
     private static var filteredOutpoints = Set<Outpoint>()
     static func setFilteredOutpoints(_ val: Set<Outpoint>) {
