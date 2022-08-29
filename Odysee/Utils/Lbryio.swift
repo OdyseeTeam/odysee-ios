@@ -131,8 +131,9 @@ final class Lbryio {
     }
 
     static func getFilteredMessageForClaim(_ claimId: String, _ signingClaimId: String) -> String {
-        let defaultText = "This content is not available on iOS. Consider using odysee.com for the Complete Odysee Experience."
-        
+        let defaultText =
+            "This content is not available on iOS. Consider using odysee.com for the Complete Odysee Experience."
+
         var tag = appleFilteredClaimsTagged[claimId]
         if tag == nil {
             tag = appleFilteredClaimsTagged[signingClaimId]
