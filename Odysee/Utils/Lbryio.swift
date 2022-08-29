@@ -131,6 +131,8 @@ final class Lbryio {
     }
 
     static func getFilteredMessageForClaim(_ claimId: String, _ signingClaimId: String) -> String {
+        let defaultText = "This content is not available on iOS. Consider using odysee.com for the Complete Odysee Experience."
+        
         var tag = appleFilteredClaimsTagged[claimId]
         if tag == nil {
             tag = appleFilteredClaimsTagged[signingClaimId]
@@ -142,13 +144,13 @@ final class Lbryio {
             case "internal-dmca-redflag":
                 return "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications."
             case "filter-ios":
-                return "This content is not available on iOS"
+                return defaultText
             default:
-                return "This content is not available on iOS"
+                return defaultText
             }
         }
 
-        return "This content is not available on iOS"
+        return defaultText
     }
 
     private static var filteredOutpoints = Set<Outpoint>()

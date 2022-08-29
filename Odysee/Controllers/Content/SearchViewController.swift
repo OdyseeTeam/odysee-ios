@@ -280,7 +280,7 @@ class SearchViewController: UIViewController,
         noResultsLabel.text = Lighthouse.containsFilteredKeyword(currentQuery!) ?
             String
             .localized(
-                "This search term is disabled to comply with iOS content guidelines. View this search on the web at odysee.com"
+                "This search term is restricted for iOS users of Odysee. Consider using odysee.com for the Complete Odysee Experience. Alternatively, you can visit odysee.com from the browser of your iOS device and save the website to your homescreen. This will provide you with a similar app-like experience."
             ) :
             String
             .localized(
