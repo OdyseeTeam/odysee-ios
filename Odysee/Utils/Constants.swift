@@ -52,6 +52,8 @@ struct Constants {
         "ching chong",
         "dindu",
         "great replacement",
+        "nazi",
+        "nazis",
         "jew",
         "jews",
         "kike",
