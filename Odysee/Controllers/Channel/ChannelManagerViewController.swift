@@ -188,12 +188,6 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
                 return
             }
 
-            if claim.confirmations ?? 0 == 0 {
-                // pending claim
-                showError(message: "You cannot remove a pending channel. Please try again later.")
-                return
-            }
-
             // show confirmation dialog before deleting
             let alert = UIAlertController(
                 title: String.localized("Abandon channel?"),

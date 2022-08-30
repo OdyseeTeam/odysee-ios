@@ -142,9 +142,10 @@ class ClaimTableViewCell: UITableViewCell {
         if releaseTime == 0 {
             releaseTime = Double(actualClaim.timestamp ?? 0)
         }
+        let confirmations = actualClaim.confirmations ?? 0
 
         publishTimeLabel.textColor = actualClaim.featured ? UIColor.white : nil
-        if releaseTime > 0 {
+        if releaseTime > 0 && confirmations > 0 {
             let date = Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
             publishTimeLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
         } else {
