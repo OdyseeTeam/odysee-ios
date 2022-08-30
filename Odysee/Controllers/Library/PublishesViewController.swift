@@ -27,7 +27,6 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         // Do any additional setup after loading the view.
         loadingContainer.layer.cornerRadius = 20
         uploadsListView.tableFooterView = UIView()
-        loadUploads()
 
         longPressGestureRecognizer = UILongPressGestureRecognizer(
             target: self,
@@ -55,6 +54,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: false)
+        loadUploads()
     }
 
     func addNewPlaceholder() {
@@ -90,14 +90,9 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     func didReceiveUploads(_ result: Result<Page<Claim>, Error>) {
         assert(Thread.isMainThread)
         if case let .success(page) = result {
-            UIView.performWithoutAnimation {
-                uploadsListView.performBatchUpdates {
-                    let oldCount = uploads.count
-                    uploads.append(contentsOf: page.items)
-                    let indexPaths = (oldCount ..< uploads.count).map { IndexPath(item: $0, section: 0) }
-                    uploadsListView.insertRows(at: indexPaths, with: .none)
-                }
-            }
+            uploads.removeAll()
+            uploads.append(contentsOf: page.items)
+            uploadsListView.reloadData()
             Lbry.ownUploads = uploads.filter { $0.claimId != "new" }
         }
         result.showErrorIfPresent()
@@ -157,9 +152,10 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             return
         }
 
-        let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
-        vc.currentClaim = claim
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = appDelegate.mainController.storyboard?
+            .instantiateViewController(identifier: "file_view_vc") as! FileViewController
+        vc.claim = claim
         appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
@@ -168,10 +164,9 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             let touchPoint = longPressGestureRecognizer.location(in: uploadsListView)
             if let indexPath = uploadsListView.indexPathForRow(at: touchPoint) {
                 let claim: Claim = uploads[indexPath.row]
+                let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
+                vc.currentClaim = claim
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                let vc = appDelegate.mainController.storyboard?
-                    .instantiateViewController(identifier: "file_view_vc") as! FileViewController
-                vc.claim = claim
                 appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
             }
         }
@@ -186,12 +181,6 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             // abandon channel
             let claim: Claim = uploads[indexPath.row]
             if claim.claimId == "new" {
-                return
-            }
-
-            if claim.confirmations ?? 0 == 0 {
-                // pending claim
-                showError(message: String.localized("You cannot remove a pending upload. Please try again later."))
                 return
             }
 
