@@ -3422,6 +3422,11 @@
                                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="EGG-0X-rW3">
                                                         <rect key="frame" x="0.0" y="0.0" width="243" height="288"/>
                                                         <subviews>
+                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cfn-hB-SdK" userLabel="Change Default Channel Button">
+                                                                <rect key="frame" x="52" y="0.0" width="175" height="48"/>
+                                                                <state key="normal" title="Button"/>
+                                                                <buttonConfiguration key="configuration" style="plain" title="Change default channel"/>
+                                                            </button>
                                                             <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Go Live" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jZL-qF-CkO">
                                                                 <rect key="frame" x="52" y="0.0" width="175" height="40"/>
                                                                 <gestureRecognizers/>
@@ -3577,6 +3582,7 @@
                         </connections>
                     </view>
                     <connections>
+                        <outlet property="changeDefaultChannelButton" destination="Cfn-hB-SdK" id="8a2-69-OsO"/>
                         <outlet property="channelsLabel" destination="uwd-lB-h1n" id="sPT-yd-59N"/>
                         <outlet property="contentView" destination="Zp4-gT-NHC" id="ca9-zH-Zbd"/>
                         <outlet property="deleteAccountLabel" destination="06L-1T-tpE" id="ycP-ax-Hza"/>

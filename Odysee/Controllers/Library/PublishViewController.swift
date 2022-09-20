@@ -199,9 +199,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
         channelPickerView.reloadAllComponents()
-        if channels.count > 1 {
-            channelPickerView.selectRow(1, inComponent: 0, animated: true)
-            namePrefixLabel.text = String(format: namePrefixFormat, channels[1].name! + "/")
+        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 1
+        if channels.count >= index {
+            channelPickerView.selectRow(index, inComponent: 0, animated: true)
+            namePrefixLabel.text = String(format: namePrefixFormat, channels[index].name! + "/")
         }
         populateFieldsForEdit()
     }
