@@ -105,8 +105,9 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         loadingSendSupportView.isHidden = true
         tipButton.isEnabled = true
         channelPickerView.reloadAllComponents()
-        if channels.count > 1 {
-            channelPickerView.selectRow(1, inComponent: 0, animated: true)
+        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 1
+        if channels.count >= index {
+            channelPickerView.selectRow(index, inComponent: 0, animated: true)
         }
     }
 

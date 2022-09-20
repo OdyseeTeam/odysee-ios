@@ -244,8 +244,18 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
                         )
                         do {
                             let claimResult: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                            if claimResult != nil {
-                                Lbryio.logPublishEvent(claimResult!)
+                            if let claimResult = claimResult, claimResult.valueType == .channel {
+                                Lbryio.logPublishEvent(claimResult)
+                                Lbry.defaultChannelId = claimResult.claimId
+                                Lbry.saveSharedUserState { success, error in
+                                    guard error == nil else {
+                                        self.showError(error: error)
+                                        return
+                                    }
+                                    if success {
+                                        Lbry.pushSyncWallet()
+                                    }
+                                }
                             }
                         } catch {
                             // pass

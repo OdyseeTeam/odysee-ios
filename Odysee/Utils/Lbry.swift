@@ -119,6 +119,7 @@ final class Lbry {
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
     static var blockedChannels: [BlockedChannel] = []
+    static var defaultChannelId: String?
 
     private struct APIBody<CallParams: Encodable>: Encodable {
         var method: String
@@ -345,6 +346,12 @@ final class Lbry {
                 if let blockedUrls = value["blocked"] as? [String] {
                     processBlockedUrls(blockedUrls)
                 }
+
+                if let settings = value["settings"] as? [String: Any],
+                   let defaultChannelId = settings["active_channel_claim"] as? String
+                {
+                    Lbry.defaultChannelId = defaultChannelId
+                }
             }
 
             completion(true, nil)
@@ -433,19 +440,25 @@ final class Lbry {
 
             var shared: [String: Any]?
             var existingDataValid = false
-            if data != nil {
-                shared = data!["shared"] as? [String: Any]
-                if shared != nil, shared!["type"] as? String == "object", shared!["value"] as? [String: Any] != nil {
-                    existingDataValid = true
-                    let (subscriptionUrls, following) = buildSubscriptionUrlsAndFollowingPreferences()
-                    let blockedUrls = buildBlockedUrlsPreference()
+            if let data = data,
+               var newShared = data["shared"] as? [String: Any],
+               newShared["type"] as? String == "object",
+               var newValue = newShared["value"] as? [String: Any],
+               var newSettings = newValue["settings"] as? [String: Any]
+            {
+                existingDataValid = true
+                let (subscriptionUrls, following) = buildSubscriptionUrlsAndFollowingPreferences()
+                let blockedUrls = buildBlockedUrlsPreference()
 
-                    var newValue = shared!["value"] as! [String: Any]
-                    newValue["subscriptions"] = subscriptionUrls
-                    newValue["following"] = following
-                    newValue["blocked"] = blockedUrls
-                    shared!["value"] = newValue
-                }
+                newSettings["active_channel_claim"] = Lbry.defaultChannelId
+
+                newValue["subscriptions"] = subscriptionUrls
+                newValue["following"] = following
+                newValue["blocked"] = blockedUrls
+                newValue["settings"] = newSettings
+
+                newShared["value"] = newValue
+                shared = newShared
             }
 
             if newState || !existingDataValid {
@@ -484,11 +497,15 @@ final class Lbry {
         let (subscriptionUrls, following) = buildSubscriptionUrlsAndFollowingPreferences()
         let blockedUrls = buildBlockedUrlsPreference()
 
+        var settings = [String: Any]()
+        settings["active_channel_claim"] = Lbry.defaultChannelId
+
         var preference = [String: Any]()
         preference["tags"] = [] // tags not supported right now, so just make it an empty list
         preference["subscriptions"] = subscriptionUrls
         preference["following"] = following
         preference["blocked"] = blockedUrls
+        preference["settings"] = settings
 
         return preference
     }

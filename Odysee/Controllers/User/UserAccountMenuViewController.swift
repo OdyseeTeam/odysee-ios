@@ -9,19 +9,26 @@ import MessageUI
 import SafariServices
 import UIKit
 
-class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelegate {
+class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelegate,
+    UIPickerViewDataSource, UIPickerViewDelegate
+{
     @IBOutlet var contentView: UIView!
     @IBOutlet var signUpLoginButton: UIButton!
     @IBOutlet var loggedInMenu: UIView!
     @IBOutlet var userEmailLabel: UILabel!
     @IBOutlet var signUpLoginContainer: UIView!
 
+    @IBOutlet var changeDefaultChannelButton: UIButton!
     @IBOutlet var goLiveLabel: UILabel!
     @IBOutlet var channelsLabel: UILabel!
     @IBOutlet var rewardsLabel: UILabel!
     @IBOutlet var invitesLabel: UILabel!
     @IBOutlet var deleteAccountLabel: UILabel!
     @IBOutlet var signOutLabel: UILabel!
+
+    var defaultChannelPicker: UIPickerView!
+
+    var channels: [Claim] = []
 
     let sweepWalletTarget = "bHg5cNFA8bF32CF6M8J3BndyZXqzreRjHz"
     let forfeitCreditsVerfication = String.localized("I forfeit my credits")
@@ -36,6 +43,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
         signUpLoginContainer.isHidden = Lbryio.isSignedIn()
 
+        changeDefaultChannelButton.isHidden = !Lbryio.isSignedIn()
         goLiveLabel.isHidden = !Lbryio.isSignedIn()
         userEmailLabel.isHidden = !Lbryio.isSignedIn()
         channelsLabel.isHidden = !Lbryio.isSignedIn()
@@ -47,10 +55,27 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         if Lbryio.isSignedIn() {
             userEmailLabel.text = Lbryio.currentUser?.primaryEmail!
         }
+
+        changeDefaultChannelButton.titleLabel?.textAlignment = .center
+        changeDefaultChannelButton.titleLabel?.numberOfLines = 0
+
+        loadChannels()
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         return touch.view == gestureRecognizer.view
+    }
+
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return channels.count
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return channels[row].name
     }
 
     @IBAction func anywhereTapped(_ sender: Any) {
@@ -309,6 +334,85 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     func finishDeleteAccount() {
         // sign out the user
         signOutTapped(UIButton())
+    }
+
+    func loadChannels() {
+        Lbry.apiCall(
+            method: Lbry.Methods.claimList,
+            params: .init(claimType: [.channel], page: 1, pageSize: 999)
+        )
+        .subscribeResult(didLoadChannels)
+    }
+
+    func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
+        guard case let .success(page) = result else {
+            result.showErrorIfPresent()
+            return
+        }
+
+        channels = page.items
+
+        if #available(iOS 14.0, *) {
+            let channelActionHandler: UIActionHandler = { selected in
+                Lbry.defaultChannelId = selected.identifier.rawValue
+                Lbry.saveSharedUserState { success, error in
+                    guard error == nil else {
+                        self.showError(error: error)
+                        return
+                    }
+                    if success {
+                        Lbry.pushSyncWallet()
+                    }
+                }
+                for action in self.changeDefaultChannelButton.menu!.children {
+                    (action as? UIAction)?.state = action == selected ? .on : .off
+                }
+            }
+            let channelActions = channels.map { claim -> UIAction in
+                let action = UIAction(
+                    title: claim.name!,
+                    identifier: .init(claim.claimId!),
+                    handler: channelActionHandler
+                )
+                if claim.claimId == Lbry.defaultChannelId {
+                    action.state = .on
+                }
+                return action
+            }
+            changeDefaultChannelButton.menu = UIMenu(title: "", children: channelActions)
+            changeDefaultChannelButton.showsMenuAsPrimaryAction = true
+        } else {
+            changeDefaultChannelButton.addTarget(
+                self, action: #selector(changeDefaultChannelTapped), for: .touchUpInside
+            )
+        }
+    }
+
+    @objc func changeDefaultChannelTapped(_ sender: Any) {
+        let (picker, alert) = Helper.buildPickerActionSheet(
+            title: "Change default channel",
+            sourceView: changeDefaultChannelButton,
+            dataSource: self,
+            delegate: self,
+            parent: self
+        ) { _ in
+            let index = self.defaultChannelPicker.selectedRow(inComponent: 0)
+            Lbry.defaultChannelId = self.channels[index].claimId
+            Lbry.saveSharedUserState { success, error in
+                guard error == nil else {
+                    self.showError(error: error)
+                    return
+                }
+                if success {
+                    Lbry.pushSyncWallet()
+                }
+            }
+        }
+
+        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
+        picker.selectRow(index, inComponent: 0, animated: false)
+        defaultChannelPicker = picker
+        present(alert, animated: true, completion: nil)
     }
 
     func showError(message: String) {

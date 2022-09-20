@@ -2306,9 +2306,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
-        if currentCommentAsIndex == -1, !channels.isEmpty {
-            currentCommentAsIndex = 0
-            updateCommentAsChannel(0)
+        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
+        if channels.count >= index, currentCommentAsIndex == -1 {
+            currentCommentAsIndex = index
+            updateCommentAsChannel(index)
         }
     }
 

@@ -106,9 +106,10 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             guidelinesTextView.heightAnchor.constraint(equalToConstant: 0).isActive = true
         }
 
-        if channels.count > 0, currentCommentAsIndex == -1 {
-            currentCommentAsIndex = 0
-            updateCommentAsChannel(0)
+        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
+        if channels.count >= index, currentCommentAsIndex == -1 {
+            currentCommentAsIndex = index
+            updateCommentAsChannel(index)
         }
 
         if comments.count > 0 {
