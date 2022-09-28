@@ -167,6 +167,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var isTextContent = false
     var isImageContent = false
     var isOtherContent = false
+    var membersOnly = false
     var avpcInitialised = false
     var shouldReload = true
 
@@ -331,6 +332,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                                 ) ?? ""
                         )
                 )
+            } else if claim?.value?.tags?.contains(Constants.MembersOnly) ?? false {
+                membersOnly = true
+                checkHasAccess()
             } else {
                 displayClaim()
                 if !isPlaylist {
@@ -373,6 +377,30 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         livestreamerArea.isHidden = false
     }
 
+    func checkHasAccess() {
+        let isLivestream = !isPlaylist && claim?.value?.source == nil
+        DispatchQueue.global().async {
+            MembershipPerk.perkCheck(
+                authToken: Lbryio.authToken,
+                claimId: self.claim?.claimId,
+                type: isLivestream ? .livestream : .content
+            ) { result in
+                if case let .success(hasAccess) = result {
+                    DispatchQueue.main.async {
+                        if !hasAccess {
+                            self.displayClaimBlockedWithMessage(
+                                message: "Only channel members can view this content\nJoin on odysee.com"
+                            )
+                        } else {
+                            self.claim?.value?.tags?.removeAll { $0 == Constants.MembersOnly }
+                            self.showClaimAndCheckFollowing()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     func showClaimAndCheckFollowing() {
         if checkRepost() {
             return
@@ -407,6 +435,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             ) ?? ""
                     )
             )
+        } else if claim?.value?.tags?.contains(Constants.MembersOnly) ?? false {
+            membersOnly = true
+            checkHasAccess()
         } else if let currentClaim = claim {
             displayClaim()
             if !isPlaylist {
@@ -594,12 +625,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     }
 
                     if let streamUrl = (livestreamData["VideoURL"] as? String).flatMap(URL.init) {
-                        let headers: [String: String] = [
-                            "Referer": "https://bitwave.tv",
-                        ]
-                        DispatchQueue.main.async {
-                            self.initializePlayerWithUrl(
-                                singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers, forceInit: true
+                        if !self.membersOnly {
+                            let headers: [String: String] = [
+                                "Referer": "https://bitwave.tv",
+                            ]
+                            DispatchQueue.main.async {
+                                self.initializePlayerWithUrl(
+                                    singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers, forceInit: true
+                                )
+                            }
+                        } else {
+                            self.getStreamingUrlAndInitializePlayer(
+                                self.claim!,
+                                baseStreamingUrl: streamUrl.string
                             )
                         }
                         self.currentStreamUrl = streamUrl
@@ -652,15 +690,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func checkCommentsDisabled(commentsDisabled: Bool, currentClaim: Claim) {
         DispatchQueue.main.async {
-            self.commentsDisabled = commentsDisabled
-            self.commentExpandView.isHidden = commentsDisabled
-            self.noCommentsLabel.isHidden = !commentsDisabled
+            self.commentsDisabled = commentsDisabled || self.membersOnly
+            self.commentExpandView.isHidden = commentsDisabled || self.membersOnly
+            self.noCommentsLabel.isHidden = !(commentsDisabled || self.membersOnly)
             self.noCommentsLabel.text = String
                 .localized(
                     commentsDisabled ? "Comments are disabled." :
-                        "There are no comments to display at this time. Be the first to post a comment!"
+                        (
+                            self.membersOnly ?
+                                "Member only comments are only supported on odysee.com at this time" :
+                                "There are no comments to display at this time. Be the first to post a comment!"
+                        )
                 )
-            self.featuredCommentView.isHidden = commentsDisabled
+            self.featuredCommentView.isHidden = commentsDisabled || self.membersOnly
 
             if !self.commentsDisabled {
                 self.loadComments(currentClaim)
@@ -681,7 +723,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 thumbnailDisplayUrl = URL(string: singleClaim.value!.thumbnail!.url!)!.makeImageURL(spec: bigThumbSpec)
             }
             contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
-            PINRemoteImageManager.shared().downloadImage(with: contentUrl!) { result in
+            let manager = PINRemoteImageManager.shared()
+            manager.setValue("https://odysee.com/", forHTTPHeaderField: "Referer")
+            manager.downloadImage(with: contentUrl!) { result in
                 guard let image = result.image else { return }
                 Thread.performOnMain {
                     self.imageViewer.display(image: image)
@@ -875,24 +919,37 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func loadTextContent(url: URL, contentType: String?) {
         DispatchQueue.global().async {
             do {
-                let contents = try String(contentsOf: url)
-                if contentType == "text/md" || contentType == "text/markdown" || contentType == "text/x-markdown" {
-                    guard let html = contents.markdownToHTML else {
-                        self
-                            .handleContentLoadError(String(
-                                format: String.localized("Could not load URL %@"),
-                                url.absoluteString
-                            ))
+                var request = URLRequest(url: url)
+                request.setValue("https://odysee.com/", forHTTPHeaderField: "Referer")
+                URLSession.shared.dataTask(with: request) { result in
+                    guard case let .success(data) = result,
+                          let contents = String(data: data.data, encoding: .utf8)
+                    else {
+                        self.handleContentLoadError(String(
+                            format: String.localized("Could not load URL %@"),
+                            url.absoluteString
+                        ))
                         return
                     }
 
-                    let mdHtml = self.buildMarkdownHTML(html)
-                    self.loadWebViewContent(mdHtml)
-                } else if contentType == "text/html" {
-                    self.loadWebViewContent(contents)
-                } else {
-                    self.loadWebViewContent(self.buildPlainTextHTML(contents))
-                }
+                    if contentType == "text/md" || contentType == "text/markdown" || contentType == "text/x-markdown" {
+                        guard let html = contents.markdownToHTML else {
+                            self
+                                .handleContentLoadError(String(
+                                    format: String.localized("Could not load URL %@"),
+                                    url.absoluteString
+                                ))
+                            return
+                        }
+
+                        let mdHtml = self.buildMarkdownHTML(html)
+                        self.loadWebViewContent(mdHtml)
+                    } else if contentType == "text/html" {
+                        self.loadWebViewContent(contents)
+                    } else {
+                        self.loadWebViewContent(self.buildPlainTextHTML(contents))
+                    }
+                }.resume()
             } catch {
                 self
                     .handleContentLoadError(String(
@@ -1364,7 +1421,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     claimType: [.stream],
                     page: currentPlaylistPage,
                     pageSize: playlistPageSize,
-                    notTags: Constants.MatureTags,
+                    notTags: Constants.MatureTags + [Constants.MembersOnly],
                     claimIds: playlistClaims,
                     orderBy: Helper.sortByItemValues[1]
                 )
@@ -1442,9 +1499,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         checkNotificationsDisabled(singleClaim)
     }
 
-    func getStreamingUrlAndInitializePlayer(_ singleClaim: Claim) {
+    func getStreamingUrlAndInitializePlayer(_ singleClaim: Claim, baseStreamingUrl: String? = nil) {
         var params = [String: Any]()
         params["uri"] = singleClaim.permanentUrl!
+        if let baseStreamingUrl {
+            params["base_streaming_url"] = baseStreamingUrl
+        }
 
         Lbry.apiCall(
             method: Lbry.methodGet,
@@ -1465,9 +1525,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                        )
                     {
                         DispatchQueue.main.async {
+                            let headers: [String: String] = [
+                                "Referer": "https://odysee.com/",
+                            ]
                             self.initializePlayerWithUrl(
                                 singleClaim: singleClaim,
-                                sourceUrl: sourceUrl
+                                sourceUrl: sourceUrl,
+                                headers: headers
                             )
                         }
                     }
@@ -2100,7 +2164,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         commentsLoading = false
         guard case let .success(page) = result else {
-            assertionFailure()
+            // TODO: Enable after `mismatch in is_protected` fixed on members-only content
+            // assertionFailure()
             return
         }
 
@@ -2213,7 +2278,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         initialChatLoaded = true
         guard case let .success(page) = result else {
-            assertionFailure()
+            // TODO: Enable after `mismatch in is_protected` fixed on members-only content
+            // assertionFailure()
             return
         }
 

@@ -15,6 +15,8 @@ class ClaimTableViewCell: UITableViewCell {
 
     @IBOutlet var channelImageView: UIImageView!
     @IBOutlet var thumbnailImageView: UIImageView!
+    @IBOutlet var hasAccessView: UIStackView!
+    @IBOutlet var membersOnlyView: UIView!
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var publisherLabel: UILabel!
     @IBOutlet var publishTimeLabel: UILabel!
@@ -117,7 +119,9 @@ class ClaimTableViewCell: UITableViewCell {
         titleLabel.textColor = actualClaim.featured ? UIColor.white : nil
         titleLabel.text = isChannel ? actualClaim.name : actualClaim.value?.title
         publisherLabel.text = isChannel ? actualClaim.name : actualClaim.signingChannel?.name
-        if actualClaim.value?.source == nil, !isChannel {
+
+        let isLivestream = actualClaim.value?.source == nil && !isChannel
+        if isLivestream {
             publisherLabel.text = "LIVE"
         }
 
@@ -165,6 +169,26 @@ class ClaimTableViewCell: UITableViewCell {
             } else {
                 durationLabel.text = Helper.durationFormatter.string(from: TimeInterval(duration))
             }
+        }
+
+        if actualClaim.value?.tags?.contains(Constants.MembersOnly) ?? false {
+            DispatchQueue.global().async {
+                MembershipPerk.perkCheck(
+                    authToken: Lbryio.authToken,
+                    claimId: actualClaim.claimId,
+                    type: isLivestream ? .livestream : .content
+                ) { result in
+                    if case let .success(hasAccess) = result {
+                        DispatchQueue.main.async {
+                            self.membersOnlyView.isHidden = hasAccess
+                            self.hasAccessView.isHidden = !hasAccess
+                        }
+                    }
+                }
+            }
+        } else {
+            membersOnlyView.isHidden = true
+            hasAccessView.isHidden = true
         }
     }
 

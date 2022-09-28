@@ -5,6 +5,7 @@
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19519"/>
         <capability name="Image references" minToolsVersion="12.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -25,6 +26,69 @@
                             <constraint firstAttribute="height" constant="135" id="okv-nU-f0k"/>
                         </constraints>
                     </imageView>
+                    <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1zh-Io-5e4" userLabel="Has Access View">
+                        <rect key="frame" x="12" y="107" width="30" height="24"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="lock.open" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="tia-uW-bRC">
+                                <rect key="frame" x="0.0" y="2.5" width="30" height="18.5"/>
+                                <color key="tintColor" systemColor="systemGreenColor"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="30" id="uKH-e0-sgk"/>
+                        </constraints>
+                        <edgeInsets key="layoutMargins" top="2" left="0.0" bottom="2" right="0.0"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="4"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </stackView>
+                    <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Cd0-wc-daO" userLabel="Members Only View">
+                        <rect key="frame" x="8" y="0.0" width="240" height="135"/>
+                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="QQb-0l-EEK">
+                            <rect key="frame" x="0.0" y="0.0" width="240" height="135"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="lKL-k5-Hkc">
+                                    <rect key="frame" x="4" y="4" width="232" height="127"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="lock" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="EV4-lp-Sun">
+                                            <rect key="frame" x="0.0" y="0.5" width="232" height="43"/>
+                                            <color key="tintColor" systemColor="labelColor"/>
+                                        </imageView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Members Only" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qkh-rT-7NH">
+                                            <rect key="frame" x="0.0" y="48.5" width="232" height="20.5"/>
+                                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Join on odysee.com" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fME-Pl-6Nk">
+                                            <rect key="frame" x="0.0" y="73" width="232" height="17"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                            <nil key="textColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xG0-RX-hNM">
+                                            <rect key="frame" x="0.0" y="94" width="232" height="33"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </view>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="EV4-lp-Sun" firstAttribute="height" secondItem="lKL-k5-Hkc" secondAttribute="height" multiplier="0.35" id="KhV-Ap-G8R"/>
+                                    </constraints>
+                                </stackView>
+                            </subviews>
+                            <constraints>
+                                <constraint firstItem="lKL-k5-Hkc" firstAttribute="top" secondItem="QQb-0l-EEK" secondAttribute="top" constant="4" id="47c-pd-we5"/>
+                                <constraint firstItem="lKL-k5-Hkc" firstAttribute="leading" secondItem="QQb-0l-EEK" secondAttribute="leading" constant="4" id="67w-Of-2q2"/>
+                                <constraint firstAttribute="trailing" secondItem="lKL-k5-Hkc" secondAttribute="trailing" constant="4" id="H7g-Pj-Ibj"/>
+                                <constraint firstAttribute="bottom" secondItem="lKL-k5-Hkc" secondAttribute="bottom" constant="4" id="pfr-b9-Dlh"/>
+                            </constraints>
+                        </view>
+                        <blurEffect style="regular"/>
+                    </visualEffectView>
                     <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="kVA-ic-4Ua" userLabel="Viewer Count Stack View">
                         <rect key="frame" x="190" y="100" width="50" height="27"/>
                         <subviews>
@@ -89,16 +153,24 @@
                     </view>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="Cd0-wc-daO" firstAttribute="top" secondItem="I4k-sK-dVx" secondAttribute="top" id="8cX-oK-01j"/>
                     <constraint firstItem="beA-GF-cHg" firstAttribute="top" secondItem="I4k-sK-dVx" secondAttribute="bottom" constant="8" id="Job-zP-kWa"/>
                     <constraint firstItem="I4k-sK-dVx" firstAttribute="leading" secondItem="ThH-Aw-3Pm" secondAttribute="leading" constant="8" id="SuD-HL-tOj"/>
+                    <constraint firstItem="Cd0-wc-daO" firstAttribute="leading" secondItem="I4k-sK-dVx" secondAttribute="leading" id="W09-wb-jCJ"/>
                     <constraint firstAttribute="bottom" secondItem="beA-GF-cHg" secondAttribute="bottom" id="Z9X-9Z-PAT"/>
                     <constraint firstItem="kVA-ic-4Ua" firstAttribute="bottom" secondItem="I4k-sK-dVx" secondAttribute="bottom" constant="-8" id="ZhW-He-dTp"/>
+                    <constraint firstItem="Cd0-wc-daO" firstAttribute="trailing" secondItem="I4k-sK-dVx" secondAttribute="trailing" id="aDw-97-0SB"/>
                     <constraint firstItem="beA-GF-cHg" firstAttribute="leading" secondItem="ThH-Aw-3Pm" secondAttribute="leading" constant="8" id="iKL-O4-SBb"/>
+                    <constraint firstItem="1zh-Io-5e4" firstAttribute="bottom" secondItem="I4k-sK-dVx" secondAttribute="bottom" constant="-4" id="ppO-be-abX"/>
+                    <constraint firstItem="1zh-Io-5e4" firstAttribute="leading" secondItem="I4k-sK-dVx" secondAttribute="leading" constant="4" id="rjo-HR-cac"/>
+                    <constraint firstItem="Cd0-wc-daO" firstAttribute="bottom" secondItem="I4k-sK-dVx" secondAttribute="bottom" id="sDH-03-iE7"/>
                     <constraint firstItem="I4k-sK-dVx" firstAttribute="top" secondItem="ThH-Aw-3Pm" secondAttribute="top" id="uGB-Np-Eo2"/>
                     <constraint firstItem="kVA-ic-4Ua" firstAttribute="trailing" secondItem="I4k-sK-dVx" secondAttribute="trailing" constant="-8" id="v4J-W4-bgr"/>
                 </constraints>
             </collectionViewCellContentView>
             <connections>
+                <outlet property="hasAccessView" destination="1zh-Io-5e4" id="F2C-vL-aYH"/>
+                <outlet property="membersOnlyView" destination="Cd0-wc-daO" id="bQr-eg-nUu"/>
                 <outlet property="publisherLabel" destination="gU5-45-Rnz" id="mEV-la-6Cj"/>
                 <outlet property="startTimeLabel" destination="K9g-9i-4X0" id="3oY-7v-1gC"/>
                 <outlet property="thumbnailImageView" destination="I4k-sK-dVx" id="GIi-XS-N4W"/>
@@ -110,6 +182,14 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <image name="eye.fill" catalog="system" width="128" height="78"/>
+        <image name="eye.fill" catalog="system" width="128" height="80"/>
+        <image name="lock" catalog="system" width="125" height="128"/>
+        <image name="lock.open" catalog="system" width="128" height="110"/>
+        <systemColor name="labelColor">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemGreenColor">
+            <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
     </resources>
 </document>

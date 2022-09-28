@@ -177,7 +177,7 @@ class HomeViewController: UIViewController,
                     Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) :
                     releaseTimeValue,
                 limitClaimsPerChannel: channelLimits[currentCategoryIndex],
-                notTags: Constants.MatureTags,
+                notTags: Constants.MatureTags + (isWildWest ? [] : [Constants.MembersOnly]),
                 channelIds: isWildWest ? nil : channelIds[currentCategoryIndex],
                 notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
                 orderBy: isWildWest ?
@@ -254,7 +254,7 @@ class HomeViewController: UIViewController,
                             page: livestreamsCurrentPage,
                             pageSize: pageSize,
                             hasNoSource: true,
-                            notTags: Constants.MatureTags,
+                            notTags: Constants.MatureTags + (isWildWest ? [] : [Constants.MembersOnly]),
                             notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
                             claimIds: Array(infos.keys)
                         )

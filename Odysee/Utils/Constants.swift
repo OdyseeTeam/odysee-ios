@@ -79,4 +79,6 @@ struct Constants {
         "towelhead",
         "towelheads",
     ]
+
+    static let MembersOnly = "c:members-only"
 }

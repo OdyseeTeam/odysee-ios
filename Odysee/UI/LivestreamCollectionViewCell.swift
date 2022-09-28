@@ -15,6 +15,8 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
     var currentClaim: Claim?
 
     @IBOutlet var thumbnailImageView: UIImageView!
+    @IBOutlet var hasAccessView: UIStackView!
+    @IBOutlet var membersOnlyView: UIView!
     @IBOutlet var viewerCountStackView: UIStackView!
     @IBOutlet var viewerCountLabel: UILabel!
     @IBOutlet var titleLabel: UILabel!
@@ -56,6 +58,26 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         startTimeLabel.text = "Started \(startTimeRelative)"
 
         viewerCountLabel.text = String(viewerCount)
+
+        if claim.value?.tags?.contains(Constants.MembersOnly) ?? false {
+            DispatchQueue.global().async {
+                MembershipPerk.perkCheck(
+                    authToken: Lbryio.authToken,
+                    claimId: claim.claimId,
+                    type: .livestream
+                ) { result in
+                    if case let .success(hasAccess) = result {
+                        DispatchQueue.main.async {
+                            self.membersOnlyView.isHidden = hasAccess
+                            self.hasAccessView.isHidden = !hasAccess
+                        }
+                    }
+                }
+            }
+        } else {
+            membersOnlyView.isHidden = true
+            hasAccessView.isHidden = true
+        }
 
         currentClaim = claim
     }
