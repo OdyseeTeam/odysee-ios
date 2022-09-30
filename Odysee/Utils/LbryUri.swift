@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import RegexBuilder
 
 struct LbryUri: CustomStringConvertible {
     static let protoDefault = "lbry://"
@@ -79,18 +80,9 @@ struct LbryUri: CustomStringConvertible {
     }
 
     static func parse(url: String, requireProto: Bool) throws -> LbryUri {
-        let regexComponents = try! NSRegularExpression(
-            pattern: String(
-                format: "%@%@%@%@(/?)%@%@",
-                rePartProtocol,
-                rePartHost,
-                rePartStreamOrChannelName,
-                rePartModifierSeparator,
-                rePartStreamOrChannelName,
-                rePartModifierSeparator
-            ),
-            options: [.caseInsensitive]
-        )
+        if url.contains(" ") {
+            throw LbryUriError.runtimeError("URL cannot include a space")
+        }
 
         var cleanUrl = url, queryString: String?
         let qsMatches = regexSeparateQueryString.matches(
@@ -108,36 +100,140 @@ struct LbryUri: CustomStringConvertible {
             }
         }
 
-        var components: [String] = []
-        let results = regexComponents.matches(
-            in: cleanUrl,
-            options: [],
-            range: NSRange(cleanUrl.startIndex..., in: cleanUrl)
-        )
-        if results.count > 0 {
-            for index in 1 ..< results[0].numberOfRanges {
-                components.append((cleanUrl as NSString).substring(with: results[0].range(at: index)))
+        var proto, path, streamOrChannelName, primaryModSeparator, primaryModValue,
+            possibleStreamName, secondaryModSeparator, secondaryModValue: String
+
+        if #available(iOS 16, *) {
+            let protocolRef = Reference(Substring.self)
+            let pathRef = Reference(Substring.self)
+            let streamOrChannelNameRef = Reference(Substring.self)
+            let primaryModifierSeparatorRef = Reference(Substring.self)
+            let primaryModifierValueRef = Reference(Substring.self)
+            let possibleStreamNameRef = Reference(Substring.self)
+            let secondaryModifierSeparatorRef = Reference(Substring.self)
+            let secondaryModifierValueRef = Reference(Substring.self)
+
+            let regex = Regex {
+                Anchor.startOfLine
+
+                // Protocol
+                Capture(as: protocolRef) {
+                    Optionally {
+                        ChoiceOf {
+                            "lbry://"
+                            "https://"
+                        }
+                    }
+                }
+
+                // Host
+                Optionally {
+                    ChoiceOf {
+                        "open.lbry.com/"
+                        "odysee.com/"
+                        "lbry.tv/"
+                    }
+                }
+
+                // Path
+                Capture(as: pathRef) {
+                    // Stream or channel name
+                    Capture(as: streamOrChannelNameRef) {
+                        ZeroOrMore {
+                            /[^:$#\/]/
+                        }
+                    }
+
+                    // Primary modifier separator
+                    Capture(as: primaryModifierSeparatorRef) {
+                        Optionally(.anyOf(":$#"))
+                    }
+
+                    // Primary modifier value
+                    Capture(as: primaryModifierValueRef) {
+                        ZeroOrMore {
+                            /[^\/]/
+                        }
+                    }
+
+                    Optionally("/")
+
+                    // Possible stream name
+                    Capture(as: possibleStreamNameRef) {
+                        ZeroOrMore {
+                            /[^:$#\/]/
+                        }
+                    }
+
+                    // Secondary modifier separator
+                    Capture(as: secondaryModifierSeparatorRef) {
+                        Optionally(.anyOf(":$#"))
+                    }
+
+                    // Secondary modifier value
+                    Capture(as: secondaryModifierValueRef) {
+                        ZeroOrMore {
+                            /[^\/]/
+                        }
+                    }
+                }
+            }.matchingSemantics(.unicodeScalar)
+
+            guard let match = try regex.wholeMatch(in: cleanUrl) else {
+                throw LbryUriError.runtimeError("No matches found for regular expression")
             }
+
+            proto = String(match[protocolRef])
+            path = String(match[pathRef])
+            streamOrChannelName = String(match[streamOrChannelNameRef])
+            primaryModSeparator = String(match[primaryModifierSeparatorRef])
+            primaryModValue = String(match[primaryModifierValueRef])
+            possibleStreamName = String(match[possibleStreamNameRef])
+            secondaryModSeparator = String(match[secondaryModifierSeparatorRef])
+            secondaryModValue = String(match[secondaryModifierValueRef])
+        } else {
+            let regexComponents = try! NSRegularExpression(
+                pattern: String(
+                    format: "%@%@%@%@(/?)%@%@",
+                    rePartProtocol,
+                    rePartHost,
+                    rePartStreamOrChannelName,
+                    rePartModifierSeparator,
+                    rePartStreamOrChannelName,
+                    rePartModifierSeparator
+                ),
+                options: [.caseInsensitive]
+            )
+
+            var components: [String] = []
+            let results = regexComponents.matches(
+                in: cleanUrl,
+                options: [],
+                range: NSRange(cleanUrl.startIndex..., in: cleanUrl)
+            )
+            if results.count > 0 {
+                for index in 1 ..< results[0].numberOfRanges {
+                    components.append((cleanUrl as NSString).substring(with: results[0].range(at: index)))
+                }
+            }
+
+            if components.count == 0 {
+                throw LbryUriError.runtimeError("Regular expression error occurred while trying to parse the value")
+            }
+
+            proto = components[0]
+            path = components[2 ..< components.count].joined()
+            streamOrChannelName = components[2]
+            primaryModSeparator = components[3]
+            primaryModValue = components[4]
+            possibleStreamName = components[6]
+            secondaryModSeparator = components[7]
+            secondaryModValue = components[8]
         }
 
-        if components.count == 0 {
-            throw LbryUriError.runtimeError("Regular expression error occurred while trying to parse the value")
-        }
-        if requireProto, components[0].isBlank {
+        if requireProto, proto.isBlank {
             throw LbryUriError.runtimeError("LBRY URLs must include a protocol prefix (lbry://).")
         }
-        for component in components[2 ..< components.count] {
-            if component.contains(" ") {
-                throw LbryUriError.runtimeError("URL cannot include a space")
-            }
-        }
-
-        var streamOrChannelName = components[2]
-        let primaryModSeparator = components[3]
-        let primaryModValue = components[4]
-        let possibleStreamName = components[6]
-        let secondaryModSeparator = components[7]
-        let secondaryModValue = components[8]
 
         var includesChannel = streamOrChannelName.starts(with: "@")
 
@@ -188,7 +284,7 @@ struct LbryUri: CustomStringConvertible {
         let channelClaimId: String? = includesChannel && primaryMod != nil ? primaryMod?.claimId : nil
 
         return LbryUri(
-            path: components[2 ..< components.count].joined(),
+            path: path,
             isChannel: isChannel,
             streamName: streamName,
             streamClaimId: streamClaimId,
