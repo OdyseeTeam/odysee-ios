@@ -2411,7 +2411,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             self.playerRate = rate
         }
 
-        picker.selectRow(selectedRateIndex, inComponent: 0, animated: false)
+        DispatchQueue.main.async {
+            picker.selectRow(self.selectedRateIndex, inComponent: 0, animated: false)
+        }
         playerRatePicker = picker
         present(alert, animated: true, completion: nil)
     }
