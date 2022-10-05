@@ -571,7 +571,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             return
                         }
                         let headers: [String: String] = [
-                            "Referer": "https://bitwave.tv",
+                            "Referer": "https://ios.odysee.com",
                         ]
                         DispatchQueue.main.async {
                             self.initializePlayerWithUrl(
@@ -627,7 +627,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     if let streamUrl = (livestreamData["VideoURL"] as? String).flatMap(URL.init) {
                         if !self.membersOnly {
                             let headers: [String: String] = [
-                                "Referer": "https://bitwave.tv",
+                                "Referer": "https://ios.odysee.com",
                             ]
                             DispatchQueue.main.async {
                                 self.initializePlayerWithUrl(
@@ -724,7 +724,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
             contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
             let manager = PINRemoteImageManager.shared()
-            manager.setValue("https://odysee.com/", forHTTPHeaderField: "Referer")
+            manager.setValue("https://ios.odysee.com", forHTTPHeaderField: "Referer")
             manager.downloadImage(with: contentUrl!) { result in
                 guard let image = result.image else { return }
                 Thread.performOnMain {
@@ -920,7 +920,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         DispatchQueue.global().async {
             do {
                 var request = URLRequest(url: url)
-                request.setValue("https://odysee.com/", forHTTPHeaderField: "Referer")
+                request.setValue("https://ios.odysee.com", forHTTPHeaderField: "Referer")
                 URLSession.shared.dataTask(with: request) { result in
                     guard case let .success(data) = result,
                           let contents = String(data: data.data, encoding: .utf8)
@@ -1526,7 +1526,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     {
                         DispatchQueue.main.async {
                             let headers: [String: String] = [
-                                "Referer": "https://odysee.com/",
+                                "Referer": "https://ios.odysee.com",
                             ]
                             self.initializePlayerWithUrl(
                                 singleClaim: singleClaim,
