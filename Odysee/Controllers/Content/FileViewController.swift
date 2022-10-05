@@ -263,17 +263,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         super.viewDidLoad()
         relatedContentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
 
-        if #available(iOS 14.0, *) {
-            let rateActionHandler: UIActionHandler = { action in
-                self.playerRateButton.setTitle(action.title, for: .normal)
-                let rate = Float(action.title.dropLast()) ?? 1
-                self.avpc.player?.rate = rate
-                self.playerRate = rate
+        if #unavailable(iOS 16) {
+            if #available(iOS 14, *) {
+                let rateActionHandler: UIActionHandler = { action in
+                    self.playerRateButton.setTitle(action.title, for: .normal)
+                    let rate = Float(action.title.dropLast()) ?? 1
+                    self.avpc.player?.rate = rate
+                    self.playerRate = rate
+                }
+                let rateActions = availableRates.map { title in UIAction(title: title, handler: rateActionHandler) }
+                playerRateButton.menu = UIMenu(title: "", children: rateActions)
+            } else {
+                playerRateButton.addTarget(self, action: #selector(playerRateTapped), for: .touchUpInside)
             }
-            let rateActions = availableRates.map { title in UIAction(title: title, handler: rateActionHandler) }
-            playerRateButton.menu = UIMenu(title: "", children: rateActions)
-        } else {
-            playerRateButton.addTarget(self, action: #selector(playerRateTapped), for: .touchUpInside)
         }
 
         registerForKeyboardNotifications()
@@ -810,20 +812,22 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             avpc.updatesNowPlayingInfoCenter = false
             addChild(avpc)
 
-            playerRateView.isHidden = false
-            jumpBackwardView.isHidden = false
-            jumpForwardView.isHidden = false
-            avpc.playerRateView = playerRateView
-            avpc.jumpBackwardView = jumpBackwardView
-            avpc.jumpForwardView = jumpForwardView
-            avpcIsReadyObserver = avpc.observe(\.player?.rate, options: .new) { avpc, _ in
-                if avpc.player?.rate ?? 0 > 0 {
-                    avpc.hideViewsTimer?.invalidate()
-                    avpc.hideViewsTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
-                        UIView.animate(withDuration: 0.3, delay: 0.5, options: .curveEaseIn) {
-                            avpc.playerRateView?.alpha = 0
-                            avpc.jumpBackwardView?.alpha = 0
-                            avpc.jumpForwardView?.alpha = 0
+            if #unavailable(iOS 16) {
+                playerRateView.isHidden = false
+                jumpBackwardView.isHidden = false
+                jumpForwardView.isHidden = false
+                avpc.playerRateView = playerRateView
+                avpc.jumpBackwardView = jumpBackwardView
+                avpc.jumpForwardView = jumpForwardView
+                avpcIsReadyObserver = avpc.observe(\.player?.rate, options: .new) { avpc, _ in
+                    if avpc.player?.rate ?? 0 > 0 {
+                        avpc.hideViewsTimer?.invalidate()
+                        avpc.hideViewsTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
+                            UIView.animate(withDuration: 0.3, delay: 0.5, options: .curveEaseIn) {
+                                avpc.playerRateView?.alpha = 0
+                                avpc.jumpBackwardView?.alpha = 0
+                                avpc.jumpForwardView?.alpha = 0
+                            }
                         }
                     }
                 }
@@ -2485,29 +2489,31 @@ class TouchInterceptingAVPlayerViewController: AVPlayerViewController {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseIn) {
-            if let playerRateView = self.playerRateView,
-               let jumpForwardView = self.jumpForwardView,
-               let jumpBackwardView = self.jumpBackwardView
-            {
-                if playerRateView.alpha == 0 {
-                    playerRateView.alpha = 1
-                    jumpBackwardView.alpha = 1
-                    jumpForwardView.alpha = 1
-                    self.hideViewsTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
-                        UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseIn) {
-                            if self.player?.rate != 0 { // Do not hide when paused
-                                playerRateView.alpha = 0
-                                jumpBackwardView.alpha = 0
-                                jumpForwardView.alpha = 0
+        if #unavailable(iOS 16) {
+            UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseIn) {
+                if let playerRateView = self.playerRateView,
+                   let jumpForwardView = self.jumpForwardView,
+                   let jumpBackwardView = self.jumpBackwardView
+                {
+                    if playerRateView.alpha == 0 {
+                        playerRateView.alpha = 1
+                        jumpBackwardView.alpha = 1
+                        jumpForwardView.alpha = 1
+                        self.hideViewsTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { _ in
+                            UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseIn) {
+                                if self.player?.rate != 0 { // Do not hide when paused
+                                    playerRateView.alpha = 0
+                                    jumpBackwardView.alpha = 0
+                                    jumpForwardView.alpha = 0
+                                }
                             }
                         }
+                    } else {
+                        playerRateView.alpha = 0
+                        jumpBackwardView.alpha = 0
+                        jumpForwardView.alpha = 0
+                        self.hideViewsTimer?.invalidate()
                     }
-                } else {
-                    playerRateView.alpha = 0
-                    jumpBackwardView.alpha = 0
-                    jumpForwardView.alpha = 0
-                    self.hideViewsTimer?.invalidate()
                 }
             }
         }
