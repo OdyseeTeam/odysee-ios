@@ -1502,7 +1502,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func getStreamingUrlAndInitializePlayer(_ singleClaim: Claim, baseStreamingUrl: String? = nil) {
         var params = [String: Any]()
         params["uri"] = singleClaim.permanentUrl!
-        if let baseStreamingUrl {
+        if let baseStreamingUrl = baseStreamingUrl {
             params["base_streaming_url"] = baseStreamingUrl
         }
 
