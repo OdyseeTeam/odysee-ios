@@ -192,4 +192,11 @@ class Claim: Decodable, Equatable, Hashable {
             return nil
         }
     }
+
+    var titleOrName: String? {
+        if let value, let title = value.title {
+            return title
+        }
+        return name
+    }
 }

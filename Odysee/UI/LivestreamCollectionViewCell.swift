@@ -43,7 +43,7 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         startTimeLabel.textColor = claim.featured ? UIColor.white : nil
 
         titleLabel.text = claim.name
-        publisherLabel.text = claim.signingChannel?.name
+        publisherLabel.text = claim.signingChannel?.titleOrName
 
         // load thumbnail url
         if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
