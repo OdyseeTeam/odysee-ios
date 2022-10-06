@@ -117,8 +117,8 @@ class ClaimTableViewCell: UITableViewCell {
         thumbnailImageView.isHidden = isChannel
 
         titleLabel.textColor = actualClaim.featured ? UIColor.white : nil
-        titleLabel.text = isChannel ? actualClaim.name : actualClaim.value?.title
-        publisherLabel.text = isChannel ? actualClaim.name : actualClaim.signingChannel?.name
+        titleLabel.text = actualClaim.value?.title
+        publisherLabel.text = isChannel ? actualClaim.name : actualClaim.signingChannel?.titleOrName
 
         let isLivestream = actualClaim.value?.source == nil && !isChannel
         if isLivestream {
