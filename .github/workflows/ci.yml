@@ -26,3 +26,13 @@ jobs:
         run: mint bootstrap --link
       - name: SwiftFormat
         run: swiftformat . --lint --verbose
+
+  build:
+    runs-on: macOS-11
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Copy sample GoogleService-Info.plist
+        run: cp Odysee/GoogleService-Info.plist.sample Odysee/GoogleService-Info.plist
+      - name: Run xcodebuild
+        run: xcodebuild -project Odysee.xcodeproj/ -scheme Odysee -configuration Release -destination generic/platform=iOS CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO -derivedDataPath DerivedData -archivePath DerivedData/Archive/Odysee archive
