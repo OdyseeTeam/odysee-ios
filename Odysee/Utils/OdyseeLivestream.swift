@@ -12,80 +12,84 @@ struct OdyseeLivestream {
     static let isLiveEndpoint = "https://api.odysee.live/livestream/is_live?channel_claim_id=%@"
 
     static func all(completion: @escaping (_ result: Result<[String: LivestreamInfo], Error>) -> Void) {
-        do {
-            let data = try Data(contentsOf: allEndpoint)
+        DispatchQueue.global().async {
+            do {
+                let data = try Data(contentsOf: allEndpoint)
 
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
 
-            let result = try decoder.decode(OLAllResult.self, from: data)
-            if result.success, result.error == nil, let data = result.data {
-                let livestreamInfos = Dictionary(
-                    uniqueKeysWithValues: data
-                        .filter { $0.activeClaim.claimId != "Confirming" }
-                        .map {
-                            (
-                                $0.activeClaim.claimId,
-                                LivestreamInfo(
-                                    live: $0.live,
-                                    startTime: $0.startTime,
-                                    viewerCount: $0.viewerCount,
-                                    channelClaimId: $0.channelClaimId
+                let result = try decoder.decode(OLAllResult.self, from: data)
+                if result.success, result.error == nil, let data = result.data {
+                    let livestreamInfos = Dictionary(
+                        uniqueKeysWithValues: data
+                            .filter { $0.activeClaim.claimId != "Confirming" }
+                            .map {
+                                (
+                                    $0.activeClaim.claimId,
+                                    LivestreamInfo(
+                                        live: $0.live,
+                                        startTime: $0.startTime,
+                                        viewerCount: $0.viewerCount,
+                                        channelClaimId: $0.channelClaimId
+                                    )
                                 )
-                            )
-                        }
-                )
-                completion(.success(livestreamInfos))
-                return
-            } else if result.data == nil,
-                      let error = result.error,
-                      let trace = result.trace
-            {
-                completion(.failure(OdyseeLivestreamError.runtimeError("\(error)\n---Trace---\n\(trace)")))
-                return
-            }
+                            }
+                    )
+                    completion(.success(livestreamInfos))
+                    return
+                } else if result.data == nil,
+                          let error = result.error,
+                          let trace = result.trace
+                {
+                    completion(.failure(OdyseeLivestreamError.runtimeError("\(error)\n---Trace---\n\(trace)")))
+                    return
+                }
 
-            completion(.failure(OdyseeLivestreamError.unknown))
-        } catch {
-            completion(.failure(error))
+                completion(.failure(OdyseeLivestreamError.unknown))
+            } catch {
+                completion(.failure(error))
+            }
         }
     }
 
     static func channelIsLive(channelClaimId: String, completion: @escaping (_ result: Result<(String, LivestreamInfo), Error>) -> Void) {
-        do {
-            guard let url = URL(string: String(format: isLiveEndpoint, channelClaimId)) else {
-                completion(.failure(OdyseeLivestreamError.couldNotCreateUrl))
-                return
+        DispatchQueue.global().async {
+            do {
+                guard let url = URL(string: String(format: isLiveEndpoint, channelClaimId)) else {
+                    completion(.failure(OdyseeLivestreamError.couldNotCreateUrl))
+                    return
+                }
+
+                let data = try Data(contentsOf: url)
+
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+
+                let result = try decoder.decode(OLIsLiveResult.self, from: data)
+                if result.success, result.error == nil, let data = result.data {
+                    completion(.success((
+                        data.activeClaim.canonicalUrl,
+                        LivestreamInfo(
+                            live: data.live,
+                            startTime: data.startTime,
+                            viewerCount: data.viewerCount,
+                            channelClaimId: data.channelClaimId
+                        )
+                    )))
+                    return
+                } else if result.data == nil,
+                          let error = result.error,
+                          let trace = result.trace
+                {
+                    completion(.failure(OdyseeLivestreamError.runtimeError("\(error)\n---Trace---\n\(trace)")))
+                    return
+                }
+
+                completion(.failure(OdyseeLivestreamError.unknown))
+            } catch {
+                completion(.failure(error))
             }
-
-            let data = try Data(contentsOf: url)
-
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-
-            let result = try decoder.decode(OLIsLiveResult.self, from: data)
-            if result.success, result.error == nil, let data = result.data {
-                completion(.success((
-                    data.activeClaim.canonicalUrl,
-                    LivestreamInfo(
-                        live: data.live,
-                        startTime: data.startTime,
-                        viewerCount: data.viewerCount,
-                        channelClaimId: data.channelClaimId
-                    )
-                )))
-                return
-            } else if result.data == nil,
-                      let error = result.error,
-                      let trace = result.trace
-            {
-                completion(.failure(OdyseeLivestreamError.runtimeError("\(error)\n---Trace---\n\(trace)")))
-                return
-            }
-
-            completion(.failure(OdyseeLivestreamError.unknown))
-        } catch {
-            completion(.failure(error))
         }
     }
 

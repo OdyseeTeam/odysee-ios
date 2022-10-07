@@ -206,90 +206,88 @@ class HomeViewController: UIViewController,
         loadingContainer.isHidden = false
         loadingLivestreams = true
 
-        DispatchQueue.global().async { [self] in
-            OdyseeLivestream.all { result in
-                if case var .success(infos) = result {
-                    let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
-                    if !isWildWest {
-                        infos = infos
-                            .filter { channelIds[currentCategoryIndex]?.contains($0.value.channelClaimId) ?? false }
+        OdyseeLivestream.all { [self] result in
+            if case var .success(infos) = result {
+                let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
+                if !isWildWest {
+                    infos = infos
+                        .filter { channelIds[currentCategoryIndex]?.contains($0.value.channelClaimId) ?? false }
 
-                        guard infos.count > 0 else {
-                            DispatchQueue.main.async {
-                                claimListView.tableHeaderView = nil
-                                if !loadingClaims {
-                                    loadingContainer.isHidden = true
-                                }
-                                loadingLivestreams = false
-                            }
-                            return
-                        }
-                    } else {
-                        guard infos.count > 0 else {
-                            // Livestreams are "expected" in Wild West so show no livestreams message
-                            DispatchQueue.main.async {
-                                claimListView.tableHeaderView = livestreamsView
-                                livestreamsCollectionView.isHidden = true
-                                livestreamsLabel.text = String
-                                    .localized("No livestreams to display at this time. Please try again later.")
-                                if !loadingClaims {
-                                    loadingContainer.isHidden = true
-                                }
-                                loadingLivestreams = false
-                            }
-                            return
-                        }
-                    }
-
-                    DispatchQueue.main.async {
-                        claimListView.tableHeaderView = livestreamsView
-                        livestreamsCollectionView.isHidden = false
-                        livestreamsLabel.text = String.localized("Livestreams")
-                    }
-
-                    Lbry.apiCall(
-                        method: Lbry.Methods.claimSearch,
-                        params: .init(
-                            claimType: [.stream],
-                            page: livestreamsCurrentPage,
-                            pageSize: pageSize,
-                            hasNoSource: true,
-                            notTags: Constants.MatureTags + (isWildWest ? [] : [Constants.MembersOnly]),
-                            notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
-                            claimIds: Array(infos.keys)
-                        )
-                    ).subscribeResult { result in
-                        if case let .success(payload) = result {
-                            let oldCount = livestreams.count
-                            for claim in payload.items {
-                                let livestreamInfo = infos[claim.claimId!]
-                                let livestreamData = LivestreamData(
-                                    startTime: livestreamInfo?.startTime ?? Date(),
-                                    viewerCount: livestreamInfo?.viewerCount ?? 0,
-                                    claim: claim
-                                )
-                                livestreams.append(livestreamData)
-                            }
-                            livestreams.sort {
-                                $1.viewerCount < $0.viewerCount
-                            }
-                            if livestreams.count != oldCount {
-                                livestreamsCollectionView.reloadData()
-                            }
-
-                            livestreamsLastPageReached = payload.isLastPage
-
+                    guard infos.count > 0 else {
+                        DispatchQueue.main.async { [self] in
+                            claimListView.tableHeaderView = nil
                             if !loadingClaims {
                                 loadingContainer.isHidden = true
                             }
                             loadingLivestreams = false
                         }
+                        return
                     }
-                } else if case let .failure(error) = result {
-                    DispatchQueue.main.async {
-                        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                        appDelegate.mainController.showError(message: error.localizedDescription)
+                } else {
+                    guard infos.count > 0 else {
+                        // Livestreams are "expected" in Wild West so show no livestreams message
+                        DispatchQueue.main.async { [self] in
+                            claimListView.tableHeaderView = livestreamsView
+                            livestreamsCollectionView.isHidden = true
+                            livestreamsLabel.text = String
+                                .localized("No livestreams to display at this time. Please try again later.")
+                            if !loadingClaims {
+                                loadingContainer.isHidden = true
+                            }
+                            loadingLivestreams = false
+                        }
+                        return
                     }
+                }
+
+                DispatchQueue.main.async { [self] in
+                    claimListView.tableHeaderView = livestreamsView
+                    livestreamsCollectionView.isHidden = false
+                    livestreamsLabel.text = String.localized("Livestreams")
+                }
+
+                Lbry.apiCall(
+                    method: Lbry.Methods.claimSearch,
+                    params: .init(
+                        claimType: [.stream],
+                        page: livestreamsCurrentPage,
+                        pageSize: pageSize,
+                        hasNoSource: true,
+                        notTags: Constants.MatureTags + (isWildWest ? [] : [Constants.MembersOnly]),
+                        notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
+                        claimIds: Array(infos.keys)
+                    )
+                ).subscribeResult { [self] result in
+                    if case let .success(payload) = result {
+                        let oldCount = livestreams.count
+                        for claim in payload.items {
+                            let livestreamInfo = infos[claim.claimId!]
+                            let livestreamData = LivestreamData(
+                                startTime: livestreamInfo?.startTime ?? Date(),
+                                viewerCount: livestreamInfo?.viewerCount ?? 0,
+                                claim: claim
+                            )
+                            livestreams.append(livestreamData)
+                        }
+                        livestreams.sort {
+                            $1.viewerCount < $0.viewerCount
+                        }
+                        if livestreams.count != oldCount {
+                            livestreamsCollectionView.reloadData()
+                        }
+
+                        livestreamsLastPageReached = payload.isLastPage
+
+                        if !loadingClaims {
+                            loadingContainer.isHidden = true
+                        }
+                        loadingLivestreams = false
+                    }
+                }
+            } else if case let .failure(error) = result {
+                DispatchQueue.main.async {
+                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                    appDelegate.mainController.showError(message: error.localizedDescription)
                 }
             }
         }
