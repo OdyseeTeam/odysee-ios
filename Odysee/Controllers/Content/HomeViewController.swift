@@ -207,7 +207,7 @@ class HomeViewController: UIViewController,
         loadingLivestreams = true
 
         DispatchQueue.global().async { [self] in
-            OdyseeLivestream.listLivestreams { result in
+            OdyseeLivestream.all { result in
                 if case var .success(infos) = result {
                     let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
                     if !isWildWest {

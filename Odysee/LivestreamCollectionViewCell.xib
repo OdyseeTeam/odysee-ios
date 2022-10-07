@@ -98,7 +98,7 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="P8t-uf-2lA" userLabel="Image View">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="P8t-uf-2lA" userLabel="Viewer Count Image View">
                                 <rect key="frame" x="19" y="5.5" width="27" height="15.5"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <imageReference key="image" image="eye.fill" catalog="system" symbolScale="default"/>
@@ -175,6 +175,7 @@
                 <outlet property="startTimeLabel" destination="K9g-9i-4X0" id="3oY-7v-1gC"/>
                 <outlet property="thumbnailImageView" destination="I4k-sK-dVx" id="GIi-XS-N4W"/>
                 <outlet property="titleLabel" destination="xOY-ev-iQf" id="toI-Jr-bfg"/>
+                <outlet property="viewerCountImageView" destination="P8t-uf-2lA" id="uYE-n4-gUi"/>
                 <outlet property="viewerCountLabel" destination="qNZ-GY-bIA" id="sg6-HW-y0p"/>
                 <outlet property="viewerCountStackView" destination="kVA-ic-4Ua" id="HMl-YR-c31"/>
             </connections>

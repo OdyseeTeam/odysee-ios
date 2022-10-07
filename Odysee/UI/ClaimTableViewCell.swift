@@ -22,7 +22,10 @@ class ClaimTableViewCell: UITableViewCell {
     @IBOutlet var publishTimeLabel: UILabel!
     @IBOutlet var durationView: UIView!
     @IBOutlet var durationLabel: UILabel!
-
+    @IBOutlet var viewerCountView: UIView!
+    @IBOutlet var viewerCountLabel: UILabel!
+    @IBOutlet var viewerCountImageView: UIView!
+    
     var currentClaim: Claim?
     var reposterChannelClaim: Claim?
 
@@ -120,11 +123,6 @@ class ClaimTableViewCell: UITableViewCell {
         titleLabel.text = isChannel ? actualClaim.name : actualClaim.value?.title
         publisherLabel.text = isChannel ? actualClaim.name : actualClaim.signingChannel?.name
 
-        let isLivestream = actualClaim.value?.source == nil && !isChannel
-        if isLivestream {
-            publisherLabel.text = "LIVE"
-        }
-
         // load thumbnail url
         if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init) {
             if isChannel {
@@ -162,12 +160,31 @@ class ClaimTableViewCell: UITableViewCell {
             duration = streamInfo?.duration ?? 0
         }
 
-        durationView.isHidden = duration <= 0
+        let isLivestream = actualClaim.value?.source == nil && !isChannel
+        durationView.isHidden = duration <= 0 && !isLivestream
+        viewerCountView.isHidden = !isLivestream || !(actualClaim.livestreamInfo?.live ?? false)
         if duration > 0 {
             if duration < 60 {
                 durationLabel.text = String(format: "0:%02d", duration)
             } else {
                 durationLabel.text = Helper.durationFormatter.string(from: TimeInterval(duration))
+            }
+        } else if isLivestream {
+            durationLabel.text = "LIVE"
+
+            if let livestreamInfo = actualClaim.livestreamInfo, livestreamInfo.live {
+                publishTimeLabel.text = String(
+                    format: String.localized("Started %@"),
+                    Helper.fullRelativeDateFormatter.localizedString(for: livestreamInfo.startTime, relativeTo: Date())
+                )
+                viewerCountView.isHidden = false
+                durationView.isHidden = true
+                viewerCountImageView.isHidden = livestreamInfo.viewerCount == 0
+                if livestreamInfo.viewerCount > 0 {
+                    viewerCountLabel.text = String(livestreamInfo.viewerCount)
+                } else {
+                    viewerCountLabel.text = "LIVE"
+                }
             }
         }
 

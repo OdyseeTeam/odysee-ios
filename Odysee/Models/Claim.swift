@@ -47,6 +47,7 @@ class Claim: Decodable, Equatable, Hashable {
     var valueType: ClaimType?
     var selected: Bool = false
     var featured: Bool = false
+    var livestreamInfo: LivestreamInfo?
 
     private enum CodingKeys: String, CodingKey {
         case address

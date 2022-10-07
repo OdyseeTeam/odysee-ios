@@ -473,58 +473,36 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
         loadingContent = true
 
-        Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
-            params: .init(
-                claimType: [.stream],
-                page: 1,
-                pageSize: pageSize,
-                hasNoSource: true,
-                notTags: Constants.MatureTags,
-                channelIds: [channelClaim?.claimId ?? ""],
-                orderBy: Helper.sortByItemValues[1]
-            )
-        )
-        .subscribeResult(didCheckLivestream)
-    }
-
-    func didCheckLivestream(_ result: Result<Page<Claim>, Error>) {
-        loadingContent = false
-        guard case let .success(page) = result,
-              let claim = page.items.first
-        else {
-            result.showErrorIfPresent()
-            return
-        }
-        let url = URL(string: String(format: "https://api.live.odysee.com/v1/odysee/live/%@", channelClaim!.claimId!))
-        let session = URLSession.shared
-        var req = URLRequest(url: url!)
-        req.httpMethod = "GET"
-
-        let task = session.dataTask(with: req, completionHandler: { data, _, error in
-            guard let data = data, error == nil else {
-                // handle error
+        OdyseeLivestream.channelIsLive(channelClaimId: channelClaim?.claimId ?? "") { result in
+            guard case let .success((url, livestreamInfo)) = result,
+                  livestreamInfo.live
+            else {
+                DispatchQueue.main.async {
+                    result.showErrorIfPresent()
+                }
                 return
             }
-            do {
-                let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                if let livestreamData = response?["data"] as? [String: Any] {
-                    let isLive = livestreamData["live"] as? Bool ?? false
-                    if isLive {
-                        // only show the livestream claim at the top if the channel is actually live
-                        DispatchQueue.main.async {
-                            self.claims.insert(claim, at: 0)
-                            self.contentListView.reloadData()
-                        }
 
-                        return
-                    }
+            Lbry.apiCall(
+                method: Lbry.Methods.resolve,
+                params: .init(urls: [url])
+            )
+            .subscribeResult { result in
+                guard case let .success(resolveResult) = result,
+                      let claim = resolveResult.claims.values.first
+                else {
+                    result.showErrorIfPresent()
+                    return
                 }
-            } catch {
-                // pass
+
+                DispatchQueue.main.async {
+                    self.claims.removeAll { $0.claimId == claim.claimId }
+                    claim.livestreamInfo = livestreamInfo
+                    self.claims.insert(claim, at: 0)
+                    self.contentListView.reloadData()
+                }
             }
-        })
-        task.resume()
+        }
     }
 
     func checkNoContent() {
