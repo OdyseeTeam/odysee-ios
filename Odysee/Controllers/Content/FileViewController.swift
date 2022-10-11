@@ -637,7 +637,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                                 )
                             }
                         } else {
-                            self.getStreamingUrlAndInitializePlayer(
+                            self.getStreamingUrl(
                                 self.claim!,
                                 baseStreamingUrl: streamUrl.string
                             )
@@ -1067,7 +1067,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             if isLivestream {
                 loadLivestream()
             } else if !isTextContent, !isImageContent, !isOtherContent {
-                getStreamingUrlAndInitializePlayer(claim!)
+                getStreamingUrl(claim!)
             }
         }
     }
@@ -1493,7 +1493,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         if !isTextContent, !isImageContent, !isOtherContent {
-            getStreamingUrlAndInitializePlayer(singleClaim)
+            getStreamingUrl(singleClaim)
         }
         loadAndDisplayViewCount(singleClaim)
         loadReactions(singleClaim)
@@ -1503,7 +1503,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         checkNotificationsDisabled(singleClaim)
     }
 
-    func getStreamingUrlAndInitializePlayer(_ singleClaim: Claim, baseStreamingUrl: String? = nil) {
+    func getStreamingUrl(_ singleClaim: Claim, baseStreamingUrl: String? = nil) {
         var params = [String: Any]()
         params["uri"] = singleClaim.permanentUrl!
         if let baseStreamingUrl = baseStreamingUrl {
@@ -1528,20 +1528,79 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                                .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
                        )
                     {
-                        DispatchQueue.main.async {
-                            let headers: [String: String] = [
-                                "Referer": "https://ios.odysee.com",
-                            ]
-                            self.initializePlayerWithUrl(
-                                singleClaim: singleClaim,
-                                sourceUrl: sourceUrl,
-                                headers: headers
-                            )
-                        }
+                        self.getTranscodedUrlAndInitializePlayer(claim: singleClaim, sourceUrl: sourceUrl)
                     }
                 }
             }
         )
+    }
+
+    func getTranscodedUrlAndInitializePlayer(claim: Claim, sourceUrl: URL) {
+        class NoRedirectSession: NSObject, URLSessionTaskDelegate {
+            func urlSession(
+                _ session: URLSession,
+                task: URLSessionTask,
+                willPerformHTTPRedirection response: HTTPURLResponse,
+                newRequest request: URLRequest,
+                completionHandler: @escaping (URLRequest?) -> Void
+            ) {
+                completionHandler(nil)
+            }
+        }
+
+        let session = URLSession(configuration: .default, delegate: NoRedirectSession(), delegateQueue: nil)
+        var request = URLRequest(url: sourceUrl)
+        request.httpMethod = "HEAD"
+        let dataTask = session.dataTask(with: request) { result in
+            guard case let .success(data) = result,
+                  let response = data.response as? HTTPURLResponse,
+                  response.statusCode == 200 || response.statusCode == 308
+            else {
+                self.showError(message: String.localized("Failed to get transcoded media location"))
+                return
+            }
+
+            if response.statusCode == 200 {
+                DispatchQueue.main.async {
+                    let headers: [String: String] = [
+                        "Referer": "https://ios.odysee.com",
+                    ]
+                    self.initializePlayerWithUrl(
+                        singleClaim: claim,
+                        sourceUrl: sourceUrl,
+                        headers: headers
+                    )
+                }
+            } else {
+                guard var location = response.value(forHTTPHeaderField: "Location") else {
+                    self.showError(message: String.localized("Failed to get transcoded media location"))
+                    return
+                }
+
+                if location.hasPrefix("/") {
+                    let suffix = sourceUrl.relativePath
+                    let prefix = String(sourceUrl.string.dropLast(suffix.count))
+                    location = prefix + location
+                }
+
+                if let mediaUrl = URL(
+                    string: location
+                        .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
+                ) {
+                    DispatchQueue.main.async {
+                        let headers: [String: String] = [
+                            "Referer": "https://ios.odysee.com",
+                        ]
+                        self.initializePlayerWithUrl(
+                            singleClaim: claim,
+                            sourceUrl: mediaUrl,
+                            headers: headers
+                        )
+                    }
+                }
+            }
+        }
+        dataTask.resume()
     }
 
     func loadRelatedContent() {
