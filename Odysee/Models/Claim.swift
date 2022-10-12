@@ -194,7 +194,7 @@ class Claim: Decodable, Equatable, Hashable {
     }
 
     var titleOrName: String? {
-        if let value, let title = value.title {
+        if let value = value, let title = value.title {
             return title
         }
         return name
