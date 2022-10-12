@@ -263,7 +263,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         super.viewDidLoad()
         relatedContentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
 
-        if #unavailable(iOS 16) {
+        if #available(iOS 16, *) {
+        } else {
             if #available(iOS 14, *) {
                 let rateActionHandler: UIActionHandler = { action in
                     self.playerRateButton.setTitle(action.title, for: .normal)
@@ -812,7 +813,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             avpc.updatesNowPlayingInfoCenter = false
             addChild(avpc)
 
-            if #unavailable(iOS 16) {
+            if #available(iOS 16, *) {
+            } else {
                 playerRateView.isHidden = false
                 jumpBackwardView.isHidden = false
                 jumpForwardView.isHidden = false
@@ -2550,7 +2552,8 @@ class TouchInterceptingAVPlayerViewController: AVPlayerViewController {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        if #unavailable(iOS 16) {
+        if #available(iOS 16, *) {
+        } else {
             UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseIn) {
                 if let playerRateView = self.playerRateView,
                    let jumpForwardView = self.jumpForwardView,
