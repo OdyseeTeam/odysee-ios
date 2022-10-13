@@ -12,10 +12,13 @@
 		534B71A2287BE08D00F01D42 /* CommentAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentAPIParams.swift */; };
 		534B71A4287BE0F200F01D42 /* ChannelSignResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */; };
 		53593F31287E5D75007FD08E /* ReactListResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* ReactListResult.swift */; };
+		5372FAB928F3B9AC009F491D /* FutureStreamsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5372FAB828F3B9AC009F491D /* FutureStreamsView.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
+		538D189328F545B4001FD60F /* RestrictedUIHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538D189228F545B3001FD60F /* RestrictedUIHostingController.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
+		53EA81E628F51C92000F6D31 /* NetworkImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EA81E528F51C92000F6D31 /* NetworkImage.swift */; };
 		53FAD3FD288504C60000F980 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53FAD3FB288504C60000F980 /* Localizable.strings */; };
 		64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = 64019A0D269C101D00E16A51 /* ImageScrollView */; };
 		6402A30327E14C8800113E26 /* OdyseeLocale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6402A30227E14C8800113E26 /* OdyseeLocale.swift */; };
@@ -143,10 +146,13 @@
 		534B71A1287BE08D00F01D42 /* CommentAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentAPIParams.swift; sourceTree = "<group>"; };
 		534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelSignResult.swift; sourceTree = "<group>"; };
 		53593F30287E5D75007FD08E /* ReactListResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactListResult.swift; sourceTree = "<group>"; };
+		5372FAB828F3B9AC009F491D /* FutureStreamsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FutureStreamsView.swift; sourceTree = "<group>"; };
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
+		538D189228F545B3001FD60F /* RestrictedUIHostingController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestrictedUIHostingController.swift; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
+		53EA81E528F51C92000F6D31 /* NetworkImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkImage.swift; sourceTree = "<group>"; };
 		53FAD3FC288504C60000F980 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Odysee/Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		6402A30227E14C8800113E26 /* OdyseeLocale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLocale.swift; sourceTree = "<group>"; };
 		640BEF2E2587A8FA0019B840 /* LbryNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryNotification.swift; sourceTree = "<group>"; };
@@ -375,6 +381,8 @@
 				647EB3F125F54EB1003AA76B /* UIStackCardView.swift */,
 				645912212620789E00B2ABA5 /* ChatMessageTableViewCell.swift */,
 				53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */,
+				5372FAB828F3B9AC009F491D /* FutureStreamsView.swift */,
+				53EA81E528F51C92000F6D31 /* NetworkImage.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -464,6 +472,7 @@
 				64A6CA7A255DD34700294E74 /* AppTabBarController.swift */,
 				CC48F4FB2662B2020018D958 /* VideoPickerController.swift */,
 				CC49954426692037001BB2DC /* ImagePrefetchController.swift */,
+				538D189228F545B3001FD60F /* RestrictedUIHostingController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -743,9 +752,11 @@
 				64FF820F2604FB0B009B7A3B /* FirstRunDelegate.swift in Sources */,
 				648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */,
 				CCDDA9172655C1340006035F /* FileDismissAnimationController.swift in Sources */,
+				538D189328F545B4001FD60F /* RestrictedUIHostingController.swift in Sources */,
 				64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */,
 				648F70D726307BF900885A2F /* GoLiveViewController.swift in Sources */,
 				CC0B2B0D266D0E72002490BB /* Lock.swift in Sources */,
+				5372FAB928F3B9AC009F491D /* FutureStreamsView.swift in Sources */,
 				6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */,
 				64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */,
 				648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */,
@@ -756,6 +767,7 @@
 				64A6CA7B255DD34700294E74 /* AppTabBarController.swift in Sources */,
 				CC49954526692037001BB2DC /* ImagePrefetchController.swift in Sources */,
 				642B6B1B257B698C00F17355 /* TransactionsViewController.swift in Sources */,
+				53EA81E628F51C92000F6D31 /* NetworkImage.swift in Sources */,
 				646F1F7625F0D67A00F75F3B /* PublishesViewController.swift in Sources */,
 				6411C0B5255B94DA0018C3D5 /* MainViewController.swift in Sources */,
 				642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */,

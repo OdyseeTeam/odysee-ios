@@ -10,6 +10,7 @@ import Foundation
 struct OdyseeLivestream {
     static let allEndpoint = URL(string: "https://api.odysee.live/livestream/all")!
     static let isLiveEndpoint = "https://api.odysee.live/livestream/is_live?channel_claim_id=%@"
+    static let subscribedEndpoint = "https://api.odysee.live/livestream/subscribed?channel_claim_ids=%@"
 
     static func all(completion: @escaping (_ result: Result<[String: LivestreamInfo], Error>) -> Void) {
         DispatchQueue.global().async {
@@ -93,6 +94,43 @@ struct OdyseeLivestream {
         }
     }
 
+    static func subscribed(channelClaimIds: [String], completion: @escaping (_ result: Result<[String: [String: Date]], Error>) -> Void) {
+        DispatchQueue.global().async {
+            do {
+                guard let url = URL(string: String(format: subscribedEndpoint, channelClaimIds.joined(separator: ","))) else {
+                    completion(.failure(OdyseeLivestreamError.couldNotCreateUrl))
+                    return
+                }
+
+                let data = try Data(contentsOf: url)
+
+                let decoder = JSONDecoder()
+                decoder.dateDecodingStrategy = .iso8601
+
+                let result = try decoder.decode(OLAllResult.self, from: data)
+                if result.success, result.error == nil, let data = result.data {
+                    let futureClaimsInfos = Dictionary(uniqueKeysWithValues: data.map {
+                        ($0.channelClaimId, Dictionary(uniqueKeysWithValues: ($0.futureClaims ?? []).map {
+                            ($0.canonicalUrl, $0.releaseTime)
+                        }))
+                    })
+                    completion(.success(futureClaimsInfos))
+                    return
+                } else if result.data == nil,
+                          let error = result.error,
+                          let trace = result.trace
+                {
+                    completion(.failure(OdyseeLivestreamError.runtimeError("\(error)\n---Trace---\n\(trace)")))
+                    return
+                }
+
+                completion(.failure(OdyseeLivestreamError.unknown))
+            } catch {
+                completion(.failure(error))
+            }
+        }
+    }
+
     struct OLAllResult: Decodable {
         var success: Bool
         var error: String?
@@ -127,6 +165,7 @@ struct OdyseeLivestream {
         var viewerCount: Int
         var channelClaimId: String
         var activeClaim: OLClaim
+        var futureClaims: [OLClaim]?
 
         enum CodingKeys: String, CodingKey {
             case live = "Live"
@@ -134,16 +173,19 @@ struct OdyseeLivestream {
             case viewerCount = "ViewerCount"
             case channelClaimId = "ChannelClaimID"
             case activeClaim = "ActiveClaim"
+            case futureClaims = "FutureClaims"
         }
     }
 
     struct OLClaim: Decodable {
         var claimId: String
         var canonicalUrl: String
+        var releaseTime: Date
 
         enum CodingKeys: String, CodingKey {
             case claimId = "ClaimID"
             case canonicalUrl = "CanonicalURL"
+            case releaseTime = "ReleaseTime"
         }
     }
 }
@@ -158,6 +200,11 @@ struct LivestreamInfo: Hashable {
 struct LivestreamData: Hashable {
     var startTime: Date
     var viewerCount: Int
+    var claim: Claim
+}
+
+struct FutureClaimData: Hashable {
+    var releaseTime: Date
     var claim: Claim
 }
 

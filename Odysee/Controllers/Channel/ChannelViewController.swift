@@ -10,6 +10,7 @@ import Firebase
 import OrderedCollections
 import SafariServices
 import UIKit
+import SwiftUI
 
 class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UITableViewDelegate,
     UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UITextViewDelegate, BlockChannelStatusObserver
@@ -165,6 +166,20 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         if let mainVc = appDelegate.mainViewController as? MainViewController {
             mainVc.removeBlockChannelObserver(name: "channel")
         }
+    }
+
+    func addFutureStreamsView(futureClaims: OrderedSet<FutureClaimData>) {
+        let futureStreamsView = FutureStreamsView(futureClaims: futureClaims)
+        let controller = RestictedUIHostingController(rootView: futureStreamsView)
+        addChild(controller)
+        controller.view.translatesAutoresizingMaskIntoConstraints = false
+        contentListView.tableHeaderView = controller.view
+
+        NSLayoutConstraint.activate([
+            controller.view.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 1),
+            controller.view.leftAnchor.constraint(equalTo: contentListView.leftAnchor),
+            controller.view.topAnchor.constraint(equalTo: contentListView.topAnchor),
+        ])
     }
 
     func displayCommentsView() {
@@ -450,6 +465,35 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             )
         )
         .subscribeResult(didLoadContent)
+
+        OdyseeLivestream.subscribed(channelClaimIds: [channelClaim?.claimId ?? ""]) { result in
+            guard case let .success(infos) = result,
+                  let futures = infos.first?.value
+            else {
+                DispatchQueue.main.async {
+                    result.showErrorIfPresent()
+                }
+                return
+            }
+
+            Lbry.apiCall(
+                method: Lbry.Methods.resolve,
+                params: .init(urls: Array(futures.keys))
+            ).subscribeResult { result in
+                guard case let .success(resolveResult) = result else {
+                    result.showErrorIfPresent()
+                    return
+                }
+
+                var livestreams = OrderedSet<FutureClaimData>()
+                for claim in resolveResult.claims.values {
+                    let releaseTime = futures[claim.canonicalUrl!]!
+                    livestreams.append(FutureClaimData(releaseTime: releaseTime, claim: claim))
+                }
+
+                self.addFutureStreamsView(futureClaims: livestreams)
+            }
+        }
     }
 
     func didLoadContent(_ result: Result<Page<Claim>, Error>) {
