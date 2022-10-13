@@ -10,7 +10,7 @@ import Foundation
 struct OdyseeLivestream {
     static let apiEndpoint = URL(string: "https://api.odysee.live/livestream/all")!
 
-    static func listLivestreams(completion: @escaping (_ result: Result<[String: LivestreamInfo], Error>) -> Void) {
+    static func listLivestreams(completion: @escaping (_ result: Result<[LivestreamInfo], Error>) -> Void) {
         DispatchQueue.global().async {
             do {
                 let data = try Data(contentsOf: apiEndpoint)
@@ -20,20 +20,18 @@ struct OdyseeLivestream {
 
                 let result = try decoder.decode(OLResult.self, from: data)
                 if result.success, result.error == nil, let data = result.data {
-                    let livestreamInfos = Dictionary(
-                        uniqueKeysWithValues: data
-                            .filter { $0.activeClaim.claimId != "Confirming" }
-                            .map {
-                                (
-                                    $0.activeClaim.claimId,
-                                    LivestreamInfo(
-                                        startTime: $0.startTime,
-                                        viewerCount: $0.viewerCount,
-                                        channelClaimId: $0.channelClaimId
-                                    )
-                                )
-                            }
-                    )
+                    let livestreamInfos = data
+                        .filter { $0.activeClaim.claimId != "Confirming" }
+                        .filter(\.live)
+                        .map {
+                            LivestreamInfo(
+                                startTime: $0.startTime,
+                                viewerCount: $0.viewerCount,
+                                channelClaimId: $0.channelClaimId,
+                                activeClaimId: $0.activeClaim.claimId
+                            )
+                        }
+
                     completion(.success(livestreamInfos))
                     return
                 } else if result.data == nil,
@@ -67,12 +65,14 @@ struct OdyseeLivestream {
     }
 
     struct OLLivestream: Decodable {
+        var live: Bool
         var startTime: Date
         var viewerCount: Int
         var channelClaimId: String
         var activeClaim: OLClaim
 
         enum CodingKeys: String, CodingKey {
+            case live = "Live"
             case startTime = "Start"
             case viewerCount = "ViewerCount"
             case channelClaimId = "ChannelClaimID"
@@ -89,10 +89,11 @@ struct OdyseeLivestream {
     }
 }
 
-struct LivestreamInfo: Hashable {
+struct LivestreamInfo {
     var startTime: Date
     var viewerCount: Int
     var channelClaimId: String
+    var activeClaimId: String
 }
 
 struct LivestreamData: Hashable {
