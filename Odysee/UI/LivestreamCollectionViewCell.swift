@@ -28,6 +28,21 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         let publisherTapGesture = UITapGestureRecognizer(target: self, action: #selector(publisherTapped(_:)))
         publisherLabel.addGestureRecognizer(publisherTapGesture)
         thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
+
+        if #available(iOS 14, *) {
+        } else {
+            let viewerCountBackground = UIView()
+            viewerCountBackground.backgroundColor = Helper.primaryColor
+            viewerCountBackground.layer.cornerRadius = 6
+            viewerCountBackground.translatesAutoresizingMaskIntoConstraints = false
+            viewerCountStackView.insertSubview(viewerCountBackground, at: 0)
+            NSLayoutConstraint.activate([
+                viewerCountBackground.leadingAnchor.constraint(equalTo: viewerCountStackView.leadingAnchor),
+                viewerCountBackground.trailingAnchor.constraint(equalTo: viewerCountStackView.trailingAnchor),
+                viewerCountBackground.topAnchor.constraint(equalTo: viewerCountStackView.topAnchor),
+                viewerCountBackground.bottomAnchor.constraint(equalTo: viewerCountStackView.bottomAnchor)
+            ])
+        }
     }
 
     func setInfo(claim: Claim, startTime: Date, viewerCount: Int) {
