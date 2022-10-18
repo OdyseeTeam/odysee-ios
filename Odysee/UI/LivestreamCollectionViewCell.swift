@@ -19,6 +19,7 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
     @IBOutlet var membersOnlyView: UIView!
     @IBOutlet var viewerCountStackView: UIStackView!
     @IBOutlet var viewerCountLabel: UILabel!
+    @IBOutlet var viewerCountImageView: UIImageView!
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var publisherLabel: UILabel!
     @IBOutlet var startTimeLabel: UILabel!
@@ -72,7 +73,12 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         let startTimeRelative = Helper.fullRelativeDateFormatter.localizedString(for: startTime, relativeTo: Date())
         startTimeLabel.text = "Started \(startTimeRelative)"
 
-        viewerCountLabel.text = String(viewerCount)
+        viewerCountImageView.isHidden = viewerCount == 0
+        if viewerCount > 0 {
+            viewerCountLabel.text = String(viewerCount)
+        } else {
+            viewerCountLabel.text = "LIVE"
+        }
 
         if claim.value?.tags?.contains(Constants.MembersOnly) ?? false {
             DispatchQueue.global().async {
