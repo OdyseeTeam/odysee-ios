@@ -563,10 +563,10 @@ class HomeViewController: UIViewController,
         livestreamsLabel.numberOfLines = 0
         let titleHeight = livestreamsLabel.intrinsicContentSize.height
 
-        let collectionViewFrame = CGRect(x: 0, y: 0, width: 0, height: 233)
+        let collectionViewFrame = CGRect(x: 0, y: 0, width: 0, height: 199)
         let collectionViewLayout = UICollectionViewFlowLayout()
         collectionViewLayout.scrollDirection = .horizontal
-        collectionViewLayout.itemSize = CGSize(width: 256, height: 213)
+        collectionViewLayout.itemSize = CGSize(width: 196, height: 199)
         collectionViewLayout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
 
         livestreamsCollectionView = UICollectionView(
@@ -584,7 +584,7 @@ class HomeViewController: UIViewController,
             forCellWithReuseIdentifier: "livestream_cell"
         )
 
-        let livestreamsViewFrame = CGRect(x: 0, y: 0, width: 0, height: 233 + titleHeight)
+        let livestreamsViewFrame = CGRect(x: 0, y: 0, width: 0, height: 199 + titleHeight)
         livestreamsView = UIStackView(frame: livestreamsViewFrame)
         livestreamsView.axis = .vertical
         livestreamsView.alignment = .trailing // HACK to prevent conflicting leading constraint
