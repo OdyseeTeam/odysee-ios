@@ -212,7 +212,7 @@ class HomeViewController: UIViewController,
             return
         }
 
-        OdyseeLivestream.listLivestreams { result in
+        OdyseeLivestream.all { result in
             if case let .success(infos) = result {
                 self.livestreamInfos = infos.sorted {
                     $1.viewerCount < $0.viewerCount
@@ -354,7 +354,11 @@ class HomeViewController: UIViewController,
         ) as! LivestreamCollectionViewCell
 
         let livestream = livestreams[indexPath.row]
-        cell.setInfo(claim: livestream.claim, startTime: livestream.startTime, viewerCount: livestream.viewerCount)
+        cell.setLivestreamInfo(
+            claim: livestream.claim,
+            startTime: livestream.startTime,
+            viewerCount: livestream.viewerCount
+        )
 
         return cell
     }

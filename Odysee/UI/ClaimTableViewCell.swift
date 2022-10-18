@@ -22,6 +22,9 @@ class ClaimTableViewCell: UITableViewCell {
     @IBOutlet var publishTimeLabel: UILabel!
     @IBOutlet var durationView: UIView!
     @IBOutlet var durationLabel: UILabel!
+    @IBOutlet var viewerCountStackView: UIStackView!
+    @IBOutlet var viewerCountLabel: UILabel!
+    @IBOutlet var viewerCountImageView: UIView!
 
     var currentClaim: Claim?
     var reposterChannelClaim: Claim?
@@ -37,6 +40,21 @@ class ClaimTableViewCell: UITableViewCell {
         channelImageView.backgroundColor = Helper.lightPrimaryColor
         thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
         createRepostOverlay()
+
+        if #available(iOS 14, *) {
+        } else {
+            let viewerCountBackground = UIView()
+            viewerCountBackground.backgroundColor = Helper.primaryColor
+            viewerCountBackground.layer.cornerRadius = 6
+            viewerCountBackground.translatesAutoresizingMaskIntoConstraints = false
+            viewerCountStackView.insertSubview(viewerCountBackground, at: 0)
+            NSLayoutConstraint.activate([
+                viewerCountBackground.leadingAnchor.constraint(equalTo: viewerCountStackView.leadingAnchor),
+                viewerCountBackground.trailingAnchor.constraint(equalTo: viewerCountStackView.trailingAnchor),
+                viewerCountBackground.topAnchor.constraint(equalTo: viewerCountStackView.topAnchor),
+                viewerCountBackground.bottomAnchor.constraint(equalTo: viewerCountStackView.bottomAnchor)
+            ])
+        }
     }
 
     static func imagePrefetchURLs(claim: Claim) -> [URL] {
@@ -56,6 +74,23 @@ class ClaimTableViewCell: UITableViewCell {
             result.append(thumbnailUrl.makeImageURL(spec: spec))
         }
         return result
+    }
+
+    func setLivestreamClaim(claim: Claim, startTime: Date, viewerCount: Int) {
+        setClaim(claim: claim)
+
+        publishTimeLabel.text = String(
+            format: String.localized("Started %@"),
+            Helper.fullRelativeDateFormatter.localizedString(for: startTime, relativeTo: Date())
+        )
+        viewerCountStackView.isHidden = false
+        durationView.isHidden = true
+        viewerCountImageView.isHidden = viewerCount == 0
+        if viewerCount > 0 {
+            viewerCountLabel.text = String(viewerCount)
+        } else {
+            viewerCountLabel.text = "LIVE"
+        }
     }
 
     func setClaim(claim: Claim) {
@@ -120,11 +155,6 @@ class ClaimTableViewCell: UITableViewCell {
         titleLabel.text = actualClaim.value?.title
         publisherLabel.text = isChannel ? actualClaim.name : actualClaim.signingChannel?.titleOrName
 
-        let isLivestream = actualClaim.value?.source == nil && !isChannel
-        if isLivestream {
-            publisherLabel.text = "LIVE"
-        }
-
         // load thumbnail url
         if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init) {
             if isChannel {
@@ -162,13 +192,16 @@ class ClaimTableViewCell: UITableViewCell {
             duration = streamInfo?.duration ?? 0
         }
 
-        durationView.isHidden = duration <= 0
+        let isLivestream = actualClaim.value?.source == nil && !isChannel
+        durationView.isHidden = duration <= 0 && !isLivestream
         if duration > 0 {
             if duration < 60 {
                 durationLabel.text = String(format: "0:%02d", duration)
             } else {
                 durationLabel.text = Helper.durationFormatter.string(from: TimeInterval(duration))
             }
+        } else if isLivestream {
+            durationLabel.text = "LIVE"
         }
 
         if actualClaim.value?.tags?.contains(Constants.MembersOnly) ?? false {

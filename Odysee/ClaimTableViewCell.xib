@@ -135,6 +135,33 @@
                             <constraint firstItem="Hf0-B9-1iQ" firstAttribute="top" secondItem="CUj-Lg-9sX" secondAttribute="bottom" constant="4" id="v44-Fp-ZOe"/>
                         </constraints>
                     </view>
+                    <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="tLo-Ey-cJD" userLabel="Viewer Count Stack View">
+                        <rect key="frame" x="122" y="67" width="50" height="27"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bjo-7d-dop" userLabel="Viewer Count Label">
+                                <rect key="frame" x="4" y="4" width="11" height="19"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cF3-Nr-JUt" userLabel="Viewer Count Image View">
+                                <rect key="frame" x="19" y="5.5" width="27" height="15.5"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <imageReference key="image" image="eye.fill" catalog="system" symbolScale="default"/>
+                            </imageView>
+                        </subviews>
+                        <color key="backgroundColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="27" id="0c2-Za-J79"/>
+                            <constraint firstAttribute="width" relation="lessThanOrEqual" constant="96" id="niB-UL-tsI"/>
+                        </constraints>
+                        <edgeInsets key="layoutMargins" top="4" left="4" bottom="4" right="4"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="6"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </stackView>
                     <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kWD-HC-WRW">
                         <rect key="frame" x="138" y="76.5" width="34" height="17.5"/>
                         <subviews>
@@ -157,6 +184,7 @@
                     <constraint firstItem="0fu-ke-6es" firstAttribute="top" secondItem="Org-uQ-egP" secondAttribute="top" constant="8" id="9HN-8o-7Tz"/>
                     <constraint firstItem="yAm-Wl-rdb" firstAttribute="bottom" secondItem="0fu-ke-6es" secondAttribute="bottom" id="AWY-U2-L5L"/>
                     <constraint firstItem="yAm-Wl-rdb" firstAttribute="top" secondItem="0fu-ke-6es" secondAttribute="top" id="HQp-bV-jD9"/>
+                    <constraint firstItem="hHl-9P-jcE" firstAttribute="leading" secondItem="tLo-Ey-cJD" secondAttribute="trailing" constant="20" id="Kix-mr-z0y"/>
                     <constraint firstItem="0vb-P0-JDM" firstAttribute="centerY" secondItem="Org-uQ-egP" secondAttribute="centerY" id="OQf-Ny-6AQ"/>
                     <constraint firstItem="0vb-P0-JDM" firstAttribute="leading" secondItem="Org-uQ-egP" secondAttribute="leading" constant="51" id="Pg9-dL-KSa"/>
                     <constraint firstItem="thG-V7-pbT" firstAttribute="height" secondItem="0fu-ke-6es" secondAttribute="height" multiplier="0.222222" id="QDe-1m-oBR"/>
@@ -166,6 +194,7 @@
                     <constraint firstItem="hHl-9P-jcE" firstAttribute="leading" secondItem="kWD-HC-WRW" secondAttribute="trailing" constant="20" id="ZCK-mT-gi1"/>
                     <constraint firstItem="hHl-9P-jcE" firstAttribute="centerY" secondItem="0fu-ke-6es" secondAttribute="centerY" id="ach-VE-nTf"/>
                     <constraint firstItem="fS2-h1-1ZT" firstAttribute="bottom" secondItem="0fu-ke-6es" secondAttribute="bottom" constant="-4" id="bI5-MN-etB"/>
+                    <constraint firstAttribute="bottom" secondItem="tLo-Ey-cJD" secondAttribute="bottom" constant="12" id="dha-CK-uDS"/>
                     <constraint firstAttribute="bottom" secondItem="kWD-HC-WRW" secondAttribute="bottom" constant="12" id="ksG-9I-Mzp"/>
                     <constraint firstAttribute="trailing" secondItem="hHl-9P-jcE" secondAttribute="trailing" constant="16" id="kzQ-sl-6Eq"/>
                     <constraint firstItem="hHl-9P-jcE" firstAttribute="top" secondItem="Org-uQ-egP" secondAttribute="top" constant="8" id="ywS-nn-7Mp"/>
@@ -183,11 +212,15 @@
                 <outlet property="publisherLabel" destination="Hf0-B9-1iQ" id="tg7-n4-F4S"/>
                 <outlet property="thumbnailImageView" destination="0fu-ke-6es" id="Alj-3n-8j1"/>
                 <outlet property="titleLabel" destination="CUj-Lg-9sX" id="JBG-b1-Gfs"/>
+                <outlet property="viewerCountImageView" destination="cF3-Nr-JUt" id="tOx-am-aL0"/>
+                <outlet property="viewerCountLabel" destination="bjo-7d-dop" id="8jM-rV-gmU"/>
+                <outlet property="viewerCountStackView" destination="tLo-Ey-cJD" id="E1E-Nu-mew"/>
             </connections>
             <point key="canvasLocation" x="133" y="1"/>
         </tableViewCell>
     </objects>
     <resources>
+        <image name="eye.fill" catalog="system" width="128" height="80"/>
         <image name="lock" catalog="system" width="125" height="128"/>
         <image name="lock.open" catalog="system" width="128" height="110"/>
         <systemColor name="labelColor">
