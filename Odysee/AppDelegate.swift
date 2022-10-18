@@ -29,6 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var playerObserverAdded: Bool = false
     var playerObservers: [NSKeyValueObservation]?
     var currentTimeControlStatus: AVPlayer.TimeControlStatus?
+    var remoteCommands = [CommandCenterCommands: Any]()
 
     // One-time only lazily activate the Audio Session when playing a file.
     // This prevents the app from taking over the audio stream on launch.
@@ -170,8 +171,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let commandCenter = MPRemoteCommandCenter.shared()
 
         // Add handler for Play / Pause Command
-        commandCenter.playCommand.isEnabled = true
-        commandCenter.playCommand.addTarget { [unowned self] _ in
+
+        remoteCommands[.play] = commandCenter.playCommand.addTarget { [unowned self] _ in
             if let lazyPlayer = lazyPlayer {
                 lazyPlayer.play()
                 return .success
@@ -179,8 +180,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
             return .commandFailed
         }
-        commandCenter.pauseCommand.isEnabled = true
-        commandCenter.pauseCommand.addTarget { [unowned self] _ in
+
+        remoteCommands[.pause] = commandCenter.pauseCommand.addTarget { [unowned self] _ in
             if let lazyPlayer = lazyPlayer {
                 lazyPlayer.pause()
                 return .success
@@ -188,8 +189,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
             return .commandFailed
         }
-        commandCenter.togglePlayPauseCommand.isEnabled = true
-        commandCenter.togglePlayPauseCommand.addTarget { [unowned self] _ in
+
+        remoteCommands[.togglePlayPause] = commandCenter.togglePlayPauseCommand.addTarget { [unowned self] _ in
             if let lazyPlayer = lazyPlayer {
                 if lazyPlayer.rate == 0 {
                     lazyPlayer.play()
@@ -201,7 +202,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             return .commandFailed
         }
 
-        commandCenter.changePlaybackRateCommand.addTarget { [unowned self] event in
+        // swiftformat:disable:next wrap
+        remoteCommands[.changePlaybackRate] = commandCenter.changePlaybackRateCommand.addTarget { [unowned self] event in
             if let lazyPlayer = lazyPlayer, let event = event as? MPChangePlaybackRateCommandEvent {
                 lazyPlayer.rate = event.playbackRate
                 return .success
@@ -209,7 +211,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             return .commandFailed
         }
 
-        commandCenter.skipBackwardCommand.addTarget { [unowned self] event in
+        remoteCommands[.skipBackward] = commandCenter.skipBackwardCommand.addTarget { [unowned self] event in
             if lazyPlayer != nil, let event = event as? MPSkipIntervalCommandEvent {
                 skipBackward(by: event.interval)
                 return .success
@@ -218,7 +220,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             return .commandFailed
         }
 
-        commandCenter.skipForwardCommand.addTarget { [unowned self] event in
+        remoteCommands[.skipForward] = commandCenter.skipForwardCommand.addTarget { [unowned self] event in
             if lazyPlayer != nil, let event = event as? MPSkipIntervalCommandEvent {
                 skipForward(by: event.interval)
                 return .success
@@ -227,7 +229,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             return .commandFailed
         }
 
-        commandCenter.changePlaybackPositionCommand.addTarget { [unowned self] event in
+        // swiftformat:disable:next wrap
+        remoteCommands[.changePlaybackPosition] = commandCenter.changePlaybackPositionCommand.addTarget { [unowned self] event in
             if lazyPlayer != nil, let event = event as? MPChangePlaybackPositionCommandEvent {
                 seek(to: event.positionTime)
                 return .success
@@ -236,6 +239,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
 
         setupNowPlaying()
+    }
+
+    func removeRemoteTransportControls() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+
+        commandCenter.playCommand.removeTarget(remoteCommands[.play])
+        commandCenter.pauseCommand.removeTarget(remoteCommands[.pause])
+        commandCenter.togglePlayPauseCommand.removeTarget(remoteCommands[.togglePlayPause])
+        commandCenter.changePlaybackRateCommand.removeTarget(remoteCommands[.changePlaybackRate])
+        commandCenter.skipBackwardCommand.removeTarget(remoteCommands[.skipBackward])
+        commandCenter.skipForwardCommand.removeTarget(remoteCommands[.skipForward])
+        commandCenter.changePlaybackPositionCommand.removeTarget(remoteCommands[.changePlaybackPosition])
+
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+        UIApplication.shared.endReceivingRemoteControlEvents()
     }
 
     private func skipBackward(by interval: TimeInterval) {
@@ -458,5 +476,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let index = tabBarController.selectedIndex
         let defaults = UserDefaults.standard
         defaults.setValue(index, forKey: AppDelegate.keyLastTabIndex)
+    }
+
+    enum CommandCenterCommands {
+        case play
+        case pause
+        case togglePlayPause
+        case changePlaybackRate
+        case skipBackward
+        case skipForward
+        case changePlaybackPosition
     }
 }

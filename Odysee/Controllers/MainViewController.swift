@@ -263,9 +263,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             appDelegate.lazyPlayer = nil
 
             appDelegate.resetPlayerObserver()
-
-            MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
-            UIApplication.shared.endReceivingRemoteControlEvents()
+            appDelegate.removeRemoteTransportControls()
         }
 
         miniPlayerTitleLabel.text = ""
