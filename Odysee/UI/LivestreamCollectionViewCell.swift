@@ -24,6 +24,8 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
     @IBOutlet var publisherLabel: UILabel!
     @IBOutlet var startTimeLabel: UILabel!
 
+    var viewerCountBackground: UIView?
+
     override func awakeFromNib() {
         super.awakeFromNib()
         let publisherTapGesture = UITapGestureRecognizer(target: self, action: #selector(publisherTapped(_:)))
@@ -33,6 +35,7 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         if #available(iOS 14, *) {
         } else {
             let viewerCountBackground = UIView()
+            self.viewerCountBackground = viewerCountBackground
             viewerCountBackground.backgroundColor = Helper.primaryColor
             viewerCountBackground.layer.cornerRadius = 6
             viewerCountBackground.translatesAutoresizingMaskIntoConstraints = false
@@ -46,7 +49,43 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         }
     }
 
-    func setInfo(claim: Claim, startTime: Date, viewerCount: Int) {
+    func setLivestreamInfo(claim: Claim, startTime: Date, viewerCount: Int) {
+        setClaimInfo(claim: claim)
+
+        let startTimeRelative = Helper.fullRelativeDateFormatter.localizedString(for: startTime, relativeTo: Date())
+        startTimeLabel.text = "Started \(startTimeRelative)"
+
+        viewerCountImageView.isHidden = viewerCount == 0
+        if viewerCount > 0 {
+            viewerCountLabel.text = String(viewerCount)
+        } else {
+            viewerCountLabel.text = "LIVE"
+        }
+    }
+
+    func setFutureStreamClaim(claim: Claim) {
+        setClaimInfo(claim: claim)
+
+        var releaseTime = Double(claim.value?.releaseTime ?? "0")!
+        if releaseTime == 0 {
+            releaseTime = Double(claim.timestamp ?? 0)
+        }
+
+        if releaseTime > 0 {
+            let date = Date(timeIntervalSince1970: releaseTime)
+            let releaseTimeRelative = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
+            startTimeLabel.text = String(format: String.localized("Live %@"), releaseTimeRelative)
+        } else {
+            startTimeLabel.text = "..."
+        }
+
+        viewerCountImageView.isHidden = true
+        viewerCountStackView.backgroundColor = .black
+        viewerCountBackground?.backgroundColor = .black
+        viewerCountLabel.text = "LIVE"
+    }
+
+    func setClaimInfo(claim: Claim) {
         if currentClaim != nil, claim.claimId != currentClaim!.claimId {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
             thumbnailImageView.pin_cancelImageDownload()
@@ -68,16 +107,6 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         } else {
             thumbnailImageView.image = Self.spacemanImage
             thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
-        }
-
-        let startTimeRelative = Helper.fullRelativeDateFormatter.localizedString(for: startTime, relativeTo: Date())
-        startTimeLabel.text = "Started \(startTimeRelative)"
-
-        viewerCountImageView.isHidden = viewerCount == 0
-        if viewerCount > 0 {
-            viewerCountLabel.text = String(viewerCount)
-        } else {
-            viewerCountLabel.text = "LIVE"
         }
 
         if claim.value?.tags?.contains(Constants.MembersOnly) ?? false {

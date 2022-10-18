@@ -12,7 +12,8 @@ import SafariServices
 import UIKit
 
 class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UITableViewDelegate,
-    UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, UITextViewDelegate, BlockChannelStatusObserver
+    UITableViewDataSource, UICollectionViewDelegate, UICollectionViewDataSource, UIPickerViewDelegate,
+    UIPickerViewDataSource, UITextViewDelegate, BlockChannelStatusObserver
 {
     var channelClaim: Claim?
     var claimUrl: LbryUri?
@@ -69,7 +70,15 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var lastPageReached: Bool = false
     var loadingContent: Bool = false
     var claims = OrderedSet<Claim>()
+    var activeLivestreamClaim: Claim?
+    var futureStreams = OrderedSet<Claim>()
     var channels: [Claim] = []
+
+    var activeLivestreamClaimCell: ClaimTableViewCell!
+    var activeLivestreamView: UIStackView!
+    var futureStreamsLabel: UILabel!
+    var futureStreamsView: UIStackView!
+    var futureStreamsCollectionView: UICollectionView!
 
     var commentsDisabledChecked = false
     var commentsDisabled = false
@@ -123,6 +132,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         super.viewDidLoad()
 
         contentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
+        createLivestreamsView()
         contentLoadingContainer.layer.cornerRadius = 20
         titleLabel.layer.cornerRadius = 8
         titleLabel.textInsets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
@@ -420,6 +430,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func resetContent() {
         currentPage = 1
         lastPageReached = false
+        activeLivestreamClaim = nil
+        futureStreams.removeAll()
         claims.removeAll()
         contentListView.reloadData()
     }
@@ -444,6 +456,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 page: currentPage,
                 pageSize: pageSize,
                 releaseTime: releaseTimeValue,
+                hasNoSource: false,
                 notTags: Constants.MatureTags,
                 channelIds: [channelClaim?.claimId ?? ""],
                 orderBy: Helper.sortByItemValues[currentSortByIndex]
@@ -473,62 +486,84 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
         loadingContent = true
 
-        Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
-            params: .init(
-                claimType: [.stream],
-                page: 1,
-                pageSize: pageSize,
-                hasNoSource: true,
-                notTags: Constants.MatureTags,
-                channelIds: [channelClaim?.claimId ?? ""],
-                orderBy: Helper.sortByItemValues[1]
-            )
-        )
-        .subscribeResult(didCheckLivestream)
-    }
-
-    func didCheckLivestream(_ result: Result<Page<Claim>, Error>) {
-        loadingContent = false
-        guard case let .success(page) = result,
-              let claim = page.items.first
-        else {
-            result.showErrorIfPresent()
-            return
-        }
-        let url = URL(string: String(format: "https://api.live.odysee.com/v1/odysee/live/%@", channelClaim!.claimId!))
-        let session = URLSession.shared
-        var req = URLRequest(url: url!)
-        req.httpMethod = "GET"
-
-        let task = session.dataTask(with: req, completionHandler: { data, _, error in
-            guard let data = data, error == nil else {
-                // handle error
+        OdyseeLivestream.channelIsLive(channelClaimId: channelClaim?.claimId ?? "") { result in
+            self.loadingContent = false
+            guard case let .success(channelLiveInfo) = result else {
+                DispatchQueue.main.async {
+                    result.showErrorIfPresent()
+                }
                 return
             }
-            do {
-                let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                if let livestreamData = response?["data"] as? [String: Any] {
-                    let isLive = livestreamData["live"] as? Bool ?? false
-                    if isLive {
-                        // only show the livestream claim at the top if the channel is actually live
-                        DispatchQueue.main.async {
-                            self.claims.insert(claim, at: 0)
-                            self.contentListView.reloadData()
-                        }
 
-                        return
-                    }
-                }
-            } catch {
-                // pass
+            var urlsToResolve = (channelLiveInfo.futureClaimsUrls ?? [])
+            if channelLiveInfo.live {
+                urlsToResolve.append(channelLiveInfo.activeClaimUrl)
             }
-        })
-        task.resume()
+
+            guard urlsToResolve.count > 0 else {
+                DispatchQueue.main.async {
+                    self.contentListView.tableHeaderView = nil
+                }
+                return
+            }
+
+            Lbry.apiCall(
+                method: Lbry.Methods.resolve,
+                params: .init(urls: urlsToResolve)
+            )
+            .subscribeResult { [self] result in
+                guard case let .success(resolveResult) = result else {
+                    result.showErrorIfPresent()
+                    return
+                }
+
+                var claims = Array(resolveResult.claims.values)
+                var activeClaim: Claim?
+                if channelLiveInfo.live {
+                    activeClaim = claims.first { $0.canonicalUrl == channelLiveInfo.activeClaimUrl }
+                    claims = claims.filter { $0.canonicalUrl != channelLiveInfo.activeClaimUrl }
+                }
+
+                futureStreams.append(contentsOf: claims)
+
+                contentListView.tableHeaderView = futureStreamsView
+                if claims.count > 0 {
+                    futureStreamsLabel.isHidden = false
+                    futureStreamsCollectionView.isHidden = false
+                }
+                if let activeClaim = activeClaim {
+                    activeLivestreamClaim = activeClaim
+                    activeLivestreamView.isHidden = false
+                    activeLivestreamClaimCell.setLivestreamClaim(
+                        claim: activeClaim,
+                        startTime: channelLiveInfo.startTime,
+                        viewerCount: channelLiveInfo.viewerCount
+                    )
+
+                    let tapGestureRecognizer = UITapGestureRecognizer(
+                        target: self,
+                        action: #selector(activeLivestreamTapped(_:))
+                    )
+                    activeLivestreamClaimCell.contentView.addGestureRecognizer(tapGestureRecognizer)
+                }
+
+                NSLayoutConstraint.activate([
+                    futureStreamsView.widthAnchor
+                        .constraint(equalTo: contentListView.widthAnchor),
+                    futureStreamsView.leadingAnchor
+                        .constraint(equalTo: contentListView.leadingAnchor),
+                    futureStreamsView.trailingAnchor
+                        .constraint(equalTo: contentListView.trailingAnchor)
+                ])
+                futureStreamsView.layoutIfNeeded()
+
+                checkNoContent()
+            }
+        }
     }
 
     func checkNoContent() {
-        noChannelContentView.isHidden = claims.count > 0
+        noChannelContentView.isHidden = claims.count > 0 || activeLivestreamClaim != nil || futureStreams.count > 0
     }
 
     func checkUpdatedSortBy() {
@@ -580,6 +615,45 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             )
             appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
+    }
+
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return futureStreams.count
+    }
+
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: "livestream_cell",
+            for: indexPath
+        ) as! LivestreamCollectionViewCell
+
+        let futureStream = futureStreams[indexPath.row]
+        cell.setFutureStreamClaim(claim: futureStream)
+
+        return cell
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
+        collectionView.cellForItem(at: indexPath)?.contentView.backgroundColor = .systemGray4
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
+        collectionView.cellForItem(at: indexPath)?.contentView.backgroundColor = nil
+    }
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+
+        let claim = futureStreams[indexPath.row]
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        let vc = storyboard?.instantiateViewController(withIdentifier: "file_view_vc") as! FileViewController
+        vc.claim = claim
+
+        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
     }
 
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
@@ -688,6 +762,23 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 appDelegate.mainController.present(vc, animated: true, completion: nil)
             }
+        }
+    }
+
+    @objc func activeLivestreamTapped(_ sender: Any) {
+        if let claim = activeLivestreamClaim {
+            let actualClaim = (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) ?
+                claim.repostedClaim! : claim
+
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+            vc.claim = actualClaim
+
+            appDelegate.mainNavigationController?.view.layer.add(
+                Helper.buildFileViewTransition(),
+                forKey: kCATransition
+            )
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }
 
@@ -951,6 +1042,86 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 // pass
             }
         }
+    }
+
+    func createLivestreamsView() {
+        let activeLivestreamLabel = UILabel()
+        activeLivestreamLabel.translatesAutoresizingMaskIntoConstraints = false
+        activeLivestreamLabel.text = String.localized("Live stream in progress")
+        activeLivestreamLabel.font = .systemFont(ofSize: 20)
+
+        activeLivestreamClaimCell = (
+            Bundle.main
+                .loadNibNamed("ClaimTableViewCell", owner: self)?[0] as! ClaimTableViewCell
+        )
+
+        activeLivestreamView = UIStackView(arrangedSubviews: [
+            activeLivestreamLabel,
+            activeLivestreamClaimCell.contentView
+        ])
+        activeLivestreamView.isHidden = true
+        activeLivestreamView.translatesAutoresizingMaskIntoConstraints = false
+        activeLivestreamView.axis = .vertical
+        activeLivestreamView.alignment = .leading
+        activeLivestreamView.backgroundColor = Helper.primaryColor.withAlphaComponent(0.3)
+        activeLivestreamView.layer.cornerRadius = 8
+
+        futureStreamsLabel = UILabel()
+        futureStreamsLabel.isHidden = true
+        futureStreamsLabel.translatesAutoresizingMaskIntoConstraints = false
+        futureStreamsLabel.text = String.localized("Upcoming Livestreams")
+
+        let collectionViewFrame = CGRect(x: 0, y: 0, width: 0, height: 199)
+        let collectionViewLayout = UICollectionViewFlowLayout()
+        collectionViewLayout.scrollDirection = .horizontal
+        collectionViewLayout.itemSize = CGSize(width: 196, height: 199)
+        collectionViewLayout.sectionInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+
+        futureStreamsCollectionView = UICollectionView(
+            frame: collectionViewFrame,
+            collectionViewLayout: collectionViewLayout
+        )
+        futureStreamsCollectionView.isHidden = true
+        futureStreamsCollectionView.translatesAutoresizingMaskIntoConstraints = false
+
+        futureStreamsCollectionView.dataSource = self
+        futureStreamsCollectionView.delegate = self
+
+        futureStreamsCollectionView.register(
+            LivestreamCollectionViewCell.nib,
+            forCellWithReuseIdentifier: "livestream_cell"
+        )
+
+        futureStreamsView = UIStackView(arrangedSubviews: [
+            activeLivestreamView,
+            futureStreamsLabel,
+            futureStreamsCollectionView
+        ])
+        futureStreamsView.translatesAutoresizingMaskIntoConstraints = false
+        futureStreamsView.spacing = 10
+        futureStreamsView.axis = .vertical
+        futureStreamsView.alignment = .center // HACK to prevent conflicting constraints
+
+        NSLayoutConstraint.activate([
+            activeLivestreamLabel.leadingAnchor
+                .constraint(equalTo: activeLivestreamView.leadingAnchor, constant: 16),
+            activeLivestreamLabel.topAnchor
+                .constraint(equalTo: activeLivestreamView.topAnchor, constant: 8),
+            activeLivestreamClaimCell.contentView.leadingAnchor
+                .constraint(equalTo: activeLivestreamView.leadingAnchor),
+            activeLivestreamView.leadingAnchor
+                .constraint(equalTo: futureStreamsView.leadingAnchor, constant: 10),
+            activeLivestreamView.trailingAnchor
+                .constraint(equalTo: futureStreamsView.trailingAnchor, constant: -10),
+            futureStreamsLabel.leadingAnchor
+                .constraint(equalTo: futureStreamsView.leadingAnchor, constant: 18),
+            futureStreamsCollectionView.leadingAnchor
+                .constraint(equalTo: futureStreamsView.leadingAnchor),
+            futureStreamsCollectionView.trailingAnchor
+                .constraint(equalTo: futureStreamsView.trailingAnchor),
+            futureStreamsCollectionView.heightAnchor
+                .constraint(equalToConstant: collectionViewFrame.height)
+        ])
     }
 
     func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
