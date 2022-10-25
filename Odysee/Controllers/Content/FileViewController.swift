@@ -1553,6 +1553,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let session = URLSession(configuration: .default, delegate: NoRedirectSession(), delegateQueue: nil)
         var request = URLRequest(url: sourceUrl)
         request.httpMethod = "HEAD"
+        request.setValue("https://ios.odysee.com", forHTTPHeaderField: "Referer")
         let dataTask = session.dataTask(with: request) { result in
             guard case let .success(data) = result,
                   let response = data.response as? HTTPURLResponse,
