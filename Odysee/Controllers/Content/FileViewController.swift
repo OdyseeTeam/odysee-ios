@@ -640,7 +640,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         } else {
                             self.getStreamingUrl(
                                 self.claim!,
-                                baseStreamingUrl: streamUrl.string
+                                baseStreamingUrl: streamUrl.absoluteString
                             )
                         }
                         self.currentStreamUrl = streamUrl
@@ -1582,7 +1582,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
                 if location.hasPrefix("/") {
                     let suffix = sourceUrl.relativePath
-                    let prefix = String(sourceUrl.string.dropLast(suffix.count))
+                    let prefix = sourceUrl.absoluteString.removingPercentEncoding!
+                        .replacingOccurrences(of: suffix, with: "")
                     location = prefix + location
                 }
 
