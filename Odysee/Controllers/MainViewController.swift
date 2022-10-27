@@ -352,7 +352,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func loadFilteredOutpoints() {
         do {
-            try Lbryio.get(resource: "file", action: "list_filtered", options: [:], completion: { data, error in
+            try Lbryio.get(resource: "file", action: "list_filtered", options: [:], authTokenOverride: "", completion: { data, error in
                 guard let data = data, error == nil else {
                     return
                 }
@@ -374,7 +374,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             var options: [String: String] = [:]
             options["platform"] = "ios"
             options["with_claim_id"] = "true"
-            try Lbryio.get(resource: "file", action: "list_blocked", options: options, completion: { data, error in
+            try Lbryio.get(resource: "file", action: "list_blocked", options: options, authTokenOverride: "", completion: { data, error in
                 guard let data = data, error == nil else {
                     return
                 }
@@ -396,7 +396,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func loadBlockedOutpoints() {
         do {
-            try Lbryio.get(resource: "file", action: "list_blocked", options: [:], completion: { data, error in
+            try Lbryio.get(resource: "file", action: "list_blocked", options: [:], authTokenOverride: "", completion: { data, error in
                 guard let data = data, error == nil else {
                     return
                 }
