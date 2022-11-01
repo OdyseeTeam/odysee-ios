@@ -574,7 +574,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             return
                         }
                         let headers: [String: String] = [
-                            "Referer": "https://ios.odysee.com",
+                            "Referer": "https://ios.odysee.com/",
                         ]
                         DispatchQueue.main.async {
                             self.initializePlayerWithUrl(
@@ -630,7 +630,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     if let streamUrl = (livestreamData["VideoURL"] as? String).flatMap(URL.init) {
                         if !self.membersOnly {
                             let headers: [String: String] = [
-                                "Referer": "https://ios.odysee.com",
+                                "Referer": "https://ios.odysee.com/",
                             ]
                             DispatchQueue.main.async {
                                 self.initializePlayerWithUrl(
@@ -727,7 +727,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
             contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
             let manager = PINRemoteImageManager.shared()
-            manager.setValue("https://ios.odysee.com", forHTTPHeaderField: "Referer")
+            manager.setValue("https://ios.odysee.com/", forHTTPHeaderField: "Referer")
             manager.downloadImage(with: contentUrl!) { result in
                 guard let image = result.image else { return }
                 Thread.performOnMain {
@@ -926,7 +926,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         DispatchQueue.global().async {
             do {
                 var request = URLRequest(url: url)
-                request.setValue("https://ios.odysee.com", forHTTPHeaderField: "Referer")
+                request.setValue("https://ios.odysee.com/", forHTTPHeaderField: "Referer")
                 URLSession.shared.dataTask(with: request) { result in
                     guard case let .success(data) = result,
                           let contents = String(data: data.data, encoding: .utf8)
@@ -1553,7 +1553,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let session = URLSession(configuration: .default, delegate: NoRedirectSession(), delegateQueue: nil)
         var request = URLRequest(url: sourceUrl)
         request.httpMethod = "HEAD"
-        request.setValue("https://ios.odysee.com", forHTTPHeaderField: "Referer")
+        request.setValue("https://ios.odysee.com/", forHTTPHeaderField: "Referer")
         let dataTask = session.dataTask(with: request) { result in
             guard case let .success(data) = result,
                   let response = data.response as? HTTPURLResponse,
@@ -1566,7 +1566,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             if response.statusCode == 200 {
                 DispatchQueue.main.async {
                     let headers: [String: String] = [
-                        "Referer": "https://ios.odysee.com",
+                        "Referer": "https://ios.odysee.com/",
                     ]
                     self.initializePlayerWithUrl(
                         singleClaim: claim,
@@ -1580,11 +1580,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     return
                 }
 
-                if location.hasPrefix("/") {
-                    let suffix = sourceUrl.relativePath
-                    let prefix = sourceUrl.absoluteString.removingPercentEncoding!
-                        .replacingOccurrences(of: suffix, with: "")
-                    location = prefix + location
+                if location.hasPrefix("/"),
+                   let components = URLComponents(url: sourceUrl, resolvingAgainstBaseURL: false),
+                   let scheme = components.scheme,
+                   let host = components.host
+                {
+                    location = "\(scheme)://\(host)\(location)"
                 }
 
                 if let mediaUrl = URL(
@@ -1593,7 +1594,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 ) {
                     DispatchQueue.main.async {
                         let headers: [String: String] = [
-                            "Referer": "https://ios.odysee.com",
+                            "Referer": "https://ios.odysee.com/",
                         ]
                         self.initializePlayerWithUrl(
                             singleClaim: claim,
