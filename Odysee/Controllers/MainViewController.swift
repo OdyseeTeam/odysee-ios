@@ -352,18 +352,24 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func loadFilteredOutpoints() {
         do {
-            try Lbryio.get(resource: "file", action: "list_filtered", options: [:], authTokenOverride: "", completion: { data, error in
-                guard let data = data, error == nil else {
-                    return
-                }
+            try Lbryio.get(
+                resource: "file",
+                action: "list_filtered",
+                options: [:],
+                authTokenOverride: "",
+                completion: { data, error in
+                    guard let data = data, error == nil else {
+                        return
+                    }
 
-                if let result = data as? [String: Any],
-                   let outpointStrings = result["outpoints"] as? [String]
-                {
-                    let outpoints = Set(outpointStrings.compactMap(Outpoint.parse))
-                    Lbryio.setFilteredOutpoints(outpoints)
+                    if let result = data as? [String: Any],
+                       let outpointStrings = result["outpoints"] as? [String]
+                    {
+                        let outpoints = Set(outpointStrings.compactMap(Outpoint.parse))
+                        Lbryio.setFilteredOutpoints(outpoints)
+                    }
                 }
-            })
+            )
         } catch {
             // pass
         }
@@ -374,21 +380,27 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             var options: [String: String] = [:]
             options["platform"] = "ios"
             options["with_claim_id"] = "true"
-            try Lbryio.get(resource: "file", action: "list_blocked", options: options, authTokenOverride: "", completion: { data, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-
-                if let result = data as? [[String: Any]] {
-                    for item in result {
-                        Lbryio.addAppleFilteredClaim(
-                            claimId: item["claim_id"] as? String,
-                            tag: item["tag_name"] as? String
-                        )
+            try Lbryio.get(
+                resource: "file",
+                action: "list_blocked",
+                options: options,
+                authTokenOverride: "",
+                completion: { data, error in
+                    guard let data = data, error == nil else {
+                        return
                     }
-                    Lbryio.updateAppleFilteredClaimIds()
+
+                    if let result = data as? [[String: Any]] {
+                        for item in result {
+                            Lbryio.addAppleFilteredClaim(
+                                claimId: item["claim_id"] as? String,
+                                tag: item["tag_name"] as? String
+                            )
+                        }
+                        Lbryio.updateAppleFilteredClaimIds()
+                    }
                 }
-            })
+            )
         } catch {
             // pass
         }
@@ -396,18 +408,24 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func loadBlockedOutpoints() {
         do {
-            try Lbryio.get(resource: "file", action: "list_blocked", options: [:], authTokenOverride: "", completion: { data, error in
-                guard let data = data, error == nil else {
-                    return
-                }
+            try Lbryio.get(
+                resource: "file",
+                action: "list_blocked",
+                options: [:],
+                authTokenOverride: "",
+                completion: { data, error in
+                    guard let data = data, error == nil else {
+                        return
+                    }
 
-                if let result = data as? [String: Any],
-                   let outpointStrings = result["outpoints"] as? [String]
-                {
-                    let outpoints = Set(outpointStrings.compactMap(Outpoint.parse))
-                    Lbryio.setBlockedOutpoints(outpoints)
+                    if let result = data as? [String: Any],
+                       let outpointStrings = result["outpoints"] as? [String]
+                    {
+                        let outpoints = Set(outpointStrings.compactMap(Outpoint.parse))
+                        Lbryio.setBlockedOutpoints(outpoints)
+                    }
                 }
-            })
+            )
         } catch {
             // pass
         }
