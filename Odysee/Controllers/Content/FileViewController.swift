@@ -1132,6 +1132,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if appDelegate.lazyPlayer == nil {
             avpc.player?.play()
         }
+        
+        let task = DispatchWorkItem { [weak self] in
+            self?.dismissFileView.isHidden = true
+        }
+        // hide the dismiss file view control 5 seconds after playback starts
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 5, execute: task)
     }
 
     func displayRelatedPlaceholders() {
