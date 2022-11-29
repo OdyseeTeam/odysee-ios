@@ -33,6 +33,8 @@ class SearchViewController: UIViewController,
     @IBOutlet var resultsListView: UITableView!
     @IBOutlet var loadingContainer: UIView!
 
+    let refreshControl = UIRefreshControl()
+
     var searchTask: DispatchWorkItem?
     var currentFrom = 0
     var currentQuery: String?
@@ -87,7 +89,12 @@ class SearchViewController: UIViewController,
         getStartedView.isHidden = false
         searchBar.backgroundImage = UIImage()
 
+        refreshControl.attributedTitle = NSAttributedString(string: String.localized("Pull down to refresh"))
+        refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
+        refreshControl.tintColor = Helper.primaryColor
+        resultsListView.addSubview(refreshControl)
         resultsListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
+
         publishTimePicker.selectRow(4 /* All Time */, inComponent: 0, animated: false)
     }
 
@@ -162,7 +169,8 @@ class SearchViewController: UIViewController,
         claimType: ClaimType?,
         mediaTypes: [Lighthouse.MediaType],
         timeFilter: Lighthouse.TimeFilter?,
-        sortBy: Lighthouse.SortBy?
+        sortBy: Lighthouse.SortBy?,
+        force: Bool = false
     ) {
         if (query ?? "").isBlank ||
             (
@@ -171,7 +179,8 @@ class SearchViewController: UIViewController,
                     currentClaimType == claimType &&
                     currentMediaTypes == mediaTypes &&
                     currentTimeFilter == timeFilter &&
-                    currentSortBy == sortBy
+                    currentSortBy == sortBy &&
+                    !force
             )
         {
             return
@@ -287,6 +296,7 @@ class SearchViewController: UIViewController,
             .localized(
                 "Oops! We could not find any content matching your search term. Please try again with something different."
             )
+        refreshControl.endRefreshing()
     }
 
     func claimType(for index: Int) -> ClaimType? {
@@ -474,19 +484,36 @@ class SearchViewController: UIViewController,
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if resultsListView.contentOffset
-            .y >= (resultsListView.contentSize.height - resultsListView.bounds.size.height)
+        if searching {
+            return
+        }
+
+        if (resultsListView.contentSize.height - resultsListView.bounds.size.height) >= 0 &&
+            resultsListView.contentOffset.y >=
+            (resultsListView.contentSize.height - resultsListView.bounds.size.height)
         {
-            if !searching {
-                search(
-                    query: currentQuery,
-                    from: currentFrom + pageSize,
-                    claimType: currentClaimType,
-                    mediaTypes: currentMediaTypes,
-                    timeFilter: currentTimeFilter,
-                    sortBy: currentSortBy
-                )
-            }
+            search(
+                query: currentQuery,
+                from: currentFrom + pageSize,
+                claimType: currentClaimType,
+                mediaTypes: currentMediaTypes,
+                timeFilter: currentTimeFilter,
+                sortBy: currentSortBy
+            )
+        }
+
+        if !refreshControl.isRefreshing && resultsListView.contentOffset.y < -300 {
+            resetSearch()
+            search(
+                query: searchBar.searchTextField.text,
+                from: 0,
+                claimType: currentClaimType,
+                mediaTypes: currentMediaTypes,
+                timeFilter: currentTimeFilter,
+                sortBy: currentSortBy,
+                force: true
+            )
+            refreshControl.beginRefreshing()
         }
     }
 
@@ -506,7 +533,8 @@ class SearchViewController: UIViewController,
             claimType: currentClaimType,
             mediaTypes: currentMediaTypes,
             timeFilter: currentTimeFilter,
-            sortBy: currentSortBy
+            sortBy: currentSortBy,
+            force: true
         )
     }
 
@@ -540,5 +568,22 @@ class SearchViewController: UIViewController,
 
     func tableView(_ tableView: UITableView, cancelPrefetchingForRowsAt indexPaths: [IndexPath]) {
         prefetchController.cancelPrefetching(at: indexPaths)
+    }
+
+    @objc func refresh(_ sender: Any) {
+        if searching {
+            return
+        }
+
+        resetSearch()
+        search(
+            query: searchBar.searchTextField.text,
+            from: 0,
+            claimType: currentClaimType,
+            mediaTypes: currentMediaTypes,
+            timeFilter: currentTimeFilter,
+            sortBy: currentSortBy,
+            force: true
+        )
     }
 }
