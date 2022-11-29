@@ -174,11 +174,11 @@ class HomeViewController: UIViewController,
                 streamTypes: [.audio, .video],
                 page: claimsCurrentPage,
                 pageSize: pageSize,
-                releaseTime: isWildWest ?
+                releaseTime: [isWildWest ?
                     Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) :
-                    releaseTimeValue,
+                    releaseTimeValue].compactMap {$0} + [Helper.releaseTimeBeforeFuture],
                 limitClaimsPerChannel: channelLimits[currentCategoryIndex],
-                notTags: Constants.MatureTags + (isWildWest ? [] : [Constants.MembersOnly]),
+                notTags: Constants.NotTags + (isWildWest ? [] : [Constants.MembersOnly]),
                 channelIds: isWildWest ? nil : channelIds[currentCategoryIndex],
                 notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
                 orderBy: isWildWest ?
@@ -279,8 +279,9 @@ class HomeViewController: UIViewController,
             method: Lbry.Methods.claimSearch,
             params: .init(
                 claimType: [.stream],
+                releaseTime: [Helper.releaseTimeBeforeFuture],
                 hasNoSource: true,
-                notTags: Constants.MatureTags + (isWildWest ? [] : [Constants.MembersOnly]),
+                notTags: Constants.NotTags + (isWildWest ? [] : [Constants.MembersOnly]),
                 notChannelIds: isWildWest ? wildWestExcludedChannelIds : nil,
                 claimIds: pageClaimIds
             )

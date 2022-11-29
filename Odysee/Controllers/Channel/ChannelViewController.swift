@@ -455,9 +455,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 claimType: [.stream, .repost],
                 page: currentPage,
                 pageSize: pageSize,
-                releaseTime: releaseTimeValue,
+                releaseTime: [releaseTimeValue].compactMap {$0} + [Helper.releaseTimeBeforeFuture],
                 hasNoSource: false,
-                notTags: Constants.MatureTags,
+                notTags: Constants.NotTags,
                 channelIds: [channelClaim?.claimId ?? ""],
                 orderBy: Helper.sortByItemValues[currentSortByIndex]
             )

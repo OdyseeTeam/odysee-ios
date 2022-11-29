@@ -24,7 +24,7 @@ final class Lighthouse {
         "covid-19",
         "covid19",
         "covid 19",
-    ] + Constants.MatureTags
+    ] + Constants.NotTags
 
     static func containsFilteredKeyword(_ query: String) -> Bool {
         for keyword in keywordsForEmptyResults {

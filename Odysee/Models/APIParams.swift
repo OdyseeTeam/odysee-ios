@@ -32,7 +32,7 @@ struct ClaimSearchParams: Encodable {
     var noTotals: Bool? = true // server defaults to false, but we dont need totals.
     var page: Int?
     var pageSize: Int?
-    var releaseTime: String?
+    var releaseTime: [String]?
     var duration: String?
     var hasNoSource: Bool?
     var limitClaimsPerChannel: Int?
