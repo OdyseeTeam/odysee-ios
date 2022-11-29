@@ -132,7 +132,7 @@ class SearchViewController: UIViewController,
 
                 // check if the winning claim could be mature content
                 if let tags = winningClaim.value?.tags {
-                    canShow = !tags.contains(where: Constants.MatureTags.contains)
+                    canShow = !tags.contains(where: Constants.NotTags.contains)
                 }
 
                 // check if the winning claim is filtered or blocked

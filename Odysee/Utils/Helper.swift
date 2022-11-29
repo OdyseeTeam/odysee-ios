@@ -134,6 +134,12 @@ final class Helper {
         return String(format: ">%d", time)
     }
 
+    static var releaseTimeBeforeFuture: String {
+        get {
+            "<\(Int64(Date().timeIntervalSince1970))"
+        }
+    }
+
     static func buildReleaseTime(contentFrom: String?) -> String? {
         if contentFrom == contentFromItemNames[4] {
             return nil

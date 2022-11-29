@@ -8,7 +8,8 @@
 import Foundation
 
 struct Constants {
-    static let MatureTags: [String] = [
+    static let NotTags: [String] = [
+        // MATURE TAGS
         "porn",
         "porno",
         "nsfw",
@@ -78,6 +79,10 @@ struct Constants {
         "the great replacement",
         "towelhead",
         "towelheads",
+        // END MATURE TAGS
+
+        // MISC
+        "c:unlisted",
     ]
 
     static let MembersOnly = "c:members-only"
