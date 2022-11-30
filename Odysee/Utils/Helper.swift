@@ -135,9 +135,7 @@ final class Helper {
     }
 
     static var releaseTimeBeforeFuture: String {
-        get {
-            "<\(Int64(Date().timeIntervalSince1970))"
-        }
+        "<\(Int64(Date().timeIntervalSince1970))"
     }
 
     static func buildReleaseTime(contentFrom: String?) -> String? {

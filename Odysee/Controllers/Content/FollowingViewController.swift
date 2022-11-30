@@ -324,7 +324,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                     claimType: [.stream],
                     page: currentPage,
                     pageSize: pageSize,
-                    releaseTime: [releaseTimeValue].compactMap {$0} + [Helper.releaseTimeBeforeFuture],
+                    releaseTime: [releaseTimeValue].compactMap { $0 } + [Helper.releaseTimeBeforeFuture],
                     notTags: Constants.NotTags,
                     channelIds: channelIds,
                     orderBy: Helper.sortByItemValues[currentSortByIndex]

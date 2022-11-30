@@ -174,9 +174,11 @@ class HomeViewController: UIViewController,
                 streamTypes: [.audio, .video],
                 page: claimsCurrentPage,
                 pageSize: pageSize,
-                releaseTime: [isWildWest ?
-                    Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) :
-                    releaseTimeValue].compactMap {$0} + [Helper.releaseTimeBeforeFuture],
+                releaseTime: [
+                    isWildWest ?
+                        Helper.buildReleaseTime(contentFrom: Helper.contentFromItemNames[1]) :
+                        releaseTimeValue
+                ].compactMap { $0 } + [Helper.releaseTimeBeforeFuture],
                 limitClaimsPerChannel: channelLimits[currentCategoryIndex],
                 notTags: Constants.NotTags + (isWildWest ? [] : [Constants.MembersOnly]),
                 channelIds: isWildWest ? nil : channelIds[currentCategoryIndex],
