@@ -24,7 +24,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         UIApplication.shared.beginReceivingRemoteControlEvents()
 
-        if let urlContext = connectionOptions.urlContexts.first {
+        if let userActivity = connectionOptions.userActivities.first,
+           userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+           let url = userActivity.webpageURL
+        {
+            handleLaunchUrl(url: url)
+        } else if let urlContext = connectionOptions.urlContexts.first {
             let url = urlContext.url
             handleLaunchUrl(url: url)
         }
