@@ -1132,7 +1132,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if appDelegate.lazyPlayer == nil {
             avpc.player?.play()
         }
-        
+
         let task = DispatchWorkItem { [weak self] in
             self?.dismissFileView.isHidden = true
         }
