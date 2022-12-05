@@ -42,7 +42,13 @@ struct Constants {
         "fetish",
         "pornographic",
         "pornography",
+        // END MATURE TAGS
 
+        // MISC
+        "c:unlisted",
+    ]
+
+    static let BlockedSearchTerms = [
         // Apple wants everything to be as clean as possible, US edition
         "1488",
         "coon",
@@ -79,10 +85,6 @@ struct Constants {
         "the great replacement",
         "towelhead",
         "towelheads",
-        // END MATURE TAGS
-
-        // MISC
-        "c:unlisted",
     ]
 
     static let MembersOnly = "c:members-only"
