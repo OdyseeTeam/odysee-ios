@@ -99,6 +99,10 @@ class SearchViewController: UIViewController,
     }
 
     func resolveWinning(query: String) {
+        if Lighthouse.containsFilteredKeyword(query) {
+            return
+        }
+
         var sanitisedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         let range = NSMakeRange(0, sanitisedQuery.count)
         sanitisedQuery = LbryUri.regexInvalidUri.stringByReplacingMatches(
