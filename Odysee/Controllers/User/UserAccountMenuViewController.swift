@@ -54,12 +54,11 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
         if Lbryio.isSignedIn() {
             userEmailLabel.text = Lbryio.currentUser?.primaryEmail!
+            loadChannels()
         }
 
         changeDefaultChannelButton.titleLabel?.textAlignment = .center
         changeDefaultChannelButton.titleLabel?.numberOfLines = 0
-
-        loadChannels()
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
