@@ -17,6 +17,7 @@ import SafariServices
 import Starscream
 import UIKit
 import WebKit
+import LocalConsole
 
 class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavigationControllerDelegate,
     UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate,
@@ -814,6 +815,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             addChild(avpc)
 
             if #available(iOS 16, *) {
+                LCManager.shared.isVisible = true
+                LCManager.shared.print(AVPlaybackSpeed.systemDefaultSpeeds)
             } else {
                 playerRateView.isHidden = false
                 jumpBackwardView.isHidden = false

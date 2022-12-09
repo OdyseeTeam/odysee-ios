@@ -12,6 +12,7 @@
 		534B71A2287BE08D00F01D42 /* CommentAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentAPIParams.swift */; };
 		534B71A4287BE0F200F01D42 /* ChannelSignResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */; };
 		53593F31287E5D75007FD08E /* ReactListResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* ReactListResult.swift */; };
+		536455F12942EF6100C44434 /* LocalConsole in Frameworks */ = {isa = PBXBuildFile; productRef = 536455F02942EF6100C44434 /* LocalConsole */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
@@ -280,6 +281,7 @@
 				646D5645258587A8002DB12F /* OAuthSwift in Frameworks */,
 				6411C0B0255B35260018C3D5 /* Base58Swift in Frameworks */,
 				648F70D226307BC700885A2F /* HaishinKit in Frameworks */,
+				536455F12942EF6100C44434 /* LocalConsole in Frameworks */,
 				CCDDA929265861AF0006035F /* PINRemoteImage in Frameworks */,
 				6484E1B62582269B00221658 /* StoreKit.framework in Frameworks */,
 			);
@@ -580,6 +582,7 @@
 				CCFB0B4E26653E0900696E0C /* OrderedCollections */,
 				64A26CE426974B7A00AE19DE /* PerfectMarkdown */,
 				64019A0D269C101D00E16A51 /* ImageScrollView */,
+				536455F02942EF6100C44434 /* LocalConsole */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -669,6 +672,7 @@
 				CCFB0B4D26653E0800696E0C /* XCRemoteSwiftPackageReference "swift-collections" */,
 				64A26CE326974B7900AE19DE /* XCRemoteSwiftPackageReference "Perfect-Markdown" */,
 				64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */,
+				536455EF2942EF6100C44434 /* XCRemoteSwiftPackageReference "LocalConsole" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -1017,7 +1021,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 7G9P9AM955;
 				INFOPLIST_FILE = Odysee/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1173,6 +1177,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		536455EF2942EF6100C44434 /* XCRemoteSwiftPackageReference "LocalConsole" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/duraidabdul/LocalConsole/";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/huynguyencong/ImageScrollView.git";
@@ -1248,6 +1260,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		536455F02942EF6100C44434 /* LocalConsole */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 536455EF2942EF6100C44434 /* XCRemoteSwiftPackageReference "LocalConsole" */;
+			productName = LocalConsole;
+		};
 		64019A0D269C101D00E16A51 /* ImageScrollView */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */;
