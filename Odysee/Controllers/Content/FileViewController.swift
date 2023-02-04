@@ -796,12 +796,17 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     }
 
                     if let result = data["result"] as? [String: Any] {
-                        if let contentUrl = result["streaming_url"] as? String {
+                        if let streamingUrl = result["streaming_url"] as? String,
+                           let contentUrl = URL(
+                               string: streamingUrl
+                                   .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
+                           )
+                        {
                             DispatchQueue.main.async {
                                 self.displayClaimContentFromUrl(
                                     singleClaim: singleClaim,
                                     contentType: contentType!,
-                                    contentUrl: URL(string: contentUrl)
+                                    contentUrl: contentUrl
                                 )
                             }
                         }

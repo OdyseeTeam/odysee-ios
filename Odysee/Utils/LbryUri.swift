@@ -116,7 +116,7 @@ struct LbryUri: CustomStringConvertible {
         )
         if results.count > 0 {
             for index in 1 ..< results[0].numberOfRanges {
-                components.append(String(cleanUrl[Range(results[0].range(at: index), in: cleanUrl)!]))
+                components.append((cleanUrl as NSString).substring(with: results[0].range(at: index)))
             }
         }
 
