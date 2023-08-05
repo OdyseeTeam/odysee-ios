@@ -7,22 +7,25 @@
 
 import Foundation
 
-enum CustomBlockContentType: String, Codable {
+public enum CustomBlockContentType: String, Codable {
     case livestreams
     case videos
 }
 
-enum CustomBlockScope: String, Codable {
+public enum CustomBlockScope: String, Codable {
     case continent
     case country
     case special
 }
 
-struct CustomBlockRule {
-    var type: CustomBlockContentType?
-    var scope: CustomBlockScope?
-    var reason: String?
-    var trigger: String?
-    var id: String?
-    var message: String?
+public struct CustomBlockRule: Identifiable, Hashable {
+    
+    public var type: CustomBlockContentType?
+    public var scope: CustomBlockScope?
+    public var reason: String?
+    public var trigger: String?
+    public var id: String?
+    public var message: String?
+    
+    
 }
