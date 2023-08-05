@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class CreateChannelViewController: UIViewController, UITextFieldDelegate {
     var frDelegate: FirstRunDelegate?
@@ -56,7 +57,7 @@ class CreateChannelViewController: UIViewController, UITextFieldDelegate {
 
         Lbry.apiCall(
             method: Lbry.Methods.claimList,
-            params: .init(claimType: [.channel], page: 1, pageSize: 999)
+            params: ClaimListParams(claimType: [.channel], page: 1, pageSize: 999)
         )
         .subscribeResult(didLoadChannels)
     }

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class FirstRunViewController: UIViewController, FirstRunDelegate {
     @IBOutlet var viewContainer: UIView!

@@ -10,6 +10,7 @@ import OAuthSwift
 import SafariServices
 import StoreKit
 import UIKit
+import Odysee
 
 class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, SKProductsRequestDelegate,
     SKPaymentTransactionObserver,
@@ -198,7 +199,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                             )
                             do {
                                 let reward: Reward? = try JSONDecoder().decode(Reward.self, from: data)
-                                if reward != nil, reward?.rewardType != Reward.typeNewMobile {
+                                if reward != nil, reward?.rewardType != .newMobile {
                                     self.allRewards.append(reward!)
                                 }
                             } catch {
@@ -623,11 +624,11 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
     }
 
     func claimReward(_ reward: Reward, walletAddress: String) {
-        if reward.rewardType == Reward.typeFirstPublish || reward.rewardType == Reward.typeFirstChannel {
+        if reward.rewardType == .firstPublish || reward.rewardType == .firstChannel {
             Lbry.apiCall(
                 method: Lbry.Methods.claimList,
                 params: .init(
-                    claimType: [reward.rewardType == Reward.typeFirstPublish ? .stream : .channel],
+                    claimType: [reward.rewardType == .firstPublish ? .stream : .channel],
                     page: 1,
                     pageSize: 1,
                     resolve: true
@@ -660,8 +661,8 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
     }
 
     func doClaimReward(_ reward: Reward, walletAddress: String, transactionId: String?) {
-        var options: [String: String] = ["reward_type": reward.rewardType!, "wallet_address": walletAddress]
-        if reward.rewardType == Reward.typeCustom, !(reward.rewardCode ?? "").isBlank {
+        var options: [String: String] = ["reward_type": reward.rewardType!.rawValue, "wallet_address": walletAddress]
+        if reward.rewardType == .custom, !(reward.rewardCode ?? "").isBlank {
             options["reward_code"] = reward.rewardCode!
         }
         if !(transactionId ?? "").isBlank {

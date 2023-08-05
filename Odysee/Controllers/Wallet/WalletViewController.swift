@@ -8,6 +8,7 @@
 import Base58Swift
 import Firebase
 import UIKit
+import Odysee
 
 class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate,
     WalletBalanceObserver

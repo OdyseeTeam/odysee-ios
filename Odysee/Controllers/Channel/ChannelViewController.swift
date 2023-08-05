@@ -10,6 +10,7 @@ import Firebase
 import OrderedCollections
 import SafariServices
 import UIKit
+import Odysee
 
 class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UITableViewDelegate,
     UITableViewDataSource, UICollectionViewDelegate, UICollectionViewDataSource, UIPickerViewDelegate,

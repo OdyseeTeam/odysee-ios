@@ -7,6 +7,7 @@
 
 import Firebase
 import UIKit
+import Odysee
 
 class UserAccountViewController: UIViewController {
     @IBOutlet var uaScrollView: UIScrollView!
