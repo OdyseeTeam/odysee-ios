@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class NotificationTableViewCell: UITableViewCell {
     @IBOutlet var iconView: UIImageView!

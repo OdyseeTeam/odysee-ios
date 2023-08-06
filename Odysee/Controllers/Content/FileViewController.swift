@@ -17,6 +17,7 @@ import SafariServices
 import Starscream
 import UIKit
 import WebKit
+import Odysee
 
 class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavigationControllerDelegate,
     UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate,
@@ -1224,7 +1225,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if (receiveAddress ?? "").isBlank {
             Lbry.apiCall(
                 method: Lbry.Methods.addressUnused,
-                params: .init()
+                params: AddressUnusedParams()
             )
             .subscribeResult { result in
                 guard case let .success(newAddress) = result else {
@@ -1453,7 +1454,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         result.showErrorIfPresent()
         if case let .success(payload) = result {
             let oldCount = playlistItems.count
-            playlistItems.append(contentsOf: payload.items.filter { !playlistItems.contains($0) })
+            playlistItems.append(contentsOf: payload.items.filter { item in
+                !playlistItems.contains(where: { $0.claimId == item.claimId })
+            })
             if playlistItems.count != oldCount {
                 relatedContentListView.reloadData()
             }

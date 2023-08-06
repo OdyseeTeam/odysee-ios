@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Odysee
 
 struct OdyseeLivestream {
     static let allEndpoint = URL(string: "https://api.odysee.live/livestream/all")!

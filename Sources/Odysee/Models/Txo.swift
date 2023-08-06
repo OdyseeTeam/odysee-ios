@@ -7,6 +7,6 @@
 
 import Foundation
 
-struct Txo: Decodable, Hashable {
-    var confirmations: Int?
+public struct Txo: Decodable, Hashable {
+    public var confirmations: Int?
 }

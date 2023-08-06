@@ -7,9 +7,10 @@
 
 import Foundation
 
-struct ChannelSignResult: Decodable {
-    var signature: String
-    var signingTs: String
+public struct ChannelSignResult: Decodable, Hashable {
+    
+    public var signature: String
+    public var signingTs: String
 
     enum CodingKeys: String, CodingKey {
         case signature

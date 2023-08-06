@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class CommentsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDataSource,
     UIPickerViewDelegate, UITextViewDelegate, BlockChannelStatusObserver

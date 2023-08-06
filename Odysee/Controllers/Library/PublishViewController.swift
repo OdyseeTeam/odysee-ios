@@ -12,6 +12,7 @@ import os
 import Photos
 import PhotosUI
 import UIKit
+import Odysee
 
 class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPickerViewDelegate,
     UIPickerViewDataSource,

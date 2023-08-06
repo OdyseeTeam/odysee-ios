@@ -8,6 +8,7 @@
 import Base58Swift
 import Foundation
 import UIKit
+import Odysee
 
 final class Helper {
     static let minimumSpend: Decimal = 0.0001

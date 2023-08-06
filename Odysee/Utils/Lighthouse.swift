@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Odysee
 
 final class Lighthouse {
     static let connectionString = "https://lighthouse.odysee.tv"

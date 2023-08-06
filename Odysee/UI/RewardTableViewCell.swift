@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class RewardTableViewCell: UITableViewCell {
     @IBOutlet var titleLabel: UILabel!

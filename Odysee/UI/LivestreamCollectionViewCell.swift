@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class LivestreamCollectionViewCell: UICollectionViewCell {
     static let nib = UINib(nibName: "LivestreamCollectionViewCell", bundle: nil)

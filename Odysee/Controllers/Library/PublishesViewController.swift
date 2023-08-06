@@ -8,6 +8,7 @@
 import Firebase
 import OrderedCollections
 import UIKit
+import Odysee
 
 class PublishesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     @IBOutlet var noUploadsView: UIView!

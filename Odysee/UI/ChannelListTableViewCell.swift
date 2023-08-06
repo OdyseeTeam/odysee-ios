@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class ChannelListTableViewCell: UITableViewCell {
     @IBOutlet var thumbnailImageView: UIImageView!

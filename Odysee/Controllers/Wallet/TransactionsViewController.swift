@@ -8,6 +8,7 @@
 import Firebase
 import OrderedCollections
 import UIKit
+import Odysee
 
 class TransactionsViewController: UIViewController, UITableViewDataSource, UITableViewDelegate,
     UIGestureRecognizerDelegate

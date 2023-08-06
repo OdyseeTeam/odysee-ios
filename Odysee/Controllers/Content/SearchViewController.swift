@@ -9,6 +9,7 @@ import Firebase
 import OrderedCollections
 import SafariServices
 import UIKit
+import Odysee
 
 class SearchViewController: UIViewController,
     UIGestureRecognizerDelegate,

@@ -8,6 +8,7 @@
 import Firebase
 import Foundation
 import os
+import Odysee
 
 final class Lbryio {
     enum Method: String {
@@ -401,7 +402,7 @@ final class Lbryio {
     static func areCommentsEnabled(channelId: String, channelName: String, completion: @escaping (Bool) -> Void) {
         Lbry.commentApiCall(
             method: Lbry.CommentMethods.list,
-            params: .init(
+            params: CommentListParams.init(
                 claimId: channelId,
                 channelId: channelId,
                 channelName: channelName,

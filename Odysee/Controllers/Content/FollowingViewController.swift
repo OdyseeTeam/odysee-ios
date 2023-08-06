@@ -9,6 +9,7 @@ import CoreData
 import Firebase
 import OrderedCollections
 import UIKit
+import Odysee
 
 class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,
     UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, WalletSyncObserver

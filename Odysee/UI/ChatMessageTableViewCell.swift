@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class ChatMessageTableViewCell: UITableViewCell {
     @IBOutlet var nameLabel: UILabel!

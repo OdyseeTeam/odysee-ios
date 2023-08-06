@@ -7,6 +7,7 @@
 
 import Firebase
 import UIKit
+import Odysee
 
 // initial wallet sync processing after sign in / sign up
 class WalletSyncViewController: UIViewController {

@@ -12,6 +12,7 @@ import MediaPlayer
 import MessageUI
 import OAuthSwift
 import UIKit
+import Odysee
 
 class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMailComposeViewControllerDelegate {
     @IBOutlet var headerArea: UIView!

@@ -7,6 +7,7 @@
 
 import Firebase
 import UIKit
+import Odysee
 
 class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizerDelegate,
     UIImagePickerControllerDelegate, UINavigationControllerDelegate

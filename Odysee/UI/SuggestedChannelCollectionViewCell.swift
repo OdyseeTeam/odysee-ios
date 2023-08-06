@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class SuggestedChannelCollectionViewCell: UICollectionViewCell {
     @IBOutlet var thumbnailImageView: UIImageView!

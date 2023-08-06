@@ -7,6 +7,7 @@
 
 import Firebase
 import UIKit
+import Odysee
 
 class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource,
     WalletBalanceObserver

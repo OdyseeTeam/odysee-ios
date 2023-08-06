@@ -8,6 +8,7 @@
 import AVFoundation
 import HaishinKit
 import UIKit
+import Odysee
 
 class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDelegate,
     UIImagePickerControllerDelegate, UINavigationControllerDelegate
@@ -248,7 +249,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
         Lbry.apiCall(
             method: Lbry.Methods.claimList,
-            params: .init(
+            params: ClaimListParams.init(
                 claimType: [.channel],
                 page: 1,
                 pageSize: 999,
@@ -426,7 +427,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     func signAndSetupStream(channel: Claim) {
         Lbry.apiCall(
             method: Lbry.Methods.channelSign,
-            params: .init(channelId: channel.claimId!, hexdata: Helper.strToHex(channel.name!))
+            params: ChannelSignParams.init(channelId: channel.claimId!, hexdata: Helper.strToHex(channel.name!))
         )
         .subscribeResult { result in
             switch result {

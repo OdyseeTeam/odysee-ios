@@ -1,30 +1,15 @@
 //
 //  Reward.swift
-//  Odysee
+//  OdyseeApp
 //
-//  Created by Akinwale Ariwodola on 17/12/2020.
+//  Created by Alsey Coleman Miller on 8/5/23.
 //
 
 import Foundation
+import Odysee
 
-struct Reward: Decodable {
-    static let typeCustom = "custom"
-    static let typeFirstPublish = "first_publish"
-    static let typeFirstChannel = "new_channel"
-    static let typeNewMobile = "new_mobile"
-
-    var id: Int64?
-    var rewardType: String?
-    var rewardAmount: Decimal?
-    var transactionId: String?
-    var createdAt: String?
-    var updatedAt: String?
-    var rewardTitle: String?
-    var rewardDescription: String?
-    var rewardNotification: String?
-    var rewardRange: String?
-    var rewardCode: String?
-
+extension Reward {
+    
     var displayAmount: String {
         if shouldDisplayRange {
             return String(rewardRange!.split(separator: "-")[1])
@@ -42,18 +27,5 @@ struct Reward: Decodable {
 
     var claimed: Bool {
         return !(transactionId ?? "").isBlank
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case id = "Id"
-        case rewardType = "reward_type"
-        case rewardAmount = "reward_amount"
-        case transactionId = "transaction_id"
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-        case rewardTitle = "reward_title"
-        case rewardDescription = "reward_description"
-        case rewardNotification = "reward_notification"
-        case rewardRange = "reward_range"
     }
 }

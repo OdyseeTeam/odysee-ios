@@ -8,6 +8,7 @@
 import AVKit
 import CoreData
 import UIKit
+import Odysee
 
 class InitViewController: UIViewController {
     @IBOutlet var errorView: UIView!

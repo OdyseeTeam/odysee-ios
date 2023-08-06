@@ -7,6 +7,7 @@
 
 import SafariServices
 import UIKit
+import Odysee
 
 class TransactionTableViewCell: UITableViewCell {
     var tx: Transaction?
@@ -31,7 +32,7 @@ class TransactionTableViewCell: UITableViewCell {
 
     func setTransaction(transaction: Transaction) {
         tx = transaction
-        descriptionLabel.text = transaction.description
+        descriptionLabel.text = transaction.descriptionText
         amountLabel.text = Helper.currencyFormatter4
             .string(from: Decimal(string: transaction.value!)! as NSDecimalNumber)
         txidLabel.text = String(transaction.txid!.prefix(7))

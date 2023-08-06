@@ -7,6 +7,7 @@
 
 import Firebase
 import UIKit
+import Odysee
 
 class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate, UITableViewDelegate,
     UITableViewDataSource
