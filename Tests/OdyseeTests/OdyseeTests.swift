@@ -3,8 +3,8 @@ import XCTest
 
 final class OdyseeTests: XCTestCase {
     
-    func testExample() throws {
+    func testServerURL() throws {
         
-        
+        XCTAssertEqual(OdyseeServer.production.rawValue, "https://odysee.com")
     }
 }
