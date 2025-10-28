@@ -6,6 +6,7 @@
 //
 
 import Firebase
+import FirebaseAnalytics
 import OrderedCollections
 import UIKit
 
