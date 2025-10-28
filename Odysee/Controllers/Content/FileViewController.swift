@@ -9,6 +9,7 @@ import AVFoundation
 import AVKit
 import CoreData
 import Firebase
+import FirebaseAnalytics
 import ImageScrollView
 import OrderedCollections
 import PerfectMarkdown
@@ -176,7 +177,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var messages: [Comment] = []
     var chatConnected = false
     var initialChatLoaded = false
-    var chatWebsocket: WebSocket?
+    var chatWebsocket: Starscream.WebSocket?
 
     var currentPlaylistPage = 1
     var playlistLastPageReached = false
@@ -2389,7 +2390,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
 
-    func didReceive(event: WebSocketEvent, client: WebSocket) {
+    func didReceive(event: WebSocketEvent, client: Starscream.WebSocket) {
         switch event {
         case .connected:
             chatConnected = true

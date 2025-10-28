@@ -6,6 +6,7 @@
 //
 
 import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class LibraryViewController: UIViewController {
