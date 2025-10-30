@@ -14,9 +14,9 @@ jobs:
       MINT_PATH: ${{ github.workspace }}/mint
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v5
       - name: Cache Mint dependencies
-        uses: actions/cache@v1
+        uses: actions/cache@v4
         with:
           path: ${{ env.MINT_PATH }}
           key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
@@ -34,7 +34,7 @@ jobs:
     runs-on: macOS-11
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v5
       - name: Copy sample GoogleService-Info.plist
         run: cp Odysee/GoogleService-Info.plist.sample Odysee/GoogleService-Info.plist
       - name: Run xcodebuild
