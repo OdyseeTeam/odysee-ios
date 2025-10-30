@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1223,10 +1223,10 @@
 		};
 		64A26CE326974B7900AE19DE /* XCRemoteSwiftPackageReference "Perfect-Markdown" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/PerfectlySoft/Perfect-Markdown.git";
+			repositoryURL = "https://github.com/OdyseeTeam/Perfect-Markdown.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.2.0;
+				kind = revision;
+				revision = ffb3a6a159dedaf93be1d71f30805c46feb6939b;
 			};
 		};
 		CCDDA927265861AF0006035F /* XCRemoteSwiftPackageReference "PINRemoteImage" */ = {
