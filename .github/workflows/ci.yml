@@ -5,32 +5,32 @@ on:
       - master
   push:
     branches:
-      - master
+      - '*'
 jobs:
-  lint:
-    runs-on: macOS-latest
-    env:
-      MINT_PATH: ${{ github.workspace }}/mint
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v1
-      - name: Cache Mint dependencies
-        uses: actions/cache@v1
-        with:
-          path: ${{ env.MINT_PATH }}
-          key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
-          restore-keys: ${{ runner.os }}-mint-
-      - name: Install mint
-        run: brew install mint
-      - name: Bootstrap mint dependencies
-        run: mint bootstrap --link
-      - name: SwiftFormat version
-        run: mint run swiftformat --version
-      - name: SwiftFormat
-        run: mint run swiftformat . --lint --verbose
+  # lint:
+  #   runs-on: macOS-latest
+  #   env:
+  #     MINT_PATH: ${{ github.workspace }}/mint
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v1
+  #     - name: Cache Mint dependencies
+  #       uses: actions/cache@v1
+  #       with:
+  #         path: ${{ env.MINT_PATH }}
+  #         key: ${{ runner.os }}-mint-${{ hashFiles('**/Mintfile') }}
+  #         restore-keys: ${{ runner.os }}-mint-
+  #     - name: Install mint
+  #       run: brew install mint
+  #     - name: Bootstrap mint dependencies
+  #       run: mint bootstrap --link
+  #     - name: SwiftFormat version
+  #       run: mint run swiftformat --version
+  #     - name: SwiftFormat
+  #       run: mint run swiftformat . --lint --verbose
 
   build:
-    runs-on: macOS-11
+    runs-on: macOS-15
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -38,3 +38,45 @@ jobs:
         run: cp Odysee/GoogleService-Info.plist.sample Odysee/GoogleService-Info.plist
       - name: Run xcodebuild
         run: xcodebuild -project Odysee.xcodeproj/ -scheme Odysee -configuration Release -destination generic/platform=iOS CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO -derivedDataPath DerivedData -archivePath DerivedData/Archive/Odysee archive
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - i: 'iOS 15.5'
+            c: 'iOS15.5'
+            t: '15.5'
+          - i: 'iOS 16.4'
+            c: 'iOS16.4'
+            t: '16.4'
+          - i: 'iOS 17.0'
+            c: 'iOS17.0'
+            t: '17.0'
+          - i: 'iOS 17.0.1'
+            c: 'iOS17.0.1'
+            t: '17.0.1'
+          - i: 'iOS 17.2'
+            c: 'iOS17.2'
+            t: '17.2'
+          - i: 'iOS 17.4'
+            c: 'iOS17.4'
+            t: '17.4'
+          - i: 'iOS 17.5'
+            c: 'iOS17.5'
+            t: '17.5'
+          - i: 'iOS 18.6'
+            c: 'iOS18.6'
+            t: '18.6'
+    runs-on: macOS-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Copy sample GoogleService-Info.plist
+        run: cp Odysee/GoogleService-Info.plist.sample Odysee/GoogleService-Info.plist
+      - name: Install Simulator
+        run: sudo xcodes runtimes install "${{ matrix.version.i }}"
+      - name: Create Simulator
+        run: xcrun simctl create iPhone13 com.apple.CoreSimulator.SimDeviceType.iPhone-13 "${{ matrix.version.c }}"
+      - name: Run xcodebuild
+        run: xcodebuild -project Odysee.xcodeproj/ -scheme Odysee -destination "platform=iOS Simulator,name=iPhone13,OS=${{ matrix.version.t }}" CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO test

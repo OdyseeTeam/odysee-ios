@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,6 +14,7 @@
 		53593F31287E5D75007FD08E /* ReactListResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* ReactListResult.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
+		53B1B1E92EB301810085AF26 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B1B1E82EB301810085AF26 /* LbryUriTest.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
 		53FAD3FD288504C60000F980 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53FAD3FB288504C60000F980 /* Localizable.strings */; };
@@ -145,6 +146,7 @@
 		53593F30287E5D75007FD08E /* ReactListResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReactListResult.swift; sourceTree = "<group>"; };
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
+		53B1B1E82EB301810085AF26 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
 		53FAD3FC288504C60000F980 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Odysee/Base.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -481,6 +483,7 @@
 			children = (
 				649EA90526528D8D00F45129 /* launch_screen.png */,
 				64FBE79B25502A290082AF2E /* Odysee */,
+				64FBE7B525502A2D0082AF2E /* OdyseeTests */,
 				64FBE7C025502A2D0082AF2E /* OdyseeUITests */,
 				64FBE79A25502A290082AF2E /* Products */,
 				6411C0A0255B31C00018C3D5 /* Frameworks */,
@@ -519,7 +522,6 @@
 				64D72BBE258CD8AE00F5C4E3 /* StoreConfig.storekit */,
 				532650E3286EAB1B00F0FF0B /* Settings.bundle */,
 				53FAD3FB288504C60000F980 /* Localizable.strings */,
-				64FBE7B525502A2D0082AF2E /* OdyseeTests */,
 			);
 			path = Odysee;
 			sourceTree = "<group>";
@@ -527,6 +529,7 @@
 		64FBE7B525502A2D0082AF2E /* OdyseeTests */ = {
 			isa = PBXGroup;
 			children = (
+				53B1B1E82EB301810085AF26 /* LbryUriTest.swift */,
 				64FBE7B625502A2D0082AF2E /* OdyseeTests.swift */,
 				CCDDA9222658529C0006035F /* MultistreamTests.swift */,
 				64FBE7B825502A2D0082AF2E /* Info.plist */,
@@ -813,6 +816,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53B1B1E92EB301810085AF26 /* LbryUriTest.swift in Sources */,
 				64FBE7B725502A2D0082AF2E /* OdyseeTests.swift in Sources */,
 				CCDDA9232658529C0006035F /* MultistreamTests.swift in Sources */,
 			);
@@ -1223,10 +1227,10 @@
 		};
 		64A26CE326974B7900AE19DE /* XCRemoteSwiftPackageReference "Perfect-Markdown" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/PerfectlySoft/Perfect-Markdown.git";
+			repositoryURL = "https://github.com/ktprograms/Perfect-Markdown.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.2.0;
+				branch = master;
+				kind = branch;
 			};
 		};
 		CCDDA927265861AF0006035F /* XCRemoteSwiftPackageReference "PINRemoteImage" */ = {
