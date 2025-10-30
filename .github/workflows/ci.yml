@@ -31,7 +31,7 @@ jobs:
         run: mint run swiftformat . --lint --verbose
 
   build:
-    runs-on: macOS-11
+    runs-on: macOS-26
     steps:
       - name: Checkout
         uses: actions/checkout@v5
