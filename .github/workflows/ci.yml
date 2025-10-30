@@ -5,7 +5,8 @@ on:
       - master
   push:
     branches:
-      - master
+      - '*'
+  workflow_dispatch:
 jobs:
   lint:
     runs-on: macOS-latest
