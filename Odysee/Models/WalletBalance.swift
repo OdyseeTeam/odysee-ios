@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct WalletBalance {
-    var available: Decimal?
-    var reserved: Decimal?
-    var claims: Decimal?
-    var supports: Decimal?
-    var tips: Decimal?
-    var total: Decimal?
+public struct WalletBalance {
+    public var available: Decimal?
+    public var reserved: Decimal?
+    public var claims: Decimal?
+    public var supports: Decimal?
+    public var tips: Decimal?
+    public var total: Decimal?
 }

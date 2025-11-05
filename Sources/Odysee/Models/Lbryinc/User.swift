@@ -7,29 +7,30 @@
 
 import Foundation
 
-struct User: Decodable {
-    var createdAt: String?
-    var familyName: String?
-    var givenName: String?
-    var groups: [String]?
-    var hasVerifiedEmail: Bool?
-    var id: Int64?
-    var inviteRewardClaimed: Bool?
-    var invitedAt: String?
-    var invitedById: Int64?
-    var invitesRemaining: Int?
-    var isEmailEnabled: Bool?
-    var isIdentityVerified: Bool?
-    var isRewardApproved: Bool?
-    var language: String?
-    var manualApprovalUserId: Int64?
-    var primaryEmail: String?
-    var rewardStatusChangeTrigger: String?
-    var youtubeChannels: [YoutubeChannel]?
-    var deviceTypes: [String]?
-    var pendingDeletion: Bool?
+public struct User: Decodable {
+    
+    public var createdAt: String?
+    public var familyName: String?
+    public var givenName: String?
+    public var groups: [String]?
+    public var hasVerifiedEmail: Bool?
+    public var id: Int64?
+    public var inviteRewardClaimed: Bool?
+    public var invitedAt: String?
+    public var invitedById: Int64?
+    public var invitesRemaining: Int?
+    public var isEmailEnabled: Bool?
+    public var isIdentityVerified: Bool?
+    public var isRewardApproved: Bool?
+    public var language: String?
+    public var manualApprovalUserId: Int64?
+    public var primaryEmail: String?
+    public var rewardStatusChangeTrigger: String?
+    public var youtubeChannels: [YoutubeChannel]?
+    public var deviceTypes: [String]?
+    public var pendingDeletion: Bool?
 
-    private enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
         case createdAt = "created_at"
         case familyName = "family_name"
         case givenName = "given_name"
@@ -50,19 +51,23 @@ struct User: Decodable {
         case youtubeChannels = "youtube_channels"
         case deviceTypes = "device_types"
     }
+}
 
+public extension User {
+    
     struct YoutubeChannel: Decodable {
-        var ytChannelName: String?
-        var lbryChannelName: String?
-        var channelClaimId: String?
-        var syncStatus: String?
-        var statusToken: String?
-        var transferable: Bool?
-        var transferState: String?
-        var publishToAddress: [String]?
-        var publicKey: String?
+        
+        public var ytChannelName: String?
+        public var lbryChannelName: String?
+        public var channelClaimId: String?
+        public var syncStatus: String?
+        public var statusToken: String?
+        public var transferable: Bool?
+        public var transferState: String?
+        public var publishToAddress: [String]?
+        public var publicKey: String?
 
-        private enum CodingKeys: String, CodingKey {
+        enum CodingKeys: String, CodingKey {
             case ytChannelName = "yt_channel_name"
             case lbryChannelName = "lbry_channel_name"
             case channelClaimId = "channel_claim_id"

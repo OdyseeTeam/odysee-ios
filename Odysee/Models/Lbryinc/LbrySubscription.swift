@@ -1,33 +1,17 @@
 //
-//  RemoteSubscription.swift
-//  Odysee
+//  LbrySubscription.swift
+//  OdyseeApp
 //
-//  Created by Akinwale Ariwodola on 07/12/2020.
+//  Created by Alsey Coleman Miller on 8/5/23.
 //
 
 import Foundation
+import CoreData
+import Odysee
 
-struct LbrySubscription: Decodable {
-    var claimId: String?
-    var channelName: String?
-    var notificationsDisabled: Bool?
-
-    private enum CodingKeys: String, CodingKey {
-        case claimId = "claim_id"
-        case channelName = "channel_name"
-        case notificationsDisabled = "is_notifications_disabled"
-    }
-
-    static func fromClaim(claim: Claim, notificationsDisabled: Bool) -> LbrySubscription {
-        var sub = LbrySubscription()
-        sub.claimId = claim.claimId
-        sub.channelName = claim.name
-        sub.notificationsDisabled = notificationsDisabled
-
-        return sub
-    }
-
-    static func fromLocalSubscription(subscription: Subscription) -> LbrySubscription {
+extension LbrySubscription {
+    
+    static func fromLocalSubscription(subscription: OdyseeApp.Subscription) -> LbrySubscription {
         var sub = LbrySubscription()
         let url = LbryUri.tryParse(url: subscription.url!, requireProto: false)
         if url != nil {

@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Odysee
 
 class ClaimTableViewCell: UITableViewCell {
     static let nib = UINib(nibName: "ClaimTableViewCell", bundle: nil)

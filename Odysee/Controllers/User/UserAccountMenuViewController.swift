@@ -8,6 +8,7 @@
 import MessageUI
 import SafariServices
 import UIKit
+import Odysee
 
 class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelegate,
     UIPickerViewDataSource, UIPickerViewDelegate

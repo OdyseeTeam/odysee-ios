@@ -7,6 +7,7 @@
 
 import SafariServices
 import UIKit
+import Odysee
 
 class CommentTableViewCell: UITableViewCell {
     weak var viewController: CommentsViewController?

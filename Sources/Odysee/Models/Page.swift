@@ -7,19 +7,20 @@
 
 import Foundation
 
-struct Page<Item: Decodable>: Decodable {
-    var pageSize: Int
-    var items: [Item]
-    var isLastPage: Bool
-
-    init(from decoder: Decoder) throws {
+public struct Page<Item: Decodable>: Decodable {
+    
+    public var pageSize: Int
+    public var items: [Item]
+    public var isLastPage: Bool
+    
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         pageSize = try container.decode(Int.self, forKey: .pageSize)
         items = try container.decodeIfPresent([Item].self, forKey: .items) ?? []
         isLastPage = items.count < pageSize
     }
 
-    private enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
         case items
         case pageSize = "page_size"
     }

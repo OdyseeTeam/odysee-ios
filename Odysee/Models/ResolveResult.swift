@@ -5,11 +5,14 @@
 //  Created by Adlai Holler on 6/17/21.
 //
 
-struct ResolveResult: Decodable {
-    var claims = [String: Claim]()
-    var errors = [String: Error]()
+import Odysee
 
-    init(from decoder: Decoder) throws {
+public struct ResolveResult: Decodable {
+    
+    public var claims = [String: Claim]()
+    public var errors = [String: Error]()
+
+    public init(from decoder: Decoder) throws {
         let dict = try [String: ResolveItemResult](from: decoder)
         claims.reserveCapacity(dict.count)
         for (key, val) in dict {

@@ -12,6 +12,7 @@ import CryptoKit
 import Foundation
 import os
 import UIKit
+import Odysee
 
 final class Lbry {
     static let ttlCLaimSearchValue = 120_000

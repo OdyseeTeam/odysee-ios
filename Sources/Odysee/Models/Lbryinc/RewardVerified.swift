@@ -7,11 +7,12 @@
 
 import Foundation
 
-struct RewardVerified: Decodable {
-    var userId: Int64?
-    var isRewardApproved: Bool?
+public struct RewardVerified: Decodable {
+    
+    public var userId: Int64?
+    public var isRewardApproved: Bool?
 
-    private enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
         case userId = "user_id"
         case isRewardApproved = "is_reward_approved"
     }

@@ -11,6 +11,7 @@ import Firebase
 import MediaPlayer
 import PINRemoteImage
 import UIKit
+import Odysee
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, UITabBarControllerDelegate {
