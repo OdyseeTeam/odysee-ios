@@ -45,6 +45,10 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     var currentCommentAsIndex = -1
 
+    // From notification
+    var currentCommentId: String?
+    var hasScrolledToCurrentComment: Bool = false
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if !Lbryio.isSignedIn() || commentsDisabled {
@@ -187,6 +191,17 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         return cell
     }
 
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let cell = cell as? CommentTableViewCell else {
+            return
+        }
+        if cell.currentComment?.commentId == currentCommentId {
+            cell.contentView.backgroundColor = UIColor(named: "commentHighlight")
+        } else {
+            cell.contentView.backgroundColor = nil
+        }
+    }
+
     func loadComments() {
         if commentsLoading {
             return
@@ -229,6 +244,25 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 self.loadingContainer.isHidden = true
                 self.commentList.reloadData()
                 self.checkNoComments()
+
+                if self.currentCommentId != nil {
+                    if !self.commentsLastPageReached && !self.comments.contains(where: {
+                        $0.commentId == self.currentCommentId
+                    }) {
+                        self.commentsCurrentPage += 1
+                        self.loadComments()
+                    } else if !self.hasScrolledToCurrentComment {
+                        if let currentCommentIndex = self.comments.firstIndex(where: {
+                            $0.commentId == self.currentCommentId
+                        }) {
+                            let indexPath = IndexPath(row: currentCommentIndex, section: 0)
+                            self.commentList.scrollToRow(at: indexPath, at: .top, animated: true)
+                            self.hasScrolledToCurrentComment = true
+                        } else {
+                            self.showError(message: String.localized("Comment could not be found"))
+                        }
+                    }
+                }
             }
         }
     }
