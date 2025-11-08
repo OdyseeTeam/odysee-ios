@@ -212,7 +212,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             case let .success(page):
                 self.commentsLastPageReached = page.isLastPage
                 let loadedComments = page.items.filter {
-                    comment in !self.comments.contains(where: { $0.comment == comment.commentId })
+                    comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
                 }
                 self.comments.append(contentsOf: loadedComments)
 
@@ -615,7 +615,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 self.showError(error: error)
             case let .success(page):
                 let loadedComments = page.items.filter {
-                    comment in !self.comments.contains(where: { $0.comment == comment.commentId })
+                    comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
                 }
 
                 let parentIndex = self.indexForComment(parent)
