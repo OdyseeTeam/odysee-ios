@@ -8,19 +8,21 @@
 import Foundation
 
 struct Page<Item: Decodable>: Decodable {
-    var pageSize: Int
     var items: [Item]
     var isLastPage: Bool
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        pageSize = try container.decode(Int.self, forKey: .pageSize)
         items = try container.decodeIfPresent([Item].self, forKey: .items) ?? []
-        isLastPage = items.count < pageSize
+
+        let page = try container.decodeIfPresent(Int.self, forKey: .page)
+        let totalPages = try container.decodeIfPresent(Int.self, forKey: .totalPages)
+        isLastPage = page == totalPages
     }
 
     private enum CodingKeys: String, CodingKey {
         case items
-        case pageSize = "page_size"
+        case page
+        case totalPages = "total_pages"
     }
 }
