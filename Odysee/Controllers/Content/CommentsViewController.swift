@@ -369,8 +369,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             case let .success(comment):
                 if let currentReplyToComment = self.currentReplyToComment {
                     if currentReplyToComment.repliesLoaded ?? false {
-                        let parentIndex = self.indexForComment(currentReplyToComment)
-                        if parentIndex > -1 {
+                        if let parentIndex = self.comments.firstIndex(where: {
+                            $0.commentId == currentReplyToComment.commentId
+                        }) {
                             self.comments.insert(comment, at: parentIndex + 1)
                         }
                     } else {
@@ -618,8 +619,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
                 }
 
-                let parentIndex = self.indexForComment(parent)
-                if parentIndex > -1 {
+                if let parentIndex = self.comments.firstIndex(where: { $0.commentId == parent.commentId }) {
                     self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
                     if loadedComments.count > 0 {
                         self.loadCommentReactions(commentIds: loadedComments.map(\.commentId!))
@@ -642,15 +642,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 break
             }
         }
-    }
-
-    func indexForComment(_ comment: Comment) -> Int {
-        for i in comments.indices {
-            if comments[i].commentId == comment.commentId {
-                return i
-            }
-        }
-        return -1
     }
 
     func setReplyToComment(_ comment: Comment) {
