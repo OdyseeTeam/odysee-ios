@@ -153,6 +153,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var authorThumbnailMap = [String: URL]()
     var commentAsPicker: UIPickerView!
     var currentCommentAsIndex = -1
+    // From notification
+    var currentCommentId: String?
 
     var numLikes = 0
     var numDislikes = 0
@@ -709,6 +711,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
             if !self.commentsDisabled {
                 self.loadComments(currentClaim)
+                if self.currentCommentId != nil {
+                    self.commentAreaTapped(self)
+                }
             }
         }
     }
@@ -1799,6 +1804,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         commentsVc.claimId = isPlaylist ? playlistItems[currentPlaylistIndex].claimId! : claim?.claimId!
         commentsVc.commentsDisabled = commentsDisabled
         commentsVc.comments = comments.elements
+        commentsVc.currentCommentId = currentCommentId
         commentsVc.authorThumbnailMap = authorThumbnailMap
         commentsVc.commentsLastPageReached = commentsLastPageReached
 
