@@ -292,8 +292,10 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                 } else {
                     let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
-                    if notification.notificationParameters?.device?.type == "comment" {
+                    if ["comment", "reply"].contains(notification.notificationParameters?.device?.type) {
                         vc.currentCommentId = notification.notificationParameters?.dynamic?.hash
+                        vc.currentCommentIsReply = !(notification.notificationParameters?.dynamic?.parentId ?? "")
+                            .isEmpty
                     }
                     appDelegate.mainNavigationController?.view.layer.add(
                         Helper.buildFileViewTransition(),

@@ -83,6 +83,7 @@ final class Lbry {
     }
 
     enum CommentMethods {
+        static let byId = Method<CommentByIdParams, CommentByIdResult>(name: "comment.ByID")
         static let list = Method<CommentListParams, Page<Comment>>(name: "comment.List")
         static let create = Method<CommentCreateParams, Comment>(name: "comment.Create")
         static let reactList = Method<CommentReactListParams, ReactListResult>(name: "reaction.List")
@@ -134,7 +135,7 @@ final class Lbry {
         return e
     }()
 
-    private static func apiRequest<Params: Encodable>(
+    static func apiRequest<Params: Encodable>(
         method: String,
         params: Params,
         url: URL,
@@ -158,12 +159,12 @@ final class Lbry {
         return req
     }
 
-    private struct APIError: Decodable {
+    struct APIError: Decodable {
         var code: Int
         var message: String
     }
 
-    private struct APIResponse<Wrapped: Decodable>: Decodable {
+    struct APIResponse<Wrapped: Decodable>: Decodable {
         var jsonrpc: String
         var error: APIError?
         var result: Wrapped?

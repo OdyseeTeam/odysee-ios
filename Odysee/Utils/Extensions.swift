@@ -221,6 +221,22 @@ extension Publisher {
             })
         )
     }
+
+    // A convenience function to hook up a completion block that takes a Result to a publisher
+    // that is expected to publish only one value, or fail. For example, an API call.
+    func subscribeResultFinally(_ f: @escaping (Result<Output?, Failure>) -> Void) {
+        subscribe(
+            Subscribers.Sink(receiveCompletion: {
+                if case let .failure(error) = $0 {
+                    f(.failure(error))
+                } else {
+                    f(.success(nil))
+                }
+            }, receiveValue: {
+                f(.success($0))
+            })
+        )
+    }
 }
 
 extension Collection {

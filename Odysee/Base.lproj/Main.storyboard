@@ -8249,7 +8249,6 @@
                                             <outlet property="fireReactionImage" destination="Oq4-95-IdW" id="Orb-vS-wRC"/>
                                             <outlet property="fireReactionLabel" destination="swc-uj-cgw" id="dRk-N3-zuB"/>
                                             <outlet property="leadingLayoutConstraint" destination="uyH-mY-yxV" id="4bj-cj-b2T"/>
-                                            <outlet property="replyButton" destination="1Tf-7t-6WT" id="hhF-Qf-f7k"/>
                                             <outlet property="replyCountButton" destination="cFU-cI-xhg" id="tUm-jk-ANx"/>
                                             <outlet property="reportContentContainer" destination="fmC-kO-ISw" id="BTl-c3-ksh"/>
                                             <outlet property="slimeReactionContainer" destination="kEo-fG-5kP" id="qYG-fM-RzW"/>

@@ -7,6 +7,11 @@
 
 import Foundation
 
+struct CommentByIdParams: Encodable {
+    var commentId: String
+    var withAncestors: Bool?
+}
+
 struct CommentListParams: Encodable {
     var claimId: String
     var channelId: String?
