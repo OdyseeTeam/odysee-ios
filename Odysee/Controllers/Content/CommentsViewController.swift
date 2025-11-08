@@ -619,18 +619,23 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
                 }
 
-                if let parentIndex = self.comments.firstIndex(where: { $0.commentId == parent.commentId }) {
+                if let parentIndex = self.comments.firstIndex(where: {
+                    $0.commentId == parent.commentId
+                }), loadedComments.count > 0 {
                     self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
-                    if loadedComments.count > 0 {
-                        self.loadCommentReactions(commentIds: loadedComments.map(\.commentId!))
-                        self.resolveCommentAuthors(urls: loadedComments.map(\.channelUrl!))
-                    }
+                    self.commentList.insertRows(
+                        at: Array(parentIndex + 1 ... parentIndex + loadedComments.count).map {
+                            IndexPath(row: $0, section: 0)
+                        },
+                        with: .automatic
+                    )
+                    self.loadCommentReactions(commentIds: loadedComments.map(\.commentId!))
+                    self.resolveCommentAuthors(urls: loadedComments.map(\.channelUrl!))
                 }
 
                 self.commentsLoading = false
                 self.setCommentRepliesLoaded(parent)
                 self.loadingContainer.isHidden = true
-                self.commentList.reloadData()
             }
         }
     }
