@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 11/01/2021.
 //
 
+import Combine
 import UIKit
 
 class CommentsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDataSource,
@@ -46,6 +47,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     var currentCommentAsIndex = -1
 
     // From notification
+    var currentCommentIsReply: Bool = false
     var currentCommentId: String?
     var hasScrolledToCurrentComment: Bool = false
 
@@ -61,6 +63,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
         if comments.count == 0, !commentsDisabled {
             loadComments()
+        }
+        if currentCommentIsReply, currentCommentId != nil {
+            loadCurrentCommentThread()
         }
     }
 
@@ -245,25 +250,27 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 self.commentList.reloadData()
                 self.checkNoComments()
 
-                if self.currentCommentId != nil {
+                if self.currentCommentId != nil && !self.currentCommentIsReply {
                     if !self.commentsLastPageReached && !self.comments.contains(where: {
                         $0.commentId == self.currentCommentId
                     }) {
                         self.commentsCurrentPage += 1
                         self.loadComments()
                     } else if !self.hasScrolledToCurrentComment {
-                        if let currentCommentIndex = self.comments.firstIndex(where: {
-                            $0.commentId == self.currentCommentId
-                        }) {
-                            let indexPath = IndexPath(row: currentCommentIndex, section: 0)
-                            self.commentList.scrollToRow(at: indexPath, at: .top, animated: true)
-                            self.hasScrolledToCurrentComment = true
-                        } else {
-                            self.showError(message: String.localized("Comment could not be found"))
-                        }
+                        self.scrollToCurrentComment()
                     }
                 }
             }
+        }
+    }
+
+    func scrollToCurrentComment() {
+        if let currentCommentIndex = comments.firstIndex(where: { $0.commentId == currentCommentId }) {
+            let indexPath = IndexPath(row: currentCommentIndex, section: 0)
+            commentList.scrollToRow(at: indexPath, at: .top, animated: true)
+            hasScrolledToCurrentComment = true
+        } else {
+            showError(message: String.localized("Comment could not be found"))
         }
     }
 
@@ -400,19 +407,31 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             switch result {
             case let .failure(error):
                 self.showError(error: error)
-            case let .success(comment):
+            case var .success(comment):
                 if let currentReplyToComment = self.currentReplyToComment {
                     if currentReplyToComment.repliesLoaded ?? false {
                         if let parentIndex = self.comments.firstIndex(where: {
                             $0.commentId == currentReplyToComment.commentId
                         }) {
+                            var currentComment: Comment? = comment
+                            while let _currentComment = currentComment {
+                                comment.replyDepth += 1
+                                currentComment = self.comments.first(where: {
+                                    $0.commentId == _currentComment.parentId
+                                })
+                            }
                             self.comments.insert(comment, at: parentIndex + 1)
+                            self.commentList.insertRows(
+                                at: [IndexPath(row: parentIndex + 1, section: 0)],
+                                with: .automatic
+                            )
                         }
                     } else {
                         self.loadReplies(currentReplyToComment)
                     }
                 } else {
                     self.comments.insert(comment, at: 0)
+                    self.commentList.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
                 }
                 // TODO: Reactions not loaded here as comment might not be available?
                 self.resolveCommentAuthors(urls: [comment.channelUrl!])
@@ -423,7 +442,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 self.replyToContainerView.isHidden = true
                 self.loadingContainer.isHidden = true
                 self.textViewDidChange(self.commentInput)
-                self.commentList.reloadData()
                 self.checkNoComments()
 
                 self.currentReplyToComment = nil
@@ -651,6 +669,14 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             case let .success(page):
                 let loadedComments = page.items.filter {
                     comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
+                }.map { comment in
+                    var comment = comment
+                    var currentComment: Comment? = comment
+                    while let _currentComment = currentComment {
+                        comment.replyDepth += 1
+                        currentComment = self.comments.first(where: { $0.commentId == _currentComment.parentId })
+                    }
+                    return comment
                 }
 
                 if let parentIndex = self.comments.firstIndex(where: {
@@ -670,6 +696,111 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 self.commentsLoading = false
                 self.setCommentRepliesLoaded(parent)
                 self.loadingContainer.isHidden = true
+            }
+        }
+    }
+
+    func loadCurrentCommentThread() {
+        loadingContainer.isHidden = false
+        Lbry.commentApiCall(
+            method: Lbry.CommentMethods.byId,
+            params: .init(
+                commentId: currentCommentId!,
+                withAncestors: true
+            )
+        )
+        .subscribeResult { result in
+            switch result {
+            case let .failure(error):
+                self.showError(error: error)
+            case let .success(result):
+                if let ancestors = result.ancestors {
+                    if let parent = ancestors.last {
+                        if !self.comments.contains(where: { $0.commentId == parent.commentId }) {
+                            self.comments.insert(parent, at: 0)
+                            self.commentList.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+                        }
+                    }
+                    self.loadThread(thread: ancestors.reversed())
+                }
+            }
+        }
+    }
+
+    func loadThread(thread: [Comment]) {
+        thread.publisher.subscribe(on: DispatchQueue.global()).tryMap { comment -> (Comment, URLRequest) in
+            (comment, try Lbry.apiRequest(
+                method: Lbry.CommentMethods.list.name,
+                params: .init(
+                    claimId: self.claimId!,
+                    parentId: comment.commentId!,
+                    page: 1,
+                    pageSize: 999,
+                    skipValidation: true,
+                    topLevel: false
+                ) as CommentListParams,
+                url: Lbry.commentronURL,
+                authToken: Lbryio.authToken
+            ))
+        }
+        .flatMap(maxPublishers: .max(1)) { comment, request in
+            // Run data task.
+            URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }.map { (comment, $0) }
+        }
+        .tryMap { comment, dataTaskOutput -> (Comment, Page<Comment>) in
+            let (data, _) = dataTaskOutput
+
+            // Decode and validate result.
+            let response = try JSONDecoder().decode(Lbry.APIResponse<Page<Comment>>.self, from: data)
+            if response.jsonrpc != "2.0" {
+                assertionFailure()
+                throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
+            }
+
+            guard let result = response.result else {
+                throw LbryApiResponseError(response.error?.message ?? "unknown api error")
+            }
+            return (comment, result)
+        }
+        .receive(on: DispatchQueue.main)
+        .eraseToAnyPublisher()
+        .subscribeResultFinally { result in
+            switch result {
+            case let .failure(error):
+                self.showError(error: error)
+            case let .success(output):
+                if let (parent, page) = output {
+                    let loadedComments = page.items.filter {
+                        comment in !self.comments.contains(where: { $0.comment == comment.commentId })
+                    }.map { comment in
+                        var comment = comment
+                        var currentComment: Comment? = comment
+                        while let _currentComment = currentComment {
+                            comment.replyDepth += 1
+                            currentComment = self.comments.first(where: { $0.commentId == _currentComment.parentId })
+                        }
+                        return comment
+                    }
+
+                    if let parentIndex = self.comments.firstIndex(where: {
+                        $0.commentId == parent.commentId
+                    }), loadedComments.count > 0 {
+                        self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
+                        self.commentList.insertRows(
+                            at: Array(parentIndex + 1 ... parentIndex + loadedComments.count).map {
+                                IndexPath(row: $0, section: 0)
+                            },
+                            with: .automatic
+                        )
+                        self.loadCommentReactions(commentIds: loadedComments.map(\.commentId!))
+                        self.resolveCommentAuthors(urls: loadedComments.map(\.channelUrl!))
+                    }
+
+                    self.setCommentRepliesLoaded(parent)
+                    self.loadingContainer.isHidden = true
+                } else {
+                    self.scrollToCurrentComment()
+                }
             }
         }
     }

@@ -30,6 +30,8 @@ struct Comment: Decodable, Hashable {
 
     var repliesLoaded: Bool?
 
+    var replyDepth: Int = 1
+
     private enum CodingKeys: String, CodingKey {
         case channelId = "channel_id"
         case channelName = "channel_name"

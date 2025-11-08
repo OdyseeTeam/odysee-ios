@@ -17,7 +17,6 @@ class CommentTableViewCell: UITableViewCell {
     @IBOutlet var authorNameLabel: UILabel!
     @IBOutlet var commentBodyLabel: UILabel!
     @IBOutlet var replyCountButton: UIButton!
-    @IBOutlet var replyButton: UIButton!
 
     @IBOutlet var fireReactionContainer: UIView!
     @IBOutlet var slimeReactionContainer: UIView!
@@ -70,8 +69,7 @@ class CommentTableViewCell: UITableViewCell {
         currentComment = comment
 
         displayAuthorImage()
-        leadingLayoutConstraint.constant = !(comment.parentId ?? "").isBlank ? 66 : 16
-        replyButton.isHidden = !(comment.parentId ?? "").isBlank
+        leadingLayoutConstraint.constant = CGFloat(comment.replyDepth * 16)
         replyCountButton.isHidden = (comment.replies ?? 0) == 0 || (comment.repliesLoaded ?? false)
         replyCountButton.setTitle(
             String(

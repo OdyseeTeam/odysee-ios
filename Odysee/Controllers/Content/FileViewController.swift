@@ -154,6 +154,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var commentAsPicker: UIPickerView!
     var currentCommentAsIndex = -1
     // From notification
+    var currentCommentIsReply: Bool = false
     var currentCommentId: String?
 
     var numLikes = 0
@@ -1805,6 +1806,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         commentsVc.commentsDisabled = commentsDisabled
         commentsVc.comments = comments.elements
         commentsVc.currentCommentId = currentCommentId
+        commentsVc.currentCommentIsReply = currentCommentIsReply
         commentsVc.authorThumbnailMap = authorThumbnailMap
         commentsVc.commentsLastPageReached = commentsLastPageReached
 
