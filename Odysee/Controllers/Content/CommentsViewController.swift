@@ -23,9 +23,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var channelDriverView: UIView!
     @IBOutlet var channelDriverHeightConstraint: NSLayoutConstraint!
-    @IBOutlet var commentListHeightConstraint: NSLayoutConstraint!
-    @IBOutlet var contentScrollView: UIScrollView!
-    @IBOutlet var scrollViewBottomConstraint: NSLayoutConstraint!
     @IBOutlet var guidelinesTextView: UITextView!
 
     @IBOutlet var replyToContainerView: UIView!
@@ -74,7 +71,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         registerForKeyboardNotifications()
 
         commentAsThumbnailView.rounded()
-        commentList.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
 
         commentInput.layer.borderColor = UIColor.systemGray5.cgColor
         commentInput.layer.borderWidth = 1
@@ -153,14 +149,14 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         let info = notification.userInfo
         let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
         let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-        contentScrollView.contentInset = contentInsets
-        contentScrollView.scrollIndicatorInsets = contentInsets
+        commentList.contentInset = contentInsets
+        commentList.scrollIndicatorInsets = contentInsets
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
         let contentInsets = UIEdgeInsets.zero
-        contentScrollView.contentInset = contentInsets
-        contentScrollView.scrollIndicatorInsets = contentInsets
+        commentList.contentInset = contentInsets
+        commentList.scrollIndicatorInsets = contentInsets
     }
 
     /*
@@ -294,18 +290,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
     }
 
-    override func observeValue(
-        forKeyPath keyPath: String?,
-        of object: Any?,
-        change: [NSKeyValueChangeKey: Any]?,
-        context: UnsafeMutableRawPointer?
-    ) {
-        if keyPath == "contentSize" {
-            let contentHeight: CGFloat = commentList.contentSize.height
-            commentListHeightConstraint.constant = contentHeight
-        }
-    }
-
     @IBAction func commentAsTapped(_ sender: Any) {
         commentInput.resignFirstResponder()
 
@@ -425,9 +409,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        if contentScrollView.contentOffset
-            .y >= (contentScrollView.contentSize.height - contentScrollView.bounds.size.height)
-        {
+        if commentList.contentOffset.y >= (commentList.contentSize.height - commentList.bounds.size.height) {
             if !commentsLoading, !commentsLastPageReached {
                 commentsCurrentPage += 1
                 loadComments()
@@ -678,14 +660,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         currentReplyToComment = comment
-        if let origin = postCommentAreaView.superview {
-            let startPoint = origin.convert(postCommentAreaView.frame.origin, to: contentScrollView)
-            contentScrollView.scrollRectToVisible(
-                CGRect(x: 0, y: startPoint.y, width: 1, height: contentScrollView.frame.height),
-                animated: true
-            )
-        }
 
+        commentList.setContentOffset(.zero, animated: true)
         replyToCommentLabel.text = comment.comment
         replyToContainerView.isHidden = false
     }
