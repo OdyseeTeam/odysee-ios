@@ -93,6 +93,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     var currentSortByIndex = 1 // default to New content
     var currentContentFromIndex = 1 // default to Past week`
 
+    // From notification
+    var currentCommentIsReply: Bool = false
+    var currentCommentId: String?
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -186,6 +190,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         vc.claimId = channelClaim?.claimId!
         vc.commentsDisabled = commentsDisabled
         vc.isChannelComments = true
+        vc.currentCommentId = currentCommentId
+        vc.currentCommentIsReply = currentCommentIsReply
 
         vc.willMove(toParent: self)
         channelCommunityView.addSubview(vc.view)
@@ -199,6 +205,11 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         vc.didMove(toParent: self)
 
         commentsViewPresented = true
+
+        if currentCommentId != nil {
+            pageControl.currentPage = 3
+            updateScrollViewForPage(page: pageControl.currentPage)
+        }
     }
 
     func showClaimAndCheckFollowing() {

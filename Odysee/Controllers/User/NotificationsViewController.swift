@@ -288,6 +288,11 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                     let vc = storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
+                    if ["comment", "reply"].contains(notification.notificationParameters?.device?.type) {
+                        vc.currentCommentId = notification.notificationParameters?.dynamic?.hash
+                        vc.currentCommentIsReply = !(notification.notificationParameters?.dynamic?.parentId ?? "")
+                            .isEmpty
+                    }
                     appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
                     let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
