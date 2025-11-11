@@ -8198,7 +8198,6 @@
                                                                     </constraints>
                                                                 </imageView>
                                                             </subviews>
-                                                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                             <gestureRecognizers/>
                                                             <constraints>
                                                                 <constraint firstItem="vtA-Bv-mpx" firstAttribute="top" secondItem="3zf-3y-elz" secondAttribute="top" constant="2" id="4hk-ur-lSK"/>
@@ -8218,7 +8217,6 @@
                                                                     </constraints>
                                                                 </imageView>
                                                             </subviews>
-                                                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="trailing" secondItem="bnR-3e-Jn4" secondAttribute="trailing" constant="2" id="1hG-9y-fau"/>
                                                                 <constraint firstAttribute="bottom" secondItem="bnR-3e-Jn4" secondAttribute="bottom" constant="2" id="Fyg-M3-fD4"/>
