@@ -1,5 +1,5 @@
 //
-//  FileTableViewCell.swift
+//  ClaimTableViewCell.swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 08/11/2020.

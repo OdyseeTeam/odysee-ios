@@ -1,5 +1,5 @@
 //
-//  Locale.swift
+//  OdyseeLocale.swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 15/03/2022.

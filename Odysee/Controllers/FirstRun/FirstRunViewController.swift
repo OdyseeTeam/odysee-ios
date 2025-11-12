@@ -1,5 +1,5 @@
 //
-//  AccountViewController.swift
+//  FirstRunViewController.swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 12/03/2021.
