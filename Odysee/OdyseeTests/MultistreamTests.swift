@@ -1,5 +1,5 @@
 //
-//  MultistreamTest.swift
+//  MultistreamTests.swift
 //  OdyseeTests
 //
 //  Created by Adlai on 5/21/21.

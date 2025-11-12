@@ -1,5 +1,5 @@
 //
-//  ChannelCollectionViewCell.swift
+//  SuggestedChannelCollectionViewCell.swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 30/11/2020.

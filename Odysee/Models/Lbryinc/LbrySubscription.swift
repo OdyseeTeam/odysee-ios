@@ -1,5 +1,5 @@
 //
-//  RemoteSubscription.swift
+//  LbrySubscription.swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 07/12/2020.

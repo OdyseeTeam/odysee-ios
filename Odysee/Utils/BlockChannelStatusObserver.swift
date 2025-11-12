@@ -1,5 +1,5 @@
 //
-//  BlockChannelStatusListener.swift
+//  BlockChannelStatusObserver.swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 18/07/2022.
