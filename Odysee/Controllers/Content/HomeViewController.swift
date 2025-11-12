@@ -1,5 +1,5 @@
 //
-//  MainViewController.swift
+//  HomeViewController.swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 02/11/2020.

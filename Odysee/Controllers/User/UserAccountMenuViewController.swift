@@ -1,5 +1,5 @@
 //
-//  AccountMenuViewController.swift
+//  UserAccountMenuViewController.swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 09/12/2020.

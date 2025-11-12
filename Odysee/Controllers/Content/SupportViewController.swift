@@ -1,5 +1,5 @@
 //
-//  SupportVIewController.swift
+//  SupportViewController.swift
 //  Odysee
 //
 //  Created by Akinwale Ariwodola on 07/12/2020.

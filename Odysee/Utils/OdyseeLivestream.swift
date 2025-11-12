@@ -1,5 +1,5 @@
 //
-//  ListLivestreams.swift
+//  OdyseeLivestream.swift
 //  Odysee
 //
 //  Created by Keith Toh on 22/04/2022.
