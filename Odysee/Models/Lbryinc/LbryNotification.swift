@@ -47,11 +47,6 @@ struct LbryNotification: Decodable {
         return nil
     }
 
-    var author: String? {
-        return notificationParameters != nil && notificationParameters!.dynamic != nil ? notificationParameters!
-            .dynamic!.commentAuthor : nil
-    }
-
     private enum CodingKeys: String, CodingKey {
         case id
         case notificationRule = "notification_rule"
@@ -82,7 +77,7 @@ struct LbryNotification: Decodable {
         var hash: String?
         var comment: String?
         var parentId: String?
-        var commentAuthor: String?
+        var commentAuthorThumbnail: String?
 
         private enum CodingKeys: String, CodingKey {
             case claimName = "claim_name"
@@ -92,7 +87,7 @@ struct LbryNotification: Decodable {
             case hash
             case comment
             case parentId = "parent_id"
-            case commentAuthor = "comment_author"
+            case commentAuthorThumbnail = "comment_author_thumbnail"
         }
     }
 
