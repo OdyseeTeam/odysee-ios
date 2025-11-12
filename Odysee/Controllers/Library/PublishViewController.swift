@@ -215,9 +215,9 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         generateThumbnailButton.isHidden = true
         nameField.isEnabled = false
         nameField.text = currentClaim?.name
-        titleField.text = currentClaim?.value!.title ?? ""
-        descriptionField.text = currentClaim?.value!.description ?? ""
-        depositField.text = currentClaim?.amount!
+        titleField.text = currentClaim?.value?.title ?? ""
+        descriptionField.text = currentClaim?.value?.description ?? ""
+        depositField.text = currentClaim?.amount ?? ""
         selectVideoArea.isHidden = true
 
         if let thumbnailUrl = currentClaim?.value?.thumbnail?.url, !thumbnailUrl.isBlank {
