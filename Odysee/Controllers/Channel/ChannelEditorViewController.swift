@@ -127,12 +127,10 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         websiteField.text = currentClaim?.value!.websiteUrl ?? ""
         emailField.text = currentClaim?.value!.email ?? ""
 
-        if currentClaim?.value!.cover != nil, !(currentClaim?.value!.cover!.url ?? "").isBlank {
-            let coverUrl = currentClaim!.value!.cover!.url!
+        if let coverUrl = currentClaim?.value?.cover?.url, !coverUrl.isBlank {
             coverImageView.load(url: URL(string: coverUrl)!)
         }
-        if currentClaim?.value!.thumbnail != nil, !(currentClaim?.value!.thumbnail!.url ?? "").isBlank {
-            let thumbnailUrl = currentClaim!.value!.thumbnail!.url!
+        if let thumbnailUrl = currentClaim?.value?.thumbnail?.url, !thumbnailUrl.isBlank {
             thumbnailImageView.backgroundColor = UIColor.clear
             thumbnailImageView.load(url: URL(string: thumbnailUrl)!)
         }
@@ -210,22 +208,22 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         options["bid"] = Helper.sdkAmountFormatter.string(from: deposit! as NSDecimalNumber)!
         options["blocking"] = true
 
-        if !(currentCoverUrl ?? "").isBlank {
+        if !currentCoverUrl.isBlank {
             options["cover_url"] = currentCoverUrl!
         }
-        if !(currentThumbnailUrl ?? "").isBlank {
+        if !currentThumbnailUrl.isBlank {
             options["thumbnail_url"] = currentThumbnailUrl!
         }
-        if !(titleField.text ?? "").isBlank {
+        if !titleField.text.isBlank {
             options["title"] = titleField.text
         }
-        if !(descriptionField.text ?? "").isBlank {
+        if !descriptionField.text.isBlank {
             options["description"] = descriptionField.text
         }
-        if !(websiteField.text ?? "").isBlank {
+        if !websiteField.text.isBlank {
             options["website_url"] = websiteField.text
         }
-        if !(emailField.text ?? "").isBlank {
+        if !emailField.text.isBlank {
             options["email"] = emailField.text
         }
 

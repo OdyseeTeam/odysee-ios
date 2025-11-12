@@ -179,7 +179,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         }
 
         if !isStreaming {
-            if (streamKey ?? "").isBlank {
+            if streamKey.isBlank {
                 // show an error
                 showError(
                     message: String
@@ -373,7 +373,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
         // check that there is a title
         let title = titleField.text
-        if (title ?? "").isBlank {
+        if title.isBlank {
             showError(message: String.localized("Please specify a title for your stream"))
             return
         }

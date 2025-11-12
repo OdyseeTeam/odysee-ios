@@ -318,7 +318,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         }
 
         startProcessing()
-        if !(Lbryio.cachedTwitterOauthToken ?? "").isBlank, !(Lbryio.cachedTwitterOauthTokenSecret ?? "").isBlank {
+        if !Lbryio.cachedTwitterOauthToken.isBlank, !Lbryio.cachedTwitterOauthTokenSecret.isBlank {
             twitterVerifyWithOauthToken(
                 oauthToken: Lbryio.cachedTwitterOauthToken!,
                 oauthTokenSecret: Lbryio.cachedTwitterOauthTokenSecret!
@@ -577,7 +577,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         tableView.deselectRow(at: indexPath, animated: true)
         let reward: Reward = rewards[indexPath.row]
 
-        if reward.claimed, !(reward.transactionId ?? "").isBlank {
+        if reward.claimed, !reward.transactionId.isBlank {
             // open the transaction view
             if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, reward.transactionId!)) {
                 let vc = SFSafariViewController(url: url)
@@ -602,7 +602,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         // check if there's already a wallet address
         let defaults = UserDefaults.standard
         let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
-        if (receiveAddress ?? "").isBlank {
+        if receiveAddress.isBlank {
             Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
                 guard case let .success(newAddress) = result else {
                     self.claimRewardFinished()
@@ -661,10 +661,10 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
 
     func doClaimReward(_ reward: Reward, walletAddress: String, transactionId: String?) {
         var options: [String: String] = ["reward_type": reward.rewardType!, "wallet_address": walletAddress]
-        if reward.rewardType == Reward.typeCustom, !(reward.rewardCode ?? "").isBlank {
+        if reward.rewardType == Reward.typeCustom, !reward.rewardCode.isBlank {
             options["reward_code"] = reward.rewardCode!
         }
-        if !(transactionId ?? "").isBlank {
+        if !transactionId.isBlank {
             options["transaction_id"] = transactionId!
         }
 

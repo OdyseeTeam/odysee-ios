@@ -22,7 +22,7 @@ class InitViewController: UIViewController {
     func runInit() {
         let defaults = UserDefaults.standard
         Lbry.installationId = defaults.string(forKey: Lbry.keyInstallationId)
-        if (Lbry.installationId ?? "").isBlank {
+        if Lbry.installationId.isBlank {
             Lbry.installationId = Lbry.generateId()
             defaults.set(Lbry.installationId, forKey: Lbry.keyInstallationId)
         }
@@ -166,7 +166,7 @@ class InitViewController: UIViewController {
             guard let subscriptions = asyncFetchResult.finalResult as? [Subscription] else { return }
             for sub in subscriptions {
                 let cacheSub = LbrySubscription.fromLocalSubscription(subscription: sub)
-                if !(cacheSub.claimId ?? "").isBlank {
+                if !cacheSub.claimId.isBlank {
                     Lbryio.addSubscription(sub: cacheSub, url: sub.url)
                 }
             }

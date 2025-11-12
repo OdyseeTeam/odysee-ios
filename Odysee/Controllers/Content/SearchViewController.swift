@@ -176,7 +176,7 @@ class SearchViewController: UIViewController,
         sortBy: Lighthouse.SortBy?,
         force: Bool = false
     ) {
-        if (query ?? "").isBlank ||
+        if query.isBlank ||
             (
                 currentQuery == query &&
                     currentFrom == from &&
