@@ -191,7 +191,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                     }
 
                     if let items = data as? [[String: Any]] {
-                        items.forEach { item in
+                        for item in items {
                             let data = try! JSONSerialization.data(
                                 withJSONObject: item,
                                 options: [.prettyPrinted, .sortedKeys]
