@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class Lighthouse {
+enum Lighthouse {
     static let connectionString = "https://lighthouse.odysee.tv"
 
     static var relatedContentCache: [String: Any] = [:]

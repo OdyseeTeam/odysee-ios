@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Predefined {
+enum Predefined {
     static let publishLanguages: [Language] = [
         Language(code: "en", name: "English"),
         Language(code: "zh", name: "Chinese"),
