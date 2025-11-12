@@ -99,7 +99,7 @@ class HomeViewController: UIViewController,
 
         loadingContainer.layer.cornerRadius = 20
 
-        categories.forEach { category in
+        for category in categories {
             addCategoryButton(label: category)
         }
         selectCategoryButton(button: categoryButtons[0])
