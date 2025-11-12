@@ -578,7 +578,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                         }
                     }
                     Lbryio.cachedNotifications.append(contentsOf: loadedNotifications)
-                    Lbryio.cachedNotifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "")! })
+                    Lbryio.cachedNotifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "") })
                     Lbryio.latestNotificationId = Lbryio.cachedNotifications.map { $0.id! }.max() ?? 0
                 }
 
