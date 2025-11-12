@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Constants {
+enum Constants {
     static let NotTags: [String] = [
         // MATURE TAGS
         "porn",
