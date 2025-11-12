@@ -461,7 +461,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                 if let result = data as? [String: Any] {
                     if let livestreams = result["livestreams"] as? [String: Any] {
                         // parse block rules for livestreams
-                        livestreams.forEach { claimId, value in
+                        for (claimId, value) in livestreams {
                             var cbRules: [CustomBlockRule] = []
                             if let rules = value as? [String: [Any]] {
                                 cbRules += self.parseCustomBlockRules(
@@ -486,7 +486,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                     }
 
                     if let videos = result["videos"] as? [String: Any] {
-                        videos.forEach { claimId, value in
+                        for (claimId, value) in videos {
                             var cbRules: [CustomBlockRule]? = self.customBlockRulesMap[claimId]
                             if cbRules == nil {
                                 cbRules = []
@@ -562,7 +562,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
                 if let items = data as? [[String: Any]] {
                     var loadedNotifications: [LbryNotification] = []
-                    items.forEach { item in
+                    for item in items {
                         do {
                             let jsonData = try JSONSerialization.data(
                                 withJSONObject: item as Any,
@@ -707,7 +707,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             if changesApplied {
                 // notify observers
                 DispatchQueue.main.async {
-                    self.walletSyncObservers.values.forEach { observer in
+                    for observer in self.walletSyncObservers.values {
                         observer.syncCompleted()
                     }
                 }
@@ -745,7 +745,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                 Lbry.walletBalance = balance
                 DispatchQueue.main.async {
                     self.mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.total)
-                    self.walletObservers.values.forEach { observer in
+                    for observer in self.walletObservers.values {
                         observer.balanceUpdated(balance: balance)
                     }
                 }
@@ -809,7 +809,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         guard !Lbryio.Defaults.isChannelsAssociated else {
             return
         }
-        channels.forEach { channel in
+        for channel in channels {
             Lbryio.logPublishEvent(channel)
         }
         Lbryio.Defaults.isChannelsAssociated = true

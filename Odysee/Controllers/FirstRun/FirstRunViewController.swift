@@ -123,8 +123,8 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     }
 
     func showViewController(_ vc: UIViewController) {
-        viewContainer.subviews.forEach {
-            $0.removeFromSuperview()
+        for subview in viewContainer.subviews {
+            subview.removeFromSuperview()
         }
 
         vc.willMove(toParent: self)

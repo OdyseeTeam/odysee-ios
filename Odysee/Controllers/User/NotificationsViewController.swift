@@ -179,7 +179,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
                 if let items = data as? [[String: Any]] {
                     var loadedNotifications: [LbryNotification] = []
-                    items.forEach { item in
+                    for item in items {
                         do {
                             let jsonData = try JSONSerialization.data(
                                 withJSONObject: item as Any,
