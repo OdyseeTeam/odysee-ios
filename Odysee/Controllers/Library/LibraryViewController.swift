@@ -41,6 +41,11 @@ class LibraryViewController: UIViewController {
                 AnalyticsParameterScreenClass: "LibraryViewController",
             ]
         )
+
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
+        let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
+        appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
     }
 
     func showPublishesView() {
