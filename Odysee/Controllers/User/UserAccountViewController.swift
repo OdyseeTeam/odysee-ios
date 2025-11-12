@@ -240,20 +240,20 @@ class UserAccountViewController: UIViewController {
 
     func waitForVerification() {
         DispatchQueue.main.async { [self] in
-            self.waitingForVerification = true
-            self.frDelegate?.requestStarted()
+            waitingForVerification = true
+            frDelegate?.requestStarted()
 
-            self.controlsStackView.isHidden = true
-            self.haveAccountLabel.isHidden = true
-            self.closeButton.isHidden = true
-            self.verificationLabel.isHidden = false
-            self.verificationActionsView.isHidden = false
+            controlsStackView.isHidden = true
+            haveAccountLabel.isHidden = true
+            closeButton.isHidden = true
+            verificationLabel.isHidden = false
+            verificationActionsView.isHidden = false
 
             // start timer to periodically check if the user is verified
-            self.emailVerificationTimer = Timer.scheduledTimer(
+            emailVerificationTimer = Timer.scheduledTimer(
                 timeInterval: 5,
                 target: self,
-                selector: #selector(self.checkEmailVerification),
+                selector: #selector(checkEmailVerification),
                 userInfo: nil,
                 repeats: true
             )

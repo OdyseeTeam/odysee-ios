@@ -305,7 +305,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                 channelPicker.selectRow(index, inComponent: 0, animated: true)
             }
 
-            if self.channels.count > 0 {
+            if channels.count > 0 {
                 // allow the user to choose a channel on the options before proceeding
                 showLivestreamingOptions()
                 return

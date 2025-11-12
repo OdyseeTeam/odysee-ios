@@ -1121,9 +1121,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             appDelegate.currentClaim = singleClaim
             appDelegate.lazyPlayer?.pause()
 
-            appDelegate.lazyPlayer = self.currentPlayer
+            appDelegate.lazyPlayer = currentPlayer
             avpc.player = appDelegate.lazyPlayer
-            self.currentPlayer = nil
+            currentPlayer = nil
 
             appDelegate.playerObserverAdded = false
             appDelegate.registerPlayerObserver()
