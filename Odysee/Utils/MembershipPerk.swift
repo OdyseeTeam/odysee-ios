@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct MembershipPerk {
+enum MembershipPerk {
     static let checkApiEndpoint = "https://api.odysee.com/membership_perk/check"
 
     static func perkCheck(

@@ -9,7 +9,7 @@ import Firebase
 import Foundation
 import os
 
-final class Lbryio {
+enum Lbryio {
     enum Method: String {
         case GET
         case POST

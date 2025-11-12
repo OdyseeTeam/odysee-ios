@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ContentSources {
+enum ContentSources {
     static let languageCodeEN = "en"
     static let regionCodeUS = "US"
     static let regionCodeBR = "BR" // special check for pt-BR
