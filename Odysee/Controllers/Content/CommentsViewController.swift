@@ -771,7 +771,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             case let .success(output):
                 if let (parent, page) = output {
                     let loadedComments = page.items.filter {
-                        comment in !self.comments.contains(where: { $0.comment == comment.commentId })
+                        comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
                     }.map { comment in
                         var comment = comment
                         var currentComment: Comment? = comment
