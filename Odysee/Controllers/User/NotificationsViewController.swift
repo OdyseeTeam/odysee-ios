@@ -195,7 +195,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                         }
                     }
                     self.notifications.append(contentsOf: loadedNotifications)
-                    self.notifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "")! })
+                    self.notifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "") })
                     Lbryio.cachedNotifications = self.notifications
                     Lbryio.latestNotificationId = Lbryio.cachedNotifications.map { $0.id! }.max() ?? 0
                 }
