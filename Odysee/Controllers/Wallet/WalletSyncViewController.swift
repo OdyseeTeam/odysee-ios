@@ -54,7 +54,6 @@ class WalletSyncViewController: UIViewController {
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-
                 guard let data = data, error == nil else {
                     print(error!)
                     return
