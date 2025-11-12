@@ -645,7 +645,7 @@ struct LbryioResponseError: Error {
         self.code = code
     }
 
-    public var localizedDescription: String {
+    var localizedDescription: String {
         return message
     }
 }
