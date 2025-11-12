@@ -18,7 +18,6 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
     var loadingNotifications = false
     var notifications: [LbryNotification] = Lbryio.cachedNotifications
-    var authorThumbnailMap = [String: URL]()
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -204,7 +203,6 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                 DispatchQueue.main.async {
                     self.loadingContainer.isHidden = true
                     self.checkNoNotifications()
-                    self.resolveCommentAuthors()
                     self.notificationsListView.reloadData()
                     self.refreshControl.endRefreshing()
                 }
@@ -212,24 +210,6 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         } catch {
             showError(error: error)
         }
-    }
-
-    func resolveCommentAuthors() {
-        Lbry.apiCall(
-            method: Lbry.Methods.resolve,
-            params: .init(
-                urls: notifications.filter { !($0.author ?? "").isBlank }.map { $0.author! }
-            )
-        )
-        .subscribeResult(didResolveCommentAuthors)
-    }
-
-    func didResolveCommentAuthors(_ result: Result<ResolveResult, Error>) {
-        guard case let .success(resolve) = result else {
-            return
-        }
-        Helper.addThumbURLs(claims: resolve.claims, thumbURLs: &authorThumbnailMap)
-        notificationsListView.reloadData()
     }
 
     func checkNoNotifications() {
@@ -265,7 +245,6 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
         let notification: LbryNotification = notifications[indexPath.row]
         cell.setNotification(notification: notification)
-        cell.setAuthorImageMap(map: authorThumbnailMap)
 
         return cell
     }
