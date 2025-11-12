@@ -722,7 +722,7 @@ struct LbryApiResponseError: Error {
         self.message = message
     }
 
-    public var localizedDescription: String {
+    var localizedDescription: String {
         return message
     }
 }
