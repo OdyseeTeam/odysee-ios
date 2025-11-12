@@ -582,7 +582,7 @@ final class Lbry {
             completion: { data, error in
                 guard let data = data, error == nil else {
                     print(error!)
-                    self.walletSyncInProgress = false
+                    walletSyncInProgress = false
                     return
                 }
 
@@ -591,7 +591,7 @@ final class Lbry {
                     Lbryio.syncGet(hash: hash, completion: { walletSync, _, wsError in
                         guard let walletSync = walletSync, wsError == nil else {
                             print(wsError as Any)
-                            self.walletSyncInProgress = false
+                            walletSyncInProgress = false
                             return
                         }
 
@@ -613,7 +613,7 @@ final class Lbry {
                                         if completion != nil {
                                             completion!(false)
                                         }
-                                        self.walletSyncInProgress = false
+                                        walletSyncInProgress = false
                                         return
                                     }
 
@@ -621,20 +621,20 @@ final class Lbry {
                                     let saHash = result["hash"] as! String
                                     localWalletHash = saHash
 
-                                    self.walletSyncInProgress = false
-                                    self.loadSharedUserState(completion: { _, _ in
+                                    walletSyncInProgress = false
+                                    loadSharedUserState(completion: { _, _ in
                                         if completion != nil {
                                             completion!(true)
                                         }
                                     })
 
-                                    self.checkPushSyncQueue()
+                                    checkPushSyncQueue()
                                 }
                             )
                         } else {
                             // no changes applied
-                            self.walletSyncInProgress = false
-                            self.loadSharedUserState(completion: { _, _ in
+                            walletSyncInProgress = false
+                            loadSharedUserState(completion: { _, _ in
                                 // reload all the same
                                 if completion != nil {
                                     completion!(true)
@@ -646,7 +646,7 @@ final class Lbry {
                     return
                 }
 
-                self.walletSyncInProgress = false
+                walletSyncInProgress = false
             }
         )
     }
@@ -675,8 +675,8 @@ final class Lbry {
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    self.walletSyncInProgress = false
-                    self.checkPushSyncQueue()
+                    walletSyncInProgress = false
+                    checkPushSyncQueue()
                     return
                 }
 
@@ -689,18 +689,18 @@ final class Lbry {
                             data: walletData,
                             completion: { remoteHash, error in
                                 guard let remoteHash = remoteHash, error == nil else {
-                                    self.walletSyncInProgress = false
-                                    self.checkPushSyncQueue()
+                                    walletSyncInProgress = false
+                                    checkPushSyncQueue()
                                     print(error!)
                                     return
                                 }
 
                                 Lbry.remoteWalletHash = remoteHash
                                 if Lbry.remoteWalletHash != Lbry.localWalletHash {
-                                    self.pullSyncWallet(completion: nil)
+                                    pullSyncWallet(completion: nil)
                                 } else {
-                                    self.walletSyncInProgress = false
-                                    self.checkPushSyncQueue()
+                                    walletSyncInProgress = false
+                                    checkPushSyncQueue()
                                 }
                             }
                         )
@@ -709,8 +709,8 @@ final class Lbry {
                     return
                 }
 
-                self.walletSyncInProgress = false
-                self.checkPushSyncQueue()
+                walletSyncInProgress = false
+                checkPushSyncQueue()
             }
         )
     }

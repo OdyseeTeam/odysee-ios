@@ -82,7 +82,7 @@ class HomeViewController: UIViewController,
 
         buildDynamicCategories()
         claimsPrefetchController = ImagePrefetchingController { [unowned self] indexPath in
-            let claim = self.claims[indexPath.row]
+            let claim = claims[indexPath.row]
             return ClaimTableViewCell.imagePrefetchURLs(claim: claim)
         }
         livestreamsPrefetchController = ImagePrefetchingController { [unowned self] indexPath in
@@ -100,7 +100,7 @@ class HomeViewController: UIViewController,
         loadingContainer.layer.cornerRadius = 20
 
         categories.forEach { category in
-            self.addCategoryButton(label: category)
+            addCategoryButton(label: category)
         }
         selectCategoryButton(button: categoryButtons[0])
 

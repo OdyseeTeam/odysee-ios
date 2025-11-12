@@ -59,11 +59,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 playerObservers = [NSKeyValueObservation]()
             }
             playerObservers?.append(lazyPlayer.observe(\.rate, options: .initial) { [unowned self] _, _ in
-                self.handlePlaybackChange()
+                handlePlaybackChange()
             })
             playerObservers?
                 .append(lazyPlayer.observe(\.currentItem?.status, options: .initial) { [unowned self] _, _ in
-                    self.handlePlaybackChange()
+                    handlePlaybackChange()
                 })
             playerObserverAdded = true
         }
