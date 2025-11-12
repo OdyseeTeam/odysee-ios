@@ -56,7 +56,7 @@ class NotificationTableViewCell: UITableViewCell {
         currentNotification = notification
         unreadIndicatorView.layer.cornerRadius = 6
         unreadIndicatorView.isHidden = notification.isRead ?? true
-        if notification.notificationRule == "comment" {
+        if ["comment", "comment-reply"].contains(notification.notificationRule) {
             iconView.isHidden = true
             avatarView.isHidden = false
 
