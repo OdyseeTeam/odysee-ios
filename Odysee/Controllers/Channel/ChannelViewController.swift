@@ -366,17 +366,17 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             let email = channelClaim?.value?.email
             let description = channelClaim?.value?.description
 
-            if (website ?? "").isBlank, (email ?? "").isBlank, (description ?? "").isBlank {
+            if website.isBlank, email.isBlank, description.isBlank {
                 websiteStackView.isHidden = true
                 emailStackView.isHidden = true
                 descriptionTextView.isHidden = true
                 noAboutContentView.isHidden = false
             } else {
-                websiteStackView.isHidden = (website ?? "").isBlank
+                websiteStackView.isHidden = website.isBlank
                 websiteLabel.text = website ?? ""
-                emailStackView.isHidden = (email ?? "").isBlank
+                emailStackView.isHidden = email.isBlank
                 emailLabel.text = email ?? ""
-                descriptionTextView.isHidden = (description ?? "").isBlank
+                descriptionTextView.isHidden = description.isBlank
                 descriptionTextView.text = description
                 noAboutContentView.isHidden = true
             }
@@ -752,8 +752,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func websiteTapped(_ sender: Any) {
-        var websiteUrl = websiteLabel.text ?? ""
-        if !websiteUrl.isBlank {
+        if var websiteUrl = websiteLabel.text, !websiteUrl.isBlank {
             if !websiteUrl.starts(with: "http://"), !websiteUrl.starts(with: "https://") {
                 websiteUrl = String(format: "http://%@", websiteUrl)
             }

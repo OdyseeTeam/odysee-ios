@@ -125,7 +125,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     func checkReceiveAddress() {
         let defaults = UserDefaults.standard
         let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
-        if (receiveAddress ?? "").isBlank {
+        if receiveAddress.isEmpty {
             getNewReceiveAddress()
             return
         }

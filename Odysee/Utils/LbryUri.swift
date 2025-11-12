@@ -74,7 +74,7 @@ struct LbryUri: CustomStringConvertible {
     }
 
     static func isNameValid(_ name: String?) -> Bool {
-        return !(name ?? "").isBlank && regexInvalidUri
+        return !name.isBlank && regexInvalidUri
             .firstMatch(in: name!, options: [], range: NSRange(name!.startIndex..., in: name!)) == nil
     }
 
@@ -162,7 +162,7 @@ struct LbryUri: CustomStringConvertible {
             ) : nil
 
         if includesChannel {
-            if (channelName ?? "").isBlank {
+            if channelName.isBlank {
                 throw LbryUriError.runtimeError("No channel name after @")
             }
             if (channelName ?? "").count < channelNameMinLength {
@@ -210,20 +210,15 @@ struct LbryUri: CustomStringConvertible {
         if channelName != nil {
             formattedChannelName = channelName!.starts(with: "@") ? channelName : String(format: "@%@", channelName!)
         }
-        var primaryClaimName: String? = claimName
-        if (primaryClaimName ?? "").isBlank {
-            primaryClaimName = contentName
-        }
-        if (primaryClaimName ?? "").isBlank {
-            primaryClaimName = formattedChannelName
-        }
-        if (primaryClaimName ?? "").isBlank {
-            primaryClaimName = streamName
-        }
+
+        let primaryClaimName = !claimName.isBlank ? claimName
+            : !contentName.isBlank ? contentName
+            : !formattedChannelName.isBlank ? formattedChannelName
+            : streamName
 
         var primaryClaimId: String? = claimId
-        if (primaryClaimId ?? "").isBlank {
-            primaryClaimId = (formattedChannelName ?? "").isBlank ? channelClaimId : streamClaimId
+        if primaryClaimId.isBlank {
+            primaryClaimId = formattedChannelName.isBlank ? channelClaimId : streamClaimId
         }
 
         var url = ""
@@ -236,15 +231,15 @@ struct LbryUri: CustomStringConvertible {
         }
 
         var secondaryClaimName: String?
-        if (claimName ?? "").isBlank, !(contentName ?? "").isBlank {
+        if claimName.isBlank, !contentName.isBlank {
             secondaryClaimName = contentName
         }
-        if (secondaryClaimName ?? "").isBlank {
-            secondaryClaimName = !(formattedChannelName ?? "").isBlank ? streamName : nil
+        if secondaryClaimName.isBlank {
+            secondaryClaimName = !formattedChannelName.isBlank ? streamName : nil
         }
-        let secondaryClaimId: String? = !(secondaryClaimName ?? "").isBlank ? streamClaimId : nil
+        let secondaryClaimId: String? = !secondaryClaimName.isBlank ? streamClaimId : nil
 
-        if !(primaryClaimId ?? "").isBlank {
+        if !primaryClaimId.isBlank {
             url.append(":")
             url.append(primaryClaimId ?? "")
         } else if primaryClaimSequence > 0 {
@@ -255,11 +250,11 @@ struct LbryUri: CustomStringConvertible {
             url.append(String(primaryBidPosition))
         }
 
-        if !(secondaryClaimName ?? "").isBlank {
+        if !secondaryClaimName.isBlank {
             url.append("/")
             url.append(secondaryClaimName ?? "")
         }
-        if !(secondaryClaimId ?? "").isBlank {
+        if !secondaryClaimId.isBlank {
             url.append(":")
             url.append(secondaryClaimId ?? "")
         } else if secondaryClaimSequence > 0 {
@@ -310,16 +305,11 @@ struct LbryUri: CustomStringConvertible {
                 }
             }
 
-            if claimId != nil, !(claimId ?? "").isBlank,
-
-               claimId!.count > LbryUri.claimIdMaxLength ||
-               regexClaimId.firstMatch(
-                   in: claimId!,
-                   options: [],
-                   range: NSRange(claimId!.startIndex..., in: claimId!)
-               ) == nil
-
-            {
+            if !claimId.isBlank, claimId!.count > LbryUri.claimIdMaxLength || regexClaimId.firstMatch(
+                in: claimId!,
+                options: [],
+                range: NSRange(claimId!.startIndex..., in: claimId!)
+            ) == nil {
                 throw LbryUriError.runtimeError(String(format: "Invalid claim ID %@", claimId!))
             }
             if claimSequence == -1 {

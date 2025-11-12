@@ -32,6 +32,18 @@ extension String {
     }
 }
 
+extension Optional where Wrapped == String {
+    var isBlank: Bool {
+        guard let s = self else { return true }
+        return s.isBlank
+    }
+
+    var isEmpty: Bool {
+        guard let s = self else { return true }
+        return s.isEmpty
+    }
+}
+
 extension UIImageView {
     func load(url: URL) {
         pin_setImage(from: url)

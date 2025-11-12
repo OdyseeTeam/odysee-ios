@@ -91,7 +91,7 @@ class CreateChannelViewController: UIViewController, UITextFieldDelegate {
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
-        if !(textField.text ?? "").isBlank {
+        if !textField.text.isBlank {
             frDelegate?.continueProcess()
         }
         return true

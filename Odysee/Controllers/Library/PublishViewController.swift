@@ -220,8 +220,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         depositField.text = currentClaim?.amount!
         selectVideoArea.isHidden = true
 
-        if currentClaim?.value!.thumbnail != nil, !(currentClaim?.value!.thumbnail!.url ?? "").isBlank {
-            let thumbnailUrl = currentClaim!.value!.thumbnail!.url!
+        if let thumbnailUrl = currentClaim?.value?.thumbnail?.url, !thumbnailUrl.isBlank {
             currentThumbnailUrl = thumbnailUrl
             thumbnailImageView.backgroundColor = UIColor.clear
             thumbnailImageView.load(url: URL(string: thumbnailUrl)!)
@@ -385,7 +384,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             ))
             return
         }
-        if (title ?? "").isBlank {
+        if title.isBlank {
             showError(message: String.localized("Please provide a title for your content"))
             return
         }
@@ -435,8 +434,8 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
         var releaseTimeSet = false
         if currentClaim != nil {
-            if !(currentClaim!.value?.releaseTime ?? "").isBlank {
-                params["release_time"] = Int64(currentClaim!.value!.releaseTime!) ?? Int64(Date().timeIntervalSince1970)
+            if let releaseTime = currentClaim?.value?.releaseTime, !releaseTime.isBlank {
+                params["release_time"] = Int64(releaseTime) ?? Int64(Date().timeIntervalSince1970)
                 releaseTimeSet = true
             } else if currentClaim!.timestamp! > 0 {
                 params["release_time"] = currentClaim!.timestamp!
@@ -453,7 +452,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
         let license = Predefined.licenses[licensePickerView.selectedRow(inComponent: 0)]
         params["license"] = license.name
-        if !(license.url ?? "").isBlank {
+        if !license.url.isBlank {
             params["license_url"] = license.url!
         }
         // TODO: License url input field?
@@ -600,7 +599,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 req.httpMethod = "POST"
                 req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
                 req.setValue(String(contentLength), forHTTPHeaderField: "Content-Length")
-                if !(Lbryio.authToken ?? "").isBlank {
+                if !Lbryio.authToken.isBlank {
                     req.addValue(Lbryio.authToken!, forHTTPHeaderField: "X-Lbry-Auth-Token")
                 }
                 req.httpBodyStream = Multistream(streams: [headerStream, fileStream, footerStream])
