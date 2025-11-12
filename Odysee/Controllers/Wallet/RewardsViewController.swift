@@ -525,7 +525,6 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                 })
             case .failed,
                  .deferred:
-
                 stopProcessing()
                 SKPaymentQueue.default().finishTransaction(transaction)
                 SKPaymentQueue.default().remove(self)
