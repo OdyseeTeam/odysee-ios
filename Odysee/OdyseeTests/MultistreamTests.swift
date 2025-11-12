@@ -58,7 +58,7 @@ class MultistreamTests: XCTestCase, StreamDelegate {
             streamOpenExpectation!.fulfill()
         case .hasBytesAvailable:
             do {
-                streamData.append(try iStream.swiftRead(limit: 10))
+                try streamData.append(iStream.swiftRead(limit: 10))
             } catch let e {
                 XCTFail("read error: \(e)")
             }

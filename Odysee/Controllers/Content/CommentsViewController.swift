@@ -729,7 +729,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     func loadThread(thread: [Comment]) {
         thread.publisher.subscribe(on: DispatchQueue.global()).tryMap { comment -> (Comment, URLRequest) in
-            (comment, try Lbry.apiRequest(
+            try (comment, Lbry.apiRequest(
                 method: Lbry.CommentMethods.list.name,
                 params: .init(
                     claimId: self.claimId!,
