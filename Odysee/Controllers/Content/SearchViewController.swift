@@ -81,7 +81,7 @@ class SearchViewController: UIViewController,
         super.viewDidLoad()
 
         prefetchController = ImagePrefetchingController { [unowned self] indexPath in
-            ClaimTableViewCell.imagePrefetchURLs(claim: self.claims[indexPath.row])
+            ClaimTableViewCell.imagePrefetchURLs(claim: claims[indexPath.row])
         }
 
         loadingContainer.layer.cornerRadius = 20
@@ -244,7 +244,7 @@ class SearchViewController: UIViewController,
         result.showErrorIfPresent()
         if case let .success(resolve) = result {
             let urls = resolve.claims.values.sorted(
-                like: self.lighthouseUrls,
+                like: lighthouseUrls,
                 keyPath: \.permanentUrl!,
                 transform: LbryUri.normalize
             )
