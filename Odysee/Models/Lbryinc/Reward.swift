@@ -37,11 +37,11 @@ struct Reward: Decodable {
     }
 
     var shouldDisplayRange: Bool {
-        return !claimed && !(rewardRange ?? "").isBlank && rewardRange?.firstIndex(of: "-") != nil
+        return !claimed && !rewardRange.isBlank && rewardRange?.firstIndex(of: "-") != nil
     }
 
     var claimed: Bool {
-        return !(transactionId ?? "").isBlank
+        return !transactionId.isBlank
     }
 
     private enum CodingKeys: String, CodingKey {

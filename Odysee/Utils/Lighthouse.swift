@@ -50,7 +50,7 @@ final class Lighthouse {
         sortBy: SortBy? = nil,
         completion: @escaping ([[String: Any]]?, Error?) -> Void
     ) {
-        if !(relatedTo ?? "").isBlank {
+        if !relatedTo.isBlank {
             if let respData = relatedContentCache[String(format: "%@:%@", relatedTo!, rawQuery)] {
                 completion(respData as? [[String: Any]], nil)
                 return
@@ -79,7 +79,7 @@ final class Lighthouse {
         queryItems.append(URLQueryItem(name: "nsfw", value: "false"))
         queryItems.append(URLQueryItem(name: "free_only", value: "true"))
         queryItems.append(URLQueryItem(name: "filters", value: "ios"))
-        if !(relatedTo ?? "").isBlank {
+        if !relatedTo.isBlank {
             queryItems.append(URLQueryItem(name: "related_to", value: String(relatedTo!)))
         }
         if let claimType = claimType {
@@ -120,7 +120,7 @@ final class Lighthouse {
                 }
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]]
                 if respCode == 200 {
-                    if !(relatedTo ?? "").isBlank {
+                    if !relatedTo.isBlank {
                         relatedContentCache[String(format: "%@:%@", relatedTo!, rawQuery)] = respData
                     }
                     completion(respData, nil)

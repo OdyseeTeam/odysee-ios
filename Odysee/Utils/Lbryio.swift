@@ -214,10 +214,10 @@ final class Lbryio {
         completion: @escaping (Any?, Error?) -> Void
     ) throws {
         let url = String(format: "%@/%@/%@", connectionString, resource, action)
-        if (authToken ?? "").isBlank, !generatingAuthToken {
+        if authToken.isBlank, !generatingAuthToken {
             // generate the auth token before calling this resource
             try getAuthToken(completion: { token, error in
-                if !(token ?? "").isBlank {
+                if !token.isBlank {
                     // auth token could not be generated, maybe try again
                     Lbryio.authToken = token
 
@@ -243,7 +243,7 @@ final class Lbryio {
 
         var requestUrl = URL(string: url)
         var queryItems: [URLQueryItem] = []
-        if !(authToken ?? "").isBlank {
+        if !authToken.isBlank {
             queryItems.append(URLQueryItem(name: authTokenParam, value: authTokenOverride ?? authToken))
         }
         if options != nil {
@@ -315,7 +315,7 @@ final class Lbryio {
     static func buildQueryString(authToken: String?, options: [String: String]?) -> String {
         var delim = ""
         var qs = ""
-        if !(authToken ?? "").isBlank {
+        if !authToken.isBlank {
             qs.append(authTokenParam)
             qs.append("=")
             qs.append(authToken!.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!)
@@ -340,7 +340,7 @@ final class Lbryio {
     }
 
     static func getAuthToken(completion: @escaping (String?, Error?) -> Void) throws {
-        if (Lbry.installationId ?? "").isBlank {
+        if Lbry.installationId.isBlank {
             throw LbryioRequestError.runtimeError("The installation ID is not set")
         }
 
@@ -355,7 +355,7 @@ final class Lbryio {
             if data != nil {
                 let tokenData = data as! [String: Any]?
                 let token: String? = tokenData?["auth_token"] as? String
-                if (token ?? "").isBlank {
+                if token.isBlank {
                     completion(nil, LbryioResponseError("auth_token was not set in the response", 0))
                     return
                 }
@@ -365,7 +365,7 @@ final class Lbryio {
     }
 
     static func isSignedIn() -> Bool {
-        return currentUser != nil && !(currentUser?.primaryEmail ?? "").isEmpty
+        return currentUser != nil && !(currentUser?.primaryEmail).isEmpty
     }
 
     static func fetchCurrentUser(completion: @escaping (User?, Error?) -> Void) throws {
@@ -434,7 +434,7 @@ final class Lbryio {
             options["operating_system"] = "ios"
             options["platform"] = "darwin"
             options["domain"] = "odysee.com"
-            if !(token ?? "").isBlank {
+            if !token.isBlank {
                 options["firebase_token"] = token!
             }
             do {

@@ -110,7 +110,7 @@ final class Helper {
     }()
 
     static func isAddressValid(address: String?) -> Bool {
-        if (address ?? "").isBlank {
+        if address.isBlank {
             return false
         }
         // TODO: Figure out why regex is broken

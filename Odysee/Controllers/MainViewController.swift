@@ -157,7 +157,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     func checkAndClaimEmailReward(completion: @escaping (() -> Void)) {
         if !Lbryio.Defaults.isEmailRewardClaimed {
             let receiveAddress = UserDefaults.standard.string(forKey: Helper.keyReceiveAddress)
-            if (receiveAddress ?? "").isBlank {
+            if receiveAddress.isBlank {
                 Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
                     guard case let .success(newAddress) = result else {
                         return

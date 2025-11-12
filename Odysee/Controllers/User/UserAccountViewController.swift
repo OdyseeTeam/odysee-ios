@@ -155,7 +155,7 @@ class UserAccountViewController: UIViewController {
         let email = emailField.text
         let password = passwordField.text
 
-        if (email ?? "").isBlank || (password ?? "").isBlank {
+        if email.isBlank || password.isBlank {
             // show validation error
             showErrorAlert(message: String.localized("Please enter an email address and a password"))
             return
@@ -311,7 +311,7 @@ class UserAccountViewController: UIViewController {
 
         let email = emailField.text
 
-        if (email ?? "").isBlank {
+        if email.isBlank {
             // show validation error
             showErrorAlert(message: String.localized("Please enter your email address"))
             return
@@ -377,7 +377,7 @@ class UserAccountViewController: UIViewController {
         }
 
         // password entry flow
-        if (passwordField.text ?? "").isBlank {
+        if passwordField.text.isBlank {
             showErrorAlert(message: String.localized("Please enter your password"))
             return
         }

@@ -40,7 +40,7 @@ class ChannelListTableViewCell: UITableViewCell {
         placeholderLabel.isHidden = !(currentClaim?.claimId == "new")
 
         thumbnailImageView.rounded()
-        if claim.value?.thumbnail != nil, !(claim.value?.thumbnail!.url ?? "").isBlank {
+        if !(claim.value?.thumbnail?.url).isBlank {
             let thumbnailUrl = URL(string: (claim.value?.thumbnail?.url)!)!
             thumbnailImageView.backgroundColor = UIColor.clear
             thumbnailImageView.load(url: thumbnailUrl)

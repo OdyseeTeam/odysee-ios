@@ -82,11 +82,11 @@ class CommentTableViewCell: UITableViewCell {
         authorNameLabel.text = comment.channelName
         commentBodyLabel.text = comment.comment
         fireReactionLabel.text = String(describing: comment.numLikes ?? 0)
-        if (fireReactionLabel.text ?? "").isEmpty {
+        if fireReactionLabel.text.isEmpty {
             fireReactionLabel.text = "0"
         }
         slimeReactionLabel.text = String(describing: comment.numDislikes ?? 0)
-        if (slimeReactionLabel.text ?? "").isEmpty {
+        if slimeReactionLabel.text.isEmpty {
             slimeReactionLabel.text = "0"
         }
         fireReactionImage.tintColor = (comment.isLiked ?? false) ? Helper.fireActiveColor : UIColor.label

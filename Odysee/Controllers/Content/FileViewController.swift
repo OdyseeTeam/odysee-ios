@@ -728,8 +728,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
         } else if isImageContent {
             var thumbnailDisplayUrl = contentUrl
-            if !(singleClaim.value?.thumbnail?.url ?? "").isBlank {
-                thumbnailDisplayUrl = URL(string: singleClaim.value!.thumbnail!.url!)!.makeImageURL(spec: bigThumbSpec)
+            if let thumbnailUrl = singleClaim.value?.thumbnail?.url, !thumbnailUrl.isBlank {
+                thumbnailDisplayUrl = URL(string: thumbnailUrl)!.makeImageURL(spec: bigThumbSpec)
             }
             contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
             let manager = PINRemoteImageManager.shared()
@@ -909,7 +909,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
         }
 
-        if (singleClaim.value?.description ?? "").isBlank {
+        if (singleClaim.value?.description).isBlank {
             descriptionArea.isHidden = true
             descriptionDivider.isHidden = true
             titleAreaIconView.isHidden = true
@@ -1227,7 +1227,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func claimDailyView() {
         let defaults = UserDefaults.standard
         let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
-        if (receiveAddress ?? "").isBlank {
+        if receiveAddress.isBlank {
             Lbry.apiCall(
                 method: Lbry.Methods.addressUnused,
                 params: .init()
@@ -2196,8 +2196,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     @IBAction func titleAreaTapped(_ sender: Any) {
         if descriptionArea.isHidden {
-            descriptionArea.isHidden = (descriptionTextView.text ?? "").isBlank
-            descriptionDivider.isHidden = (descriptionTextView.text ?? "").isBlank
+            descriptionArea.isHidden = descriptionTextView.text.isBlank
+            descriptionDivider.isHidden = descriptionTextView.text.isBlank
             titleAreaIconView.image = UIImage(systemName: descriptionArea.isHidden ? "chevron.down" : "chevron.up")
         } else {
             descriptionArea.isHidden = true
@@ -2510,8 +2510,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 return false
             }
 
-            let text = textField.text
-            if (text ?? "").isBlank {
+            if textField.text.isBlank {
                 showError(message: String.localized("Please enter a chat message"))
                 return false
             }
