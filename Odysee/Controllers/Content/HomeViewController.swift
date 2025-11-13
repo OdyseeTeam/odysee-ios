@@ -73,8 +73,8 @@ class HomeViewController: UIViewController,
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-        let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
+        appDelegate.mainController.adjustMiniPlayerBottom(
+            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: appDelegate))
     }
 
     override func viewDidLoad() {

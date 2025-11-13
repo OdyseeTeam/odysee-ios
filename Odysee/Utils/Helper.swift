@@ -218,6 +218,10 @@ enum Helper {
         return CGFloat(window.frame.maxY - safeAreaFrame.maxY + 2)
     }
 
+    static func miniPlayerBottomWithTabBar(appDelegate: AppDelegate) -> CGFloat {
+        return (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
+    }
+
     static func makeid() -> String {
         let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
         return String((0 ..< 24).map { _ in chars.randomElement()! })

@@ -91,12 +91,12 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             } else {
                 loadRemoteSubscriptions()
             }
-
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-            let bottom = (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
-            appDelegate.mainController.adjustMiniPlayerBottom(bottom: bottom)
         }
+
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
+        appDelegate.mainController.adjustMiniPlayerBottom(
+            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: appDelegate))
     }
 
     func removeFollowing(claim: Claim) {
