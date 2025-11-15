@@ -157,7 +157,6 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
         loadingNotifications = true
         emptyView.isHidden = true
-        notificationsListView.isHidden = notifications.count == 0
         loadingContainer.isHidden = false
 
         do {
@@ -215,7 +214,6 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
     func checkNoNotifications() {
         DispatchQueue.main.async {
             self.emptyView.isHidden = self.notifications.count != 0
-            self.notificationsListView.isHidden = self.notifications.count == 0
         }
     }
 
