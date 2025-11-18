@@ -17,6 +17,7 @@
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
+		53F64E382ECCEC2A001A7D8F /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */; };
 		53FAD3FD288504C60000F980 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53FAD3FB288504C60000F980 /* Localizable.strings */; };
 		64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = 64019A0D269C101D00E16A51 /* ImageScrollView */; };
 		6402A30327E14C8800113E26 /* OdyseeLocale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6402A30227E14C8800113E26 /* OdyseeLocale.swift */; };
@@ -279,6 +280,7 @@
 				64A26CE526974B7A00AE19DE /* PerfectMarkdown in Frameworks */,
 				646D5645258587A8002DB12F /* OAuthSwift in Frameworks */,
 				6411C0B0255B35260018C3D5 /* Base58Swift in Frameworks */,
+				53F64E382ECCEC2A001A7D8F /* FirebaseCrashlytics in Frameworks */,
 				648F70D226307BC700885A2F /* HaishinKit in Frameworks */,
 				CCDDA929265861AF0006035F /* PINRemoteImage in Frameworks */,
 				6484E1B62582269B00221658 /* StoreKit.framework in Frameworks */,
@@ -563,6 +565,7 @@
 				64FBE79525502A290082AF2E /* Sources */,
 				64FBE79625502A290082AF2E /* Frameworks */,
 				64FBE79725502A290082AF2E /* Resources */,
+				53F64E362ECCE809001A7D8F /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -580,6 +583,7 @@
 				CCFB0B4E26653E0900696E0C /* OrderedCollections */,
 				64A26CE426974B7A00AE19DE /* PerfectMarkdown */,
 				64019A0D269C101D00E16A51 /* ImageScrollView */,
+				53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -714,6 +718,33 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		53F64E362ECCE809001A7D8F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 12;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\" --debug\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		64FBE79525502A290082AF2E /* Sources */ = {
@@ -1015,6 +1046,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Odysee/Odysee.entitlements;
 				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 7G9P9AM955;
 				INFOPLIST_FILE = Odysee/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
@@ -1250,6 +1282,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
 		64019A0D269C101D00E16A51 /* ImageScrollView */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */;
