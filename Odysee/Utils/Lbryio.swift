@@ -20,7 +20,6 @@ enum Lbryio {
 
     enum Defaults {
         private enum Key: String {
-            case AuthToken
             case ChannelsAssociated
             case EmailRewardClaimed
             case YouTubeSyncConnected
@@ -41,15 +40,6 @@ enum Lbryio {
 
         private static func set(bool: Key, value: Bool) {
             UserDefaults.standard.set(value, forKey: bool.rawValue)
-        }
-
-        static var authToken: String? {
-            get {
-                return get(string: .AuthToken)
-            }
-            set {
-                set(string: .AuthToken, value: newValue)
-            }
         }
 
         static var isEmailRewardClaimed: Bool {
@@ -90,19 +80,94 @@ enum Lbryio {
 
         static func reset() {
             let defaults = UserDefaults.standard
-            defaults.removeObject(forKey: Lbryio.Defaults.Key.AuthToken.rawValue)
             defaults.removeObject(forKey: Lbryio.Defaults.Key.EmailRewardClaimed.rawValue)
             defaults.removeObject(forKey: Lbryio.Defaults.Key.YouTubeSyncDone.rawValue)
             defaults.removeObject(forKey: Lbryio.Defaults.Key.YouTubeSyncConnected.rawValue)
         }
     }
 
+    // - MARK: Keychain
+
+    // Report errors but don't throw/crash, because user can just log in again
+
+    enum KeychainError: Error {
+        case noPassword
+        case unexpectedPasswordData
+        case unhandledError(status: OSStatus)
+    }
+
+    static func persistAuthToken() {
+        let tokenData = Lbryio.authToken?.data(using: .utf8)!
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassInternetPassword,
+            kSecAttrServer as String: connectionString,
+            kSecValueData as String: tokenData,
+        ]
+
+        let status = SecItemAdd(query as CFDictionary, nil)
+        guard status == errSecSuccess else {
+            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unhandledError(status: status))
+            return
+        }
+    }
+
+    static func loadAuthToken() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassInternetPassword,
+            kSecAttrServer as String: connectionString,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+            kSecReturnData as String: true,
+        ]
+
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        guard status != errSecItemNotFound else {
+            // No need to log this when it's expected first-run behavior
+            // Crashlytics.crashlytics().recordImmediate(error: KeychainError.noPassword)
+            return
+        }
+        guard status == errSecSuccess else {
+            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unhandledError(status: status))
+            return
+        }
+
+        guard let tokenData = item as? Data,
+              let token = String(data: tokenData, encoding: .utf8)
+        else {
+            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unexpectedPasswordData)
+            return
+        }
+
+        Lbryio.authToken = token
+    }
+
+    static func deleteAuthToken() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassInternetPassword,
+            kSecAttrServer as String: connectionString,
+        ]
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unhandledError(status: status))
+            return
+        }
+    }
+
+    // - MARK: Lbryio
+
     static var generatingAuthToken: Bool = false
     static let connectionString = "https://api.odysee.com"
     static let wsConnectionBaseUrl = "wss://api.lbry.com/subscribe?auth_token="
     static let wsCommmentBaseUrl = "wss://comments.lbry.com/api/v2/live-chat/subscribe?subscription_id="
     static let authTokenParam = "auth_token"
-    static var authToken: String?
+    static var authToken: String? {
+        didSet {
+            guard let _ = authToken else {
+                deleteAuthToken()
+                return
+            }
+        }
+    }
 
     static var currentUser: User?
 
@@ -218,11 +283,8 @@ enum Lbryio {
             // generate the auth token before calling this resource
             try getAuthToken(completion: { token, error in
                 if !token.isBlank {
-                    // auth token could not be generated, maybe try again
                     Lbryio.authToken = token
-
-                    // Persist the token
-                    Defaults.authToken = token
+                    persistAuthToken()
                 }
 
                 // send the call after the auth token has been retrieved

@@ -222,6 +222,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         notificationBadgeCountLabel.text = ""
 
         // remove the auth token so that a new one will be generated upon the next init
+        Lbryio.authToken = nil
         Lbryio.Defaults.reset()
 
         // clear the wallet address if it exists

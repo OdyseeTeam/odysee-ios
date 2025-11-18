@@ -27,7 +27,7 @@ class InitViewController: UIViewController {
             defaults.set(Lbry.installationId, forKey: Lbry.keyInstallationId)
         }
 
-        Lbryio.authToken = Lbryio.Defaults.authToken
+        Lbryio.loadAuthToken()
 
         Lbryio.loadExchangeRate(completion: { _, _ in
             // don't bother with error checks here, simply proceed to authenticate
