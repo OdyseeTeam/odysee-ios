@@ -12,6 +12,7 @@
 		534B71A2287BE08D00F01D42 /* CommentAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentAPIParams.swift */; };
 		534B71A4287BE0F200F01D42 /* ChannelSignResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */; };
 		53593F31287E5D75007FD08E /* CommentAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentAPIResult.swift */; };
+		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
@@ -98,7 +99,6 @@
 		64FBE7A725502A290082AF2E /* Odysee.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */; };
 		64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7A825502A2C0082AF2E /* Assets.xcassets */; };
 		64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */; };
-		64FBE7B725502A2D0082AF2E /* OdyseeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7B625502A2D0082AF2E /* OdyseeTests.swift */; };
 		64FBE7C225502A2D0082AF2E /* OdyseeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7C125502A2D0082AF2E /* OdyseeUITests.swift */; };
 		64FF82002604748E009B7A3B /* FirstRunViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF81FF2604748E009B7A3B /* FirstRunViewController.swift */; };
 		64FF820F2604FB0B009B7A3B /* FirstRunDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FF820E2604FB0B009B7A3B /* FirstRunDelegate.swift */; };
@@ -143,6 +143,7 @@
 		534B71A1287BE08D00F01D42 /* CommentAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentAPIParams.swift; sourceTree = "<group>"; };
 		534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelSignResult.swift; sourceTree = "<group>"; };
 		53593F30287E5D75007FD08E /* CommentAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentAPIResult.swift; sourceTree = "<group>"; };
+		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -242,7 +243,6 @@
 		64FBE7AB25502A2C0082AF2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		64FBE7AD25502A2C0082AF2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		64FBE7B225502A2D0082AF2E /* OdyseeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OdyseeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		64FBE7B625502A2D0082AF2E /* OdyseeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeTests.swift; sourceTree = "<group>"; };
 		64FBE7B825502A2D0082AF2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		64FBE7BD25502A2D0082AF2E /* OdyseeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OdyseeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		64FBE7C125502A2D0082AF2E /* OdyseeUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeUITests.swift; sourceTree = "<group>"; };
@@ -481,6 +481,7 @@
 			children = (
 				649EA90526528D8D00F45129 /* launch_screen.png */,
 				64FBE79B25502A290082AF2E /* Odysee */,
+				64FBE7B525502A2D0082AF2E /* OdyseeTests */,
 				64FBE7C025502A2D0082AF2E /* OdyseeUITests */,
 				64FBE79A25502A290082AF2E /* Products */,
 				6411C0A0255B31C00018C3D5 /* Frameworks */,
@@ -519,7 +520,6 @@
 				64D72BBE258CD8AE00F5C4E3 /* StoreConfig.storekit */,
 				532650E3286EAB1B00F0FF0B /* Settings.bundle */,
 				53FAD3FB288504C60000F980 /* Localizable.strings */,
-				64FBE7B525502A2D0082AF2E /* OdyseeTests */,
 			);
 			path = Odysee;
 			sourceTree = "<group>";
@@ -527,8 +527,8 @@
 		64FBE7B525502A2D0082AF2E /* OdyseeTests */ = {
 			isa = PBXGroup;
 			children = (
-				64FBE7B625502A2D0082AF2E /* OdyseeTests.swift */,
 				CCDDA9222658529C0006035F /* MultistreamTests.swift */,
+				536E27C22EB1B55700A02197 /* LbryUriTest.swift */,
 				64FBE7B825502A2D0082AF2E /* Info.plist */,
 			);
 			path = OdyseeTests;
@@ -813,7 +813,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64FBE7B725502A2D0082AF2E /* OdyseeTests.swift in Sources */,
+				536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */,
 				CCDDA9232658529C0006035F /* MultistreamTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1106,6 +1106,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.lbry.OdyseeUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Odysee;
@@ -1125,6 +1126,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.lbry.OdyseeUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Odysee;
