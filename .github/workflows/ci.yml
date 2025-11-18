@@ -39,3 +39,13 @@ jobs:
         run: cp Odysee/GoogleService-Info.plist.sample Odysee/GoogleService-Info.plist
       - name: Run xcodebuild
         run: xcodebuild -project Odysee.xcodeproj/ -scheme Odysee -configuration Release -destination generic/platform=iOS CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO -derivedDataPath DerivedData -archivePath DerivedData/Archive/Odysee archive
+
+  test:
+    runs-on: macOS-26
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Copy sample GoogleService-Info.plist
+        run: cp Odysee/GoogleService-Info.plist.sample Odysee/GoogleService-Info.plist
+      - name: Run xcodebuild
+        run: xcodebuild test -project Odysee.xcodeproj/ -scheme Odysee -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' CODE_SIGN_IDENTITY="" CODE_SIGNING_ALLOWED=NO -derivedDataPath DerivedData -archivePath DerivedData/Archive/Odysee -only-testing:OdyseeTests
