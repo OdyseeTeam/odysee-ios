@@ -188,7 +188,7 @@ class HomeViewController: UIViewController,
                     : Helper.sortByItemValues[currentSortByIndex]
             ),
             transform: { page in
-                if !isWildWest {
+                if self.currentSortByIndex == 1 /* release_time */ {
                     page.items
                         .sort {
                             $0.value!.releaseTime.flatMap(Int64.init) ?? 0 > $1.value!.releaseTime
