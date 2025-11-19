@@ -6,6 +6,7 @@
 //
 
 import Combine
+import FirebaseCrashlytics
 import Foundation
 import PINRemoteImage
 import UIKit
@@ -277,5 +278,12 @@ extension Collection {
             guard let otherIndex = dict[otherElem] else { return true }
             return thisIndex < otherIndex
         }
+    }
+}
+
+extension Crashlytics {
+    func recordImmediate(error: any Error, userInfo: [String: Any]? = nil) {
+        record(error: error, userInfo: userInfo)
+        sendUnsentReports()
     }
 }

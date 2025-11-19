@@ -8,6 +8,7 @@
 import AVFoundation
 import AVKit
 import CoreData
+import FirebaseCrashlytics
 import MediaPlayer
 import MessageUI
 import OAuthSwift
@@ -636,6 +637,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     func showError(message: String?) {
+        // Going back and forth with GenericError,
+        // in the case where we come from showError(error:)
+        Crashlytics.crashlytics().recordImmediate(error: GenericError(""), userInfo: ["MESSAGE_KEY": message ?? ""])
+
         DispatchQueue.main.async {
             self.snackbar.backgroundColor = .red
             self.snackbar.createWithText(message ?? "")
