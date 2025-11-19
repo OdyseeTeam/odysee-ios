@@ -279,9 +279,8 @@ struct LbryUri: CustomStringConvertible {
         }
 
         let streamName: String? = includesChannel ? possibleStreamName : streamOrChannelName
-        let streamClaimId: String? = includesChannel && secondaryMod != nil ? secondaryMod?
-            .claimId : primaryMod != nil ? primaryMod?.claimId : nil
-        let channelClaimId: String? = includesChannel && primaryMod != nil ? primaryMod?.claimId : nil
+        let streamClaimId: String? = includesChannel ? secondaryMod?.claimId : primaryMod?.claimId
+        let channelClaimId: String? = includesChannel ? primaryMod?.claimId : nil
 
         return LbryUri(
             path: path,
