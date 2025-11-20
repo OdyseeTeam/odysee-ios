@@ -15,8 +15,6 @@ class HomeViewController: UIViewController,
     UITableViewDataSource,
     UICollectionViewDataSource,
     UICollectionViewDelegate,
-    UIPickerViewDelegate,
-    UIPickerViewDataSource,
     UITableViewDataSourcePrefetching,
     UICollectionViewDataSourcePrefetching,
     BlockChannelStatusObserver
@@ -55,8 +53,6 @@ class HomeViewController: UIViewController,
     var livestreamsView: UIStackView!
     var livestreamsLabel: UILabel!
     var livestreamsCollectionView: UICollectionView!
-    var sortByPicker: UIPickerView!
-    var contentFromPicker: UIPickerView!
 
     var currentSortByIndex = 0 // default to Trending content
     var currentContentFromIndex = 1 // default to Past week
@@ -473,10 +469,6 @@ class HomeViewController: UIViewController,
         noContentView.isHidden = !claims.isEmpty
     }
 
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-
     func checkUpdatedSortBy() {
         let itemName = Helper.sortByItemNames[currentSortByIndex]
         sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
@@ -488,68 +480,36 @@ class HomeViewController: UIViewController,
     }
 
     @IBAction func sortByLabelTapped(_ sender: Any) {
-        let (picker, alert) = Helper.buildPickerActionSheet(
+        _ = Helper.showPickerActionSheet(
             title: String.localized("Sort content by"),
-            sourceView: sortByLabel,
-            dataSource: self,
-            delegate: self,
-            parent: self,
-            handler: { _ in
-                let selectedIndex = self.sortByPicker.selectedRow(inComponent: 0)
-                let prevIndex = self.currentSortByIndex
-                self.currentSortByIndex = selectedIndex
-                if prevIndex != self.currentSortByIndex {
-                    self.checkUpdatedSortBy()
-                    self.resetContent()
-                    self.loadClaims()
-                }
+            origin: sortByLabel,
+            rows: Helper.sortByItemNames,
+            initialSelection: currentSortByIndex
+        ) { _, selectedIndex, _ in
+            let prevIndex = self.currentSortByIndex
+            self.currentSortByIndex = selectedIndex
+            if prevIndex != self.currentSortByIndex {
+                self.checkUpdatedSortBy()
+                self.resetContent()
+                self.loadClaims()
             }
-        )
-
-        sortByPicker = picker
-        present(alert, animated: true, completion: {
-            self.sortByPicker.selectRow(self.currentSortByIndex, inComponent: 0, animated: true)
-        })
-    }
-
-    @IBAction func contentFromLabelTapped(_ sender: Any) {
-        let (picker, alert) = Helper.buildPickerActionSheet(
-            title: String.localized("Content from"),
-            sourceView: contentFromLabel,
-            dataSource: self,
-            delegate: self,
-            parent: self,
-            handler: { _ in
-                let selectedIndex = self.contentFromPicker.selectedRow(inComponent: 0)
-                let prevIndex = self.currentContentFromIndex
-                self.currentContentFromIndex = selectedIndex
-                if prevIndex != self.currentContentFromIndex {
-                    self.checkUpdatedContentFrom()
-                    self.resetContent()
-                    self.loadClaims()
-                }
-            }
-        )
-
-        contentFromPicker = picker
-        present(alert, animated: true, completion: {
-            self.contentFromPicker.selectRow(self.currentContentFromIndex, inComponent: 0, animated: true)
-        })
-    }
-
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        if pickerView == sortByPicker {
-            return Helper.sortByItemNames.count
-        } else {
-            return Helper.contentFromItemNames.count
         }
     }
 
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        if pickerView == sortByPicker {
-            return Helper.sortByItemNames[row]
-        } else {
-            return Helper.contentFromItemNames[row]
+    @IBAction func contentFromLabelTapped(_ sender: Any) {
+        _ = Helper.showPickerActionSheet(
+            title: String.localized("Content from"),
+            origin: contentFromLabel,
+            rows: Helper.contentFromItemNames,
+            initialSelection: currentContentFromIndex
+        ) { _, selectedIndex, _ in
+            let prevIndex = self.currentContentFromIndex
+            self.currentContentFromIndex = selectedIndex
+            if prevIndex != self.currentContentFromIndex {
+                self.checkUpdatedContentFrom()
+                self.resetContent()
+                self.loadClaims()
+            }
         }
     }
 

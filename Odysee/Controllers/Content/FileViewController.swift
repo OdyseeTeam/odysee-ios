@@ -20,7 +20,7 @@ import WebKit
 
 class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavigationControllerDelegate,
     UITableViewDelegate, UITableViewDataSource, UITextViewDelegate, UITextFieldDelegate,
-    UIPickerViewDelegate, UIPickerViewDataSource, WebSocketDelegate, WKNavigationDelegate
+    WebSocketDelegate, WKNavigationDelegate
 {
     @IBOutlet var titleArea: UIView!
     @IBOutlet var publisherArea: UIView!
@@ -125,7 +125,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var commentsDisabledChecked = false
     var commentsDisabled = false
     var commentsViewPresented = false
-    var playerRatePicker: UIPickerView!
     var selectedRateIndex: Int = 3 /* 1x */
     var claim: Claim?
     var claimUrl: LbryUri?
@@ -151,7 +150,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var commentsLoading: Bool = false
     var comments = OrderedSet<Comment>()
     var authorThumbnailMap = [String: URL]()
-    var commentAsPicker: UIPickerView!
     var currentCommentAsIndex = -1
     // From notification
     var currentCommentIsReply: Bool = false
@@ -2209,24 +2207,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBAction func commentAsTapped(_ sender: Any) {
         chatInputField.resignFirstResponder()
 
-        let (picker, alert) = Helper.buildPickerActionSheet(
+        _ = Helper.showPickerActionSheet(
             title: String.localized("Comment as"),
-            sourceView: commentAsChannelLabel,
-            dataSource: self,
-            delegate: self,
-            parent: self,
-            handler: { _ in
-                let selectedIndex = self.commentAsPicker.selectedRow(inComponent: 0)
-                let prevIndex = self.currentCommentAsIndex
-                self.currentCommentAsIndex = selectedIndex
-                if prevIndex != self.currentCommentAsIndex {
-                    self.updateCommentAsChannel(self.currentCommentAsIndex)
-                }
+            origin: commentAsChannelLabel,
+            rows: channels.map { $0.name ?? "" },
+            initialSelection: currentCommentAsIndex,
+        ) { _, selectedIndex, _ in
+            let prevIndex = self.currentCommentAsIndex
+            self.currentCommentAsIndex = selectedIndex
+            if prevIndex != self.currentCommentAsIndex {
+                self.updateCommentAsChannel(self.currentCommentAsIndex)
             }
-        )
-
-        commentAsPicker = picker
-        present(alert, animated: true, completion: nil)
+        }
     }
 
     func loadComments(_ singleClaim: Claim) {
@@ -2468,39 +2460,20 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), channel.name!)
     }
 
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return pickerView == playerRatePicker ? availableRates.count : channels.count
-    }
-
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return pickerView == playerRatePicker ? availableRates[row] : channels[row].name
-    }
-
     @objc func playerRateTapped(_ sender: Any) {
-        let (picker, alert) = Helper.buildPickerActionSheet(
+        _ = Helper.showPickerActionSheet(
             title: "Playback Speed",
-            sourceView: playerRateButton,
-            dataSource: self,
-            delegate: self,
-            parent: self
-        ) { _ in
-            self.selectedRateIndex = self.playerRatePicker.selectedRow(inComponent: 0)
+            origin: playerRateButton,
+            rows: availableRates,
+            initialSelection: selectedRateIndex,
+        ) { _, selectedRateIndex, _ in
+            self.selectedRateIndex = selectedRateIndex
             let selectedRate = self.availableRates[self.selectedRateIndex]
             self.playerRateButton.setTitle(selectedRate, for: .normal)
             let rate = Float(selectedRate.dropLast()) ?? 1
             self.avpc.player?.rate = rate
             self.playerRate = rate
         }
-
-        DispatchQueue.main.async {
-            picker.selectRow(self.selectedRateIndex, inComponent: 0, animated: false)
-        }
-        playerRatePicker = picker
-        present(alert, animated: true, completion: nil)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

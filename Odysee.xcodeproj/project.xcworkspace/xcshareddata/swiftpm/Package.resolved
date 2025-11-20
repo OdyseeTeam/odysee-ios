@@ -1,5 +1,5 @@
 {
-  "originHash" : "9129e90667bce77aaaf6b797327ff6d0dd60687d0e75429ddbf26c91c9735186",
+  "originHash" : "872dde56064685051b50030d8b3d9894236ae73185bc5e8f43950b64d211669a",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -8,6 +8,15 @@
       "state" : {
         "revision" : "bbe8b69694d7873315fd3a4ad41efe043e1c07c5",
         "version" : "1.2024072200.0"
+      }
+    },
+    {
+      "identity" : "actionsheetpicker-3.0",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/OdyseeTeam/ActionSheetPicker-3.0",
+      "state" : {
+        "branch" : "ios-26",
+        "revision" : "33f24b6a1a20dc67ba2c3c259d0531d15733b1cd"
       }
     },
     {
