@@ -227,6 +227,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             )
         )
         .subscribeResult { result in
+            self.loadingContainer.isHidden = true
             switch result {
             case let .failure(error):
                 self.showError(error: error)
@@ -247,7 +248,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
                 self.commentsLoading = false
                 self.filterBlockedChannels(false)
-                self.loadingContainer.isHidden = true
                 self.commentList.reloadData()
                 self.checkNoComments()
 
@@ -404,6 +404,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             )
         }
         .subscribeResult { result in
+            self.postingComment = false
+            self.loadingContainer.isHidden = true
             switch result {
             case let .failure(error):
                 self.showError(error: error)
@@ -436,11 +438,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 // TODO: Reactions not loaded here as comment might not be available?
                 self.resolveCommentAuthors(urls: [comment.channelUrl!])
 
-                self.postingComment = false
                 self.commentInput.text = ""
                 self.replyToCommentLabel.text = ""
                 self.replyToContainerView.isHidden = true
-                self.loadingContainer.isHidden = true
                 self.textViewDidChange(self.commentInput)
                 self.checkNoComments()
 
@@ -663,6 +663,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             )
         )
         .subscribeResult { result in
+            self.loadingContainer.isHidden = true
             switch result {
             case let .failure(error):
                 self.showError(error: error)
@@ -695,7 +696,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
                 self.commentsLoading = false
                 self.setCommentRepliesLoaded(parent)
-                self.loadingContainer.isHidden = true
             }
         }
     }
@@ -765,6 +765,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         .receive(on: DispatchQueue.main)
         .eraseToAnyPublisher()
         .subscribeResultFinally { result in
+            self.loadingContainer.isHidden = true
             switch result {
             case let .failure(error):
                 self.showError(error: error)
@@ -797,7 +798,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     }
 
                     self.setCommentRepliesLoaded(parent)
-                    self.loadingContainer.isHidden = true
                 } else {
                     self.scrollToCurrentComment()
                 }
