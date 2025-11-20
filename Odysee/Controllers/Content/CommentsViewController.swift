@@ -6,10 +6,11 @@
 //
 
 import Combine
+import CoreActionSheetPicker
 import UIKit
 
-class CommentsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPickerViewDataSource,
-    UIPickerViewDelegate, UITextViewDelegate, BlockChannelStatusObserver
+class CommentsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate,
+    BlockChannelStatusObserver
 {
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var closeButton: UIButton!
@@ -30,7 +31,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     @IBOutlet var replyToCommentLabel: UILabel!
 
     var commentsDisabled: Bool = false
-    var commentAsPicker: UIPickerView!
+    var commentAsPicker: ActionSheetStringPicker?
     var claimId: String?
     var commentsPageSize: Int = 50
     var commentsCurrentPage: Int = 1
@@ -321,7 +322,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         channelDriverView.isHidden = channels.count > 0
         channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
         if let picker = commentAsPicker {
-            picker.reloadAllComponents()
+            // Hacky, but this path (empty picker -> load channels) should be very rare
+            // TODO: Reload picker action sheet
+            picker.hideWithCancelAction()
+            DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .seconds(1))) {
+                self.commentAsTapped(self)
+            }
         }
     }
 
@@ -334,24 +340,18 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     @IBAction func commentAsTapped(_ sender: Any) {
         commentInput.resignFirstResponder()
 
-        let (picker, alert) = Helper.buildPickerActionSheet(
+        commentAsPicker = Helper.showPickerActionSheet(
             title: String.localized("Comment as"),
-            sourceView: commentAsChannelLabel,
-            dataSource: self,
-            delegate: self,
-            parent: self,
-            handler: { _ in
-                let selectedIndex = self.commentAsPicker.selectedRow(inComponent: 0)
-                let prevIndex = self.currentCommentAsIndex
-                self.currentCommentAsIndex = selectedIndex
-                if prevIndex != self.currentCommentAsIndex {
-                    self.updateCommentAsChannel(self.currentCommentAsIndex)
-                }
+            origin: commentAsChannelLabel,
+            rows: channels.map { $0.name ?? "" },
+            initialSelection: currentCommentAsIndex,
+        ) { _, selectedIndex, _ in
+            let prevIndex = self.currentCommentAsIndex
+            self.currentCommentAsIndex = selectedIndex
+            if prevIndex != self.currentCommentAsIndex {
+                self.updateCommentAsChannel(self.currentCommentAsIndex)
             }
-        )
-
-        commentAsPicker = picker
-        present(alert, animated: true, completion: nil)
+        }
     }
 
     @IBAction func anywhereTapped(_ sender: Any) {
@@ -855,18 +855,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             commentAsThumbnailView.image = UIImage(named: "spaceman")
             commentAsThumbnailView.backgroundColor = Helper.lightPrimaryColor
         }
-    }
-
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return channels.count
-    }
-
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return channels[row].name
     }
 
     func showError(error: Error?) {

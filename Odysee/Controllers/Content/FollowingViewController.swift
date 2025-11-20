@@ -11,7 +11,7 @@ import OrderedCollections
 import UIKit
 
 class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,
-    UITableViewDelegate, UITableViewDataSource, UIPickerViewDelegate, UIPickerViewDataSource, WalletSyncObserver
+    UITableViewDelegate, UITableViewDataSource, WalletSyncObserver
 {
     static let suggestedFollowCount = 5
     let keySyncObserver = "following_vc"
@@ -28,9 +28,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var sortByLabel: UILabel!
     @IBOutlet var contentFromLabel: UILabel!
-
-    var sortByPicker: UIPickerView!
-    var contentFromPicker: UIPickerView!
 
     var selectedChannelClaim: Claim?
     var suggestedFollows = OrderedSet<Claim>()
@@ -678,26 +675,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
     }
 
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        if pickerView == sortByPicker {
-            return Helper.sortByItemNames.count
-        } else {
-            return Helper.contentFromItemNames.count
-        }
-    }
-
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        if pickerView == sortByPicker {
-            return Helper.sortByItemNames[row]
-        } else {
-            return Helper.contentFromItemNames[row]
-        }
-    }
-
     func resetSubscriptionContent() {
         currentPage = 1
         lastPageReached = false
@@ -718,53 +695,37 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     @IBAction func sortByLabelTapped(_ sender: Any) {
-        let (picker, alert) = Helper.buildPickerActionSheet(
+        _ = Helper.showPickerActionSheet(
             title: String.localized("Sort content by"),
-            sourceView: sortByLabel,
-            dataSource: self,
-            delegate: self,
-            parent: self,
-            handler: { _ in
-                let selectedIndex = self.sortByPicker.selectedRow(inComponent: 0)
-                let prevIndex = self.currentSortByIndex
-                self.currentSortByIndex = selectedIndex
-                if prevIndex != self.currentSortByIndex {
-                    self.checkUpdatedSortBy()
-                    self.resetSubscriptionContent()
-                    self.loadSubscriptionContent()
-                }
+            origin: sortByLabel,
+            rows: Helper.sortByItemNames,
+            initialSelection: currentSortByIndex
+        ) { _, selectedIndex, _ in
+            let prevIndex = self.currentSortByIndex
+            self.currentSortByIndex = selectedIndex
+            if prevIndex != self.currentSortByIndex {
+                self.checkUpdatedSortBy()
+                self.resetSubscriptionContent()
+                self.loadSubscriptionContent()
             }
-        )
-
-        sortByPicker = picker
-        present(alert, animated: true, completion: {
-            self.sortByPicker.selectRow(self.currentSortByIndex, inComponent: 0, animated: true)
-        })
+        }
     }
 
     @IBAction func contentFromLabelTapped(_ sender: Any) {
-        let (picker, alert) = Helper.buildPickerActionSheet(
+        _ = Helper.showPickerActionSheet(
             title: String.localized("Content from"),
-            sourceView: contentFromLabel,
-            dataSource: self,
-            delegate: self,
-            parent: self,
-            handler: { _ in
-                let selectedIndex = self.contentFromPicker.selectedRow(inComponent: 0)
-                let prevIndex = self.currentContentFromIndex
-                self.currentContentFromIndex = selectedIndex
-                if prevIndex != self.currentContentFromIndex {
-                    self.checkUpdatedContentFrom()
-                    self.resetSubscriptionContent()
-                    self.loadSubscriptionContent()
-                }
+            origin: contentFromLabel,
+            rows: Helper.contentFromItemNames,
+            initialSelection: currentContentFromIndex
+        ) { _, selectedIndex, _ in
+            let prevIndex = self.currentContentFromIndex
+            self.currentContentFromIndex = selectedIndex
+            if prevIndex != self.currentContentFromIndex {
+                self.checkUpdatedContentFrom()
+                self.resetSubscriptionContent()
+                self.loadSubscriptionContent()
             }
-        )
-
-        contentFromPicker = picker
-        present(alert, animated: true, completion: {
-            self.contentFromPicker.selectRow(self.currentContentFromIndex, inComponent: 0, animated: true)
-        })
+        }
     }
 
     func syncCompleted() {

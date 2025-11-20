@@ -9,9 +9,7 @@ import MessageUI
 import SafariServices
 import UIKit
 
-class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelegate,
-    UIPickerViewDataSource, UIPickerViewDelegate
-{
+class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet var contentView: UIView!
     @IBOutlet var signUpLoginButton: UIButton!
     @IBOutlet var loggedInMenu: UIView!
@@ -25,8 +23,6 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     @IBOutlet var invitesLabel: UILabel!
     @IBOutlet var deleteAccountLabel: UILabel!
     @IBOutlet var signOutLabel: UILabel!
-
-    var defaultChannelPicker: UIPickerView!
 
     var channels: [Claim] = []
 
@@ -63,18 +59,6 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
         return touch.view == gestureRecognizer.view
-    }
-
-    func numberOfComponents(in pickerView: UIPickerView) -> Int {
-        return 1
-    }
-
-    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
-        return channels.count
-    }
-
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return channels[row].name
     }
 
     @IBAction func anywhereTapped(_ sender: Any) {
@@ -388,14 +372,12 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @objc func changeDefaultChannelTapped(_ sender: Any) {
-        let (picker, alert) = Helper.buildPickerActionSheet(
+        _ = Helper.showPickerActionSheet(
             title: "Change default channel",
-            sourceView: changeDefaultChannelButton,
-            dataSource: self,
-            delegate: self,
-            parent: self
-        ) { _ in
-            let index = self.defaultChannelPicker.selectedRow(inComponent: 0)
+            origin: changeDefaultChannelButton,
+            rows: channels.map { $0.name ?? "" },
+            initialSelection: channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0,
+        ) { _, index, _ in
             Lbry.defaultChannelId = self.channels[index].claimId
             Lbry.saveSharedUserState { success, error in
                 guard error == nil else {
@@ -407,11 +389,6 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                 }
             }
         }
-
-        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
-        picker.selectRow(index, inComponent: 0, animated: false)
-        defaultChannelPicker = picker
-        present(alert, animated: true, completion: nil)
     }
 
     func showError(message: String) {

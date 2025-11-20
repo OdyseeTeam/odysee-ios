@@ -14,6 +14,7 @@
 		53593F31287E5D75007FD08E /* CommentAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentAPIResult.swift */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
+		5390C80D2ECE13A3005A104B /* ActionSheetPicker-3.0 in Frameworks */ = {isa = PBXBuildFile; productRef = 5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
@@ -271,6 +272,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5390C80D2ECE13A3005A104B /* ActionSheetPicker-3.0 in Frameworks */,
 				CCFB0B4F26653E0900696E0C /* OrderedCollections in Frameworks */,
 				6459121D2620745D00B2ABA5 /* Starscream in Frameworks */,
 				B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */,
@@ -584,6 +586,7 @@
 				64A26CE426974B7A00AE19DE /* PerfectMarkdown */,
 				64019A0D269C101D00E16A51 /* ImageScrollView */,
 				53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */,
+				5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -673,6 +676,7 @@
 				CCFB0B4D26653E0800696E0C /* XCRemoteSwiftPackageReference "swift-collections" */,
 				64A26CE326974B7900AE19DE /* XCRemoteSwiftPackageReference "Perfect-Markdown" */,
 				64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */,
+				5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -1207,6 +1211,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/OdyseeTeam/ActionSheetPicker-3.0";
+			requirement = {
+				branch = "ios-26";
+				kind = branch;
+			};
+		};
 		64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/huynguyencong/ImageScrollView.git";
@@ -1282,6 +1294,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */;
+			productName = "ActionSheetPicker-3.0";
+		};
 		53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

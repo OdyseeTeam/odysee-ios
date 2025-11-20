@@ -6,6 +6,7 @@
 //
 
 import Base58Swift
+import CoreActionSheetPicker
 import Foundation
 import UIKit
 
@@ -157,29 +158,24 @@ enum Helper {
         return String(format: ">%d", time)
     }
 
-    static func buildPickerActionSheet(
+    static func showPickerActionSheet(
         title: String,
-        sourceView: UIView,
-        dataSource: UIPickerViewDataSource,
-        delegate: UIPickerViewDelegate,
-        parent: UIViewController,
-        handler: ((UIAlertAction) -> Void)? = nil
-    ) -> (UIPickerView, UIAlertController) {
-        let pickerFrame = CGRect(x: 0, y: 0, width: parent.view.frame.width, height: 160)
-        let picker = UIPickerView(frame: pickerFrame)
-        picker.dataSource = dataSource
-        picker.delegate = delegate
-
-        let alert = UIAlertController(title: title, message: "", preferredStyle: .actionSheet)
-        alert.addAction(UIAlertAction(title: String.localized("Done"), style: .default, handler: handler))
-        alert.popoverPresentationController?.sourceView = sourceView
-
-        let vc = UIViewController()
-        vc.preferredContentSize = CGSize(width: parent.view.frame.width, height: 160)
-        vc.view.addSubview(picker)
-        alert.setValue(vc, forKey: "contentViewController")
-
-        return (picker, alert)
+        origin: UIView,
+        rows: [String],
+        initialSelection: Int,
+        handler: @escaping (ActionSheetStringPicker?, Int, Any?) -> Void
+    ) -> ActionSheetStringPicker {
+        let picker = ActionSheetStringPicker(
+            title: title,
+            rows: rows,
+            initialSelection: initialSelection,
+            doneBlock: handler,
+            cancel: nil,
+            origin: origin
+        )!
+        picker.hideCancel = true
+        picker.show()
+        return picker
     }
 
     static func shortCurrencyFormat(value: Decimal?) -> String {
