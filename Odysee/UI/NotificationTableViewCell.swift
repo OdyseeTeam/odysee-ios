@@ -63,9 +63,7 @@ class NotificationTableViewCell: UITableViewCell {
             iconView.isHidden = false
             avatarView.isHidden = true
 
-            if notification.notificationRule == "first_subscription" || notification
-                .notificationRule == "creator_subscriber"
-            {
+            if ["first_subscription", "creator_subscriber"].contains(notification.notificationRule) {
                 iconView.image = UIImage(systemName: "heart.fill")
                 iconView.tintColor = UIColor.systemRed
             } else {
