@@ -4261,207 +4261,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f4G-qd-V3K">
-                                <rect key="frame" x="0.0" y="96" width="414" height="732"/>
-                                <subviews>
-                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="4yE-Li-h1m">
-                                        <rect key="frame" x="188.5" y="347.5" width="37" height="37"/>
-                                        <color key="color" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
-                                    </activityIndicatorView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Reward Verification" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KZ5-Sh-qXy">
-                                        <rect key="frame" x="32" y="112" width="155" height="21.5"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You are not reward eligible. Join the Odysee Rewards Program today using one of these options." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PXl-lf-pkR">
-                                        <rect key="frame" x="32" y="149.5" width="350" height="54"/>
-                                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                        <nil key="textColor"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
-                                    <stackView opaque="NO" contentMode="scaleToFill" distribution="fillProportionally" translatesAutoresizingMaskIntoConstraints="NO" id="jcx-mU-gUY">
-                                        <rect key="frame" x="32" y="235.5" width="350" height="85.5"/>
-                                        <subviews>
-                                            <button opaque="NO" tag="100" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Z5b-Kj-bFn">
-                                                <rect key="frame" x="0.0" y="0.0" width="82.5" height="85.5"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <state key="normal" title="Twitter">
-                                                    <color key="titleColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="optionButtonTapped:" destination="3P2-O8-coP" eventType="touchUpInside" id="YHY-ER-PaP"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" tag="101" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lbT-cr-TN3">
-                                                <rect key="frame" x="82.5" y="0.0" width="181.5" height="85.5"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <state key="normal" title="Skip the Queue"/>
-                                                <connections>
-                                                    <action selector="optionButtonTapped:" destination="3P2-O8-coP" eventType="touchUpInside" id="wMR-cJ-oXZ"/>
-                                                </connections>
-                                            </button>
-                                            <button opaque="NO" tag="102" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rne-eG-gXD">
-                                                <rect key="frame" x="264" y="0.0" width="86" height="85.5"/>
-                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                <state key="normal" title="Manual"/>
-                                                <connections>
-                                                    <action selector="optionButtonTapped:" destination="3P2-O8-coP" eventType="touchUpInside" id="1I2-Je-GII"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                    </stackView>
-                                    <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" bounces="NO" scrollEnabled="NO" pagingEnabled="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" bouncesZoom="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PgO-Yv-XiL">
-                                        <rect key="frame" x="0.0" y="337" width="414" height="395"/>
-                                        <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="u36-tj-Ii8" userLabel="Scrolling Stack View">
-                                                <rect key="frame" x="0.0" y="0.0" width="1242" height="395"/>
-                                                <subviews>
-                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="I4H-Yj-zMI">
-                                                        <rect key="frame" x="0.0" y="0.0" width="414" height="395"/>
-                                                        <subviews>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ADJ-Nx-aDk">
-                                                                <rect key="frame" x="32" y="0.0" width="350" height="72"/>
-                                                                <string key="text">Get instantly verified using your Twitter account. Your Twitter email address must match the email that you provided, and your account should be active.</string>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                <nil key="textColor"/>
-                                                                <nil key="highlightedColor"/>
-                                                            </label>
-                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jaM-8A-pPk">
-                                                                <rect key="frame" x="141.5" y="104" width="131" height="32"/>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                                                <state key="normal" title="Verify with Twitter">
-                                                                    <color key="titleColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
-                                                                </state>
-                                                                <connections>
-                                                                    <action selector="twitterActionTappedWith_sender:" destination="3P2-O8-coP" eventType="touchUpInside" id="6d5-Ul-8bO"/>
-                                                                </connections>
-                                                            </button>
-                                                        </subviews>
-                                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                                        <constraints>
-                                                            <constraint firstItem="ADJ-Nx-aDk" firstAttribute="top" secondItem="I4H-Yj-zMI" secondAttribute="top" id="jLV-v8-2Fa"/>
-                                                            <constraint firstItem="jaM-8A-pPk" firstAttribute="top" secondItem="ADJ-Nx-aDk" secondAttribute="bottom" constant="32" id="jfa-DO-5FA"/>
-                                                            <constraint firstItem="jaM-8A-pPk" firstAttribute="centerX" secondItem="I4H-Yj-zMI" secondAttribute="centerX" id="m0h-Hv-g5z"/>
-                                                            <constraint firstAttribute="trailing" secondItem="ADJ-Nx-aDk" secondAttribute="trailing" constant="32" id="uRz-4n-gqZ"/>
-                                                            <constraint firstItem="ADJ-Nx-aDk" firstAttribute="leading" secondItem="I4H-Yj-zMI" secondAttribute="leading" constant="32" id="wxi-C9-zey"/>
-                                                        </constraints>
-                                                    </view>
-                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="d7a-wG-csz">
-                                                        <rect key="frame" x="414" y="0.0" width="414" height="395"/>
-                                                        <subviews>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Skip the manual verification queue by paying a fee in order to start participating in the rewards program immediately." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9A8-cs-RMm">
-                                                                <rect key="frame" x="32" y="0.0" width="350" height="54"/>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                <nil key="textColor"/>
-                                                                <nil key="highlightedColor"/>
-                                                            </label>
-                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cb0-xp-4aw">
-                                                                <rect key="frame" x="158.5" y="86" width="97" height="30"/>
-                                                                <state key="normal" title="Skip for $4.99">
-                                                                    <color key="titleColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
-                                                                </state>
-                                                                <connections>
-                                                                    <action selector="purchaseActionTapped:" destination="3P2-O8-coP" eventType="touchUpInside" id="GAD-IV-IM4"/>
-                                                                </connections>
-                                                            </button>
-                                                        </subviews>
-                                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                                        <constraints>
-                                                            <constraint firstItem="Cb0-xp-4aw" firstAttribute="top" secondItem="9A8-cs-RMm" secondAttribute="bottom" constant="32" id="1zA-Nq-3v7"/>
-                                                            <constraint firstItem="9A8-cs-RMm" firstAttribute="leading" secondItem="d7a-wG-csz" secondAttribute="leading" constant="32" id="U6l-Er-q3G"/>
-                                                            <constraint firstItem="9A8-cs-RMm" firstAttribute="top" secondItem="d7a-wG-csz" secondAttribute="top" id="hVw-2g-Z4V"/>
-                                                            <constraint firstAttribute="trailing" secondItem="9A8-cs-RMm" secondAttribute="trailing" constant="32" id="iuK-UT-6tz"/>
-                                                            <constraint firstItem="Cb0-xp-4aw" firstAttribute="centerX" secondItem="d7a-wG-csz" secondAttribute="centerX" id="ojj-x6-ZIR"/>
-                                                        </constraints>
-                                                    </view>
-                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iR7-PH-ioE">
-                                                        <rect key="frame" x="828" y="0.0" width="414" height="395"/>
-                                                        <subviews>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uta-5a-feI">
-                                                                <rect key="frame" x="32" y="0.0" width="350" height="54"/>
-                                                                <string key="text">Please request to be verified on the LBRY Foundation Discord server. A manual review can take anywhere from several minutes to a few days.</string>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                <nil key="textColor"/>
-                                                                <nil key="highlightedColor"/>
-                                                            </label>
-                                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="You can continue to enjoy content in the meantime!" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qMz-nM-Zdp">
-                                                                <rect key="frame" x="32" y="70" width="350" height="36"/>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                <nil key="textColor"/>
-                                                                <nil key="highlightedColor"/>
-                                                            </label>
-                                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O2C-Fs-31Q">
-                                                                <rect key="frame" x="176" y="138" width="62" height="30"/>
-                                                                <state key="normal" title="Continue">
-                                                                    <color key="titleColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
-                                                                </state>
-                                                                <connections>
-                                                                    <action selector="manualActionTappedWith_sender:" destination="3P2-O8-coP" eventType="touchUpInside" id="UVb-O7-u9o"/>
-                                                                </connections>
-                                                            </button>
-                                                        </subviews>
-                                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                                        <constraints>
-                                                            <constraint firstItem="qMz-nM-Zdp" firstAttribute="leading" secondItem="iR7-PH-ioE" secondAttribute="leading" constant="32" id="7dd-iy-GqG"/>
-                                                            <constraint firstItem="uta-5a-feI" firstAttribute="leading" secondItem="iR7-PH-ioE" secondAttribute="leading" constant="32" id="CIh-R7-zrJ"/>
-                                                            <constraint firstItem="uta-5a-feI" firstAttribute="top" secondItem="iR7-PH-ioE" secondAttribute="top" id="iqU-Ux-JmH"/>
-                                                            <constraint firstItem="O2C-Fs-31Q" firstAttribute="top" secondItem="qMz-nM-Zdp" secondAttribute="bottom" constant="32" id="lSk-hw-oSK"/>
-                                                            <constraint firstAttribute="trailing" secondItem="uta-5a-feI" secondAttribute="trailing" constant="32" id="mUt-tW-Sza"/>
-                                                            <constraint firstItem="O2C-Fs-31Q" firstAttribute="centerX" secondItem="iR7-PH-ioE" secondAttribute="centerX" id="rCi-EW-PJP"/>
-                                                            <constraint firstItem="qMz-nM-Zdp" firstAttribute="top" secondItem="uta-5a-feI" secondAttribute="bottom" constant="16" id="rtH-Cb-IWf"/>
-                                                            <constraint firstAttribute="trailing" secondItem="qMz-nM-Zdp" secondAttribute="trailing" constant="32" id="u34-nL-RYT"/>
-                                                        </constraints>
-                                                    </view>
-                                                </subviews>
-                                            </stackView>
-                                        </subviews>
-                                        <constraints>
-                                            <constraint firstAttribute="trailing" secondItem="u36-tj-Ii8" secondAttribute="trailing" id="BY3-R1-oA1"/>
-                                            <constraint firstItem="u36-tj-Ii8" firstAttribute="leading" secondItem="PgO-Yv-XiL" secondAttribute="leading" id="GP5-Se-rV5"/>
-                                            <constraint firstItem="u36-tj-Ii8" firstAttribute="top" secondItem="PgO-Yv-XiL" secondAttribute="top" id="dHM-8k-zMR"/>
-                                            <constraint firstAttribute="bottom" secondItem="u36-tj-Ii8" secondAttribute="bottom" id="dN2-4n-KID"/>
-                                            <constraint firstItem="u36-tj-Ii8" firstAttribute="height" secondItem="PgO-Yv-XiL" secondAttribute="height" id="uCS-b0-aMg"/>
-                                        </constraints>
-                                    </scrollView>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="brand" translatesAutoresizingMaskIntoConstraints="NO" id="3NU-GW-aQq">
-                                        <rect key="frame" x="32" y="48" width="90" height="48"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" secondItem="3NU-GW-aQq" secondAttribute="height" multiplier="15:8" id="EFq-4o-ewk"/>
-                                            <constraint firstAttribute="height" constant="48" id="G4Z-4l-bkl"/>
-                                            <constraint firstAttribute="width" secondItem="3NU-GW-aQq" secondAttribute="height" multiplier="15:8" id="egu-wF-FTT"/>
-                                        </constraints>
-                                    </imageView>
-                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="AaN-Q8-GCF">
-                                        <rect key="frame" x="367" y="103" width="157" height="128"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                    </view>
-                                </subviews>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <constraints>
-                                    <constraint firstItem="KZ5-Sh-qXy" firstAttribute="top" secondItem="3NU-GW-aQq" secondAttribute="bottom" constant="16" id="7wP-5H-2fT"/>
-                                    <constraint firstItem="jcx-mU-gUY" firstAttribute="top" secondItem="PXl-lf-pkR" secondAttribute="bottom" constant="32" id="99q-FE-owg"/>
-                                    <constraint firstItem="d7a-wG-csz" firstAttribute="width" secondItem="f4G-qd-V3K" secondAttribute="width" id="C0b-FN-Z3i"/>
-                                    <constraint firstAttribute="trailing" secondItem="PgO-Yv-XiL" secondAttribute="trailing" id="D7T-X6-fzr"/>
-                                    <constraint firstItem="jcx-mU-gUY" firstAttribute="leading" secondItem="f4G-qd-V3K" secondAttribute="leading" constant="32" id="Mcd-MS-YmV"/>
-                                    <constraint firstAttribute="trailing" secondItem="PXl-lf-pkR" secondAttribute="trailing" constant="32" id="Mp7-vz-VaQ"/>
-                                    <constraint firstItem="PXl-lf-pkR" firstAttribute="top" secondItem="KZ5-Sh-qXy" secondAttribute="bottom" constant="16" id="S3E-n1-bwK"/>
-                                    <constraint firstItem="4yE-Li-h1m" firstAttribute="centerX" secondItem="f4G-qd-V3K" secondAttribute="centerX" id="Vzi-ws-Rsx"/>
-                                    <constraint firstItem="KZ5-Sh-qXy" firstAttribute="leading" secondItem="f4G-qd-V3K" secondAttribute="leading" constant="32" id="X5M-Rf-lKH"/>
-                                    <constraint firstItem="4yE-Li-h1m" firstAttribute="centerY" secondItem="f4G-qd-V3K" secondAttribute="centerY" id="aYv-By-Kw9"/>
-                                    <constraint firstItem="PgO-Yv-XiL" firstAttribute="leading" secondItem="f4G-qd-V3K" secondAttribute="leading" id="ax4-Ye-S77"/>
-                                    <constraint firstItem="I4H-Yj-zMI" firstAttribute="width" secondItem="f4G-qd-V3K" secondAttribute="width" id="bWa-Mb-pR1"/>
-                                    <constraint firstItem="3NU-GW-aQq" firstAttribute="top" secondItem="f4G-qd-V3K" secondAttribute="top" constant="48" id="cRq-oD-aX8"/>
-                                    <constraint firstAttribute="trailing" secondItem="jcx-mU-gUY" secondAttribute="trailing" constant="32" id="dvd-AR-2yG"/>
-                                    <constraint firstItem="PgO-Yv-XiL" firstAttribute="width" secondItem="f4G-qd-V3K" secondAttribute="width" id="ptV-aS-6SV"/>
-                                    <constraint firstItem="3NU-GW-aQq" firstAttribute="leading" secondItem="f4G-qd-V3K" secondAttribute="leading" constant="32" id="pua-wu-MJu"/>
-                                    <constraint firstItem="PXl-lf-pkR" firstAttribute="leading" secondItem="f4G-qd-V3K" secondAttribute="leading" constant="32" id="tFe-YP-IrJ"/>
-                                    <constraint firstItem="iR7-PH-ioE" firstAttribute="width" secondItem="f4G-qd-V3K" secondAttribute="width" id="xCZ-At-iEh"/>
-                                    <constraint firstItem="PgO-Yv-XiL" firstAttribute="top" secondItem="jcx-mU-gUY" secondAttribute="bottom" constant="16" id="yLK-WJ-SpI"/>
-                                    <constraint firstAttribute="bottom" secondItem="PgO-Yv-XiL" secondAttribute="bottom" id="yWt-Dd-tVr"/>
-                                </constraints>
-                            </view>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="z8a-nY-gHE">
                                 <rect key="frame" x="0.0" y="96" width="414" height="732"/>
                                 <subviews>
@@ -4729,36 +4528,25 @@
                         <constraints>
                             <constraint firstItem="H3A-fa-KIb" firstAttribute="bottom" secondItem="z8a-nY-gHE" secondAttribute="bottom" id="41v-R2-eoH"/>
                             <constraint firstItem="H3A-fa-KIb" firstAttribute="trailing" secondItem="a4E-H0-Fw3" secondAttribute="trailing" id="HG1-nt-jvb"/>
-                            <constraint firstItem="H3A-fa-KIb" firstAttribute="bottom" secondItem="f4G-qd-V3K" secondAttribute="bottom" id="KAf-NS-Avv"/>
                             <constraint firstItem="z8a-nY-gHE" firstAttribute="top" secondItem="H3A-fa-KIb" secondAttribute="top" id="KP2-It-hZF"/>
-                            <constraint firstItem="f4G-qd-V3K" firstAttribute="leading" secondItem="H3A-fa-KIb" secondAttribute="leading" id="LWf-d9-H5w"/>
                             <constraint firstItem="z8a-nY-gHE" firstAttribute="width" secondItem="mJa-e0-ije" secondAttribute="width" id="SH4-w6-FAU"/>
                             <constraint firstItem="7Ob-04-3r8" firstAttribute="top" secondItem="H3A-fa-KIb" secondAttribute="top" constant="16" id="USc-gO-4ak"/>
                             <constraint firstItem="a4E-H0-Fw3" firstAttribute="leading" secondItem="H3A-fa-KIb" secondAttribute="leading" id="bl7-wF-DgO"/>
                             <constraint firstItem="a4E-H0-Fw3" firstAttribute="top" secondItem="H3A-fa-KIb" secondAttribute="top" id="cgc-OK-MxE"/>
-                            <constraint firstItem="H3A-fa-KIb" firstAttribute="trailing" secondItem="f4G-qd-V3K" secondAttribute="trailing" id="ctq-nn-6ga"/>
                             <constraint firstItem="H3A-fa-KIb" firstAttribute="bottom" secondItem="a4E-H0-Fw3" secondAttribute="bottom" id="gQh-iI-xTM"/>
                             <constraint firstItem="H3A-fa-KIb" firstAttribute="trailing" secondItem="z8a-nY-gHE" secondAttribute="trailing" id="gfd-kM-sKm"/>
                             <constraint firstItem="z8a-nY-gHE" firstAttribute="leading" secondItem="H3A-fa-KIb" secondAttribute="leading" id="goN-8i-Lg8"/>
                             <constraint firstItem="H3A-fa-KIb" firstAttribute="trailing" secondItem="7Ob-04-3r8" secondAttribute="trailing" constant="16" id="nW2-tE-mNn"/>
-                            <constraint firstItem="f4G-qd-V3K" firstAttribute="top" secondItem="H3A-fa-KIb" secondAttribute="top" id="qhj-0s-wIc"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="closeVerificationButton" destination="7Ob-04-3r8" id="UnP-BW-0IT"/>
                         <outlet property="loadingContainer" destination="SG4-Jq-R7o" id="6ae-SD-3JN"/>
                         <outlet property="mainRewardsView" destination="a4E-H0-Fw3" id="DGr-w0-1wB"/>
-                        <outlet property="manualOptionButton" destination="rne-eG-gXD" id="Lzy-zU-biO"/>
                         <outlet property="noRewardsView" destination="xEL-Gy-rCT" id="yta-3G-q0n"/>
-                        <outlet property="optionsScrollView" destination="PgO-Yv-XiL" id="sch-kh-CpY"/>
-                        <outlet property="pathOptionsView" destination="jcx-mU-gUY" id="61R-gG-Dys"/>
-                        <outlet property="processingIndicator" destination="4yE-Li-h1m" id="mX5-H2-2AK"/>
                         <outlet property="rewardEligibleView" destination="z8a-nY-gHE" id="BrL-8f-oZM"/>
-                        <outlet property="rewardVerificationPathsView" destination="f4G-qd-V3K" id="o0c-Lu-eOa"/>
                         <outlet property="rewardsList" destination="Nld-Sb-ZNj" id="uvK-R1-5b9"/>
                         <outlet property="rewardsSegment" destination="AvX-Mf-FdW" id="cvj-5S-5M7"/>
-                        <outlet property="skipQueueOptionButton" destination="lbT-cr-TN3" id="7f6-U4-q8j"/>
-                        <outlet property="twitterOptionButton" destination="Z5b-Kj-bFn" id="9Ah-Pe-hD4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="psR-Rv-Is7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
