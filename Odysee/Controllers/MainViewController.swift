@@ -817,6 +817,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     @IBAction func brandTapped(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if notificationsViewActive {
+            appDelegate.mainNavigationController?.popViewController(animated: true)
+            return
+        }
         if appDelegate.mainTabViewController != nil, appDelegate.mainTabViewController?.selectedIndex != 0 {
             appDelegate.mainTabViewController?.selectedIndex = 0
         }
