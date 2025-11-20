@@ -98,4 +98,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             appDelegate.pendingOpenUrl = url.absoluteString
         }
     }
+
+    @available(iOS 26.0, *)
+    func preferredWindowingControlStyle(for windowScene: UIWindowScene) -> UIWindowScene.WindowingControlStyle {
+        .minimal
+    }
 }
