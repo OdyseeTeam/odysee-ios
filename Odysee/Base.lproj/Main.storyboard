@@ -4519,7 +4519,7 @@
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7Ob-04-3r8">
                                 <rect key="frame" x="376" y="112" width="22" height="21"/>
                                 <connections>
-                                    <action selector="closeTappedWith_sender:" destination="3P2-O8-coP" eventType="touchUpInside" id="lNg-WY-Isy"/>
+                                    <action selector="closeTapped:" destination="3P2-O8-coP" eventType="touchUpInside" id="Doq-aK-cko"/>
                                 </connections>
                             </button>
                         </subviews>

@@ -1,5 +1,5 @@
 {
-  "originHash" : "872dde56064685051b50030d8b3d9894236ae73185bc5e8f43950b64d211669a",
+  "originHash" : "d12a22e712068227e09ac20ed417d49de8928d0d64f672ff4f8f28017094219f",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -44,33 +44,6 @@
       "state" : {
         "revision" : "e1f28276687d7661cbb2754771bd9fc281784e32",
         "version" : "5.2.0"
-      }
-    },
-    {
-      "identity" : "brightfutures",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Thomvis/BrightFutures.git",
-      "state" : {
-        "revision" : "9279defa6bdc21501ce740266e5a14d0119ddc63",
-        "version" : "8.0.1"
-      }
-    },
-    {
-      "identity" : "erik",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/phimage/Erik.git",
-      "state" : {
-        "revision" : "109a130e9cdb00789a43a7a625293eeb12d22989",
-        "version" : "5.1.0"
-      }
-    },
-    {
-      "identity" : "filekit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nvzqz/FileKit.git",
-      "state" : {
-        "revision" : "826d9161b184509f80d85c28cd612d630646de98",
-        "version" : "6.0.0"
       }
     },
     {
@@ -164,15 +137,6 @@
       }
     },
     {
-      "identity" : "kanna",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/tid-kijyun/Kanna.git",
-      "state" : {
-        "revision" : "4a80ebe93b6966d5083394fcaaaff57a2fcec935",
-        "version" : "5.2.3"
-      }
-    },
-    {
       "identity" : "leveldb",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/firebase/leveldb.git",
@@ -206,15 +170,6 @@
       "state" : {
         "revision" : "b7e1104502eca3a213b46303391ca4d3bc8ddec1",
         "version" : "2.30910.0"
-      }
-    },
-    {
-      "identity" : "oauthswift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/OAuthSwift/OAuthSwift.git",
-      "state" : {
-        "revision" : "fde77955e6983fbfaabd491709d52b8a82fda4d0",
-        "version" : "2.1.2"
       }
     },
     {
@@ -285,15 +240,6 @@
       "state" : {
         "revision" : "c169a5744230951031770e27e475ff6eefe51f9d",
         "version" : "1.33.3"
-      }
-    },
-    {
-      "identity" : "swifter",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/httpswift/swifter.git",
-      "state" : {
-        "revision" : "9483a5d459b45c3ffd059f7b55f9638e268632fd",
-        "version" : "1.5.0"
       }
     }
   ],
