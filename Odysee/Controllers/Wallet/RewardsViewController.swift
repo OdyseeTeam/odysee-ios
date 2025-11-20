@@ -6,30 +6,17 @@
 //
 
 import Firebase
-import OAuthSwift
 import SafariServices
 import StoreKit
+import SwiftUI
 import UIKit
 
-class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, SKProductsRequestDelegate,
-    SKPaymentTransactionObserver,
-    UITableViewDelegate, UITableViewDataSource
-{
-    let discordLink = "https://discordapp.com/invite/Z3bERWA"
-    var lbrySkipProduct: SKProduct?
-
+class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     var frDelegate: FirstRunDelegate?
     var firstRunFlow = false
 
     @IBOutlet var closeVerificationButton: UIButton!
-    @IBOutlet var twitterOptionButton: UIButton!
-    @IBOutlet var skipQueueOptionButton: UIButton!
-    @IBOutlet var manualOptionButton: UIButton!
-    @IBOutlet var pathOptionsView: UIView!
-    @IBOutlet var optionsScrollView: UIScrollView!
-    @IBOutlet var processingIndicator: UIActivityIndicatorView!
 
-    @IBOutlet var rewardVerificationPathsView: UIView!
     @IBOutlet var mainRewardsView: UIView!
     @IBOutlet var rewardsList: UITableView!
     @IBOutlet var rewardsSegment: UISegmentedControl!
@@ -38,18 +25,17 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var rewardEligibleView: UIView!
 
+    lazy var rewardVerification = {
+        let rootView = RewardVerificationView(close: { self.closeTapped(nil) })
+        let vc = UIHostingController(rootView: rootView)
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
+        return vc
+    }()
+
     var claimInProgress = false
     var currentTag = 0
     var allRewards: [Reward] = []
     var rewards: [Reward] = []
-
-    // verification paths
-    // 1 - phone verification?
-    // 2 - twitter
-    // 3 - iap
-    // 4 - manual
-    var verificationPath = 0
-    var oauthSwift: OAuth1Swift?
 
     override func viewWillAppear(_ animated: Bool) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -73,8 +59,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             try Lbryio.fetchCurrentUser(completion: { user, _ in
                 if user == nil || !user!.isRewardApproved! {
                     self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
-                    self.showVerificationPaths()
-                    self.fetchIAPProduct()
+                    self.showVerification()
                 } else {
                     self.frDelegate?.requestFinished(showSkip: false, showContinue: true)
                     // self.showRewardEligibleView()
@@ -84,8 +69,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         } catch {
             // pass
             frDelegate?.requestFinished(showSkip: true, showContinue: false)
-            showVerificationPaths()
-            fetchIAPProduct()
+            showVerification()
         }
     }
 
@@ -107,24 +91,26 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         closeVerificationButton.isHidden = firstRunFlow
         loadingContainer.layer.cornerRadius = 20
         rewardsList.tableFooterView = UIView()
+
+        addChild(rewardVerification)
+        view.insertSubview(rewardVerification.view, belowSubview: closeVerificationButton)
+        rewardVerification.didMove(toParent: self)
+        NSLayoutConstraint.activate([
+            rewardVerification.view.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            rewardVerification.view.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            rewardVerification.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            rewardVerification.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ])
     }
 
-    func fetchIAPProduct() {
-        startProcessing()
-
-        let req = SKProductsRequest(productIdentifiers: ["lbryskip"])
-        req.delegate = self
-        req.start()
-    }
-
-    func showVerificationPaths() {
+    func showVerification() {
         DispatchQueue.main.async {
             if !self.firstRunFlow {
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 appDelegate.mainController.toggleHeaderVisibility(hidden: true)
             }
 
-            self.rewardVerificationPathsView.isHidden = false
+            self.rewardVerification.view.isHidden = false
             self.closeVerificationButton.isHidden = self.firstRunFlow
 
             // don't show the purchase option for now
@@ -142,7 +128,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
                 appDelegate.mainController.toggleHeaderVisibility(hidden: true)
             }
 
-            self.rewardVerificationPathsView.isHidden = true
+            self.rewardVerification.view.isHidden = true
             self.mainRewardsView.isHidden = true
             self.rewardEligibleView.isHidden = false
         }
@@ -153,7 +139,7 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.toggleHeaderVisibility(hidden: true)
 
-            self.rewardVerificationPathsView.isHidden = true
+            self.rewardVerification.view.isHidden = true
             self.closeVerificationButton.isHidden = true
             self.mainRewardsView.isHidden = false
         }
@@ -242,296 +228,8 @@ class RewardsViewController: UIViewController, SFSafariViewControllerDelegate, S
         }
     }
 
-    @IBAction func optionButtonTapped(_ sender: UIButton!) {
-        let currentTag = sender.tag
-        let page = sender.tag - 100
-        let optionButtons = [twitterOptionButton, skipQueueOptionButton, manualOptionButton]
-        for button in optionButtons {
-            button!.setTitleColor(UIColor.link, for: .normal)
-        }
-        if currentTag == sender.tag {
-            sender.setTitleColor(Helper.primaryColor, for: .normal)
-        }
-
-        var frame: CGRect = optionsScrollView.frame
-        frame.origin.x = frame.size.width * CGFloat(page)
-        frame.origin.y = 0
-        optionsScrollView.scrollRectToVisible(frame, animated: true)
-    }
-
-    @IBAction func twitterActionTapped(_sender: UIButton) {
-        startVerifyWithTwitter()
-    }
-
-    @IBAction func purchaseActionTapped(_ sender: UIButton) {
-        guard let lbrySkipProduct = lbrySkipProduct else {
-            showError(message: String.localized("The product could not be retrieved. Please try again later."))
-            return
-        }
-
-        if SKPaymentQueue.canMakePayments() {
-            startProcessing()
-            let payment = SKPayment(product: lbrySkipProduct)
-            SKPaymentQueue.default().add(self)
-            SKPaymentQueue.default().add(payment)
-            return
-        }
-
-        showError(message: String.localized("You cannot make purchases at this time."))
-    }
-
-    @IBAction func manualActionTapped(_sender: UIButton) {
-        if let url = URL(string: discordLink) {
-            let vc = SFSafariViewController(url: url)
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            navigationController!.popViewController(animated: false)
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
-        }
-    }
-
-    @IBAction func closeTapped(_sender: UIButton) {
+    @IBAction func closeTapped(_ sender: UIButton?) {
         navigationController!.popViewController(animated: true)
-    }
-
-    func startProcessing() {
-        DispatchQueue.main.async {
-            self.pathOptionsView.isHidden = true
-            self.optionsScrollView.isHidden = true
-            self.closeVerificationButton.isHidden = true
-            self.processingIndicator.isHidden = false
-        }
-    }
-
-    func stopProcessing() {
-        DispatchQueue.main.async {
-            self.pathOptionsView.isHidden = false
-            self.optionsScrollView.isHidden = false
-            self.closeVerificationButton.isHidden = self.firstRunFlow
-            self.processingIndicator.isHidden = true
-        }
-    }
-
-    func startVerifyWithTwitter() {
-        var secrets: NSDictionary?
-        if let path = Bundle.main.path(forResource: "Secrets", ofType: "plist") {
-            secrets = NSDictionary(contentsOfFile: path)
-        }
-
-        startProcessing()
-        if !Lbryio.cachedTwitterOauthToken.isBlank, !Lbryio.cachedTwitterOauthTokenSecret.isBlank {
-            twitterVerifyWithOauthToken(
-                oauthToken: Lbryio.cachedTwitterOauthToken!,
-                oauthTokenSecret: Lbryio.cachedTwitterOauthTokenSecret!
-            )
-            return
-        }
-
-        // request for sign in url
-        oauthSwift = OAuth1Swift(
-            consumerKey: secrets?.value(forKey: "TwitterConsumerKey") as! String,
-            consumerSecret: secrets?.value(forKey: "TwitterConsumerSecret") as! String,
-            requestTokenUrl: "https://api.twitter.com/oauth/request_token",
-            authorizeUrl: "https://api.twitter.com/oauth/authorize",
-            accessTokenUrl: "https://api.twitter.com/oauth/access_token"
-        )
-        let oauthAuthorizeHandler = SafariURLHandler(viewController: self, oauthSwift: oauthSwift!)
-        oauthAuthorizeHandler.delegate = self
-        oauthSwift!.authorizeURLHandler = oauthAuthorizeHandler
-
-        _ = oauthSwift!.authorize(withCallbackURL: "lbry://?oauthcb") { result in
-            switch result {
-            case let .success((credential, _, _)):
-                // send twitter_verify request
-                Lbryio.cachedTwitterOauthToken = credential.oauthToken
-                Lbryio.cachedTwitterOauthTokenSecret = credential.oauthTokenSecret
-                self.twitterVerifyWithOauthToken(
-                    oauthToken: credential.oauthToken,
-                    oauthTokenSecret: credential.oauthTokenSecret
-                )
-            case let .failure(error):
-                self.stopProcessing()
-                self.showError(message: String(
-                    format: "An error occurred while processing the Twitter verification request: %@",
-                    error.localizedDescription
-                ))
-            }
-        }
-    }
-
-    func twitterVerifyWithOauthToken(oauthToken: String, oauthTokenSecret: String) {
-        let options: [String: String] = [
-            "oauth_token": oauthToken,
-            "oauth_token_secret": oauthTokenSecret,
-            "domain": "odysee.com",
-        ]
-        do {
-            try Lbryio.post(
-                resource: "verification",
-                action: "twitter_verify",
-                options: options,
-                completion: { data, error in
-                    guard let data = data, error == nil else {
-                        self.stopProcessing()
-                        self.showError(error: error)
-                        return
-                    }
-
-                    do {
-                        let jsonData = try! JSONSerialization.data(
-                            withJSONObject: data,
-                            options: [.prettyPrinted, .sortedKeys]
-                        )
-                        let rewardVerified = try JSONDecoder().decode(RewardVerified.self, from: jsonData)
-                        if rewardVerified.isRewardApproved ?? false {
-                            // successful reward verification, show the rewards page
-                            DispatchQueue.main.async {
-                                // self.showRewardEligibleView()
-                                self.stopProcessing()
-                                self.showRewardsList()
-                                return
-                            }
-                        }
-                    } catch {
-                        self.stopProcessing()
-                        self.showError(error: error)
-                    }
-
-                    // error state
-                    self.stopProcessing()
-                    self
-                        .showError(
-                            message: "You could not be verified for rewards at this time. Please try again later."
-                        )
-                }
-            )
-        } catch {
-            stopProcessing()
-            showError(error: error)
-        }
-    }
-
-    func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
-        stopProcessing()
-    }
-
-    func request(_ request: SKRequest, didFailWithError error: Error) {
-        stopProcessing()
-
-        if lbrySkipProduct == nil {
-            // IAP not available
-            DispatchQueue.main.async {
-                self.skipQueueOptionButton.isHidden = true
-            }
-            return
-        }
-    }
-
-    func productsRequest(_ request: SKProductsRequest, didReceive response: SKProductsResponse) {
-        stopProcessing()
-
-        if let product = response.products.first {
-            lbrySkipProduct = product
-            return
-        }
-
-        // product not available
-        DispatchQueue.main.async {
-            self.skipQueueOptionButton.isHidden = true
-        }
-    }
-
-    func checkReceipt(completion: @escaping (Bool?, Error?) -> Void) {
-        if let appStoreReceiptURL = Bundle.main.appStoreReceiptURL,
-           FileManager.default.fileExists(atPath: appStoreReceiptURL.path)
-        {
-            do {
-                let receiptData = try Data(contentsOf: appStoreReceiptURL, options: .alwaysMapped)
-                let base64ReceiptString = receiptData.base64EncodedString(options: [])
-
-                let options: [String: String] = ["receipt": base64ReceiptString]
-                try Lbryio.post(
-                    resource: "verification",
-                    action: "ios_purchase",
-                    options: options,
-                    completion: { data, error in
-                        guard let data = data, error == nil else {
-                            completion(nil, error)
-                            return
-                        }
-
-                        do {
-                            let jsonData = try! JSONSerialization.data(
-                                withJSONObject: data,
-                                options: [.prettyPrinted, .sortedKeys]
-                            )
-                            let rewardVerified = try JSONDecoder().decode(RewardVerified.self, from: jsonData)
-                            if let isRewardApproved = rewardVerified.isRewardApproved {
-                                completion(isRewardApproved, nil)
-                                return
-                            }
-                        } catch {
-                            completion(nil, error)
-                            return
-                        }
-
-                        // error state
-                        completion(
-                            nil,
-                            GenericError("You could not be verified for rewards at this time. Please try again later.")
-                        )
-                    }
-                )
-            } catch {
-                completion(
-                    nil,
-                    GenericError("Your payment could not be verified at this time. Please try again later.")
-                )
-            }
-
-            return
-        }
-
-        completion(nil, GenericError("Invalid transaction state. Please try again."))
-    }
-
-    func paymentQueue(_ queue: SKPaymentQueue, updatedTransactions transactions: [SKPaymentTransaction]) {
-        for transaction in transactions {
-            switch transaction.transactionState {
-            case .purchasing:
-                break
-            case .purchased,
-                 .restored:
-                // TODO: Send transactionIdentifier to server for remote validation
-                SKPaymentQueue.default().finishTransaction(transaction)
-                SKPaymentQueue.default().remove(self)
-
-                checkReceipt(completion: { rewardVerified, error in
-                    guard let rewardVerified = rewardVerified, error == nil else {
-                        self.showError(error: error)
-                        self.stopProcessing()
-                        return
-                    }
-
-                    self.stopProcessing()
-                    if rewardVerified {
-                        // self.showRewardEligibleView()
-                        self.showRewardsList()
-                    } else {
-                        self
-                            .showError(
-                                message: "Your transaction could not be verified at this time. Please try again later."
-                            )
-                    }
-                })
-            case .failed,
-                 .deferred:
-                stopProcessing()
-                SKPaymentQueue.default().finishTransaction(transaction)
-                SKPaymentQueue.default().remove(self)
-            default:
-                break
-            }
-        }
     }
 
     func showMessage(message: String?) {

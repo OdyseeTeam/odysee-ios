@@ -64,7 +64,6 @@
 		64666AFB25872BE000DF4608 /* ChannelManagerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64666AFA25872BE000DF4608 /* ChannelManagerViewController.swift */; };
 		64666B032587378400DF4608 /* ChannelEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64666B022587378400DF4608 /* ChannelEditorViewController.swift */; };
 		646D563F2584FAD4002DB12F /* RewardsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646D563E2584FAD4002DB12F /* RewardsViewController.swift */; };
-		646D5645258587A8002DB12F /* OAuthSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 646D5644258587A8002DB12F /* OAuthSwift */; };
 		646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E4A5E259CF13A0008C9C8 /* Comment.swift */; };
 		646E4A64259CF5380008C9C8 /* CommentTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E4A63259CF5380008C9C8 /* CommentTableViewCell.swift */; };
 		646E54D8257D40DC00BEBFBE /* ChannelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */; };
@@ -77,7 +76,6 @@
 		647AFE8E2886FEF500704944 /* BlockChannelStatusObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647AFE8D2886FEF500704944 /* BlockChannelStatusObserver.swift */; };
 		647EB3F225F54EB1003AA76B /* UIStackCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647EB3F125F54EB1003AA76B /* UIStackCardView.swift */; };
 		6484E1AD2582238900221658 /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6484E1AC2582238900221658 /* NotificationsViewController.swift */; };
-		6484E1B62582269B00221658 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6484E1B52582269B00221658 /* StoreKit.framework */; };
 		648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */; };
 		648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F320B2575D52500E2CA51 /* UserAccountViewController.swift */; };
 		648F70D226307BC700885A2F /* HaishinKit in Frameworks */ = {isa = PBXBuildFile; productRef = 648F70D126307BC700885A2F /* HaishinKit */; };
@@ -220,7 +218,6 @@
 		647EB3F125F54EB1003AA76B /* UIStackCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIStackCardView.swift; sourceTree = "<group>"; };
 		6484E1AC2582238900221658 /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
 		6484E1B12582269100221658 /* Odysee.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Odysee.entitlements; sourceTree = "<group>"; };
-		6484E1B52582269B00221658 /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestedChannelCollectionViewCell.swift; sourceTree = "<group>"; };
 		648F320B2575D52500E2CA51 /* UserAccountViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAccountViewController.swift; sourceTree = "<group>"; };
 		648F70D626307BF900885A2F /* GoLiveViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoLiveViewController.swift; sourceTree = "<group>"; };
@@ -235,7 +232,6 @@
 		64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingViewController.swift; sourceTree = "<group>"; };
 		64D72BB4258C54B100F5C4E3 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.plist; sourceTree = "<group>"; };
 		64D72BB9258C952A00F5C4E3 /* RewardVerified.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerified.swift; sourceTree = "<group>"; };
-		64D72BBE258CD8AE00F5C4E3 /* StoreConfig.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = StoreConfig.storekit; sourceTree = "<group>"; };
 		64D72BC2258CDEC400F5C4E3 /* Reward.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reward.swift; sourceTree = "<group>"; };
 		64FBE79925502A290082AF2E /* Odysee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Odysee.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		64FBE79C25502A290082AF2E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -282,12 +278,10 @@
 				64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */,
 				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
 				64A26CE526974B7A00AE19DE /* PerfectMarkdown in Frameworks */,
-				646D5645258587A8002DB12F /* OAuthSwift in Frameworks */,
 				6411C0B0255B35260018C3D5 /* Base58Swift in Frameworks */,
 				53F64E382ECCEC2A001A7D8F /* FirebaseCrashlytics in Frameworks */,
 				648F70D226307BC700885A2F /* HaishinKit in Frameworks */,
 				CCDDA929265861AF0006035F /* PINRemoteImage in Frameworks */,
-				6484E1B62582269B00221658 /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -312,7 +306,6 @@
 			isa = PBXGroup;
 			children = (
 				B63C54A6260C990C00DD26A9 /* AuthenticationServices.framework */,
-				6484E1B52582269B00221658 /* StoreKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -524,7 +517,6 @@
 				64FBE7AD25502A2C0082AF2E /* Info.plist */,
 				64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */,
 				64D72BB4258C54B100F5C4E3 /* Secrets.plist */,
-				64D72BBE258CD8AE00F5C4E3 /* StoreConfig.storekit */,
 				532650E3286EAB1B00F0FF0B /* Settings.bundle */,
 				53FAD3FB288504C60000F980 /* Localizable.strings */,
 			);
@@ -581,7 +573,6 @@
 				6411C0AF255B35260018C3D5 /* Base58Swift */,
 				64533588257FDC6800C49BD1 /* FirebaseAnalytics */,
 				6453358A257FDC6800C49BD1 /* FirebaseMessaging */,
-				646D5644258587A8002DB12F /* OAuthSwift */,
 				6459121C2620745D00B2ABA5 /* Starscream */,
 				648F70D126307BC700885A2F /* HaishinKit */,
 				CCDDA928265861AF0006035F /* PINRemoteImage */,
@@ -672,7 +663,6 @@
 			packageReferences = (
 				6411C0AE255B35260018C3D5 /* XCRemoteSwiftPackageReference "Base58Swift" */,
 				64533587257FDC6800C49BD1 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
-				646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */,
 				6459121B2620745C00B2ABA5 /* XCRemoteSwiftPackageReference "Starscream" */,
 				648F70D026307BC700885A2F /* XCRemoteSwiftPackageReference "HaishinKit" */,
 				CCDDA927265861AF0006035F /* XCRemoteSwiftPackageReference "PINRemoteImage" */,
@@ -1255,14 +1245,6 @@
 				minimumVersion = 4.0.4;
 			};
 		};
-		646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/OAuthSwift/OAuthSwift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.2;
-			};
-		};
 		648F70D026307BC700885A2F /* XCRemoteSwiftPackageReference "HaishinKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/shogo4405/HaishinKit.swift";
@@ -1332,11 +1314,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 6459121B2620745C00B2ABA5 /* XCRemoteSwiftPackageReference "Starscream" */;
 			productName = Starscream;
-		};
-		646D5644258587A8002DB12F /* OAuthSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 646D5643258587A8002DB12F /* XCRemoteSwiftPackageReference "OAuthSwift" */;
-			productName = OAuthSwift;
 		};
 		648F70D126307BC700885A2F /* HaishinKit */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -229,9 +229,6 @@ enum Lbryio {
         lock.withLock { blockedOutpoints = val }
     }
 
-    static var cachedTwitterOauthToken: String?
-    static var cachedTwitterOauthTokenSecret: String?
-
     static func get(
         resource: String,
         action: String,
