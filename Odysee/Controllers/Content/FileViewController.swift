@@ -1575,7 +1575,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                   let response = data.response as? HTTPURLResponse,
                   response.statusCode == 200 || response.statusCode == 308
             else {
-                self.showError(message: String.localized("Failed to get transcoded media location"))
+                if let releaseTime = Double(claim.value?.releaseTime ?? "0"),
+                   (NSDate(timeIntervalSince1970: releaseTime) as Date) // TODO: Timezone check / conversion?
+                   .timeIntervalSinceNow > -3600 /* 1 hour */
+                {
+                    self.showMessage(
+                        message: "Failed to get media for this recently published content. Retrying in 30s"
+                    )
+                    DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .seconds(30))) {
+                        self.showClaimAndCheckFollowing()
+                    }
+                } else {
+                    self.showError(message: String.localized("Failed to get transcoded media location"))
+                }
                 return
             }
 
@@ -1592,7 +1604,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 }
             } else {
                 guard var location = response.value(forHTTPHeaderField: "Location") else {
-                    self.showError(message: String.localized("Failed to get transcoded media location"))
+                    if let releaseTime = Double(claim.value?.releaseTime ?? "0"),
+                       (NSDate(timeIntervalSince1970: releaseTime) as Date) // TODO: Timezone check / conversion?
+                       .timeIntervalSinceNow > -3600 /* 1 hour */
+                    {
+                        self.showMessage(
+                            message: "Failed to get media for this recently published content. Retrying in 30s"
+                        )
+                        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .seconds(30))) {
+                            self.showClaimAndCheckFollowing()
+                        }
+                    } else {
+                        self.showError(message: String.localized("Failed to get transcoded media location"))
+                    }
                     return
                 }
 
