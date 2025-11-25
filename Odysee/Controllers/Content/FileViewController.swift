@@ -1101,9 +1101,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let playerItem = AVPlayerItem(asset: asset)
         currentPlayer = AVPlayer(playerItem: playerItem)
 
-        appDelegate.registerPlayerObserver()
-        playerConnected = true
-        playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
         avpc.player = currentPlayer
 
         playerStartedObserver = currentPlayer?.observe(\.rate, options: .new) { [self] _, _ in
@@ -1114,7 +1111,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             appDelegate.lazyPlayer?.pause()
 
             appDelegate.lazyPlayer = currentPlayer
-            avpc.player = appDelegate.lazyPlayer
             currentPlayer = nil
 
             appDelegate.playerObserverAdded = false
