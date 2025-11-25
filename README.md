@@ -4,7 +4,7 @@
 The Odysee iOS app with wallet functionality.
 
 ## Installation
-The minimum supported iOS version is 13.0. You can install the app from the [Apple App Store](https://apps.apple.com/us/app/odysee/id1539444143). You can also obtain early access releases by joining the [TestFlight beta program](https://testflight.apple.com/join/8VLNhU79). 
+The minimum supported iOS version is 13.0. You can install the app from the [Apple App Store](https://apps.apple.com/us/app/odysee/id1539444143). You can also obtain early access releases by joining the [TestFlight beta program](https://testflight.apple.com/join/Nms3EXZ9). 
 
 ## Usage
 The app can be launched by opening **Odysee** from the app list on your device. 
