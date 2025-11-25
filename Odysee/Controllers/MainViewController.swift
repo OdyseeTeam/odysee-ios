@@ -332,9 +332,20 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     @IBAction func openCurrentClaim(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let _ = appDelegate.currentFileViewController {
+
+        if appDelegate.mainNavigationController?.topViewController == appDelegate.currentFileViewController {
             appDelegate.mainNavigationController?.popViewController(animated: false)
+        } else if let fileVc = appDelegate.currentFileViewController,
+                  fileVc.claim == appDelegate.currentClaim
+        {
+            appDelegate.mainNavigationController?.view.layer.add(
+                Helper.buildFileViewTransition(),
+                forKey: kCATransition
+            )
+            appDelegate.mainNavigationController?.pushViewController(fileVc, animated: false)
+            return
         }
+
         if appDelegate.currentClaim != nil {
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = appDelegate.currentClaim
@@ -845,12 +856,28 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     ) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
+        if appDelegate.mainNavigationController?.topViewController == appDelegate.currentFileViewController {
+            if appDelegate.currentFileViewController?.claim == appDelegate.pictureInPicturePlayingClaim {
+                completionHandler(true)
+                return
+            }
+
+            appDelegate.mainNavigationController?.popViewController(animated: false)
+        } else if let fileVc = appDelegate.currentFileViewController,
+                  fileVc.claim == appDelegate.pictureInPicturePlayingClaim
+        {
+            appDelegate.mainNavigationController?.view.layer.add(
+                Helper.buildFileViewTransition(),
+                forKey: kCATransition
+            )
+            appDelegate.mainNavigationController?.pushViewController(fileVc, animated: false)
+            completionHandler(true)
+            return
+        }
+
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = appDelegate.pictureInPicturePlayingClaim
 
-        if appDelegate.mainNavigationController?.topViewController == appDelegate.currentFileViewController {
-            appDelegate.mainNavigationController?.popViewController(animated: false)
-        }
         appDelegate.mainNavigationController?.view.layer.add(
             Helper.buildFileViewTransition(),
             forKey: kCATransition
