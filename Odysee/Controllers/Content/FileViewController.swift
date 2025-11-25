@@ -170,7 +170,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var isOtherContent = false
     var membersOnly = false
     var avpcInitialised = false
-    var shouldReload = true
 
     var loadingChannels = false
     var postingChat = false
@@ -233,11 +232,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         )
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
-
-        // Don't show claim while waiting for channel view to show
-        if claim != nil, shouldReload, !claim!.name!.starts(with: "@") {
-            showClaimAndCheckFollowing()
-        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -2133,13 +2127,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         case .cancelled:
             interactiveDismiss?.cancel()
             interactiveDismiss = nil
-            shouldReload = false
         case .ended:
             if (dismissPanRecognizer?.velocity(in: view).y ?? 0) > 0 {
                 interactiveDismiss?.finish()
             } else {
                 interactiveDismiss?.cancel()
-                shouldReload = false
             }
             interactiveDismiss = nil
         case .failed,

@@ -864,9 +864,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         _ playerViewController: AVPlayerViewController,
         willEndFullScreenPresentationWithAnimationCoordinator coordinator: UIViewControllerTransitionCoordinator
     ) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.currentFileViewController?.shouldReload = false
-
         coordinator.animate(alongsideTransition: nil) { _ in
             // Player pauses when returning from full screen
             playerViewController.player?.play()
