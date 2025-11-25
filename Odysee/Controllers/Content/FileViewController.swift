@@ -1092,6 +1092,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if !forceInit, appDelegate.lazyPlayer != nil, appDelegate.currentClaim != nil, appDelegate.currentClaim?
             .claimId == singleClaim.claimId
         {
+            // Normally not needed,
+            // but set this in case the state gets messed up and this FileViewController is new
+            if #available(iOS 14.2, *) {
+                avpc.canStartPictureInPictureAutomaticallyFromInline = true
+            }
+
             avpc.player = appDelegate.lazyPlayer
             playerConnected = true
             return
