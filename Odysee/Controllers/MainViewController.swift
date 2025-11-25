@@ -92,9 +92,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
         do {
             // enable audio in silent mode
-            try AVAudioSession.sharedInstance().setCategory(.playback)
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
         } catch {
-            // pass
+            showError(error: error)
         }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
