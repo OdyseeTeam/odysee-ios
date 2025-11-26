@@ -1,0 +1,183 @@
+{
+  "fill" : "automatic",
+  "groups" : [
+    {
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : {
+                "linear-gradient" : [
+                  "display-p3:0.94902,0.23137,0.36078,1.00000",
+                  "srgb:0.98824,0.67843,0.09412,1.00000"
+                ],
+                "orientation" : {
+                  "start" : {
+                    "x" : 0.5272108552957252,
+                    "y" : -0.26659979528912103
+                  },
+                  "stop" : {
+                    "x" : 0.5285051015548822,
+                    "y" : 1.318071353580895
+                  }
+                }
+              }
+            }
+          ],
+          "glass" : false,
+          "image-name" : "2_Stars.svg",
+          "name" : "2_Stars",
+          "position-specializations" : [
+            {
+              "value" : {
+                "scale" : 9,
+                "translation-in-points" : [
+                  7,
+                  -10
+                ]
+              }
+            },
+            {
+              "idiom" : "watchOS",
+              "value" : {
+                "scale" : 8.78,
+                "translation-in-points" : [
+                  -38,
+                  -10
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "shadow" : {
+        "kind" : "none",
+        "opacity" : 0.5
+      },
+      "specular" : false,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.5
+      }
+    },
+    {
+      "blur-material" : null,
+      "layers" : [
+        {
+          "fill-specializations" : [
+            {
+              "value" : "automatic"
+            },
+            {
+              "appearance" : "dark",
+              "value" : {
+                "linear-gradient" : [
+                  "display-p3:0.94902,0.23137,0.36078,1.00000",
+                  "srgb:0.98824,0.67843,0.09412,1.00000"
+                ],
+                "orientation" : {
+                  "start" : {
+                    "x" : 0.5000000000000001,
+                    "y" : -0.16365441271999914
+                  },
+                  "stop" : {
+                    "x" : 0.5000000000000001,
+                    "y" : 1.1481917497405414
+                  }
+                }
+              }
+            }
+          ],
+          "glass" : true,
+          "image-name" : "3_Spaceman.svg",
+          "name" : "3_Spaceman",
+          "position-specializations" : [
+            {
+              "value" : {
+                "scale" : 9,
+                "translation-in-points" : [
+                  -33,
+                  0
+                ]
+              }
+            },
+            {
+              "idiom" : "watchOS",
+              "value" : {
+                "scale" : 8.78,
+                "translation-in-points" : [
+                  -74,
+                  0
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "lighting" : "individual",
+      "shadow" : {
+        "kind" : "neutral",
+        "opacity" : 0.5
+      },
+      "specular" : true,
+      "translucency-specializations" : [
+        {
+          "value" : {
+            "enabled" : true,
+            "value" : 0.5
+          }
+        },
+        {
+          "appearance" : "dark",
+          "value" : {
+            "enabled" : false,
+            "value" : 0.5
+          }
+        }
+      ]
+    },
+    {
+      "layers" : [
+        {
+          "blend-mode" : "normal",
+          "image-name" : "1_Background.png",
+          "name" : "1_Background",
+          "opacity-specializations" : [
+            {
+              "appearance" : "dark",
+              "value" : 0
+            },
+            {
+              "appearance" : "tinted",
+              "value" : 0
+            }
+          ]
+        }
+      ],
+      "lighting" : "combined",
+      "position" : {
+        "scale" : 3.85,
+        "translation-in-points" : [
+          0,
+          0
+        ]
+      },
+      "shadow" : {
+        "kind" : "none",
+        "opacity" : 0.5
+      },
+      "specular" : false,
+      "translucency" : {
+        "enabled" : false,
+        "value" : 0.5
+      }
+    }
+  ],
+  "supported-platforms" : {
+    "circles" : [
+      "watchOS"
+    ],
+    "squares" : "shared"
+  }
+}
