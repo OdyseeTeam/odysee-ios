@@ -15,6 +15,7 @@
 		53593F31287E5D75007FD08E /* CommentAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentAPIResult.swift */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
+		538C8CC62ED74B8C00E20949 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 538C8CC52ED74B8C00E20949 /* AppIcon.icon */; };
 		5390C80D2ECE13A3005A104B /* ActionSheetPicker-3.0 in Frameworks */ = {isa = PBXBuildFile; productRef = 5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
@@ -147,6 +148,7 @@
 		53593F30287E5D75007FD08E /* CommentAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentAPIResult.swift; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
+		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
@@ -513,6 +515,7 @@
 				53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */,
 				64FBE7A225502A290082AF2E /* Main.storyboard */,
 				64FBE7A825502A2C0082AF2E /* Assets.xcassets */,
+				538C8CC52ED74B8C00E20949 /* AppIcon.icon */,
 				64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */,
 				64FBE7AD25502A2C0082AF2E /* Info.plist */,
 				64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */,
@@ -692,6 +695,7 @@
 				64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */,
 				64D72BB5258C54B100F5C4E3 /* Secrets.plist in Resources */,
 				641615052581267B003A2194 /* GoogleService-Info.plist in Resources */,
+				538C8CC62ED74B8C00E20949 /* AppIcon.icon in Resources */,
 				53FAD3FD288504C60000F980 /* Localizable.strings in Resources */,
 				64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */,
 				64FBE7A425502A290082AF2E /* Main.storyboard in Resources */,
@@ -1042,6 +1046,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Odysee/Odysee.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -1065,6 +1070,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				CODE_SIGN_ENTITLEMENTS = Odysee/Odysee.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 7G9P9AM955;
