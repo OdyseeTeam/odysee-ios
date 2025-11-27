@@ -36,4 +36,4 @@ This project is MIT licensed. For the full license, see [LICENSE](LICENSE).
 We take security seriously. Please contact security@odysee.com.
 
 ## Contact
-The primary contact for this project is [@akinwale](https://github.com/akinwale) (akinwale.ariwodola@odysee.com)
+The primary contact for this project is [@tzarebczan](https://github.com/tzarebczan) (tom@odysee.com)
