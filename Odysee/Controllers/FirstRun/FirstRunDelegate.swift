@@ -13,7 +13,7 @@ protocol FirstRunDelegate {
     func requestFinished(showSkip: Bool, showContinue: Bool)
     func finalPageReached()
     func showViewController(_ vc: UIViewController)
-    func updateFirstChannelName(_ name: String)
+    func updateFirstChannelName(_ name: String?)
     func nextStep()
     func continueProcess()
 }

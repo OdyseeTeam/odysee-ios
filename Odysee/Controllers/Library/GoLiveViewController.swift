@@ -87,11 +87,12 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-        livestreamOptionsScrollView.contentInset = contentInsets
-        livestreamOptionsScrollView.scrollIndicatorInsets = contentInsets
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+            livestreamOptionsScrollView.contentInset = contentInsets
+            livestreamOptionsScrollView.scrollIndicatorInsets = contentInsets
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -179,7 +180,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         }
 
         if !isStreaming {
-            if streamKey.isBlank {
+            guard let streamKey, !streamKey.isBlank else {
                 // show an error
                 showError(
                     message: String
@@ -192,7 +193,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             rtmpConnection.addEventListener(.rtmpStatus, selector: #selector(rtmpStatusHandler), observer: self)
             rtmpConnection.addEventListener(.ioError, selector: #selector(rtmpErrorHandler), observer: self)
             rtmpConnection.connect(rtmpUrl)
-            rtmpStream!.publish(streamKey!)
+            rtmpStream.publish(streamKey)
             return
         }
 
@@ -239,8 +240,14 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             message: String
                 .localized("An error occurred trying to connect to the streaming URL. Please try again.")
         )
+
+        guard let streamKey else {
+            showError(message: "couldn't get streamKey")
+            return
+        }
+
         rtmpConnection.connect(rtmpUrl)
-        rtmpStream.publish(streamKey!)
+        rtmpStream.publish(streamKey)
     }
 
     func loadChannels() {
@@ -264,7 +271,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return false
         }
 
-        if channel.confirmations! < 1 {
+        if channel.confirmations ?? 0 < 1 {
             channelErrorLabel.isHidden = false
             channelErrorLabel.text = String
                 .localized("Your channel is still pending. Please wait a couple of minutes and try again.")
@@ -373,7 +380,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
         // check that there is a title
         let title = titleField.text
-        if title.isBlank {
+        guard let title, !title.isBlank else {
             showError(message: String.localized("Please specify a title for your stream"))
             return
         }
@@ -382,7 +389,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         precheckLoadingView.isHidden = false
         precheckLabel.text = String.localized("Please wait, your livestream claim is pending confirmation.")
         livestreamOptionsView.isHidden = true
-        createLivestreamClaim(title: title!, channel: channel)
+        createLivestreamClaim(title: title, channel: channel)
     }
 
     /* TODO: Determine if we want to be able to reuse existing claims
@@ -424,9 +431,13 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
      }*/
 
     func signAndSetupStream(channel: Claim) {
+        guard let claimId = channel.claimId, let name = channel.name else {
+            showError(message: "couldn't get channel claimId and/or name")
+            return
+        }
         Lbry.apiCall(
             method: Lbry.Methods.channelSign,
-            params: .init(channelId: channel.claimId!, hexdata: Helper.strToHex(channel.name!))
+            params: .init(channelId: claimId, hexdata: Helper.strToHex(name))
         )
         .subscribeResult { result in
             switch result {
@@ -437,7 +448,8 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                     .localized("Your stream key could not be generated. Please try again later.")
             case let .success(data):
                 self.streamKey = self.createStreamKey(
-                    channel: channel,
+                    channelId: claimId,
+                    hexdata: Helper.strToHex(name),
                     signature: data.signature,
                     signingTs: data.signingTs
                 )
@@ -447,11 +459,11 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         }
     }
 
-    func createStreamKey(channel: Claim, signature: String, signingTs: String) -> String {
+    func createStreamKey(channelId: String, hexdata: String, signature: String, signingTs: String) -> String {
         return String(
             format: "%@?d=%@&s=%@&t=%@",
-            channel.claimId!,
-            Helper.strToHex(channel.name!),
+            channelId,
+            hexdata,
             signature,
             signingTs
         )
@@ -483,6 +495,11 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     }
 
     func createLivestreamClaim(title: String, channel: Claim) {
+        guard let channelId = channel.claimId else {
+            showError(message: "couldn't get channelId")
+            return
+        }
+
         // check eligibility? (50 credits fked on channel)
         let deposit = Decimal(0.001)
         let suffix = String(describing: Int(Date().timeIntervalSince1970))
@@ -493,7 +510,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             "description": "",
             "thumbnail_url": currentThumbnailUrl ?? (channel.value?.thumbnail?.url ?? ""),
             "name": String(format: "livestream-%@", suffix),
-            "channel_id": channel.claimId!,
+            "channel_id": channelId,
             "release_time": Int(Date().timeIntervalSince1970),
         ]
 

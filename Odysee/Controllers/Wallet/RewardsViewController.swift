@@ -43,7 +43,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
         appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
 
         if Lbryio.isSignedIn() {
-            if !Lbryio.currentUser!.isRewardApproved! {
+            if !(Lbryio.currentUser?.isRewardApproved ?? false) {
                 fetchUserAndCheckRewardStatus()
             } else {
                 // showRewardEligibleView()
@@ -57,7 +57,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
         // check reward approved status first
         do {
             try Lbryio.fetchCurrentUser(completion: { user, _ in
-                if user == nil || !user!.isRewardApproved! {
+                if user == nil || !(user?.isRewardApproved ?? false) {
                     self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
                     self.showVerification()
                 } else {
@@ -178,14 +178,14 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
 
                     if let items = data as? [[String: Any]] {
                         for item in items {
-                            let data = try! JSONSerialization.data(
-                                withJSONObject: item,
-                                options: [.prettyPrinted, .sortedKeys]
-                            )
                             do {
+                                let data = try JSONSerialization.data(
+                                    withJSONObject: item,
+                                    options: [.prettyPrinted, .sortedKeys]
+                                )
                                 let reward: Reward? = try JSONDecoder().decode(Reward.self, from: data)
-                                if reward != nil, reward?.rewardType != Reward.typeNewMobile {
-                                    self.allRewards.append(reward!)
+                                if let reward, reward.rewardType != Reward.typeNewMobile {
+                                    self.allRewards.append(reward)
                                 }
                             } catch {
                                 // pass
@@ -229,7 +229,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
 
     @IBAction func closeTapped(_ sender: UIButton?) {
-        navigationController!.popViewController(animated: true)
+        navigationController?.popViewController(animated: true)
     }
 
     func showMessage(message: String?) {
@@ -274,9 +274,9 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.deselectRow(at: indexPath, animated: true)
         let reward: Reward = rewards[indexPath.row]
 
-        if reward.claimed, !reward.transactionId.isBlank {
+        if reward.claimed, let transactionId = reward.transactionId, !transactionId.isBlank {
             // open the transaction view
-            if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, reward.transactionId!)) {
+            if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, transactionId)) {
                 let vc = SFSafariViewController(url: url)
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 appDelegate.mainController.present(vc, animated: true, completion: nil)
@@ -298,24 +298,20 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
 
         // check if there's already a wallet address
         let defaults = UserDefaults.standard
-        let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
-        if receiveAddress.isBlank {
+        if let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress), !receiveAddress.isBlank {
+            claimReward(reward, walletAddress: receiveAddress)
+        } else {
             Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
                 guard case let .success(newAddress) = result else {
                     self.claimRewardFinished()
-                    self
-                        .showError(
-                            message: String
-                                .localized("Could not obtain the wallet address for receiving rewards.")
-                        )
+                    self.showError(
+                        message: String.localized("Could not obtain the wallet address for receiving rewards.")
+                    )
                     return
                 }
                 UserDefaults.standard.set(newAddress, forKey: Helper.keyReceiveAddress)
                 self.claimReward(reward, walletAddress: newAddress)
             }
-            return
-        } else {
-            claimReward(reward, walletAddress: receiveAddress!)
         }
     }
 
@@ -357,12 +353,15 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
 
     func doClaimReward(_ reward: Reward, walletAddress: String, transactionId: String?) {
-        var options: [String: String] = ["reward_type": reward.rewardType!, "wallet_address": walletAddress]
-        if reward.rewardType == Reward.typeCustom, !reward.rewardCode.isBlank {
-            options["reward_code"] = reward.rewardCode!
+        var options: [String: String] = ["wallet_address": walletAddress]
+        if let rewardType = reward.rewardType {
+            options["reward_type"] = rewardType
         }
-        if !transactionId.isBlank {
-            options["transaction_id"] = transactionId!
+        if reward.rewardType == Reward.typeCustom, let rewardCode = reward.rewardCode, !rewardCode.isBlank {
+            options["reward_code"] = rewardCode
+        }
+        if let transactionId, !transactionId.isBlank {
+            options["transaction_id"] = transactionId
         }
 
         do {
@@ -380,7 +379,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
                         options: [.prettyPrinted, .sortedKeys]
                     )
                     let reward: Reward? = try JSONDecoder().decode(Reward.self, from: jsonData)
-                    if let notification = reward!.rewardNotification {
+                    if let notification = reward?.rewardNotification {
                         self.showMessage(message: notification)
                     } else {
                         self.showMessage(message: String.localized("You successfully claimed a reward!"))

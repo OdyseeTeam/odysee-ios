@@ -16,7 +16,7 @@ class SuggestedChannelCollectionViewCell: UICollectionViewCell {
     var currentClaim: Claim?
 
     func setClaim(claim: Claim) {
-        if currentClaim != nil, claim.claimId != currentClaim!.claimId {
+        if let currentClaim, claim.claimId != currentClaim.claimId {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
             thumbnailImageView.image = nil
         }
@@ -34,8 +34,8 @@ class SuggestedChannelCollectionViewCell: UICollectionViewCell {
 
         tagLabel.isHidden = true
         tagLabel.text = ""
-        if claim.value?.tags != nil, claim.value?.tags!.count ?? 0 > 0 {
-            tagLabel.text = claim.value?.tags![0]
+        if let tags = claim.value?.tags, tags.count > 0 {
+            tagLabel.text = tags[0]
         }
     }
 }

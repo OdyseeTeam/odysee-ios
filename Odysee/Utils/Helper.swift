@@ -111,18 +111,18 @@ enum Helper {
     }()
 
     static func isAddressValid(address: String?) -> Bool {
-        if address.isBlank {
+        guard let address, !address.isBlank else {
             return false
         }
         // TODO: Figure out why regex is broken
         /*
-         if LbryUri.regexAddress.firstMatch(in: address!, options: [], range: NSRange(address!.startIndex..., in:address!)) == nil {
+         if LbryUri.regexAddress.firstMatch(in: address, options: [], range: NSRange(address.startIndex..., in:address)) == nil {
              return false
          }*/
-        if !address!.starts(with: "b") {
+        if !address.starts(with: "b") {
             return false
         }
-        if Base58.base58CheckDecode(address!) == nil {
+        if Base58.base58CheckDecode(address) == nil {
             return false
         }
 
@@ -179,6 +179,10 @@ enum Helper {
     }
 
     static func shortCurrencyFormat(value: Decimal?) -> String {
+        guard let value else {
+            return ""
+        }
+
         let formatter = NumberFormatter()
         formatter.usesGroupingSeparator = true
         formatter.roundingMode = .down
@@ -186,17 +190,17 @@ enum Helper {
         formatter.minimumFractionDigits = 1
         formatter.maximumFractionDigits = 2
 
-        if value! > 1_000_000_000 {
-            return String(format: "%@B", formatter.string(for: (value! / 1_000_000_000) as NSDecimalNumber)!)
+        if value > 1_000_000_000 {
+            return String(format: "%@B", formatter.string(for: (value / 1_000_000_000) as NSDecimalNumber)!)
         }
-        if value! > 1_000_000 {
-            return String(format: "%@M", formatter.string(for: (value! / 1_000_000) as NSDecimalNumber)!)
+        if value > 1_000_000 {
+            return String(format: "%@M", formatter.string(for: (value / 1_000_000) as NSDecimalNumber)!)
         }
-        if value! > 1000 {
-            return String(format: "%@K", formatter.string(for: (value! / 1000) as NSDecimalNumber)!)
+        if value > 1000 {
+            return String(format: "%@K", formatter.string(for: (value / 1000) as NSDecimalNumber)!)
         }
 
-        return formatter.string(for: value! as NSDecimalNumber)!
+        return formatter.string(for: value as NSDecimalNumber) ?? ""
     }
 
     static func buildFileViewTransition() -> CATransition {
@@ -236,7 +240,7 @@ enum Helper {
             imageData = pngData
             filename = "image.png"
         }
-        if mimeType == nil || imageData == nil {
+        guard let mimeType, let imageData, let filename else {
             completion(nil, GenericError("The selcted image could not be uploaded"))
             return
         }
@@ -250,11 +254,11 @@ enum Helper {
         data.append("--\(boundary)\r\n".data(using: .utf8, allowLossyConversion: false)!)
         data
             .append(
-                "Content-Disposition: form-data; name=\"file-input\"; filename=\"\(filename!)\"\r\n"
+                "Content-Disposition: form-data; name=\"file-input\"; filename=\"\(filename)\"\r\n"
                     .data(using: .utf8, allowLossyConversion: false)!
             )
-        data.append("Content-Type: \(mimeType!)\r\n\r\n".data(using: .utf8, allowLossyConversion: false)!)
-        data.append(imageData!)
+        data.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append(imageData)
         data.append("\r\n".data(using: .utf8, allowLossyConversion: false)!)
 
         let reqBody = NSMutableData()
@@ -315,7 +319,9 @@ enum Helper {
            let locale = appDelegate.mainController.currentLocale
         {
             for rule in rules {
-                if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only", locale.isEUMember! {
+                if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only",
+                   locale.isEUMember ?? false
+                {
                     isBlocked = true
                     break
                 }
@@ -341,18 +347,20 @@ enum Helper {
            let locale = appDelegate.mainController.currentLocale
         {
             for rule in rules {
-                if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only", locale.isEUMember! {
-                    message = rule.message!
+                if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only",
+                   locale.isEUMember ?? false
+                {
+                    message = rule.message
                     break
                 }
 
                 if rule.scope == CustomBlockScope.continent, rule.id?.lowercased() == locale.continent?.lowercased() {
-                    message = rule.message!
+                    message = rule.message
                     break
                 }
 
                 if rule.scope == CustomBlockScope.country, rule.id?.lowercased() == locale.country?.lowercased() {
-                    message = rule.message!
+                    message = rule.message
                     break
                 }
             }

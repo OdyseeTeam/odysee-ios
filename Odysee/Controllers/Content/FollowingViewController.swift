@@ -192,7 +192,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         do {
             try Lbryio.get(resource: "subscription", action: "list", completion: { data, error in
                 guard let data = data, error == nil else {
-                    print(error!)
+                    self.showError(error: error)
                     return
                 }
 
@@ -212,8 +212,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                             url: String(format: "%@#%@", channelName, sub["claim_id"] as! String),
                             requireProto: false
                         )
-                        if subUrl != nil {
-                            let urlString = subUrl?.description
+                        if let urlString = subUrl?.description {
                             do {
                                 let jsonData = try JSONSerialization.data(
                                     withJSONObject: sub,
@@ -221,13 +220,15 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                                 )
                                 let subscription: LbrySubscription? = try JSONDecoder()
                                     .decode(LbrySubscription.self, from: jsonData)
-                                Lbryio.addSubscription(sub: subscription!, url: urlString)
+                                if let subscription {
+                                    Lbryio.addSubscription(sub: subscription, url: urlString)
+                                }
                             } catch {
                                 // skip if an error occurred
                             }
 
                             self.addSubscription(
-                                url: urlString!,
+                                url: urlString,
                                 channelName: channelName,
                                 isNotificationsDisabled: sub["is_notifications_disabled"] as! Bool,
                                 reloadAfter: false
@@ -268,7 +269,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 page: currentSuggestedPage,
                 pageSize: suggestedPageSize,
                 notTags: Constants.NotTags,
-                notChannelIds: following.map { $0.claimId! },
+                notChannelIds: following.compactMap(\.claimId),
                 claimIds: ContentSources.DynamicContentCategories
                     .filter { $0.name == HomeViewController.categoryKeyPrimaryContent }.first?.channelIds,
                 orderBy: ["effective_amount"]
@@ -438,7 +439,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == suggestedFollowsView {
             let claim = suggestedFollows[indexPath.row]
-            selectedSuggestedFollows[claim.claimId!] = claim
+            if let claimId = claim.claimId {
+                selectedSuggestedFollows[claimId] = claim
+            }
             subscribeOrUnsubscribe(claim: claim, notificationsDisabled: true, unsubscribing: false)
 
             let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
@@ -457,8 +460,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 selectedChannelClaim = nil
             } else {
                 claim.selected = true
-                if !selectedChannelIds.contains(claim.claimId!) {
-                    selectedChannelIds.append(claim.claimId!)
+                if let claimId = claim.claimId, !selectedChannelIds.contains(claimId) {
+                    selectedChannelIds.append(claimId)
                 }
                 selectedChannelClaim = claim
             }
@@ -475,7 +478,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if collectionView == suggestedFollowsView {
             let claim = suggestedFollows[indexPath.row]
-            selectedSuggestedFollows.removeValue(forKey: claim.claimId!)
+            if let claimId = claim.claimId {
+                selectedSuggestedFollows.removeValue(forKey: claimId)
+            }
             subscribeOrUnsubscribe(claim: claim, notificationsDisabled: true, unsubscribing: true)
 
             let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
@@ -519,41 +524,48 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     func subscribeOrUnsubscribe(claim: Claim?, notificationsDisabled: Bool, unsubscribing: Bool) {
         do {
+            guard let claim, let claimId = claim.claimId, let url = claim.permanentUrl else {
+                showError(message: "couldn't get claim info")
+                return
+            }
+
             var options = [String: String]()
-            options["claim_id"] = claim?.claimId!
+            options["claim_id"] = claimId
             if !unsubscribing {
-                options["channel_name"] = claim?.name
+                options["channel_name"] = claim.name
                 options["notifications_disabled"] = String(notificationsDisabled)
             }
 
-            let subUrl: LbryUri = try LbryUri.parse(url: (claim?.permanentUrl!)!, requireProto: false)
+            let subUrl: LbryUri = try LbryUri.parse(url: url, requireProto: false)
             try Lbryio.get(
                 resource: "subscription",
                 action: unsubscribing ? "delete" : "new",
                 options: options,
                 completion: { data, error in
                     guard let _ = data, error == nil else {
-                        print(error!)
+                        self.showError(error: error)
                         return
                     }
 
-                    if !unsubscribing {
-                        Lbryio.addSubscription(
-                            sub: LbrySubscription.fromClaim(
-                                claim: claim!,
-                                notificationsDisabled: notificationsDisabled
-                            ),
-                            url: subUrl.description
-                        )
-                        self.addSubscription(
-                            url: subUrl.description,
-                            channelName: subUrl.channelName!,
-                            isNotificationsDisabled: notificationsDisabled,
-                            reloadAfter: true
-                        )
-                    } else {
-                        Lbryio.removeSubscription(subUrl: subUrl.description)
-                        self.removeSubscription(url: subUrl.description, channelName: subUrl.channelName!)
+                    if let channelName = subUrl.channelName {
+                        if !unsubscribing {
+                            Lbryio.addSubscription(
+                                sub: LbrySubscription.fromClaim(
+                                    claim: claim,
+                                    notificationsDisabled: notificationsDisabled
+                                ),
+                                url: subUrl.description
+                            )
+                            self.addSubscription(
+                                url: subUrl.description,
+                                channelName: channelName,
+                                isNotificationsDisabled: notificationsDisabled,
+                                reloadAfter: true
+                            )
+                        } else {
+                            Lbryio.removeSubscription(subUrl: subUrl.description)
+                            self.removeSubscription(url: subUrl.description, channelName: channelName)
+                        }
                     }
                 }
             )
@@ -579,7 +591,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         // persist the subscription to CoreData
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
             context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
             let subToSave = Subscription(context: context)
@@ -604,21 +616,22 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         // remove the subscription from CoreData
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
             let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-            let subs = try! context.fetch(fetchRequest)
-
-            if subs.count > 0 {
-                let subToDelete = subs[0]
-                context.delete(subToDelete)
-                self.subscriptions = self.subscriptions.filter { $0 != subToDelete }
-            }
 
             do {
+                let subs = try context.fetch(fetchRequest)
+
+                if subs.count > 0 {
+                    let subToDelete = subs[0]
+                    context.delete(subToDelete)
+                    self.subscriptions = self.subscriptions.filter { $0 != subToDelete }
+                }
+
                 try context.save()
             } catch {
-                // pass
+                self.showError(error: error)
             }
         }
 
@@ -733,10 +746,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Subscription")
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         do {
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
             try context.execute(deleteRequest)
         } catch {
-            // pass
+            showError(error: error)
             return
         }
 
@@ -744,10 +757,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         subscriptions.removeAll()
         for (url, sub) in Lbryio.cachedSubscriptions {
             let uri: LbryUri? = LbryUri.tryParse(url: url, requireProto: false)
-            if uri != nil {
+            if let url = uri?.description, let channelName = uri?.channelName {
                 addSubscription(
-                    url: uri!.description,
-                    channelName: uri!.channelName!,
+                    url: url,
+                    channelName: channelName,
                     isNotificationsDisabled: sub.notificationsDisabled ?? true,
                     reloadAfter: false
                 )
@@ -755,5 +768,19 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         loadLocalSubscriptions(true)
+    }
+
+    func showError(error: Error?) {
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(error: error)
+        }
+    }
+
+    func showError(message: String) {
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(message: message)
+        }
     }
 }

@@ -19,27 +19,25 @@ struct LbryNotification: Decodable {
     var notificationParameters: NotificationParameters?
 
     var title: String? {
-        return notificationParameters != nil && notificationParameters!.device != nil ? notificationParameters!.device!
-            .title : nil
+        return notificationParameters?.device?.title
     }
 
     var text: String? {
-        return notificationParameters != nil && notificationParameters!.device != nil ? notificationParameters!.device!
-            .text : nil
+        return notificationParameters?.device?.text
     }
 
     var targetUrl: String? {
-        if notificationParameters != nil {
-            if notificationParameters!.device != nil {
-                return notificationParameters!.device!.target
+        if let notificationParameters {
+            if let device = notificationParameters.device {
+                return device.target
             }
 
-            if notificationParameters!.dynamic != nil {
-                if notificationParameters!.dynamic!.channelURI != nil {
-                    return notificationParameters!.dynamic!.channelURI
+            if let dynamic = notificationParameters.dynamic {
+                if let channelURI = dynamic.channelURI {
+                    return channelURI
                 }
-                if notificationParameters!.dynamic!.channelUrl != nil {
-                    return notificationParameters!.dynamic!.channelUrl
+                if let channelUrl = dynamic.channelUrl {
+                    return channelUrl
                 }
             }
         }

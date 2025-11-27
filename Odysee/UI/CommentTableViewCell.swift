@@ -47,8 +47,8 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     func displayAuthorImage() {
-        if currentComment?.channelUrl != nil {
-            if let thumbnailUrl = authorImageMap[currentComment!.channelUrl!] {
+        if let channelUrl = currentComment?.channelUrl {
+            if let thumbnailUrl = authorImageMap[channelUrl] {
                 let optimisedUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
                 authorThumbnailView.backgroundColor = UIColor.clear
                 authorThumbnailView.load(url: optimisedUrl)
@@ -60,7 +60,7 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     func setComment(comment: Comment) {
-        if currentComment != nil && comment.commentId != currentComment!.commentId {
+        if let currentComment, comment.commentId != currentComment.commentId {
             authorThumbnailView.image = UIImage(named: "spaceman")
             authorThumbnailView.backgroundColor = Helper.lightPrimaryColor
         }
@@ -109,60 +109,63 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     @objc func authorTapped(_ sender: Any) {
-        let url = LbryUri.tryParse(url: currentComment!.channelUrl!, requireProto: false)
-        if url != nil {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let vc = appDelegate.mainViewController?.storyboard?
-                .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
-            vc.claimUrl = url
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        if let channelUrl = currentComment?.channelUrl {
+            let url = LbryUri.tryParse(url: channelUrl, requireProto: false)
+            if url != nil {
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let vc = appDelegate.mainViewController?.storyboard?
+                    .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                vc.claimUrl = url
+                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            }
         }
     }
 
     @objc func fireReactionTapped(_ sender: Any) {
-        if viewController != nil, currentComment != nil {
-            viewController!.react(currentComment!, type: Helper.reactionTypeLike)
+        if let currentComment {
+            viewController?.react(currentComment, type: Helper.reactionTypeLike)
         }
     }
 
     @objc func slimeReactionTapped(_ sender: Any) {
-        if viewController != nil, currentComment != nil {
-            viewController!.react(currentComment!, type: Helper.reactionTypeDislike)
+        if let currentComment {
+            viewController?.react(currentComment, type: Helper.reactionTypeDislike)
         }
     }
 
     @IBAction func replyCountTapped(_ sender: UIButton) {
-        if viewController != nil, currentComment != nil {
-            viewController!.loadReplies(currentComment!)
+        if let currentComment {
+            viewController?.loadReplies(currentComment)
         }
     }
 
     @IBAction func replyTapped(_ sender: UIButton) {
-        if viewController != nil, currentComment != nil {
-            viewController!.setReplyToComment(currentComment!)
+        if let currentComment {
+            viewController?.setReplyToComment(currentComment)
         }
     }
 
     @objc func blockChannelTapped(_ sender: Any) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if let mainVc = appDelegate.mainViewController as? MainViewController,
-           let comment = currentComment
+           let channelId = currentComment?.channelId,
+           let channelName = currentComment?.channelName
         {
             let alert = UIAlertController(
-                title: String(format: String.localized("Block %@?"), comment.channelName!),
+                title: String(format: String.localized("Block %@?"), channelName),
                 message: String(
                     format: String
                         .localized(
                             "Are you sure you want to block the comment author? You will no longer see comments nor content from %@."
                         ),
-                    comment.channelName!
+                    channelName,
                 ),
                 preferredStyle: .alert
             )
             alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
                 mainVc.addBlockedChannel(
-                    claimId: comment.channelId!,
-                    channelName: comment.channelName!,
+                    claimId: channelId,
+                    channelName: channelName,
                     notifyAfter: true
                 )
             }))
@@ -172,11 +175,13 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     @objc func reportContentTapped(_ sender: Any) {
-        if let comment = currentComment {
+        if let channelId = currentComment?.channelId,
+           let commentId = currentComment?.commentId
+        {
             if let url = URL(string: String(
                 format: "https://odysee.com/$/report_content?claimId=%@&commentId=%@",
-                comment.channelId!,
-                comment.commentId!
+                channelId,
+                commentId
             )) {
                 let vc = SFSafariViewController(url: url)
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate

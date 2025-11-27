@@ -100,14 +100,15 @@ class InitViewController: UIViewController {
             // open the main application interface
             DispatchQueue.main.async {
                 let main = self.storyboard!.instantiateViewController(identifier: "main_vc")
-                let window = self.view.window!
-                window.rootViewController = main
-                UIView.transition(
-                    with: window,
-                    duration: 0.2,
-                    options: .transitionCrossDissolve,
-                    animations: nil
-                )
+                if let window = self.view.window {
+                    window.rootViewController = main
+                    UIView.transition(
+                        with: window,
+                        duration: 0.2,
+                        options: .transitionCrossDissolve,
+                        animations: nil
+                    )
+                }
             }
         })
     }
@@ -132,19 +133,23 @@ class InitViewController: UIViewController {
 
                 if let subs = data as? [[String: Any]] {
                     for sub in subs {
-                        let jsonData = try! JSONSerialization.data(
-                            withJSONObject: sub,
-                            options: [.prettyPrinted, .sortedKeys]
-                        )
                         do {
+                            let jsonData = try JSONSerialization.data(
+                                withJSONObject: sub,
+                                options: [.prettyPrinted, .sortedKeys]
+                            )
                             let subscription: LbrySubscription? = try JSONDecoder()
                                 .decode(LbrySubscription.self, from: jsonData)
-                            let channelName = subscription!.channelName!
-                            let subUrl = LbryUri.tryParse(
-                                url: String(format: "%@#%@", channelName, subscription!.claimId!),
-                                requireProto: false
-                            )
-                            Lbryio.addSubscription(sub: subscription!, url: subUrl!.description)
+                            if let subscription,
+                               let channelName = subscription.channelName,
+                               let claimId = subscription.claimId,
+                               let subUrl = LbryUri.tryParse(
+                                   url: "\(channelName)#\(claimId)",
+                                   requireProto: false
+                               )
+                            {
+                                Lbryio.addSubscription(sub: subscription, url: subUrl.description)
+                            }
                         } catch {
                             // skip the sub if it failed to parse
                         }

@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 12/11/2020.
 //
 
+import Firebase
 import Foundation
 
 enum Lighthouse {
@@ -50,8 +51,8 @@ enum Lighthouse {
         sortBy: SortBy? = nil,
         completion: @escaping ([[String: Any]]?, Error?) -> Void
     ) {
-        if !relatedTo.isBlank {
-            if let respData = relatedContentCache[String(format: "%@:%@", relatedTo!, rawQuery)] {
+        if let relatedTo, !relatedTo.isBlank {
+            if let respData = relatedContentCache[String(format: "%@:%@", relatedTo, rawQuery)] {
                 completion(respData as? [[String: Any]], nil)
                 return
             }
@@ -66,7 +67,7 @@ enum Lighthouse {
                 completion([], nil)
                 return
             }
-            if relatedTo != nil, relatedTo!.contains(keyword) || relatedTo == keyword {
+            if let relatedTo, relatedTo.contains(keyword) || relatedTo == keyword {
                 completion([], nil)
                 return
             }
@@ -79,8 +80,8 @@ enum Lighthouse {
         queryItems.append(URLQueryItem(name: "nsfw", value: "false"))
         queryItems.append(URLQueryItem(name: "free_only", value: "true"))
         queryItems.append(URLQueryItem(name: "filters", value: "ios"))
-        if !relatedTo.isBlank {
-            queryItems.append(URLQueryItem(name: "related_to", value: String(relatedTo!)))
+        if let relatedTo, !relatedTo.isBlank {
+            queryItems.append(URLQueryItem(name: "related_to", value: relatedTo))
         }
         if let claimType = claimType {
             queryItems.append(URLQueryItem(name: "claimType", value: claimType.rawValue))
@@ -101,37 +102,39 @@ enum Lighthouse {
 
         var urlComponents = URLComponents(string: String(format: "%@/search", connectionString))
         urlComponents?.queryItems = queryItems
-        let url = urlComponents?.url
 
         let session = URLSession.shared
-        var req = URLRequest(url: url!)
-        req.httpMethod = "GET"
 
-        let task = session.dataTask(with: req, completionHandler: { data, response, error in
-            guard let data = data, error == nil else {
-                // handle error
-                completion([], error)
-                return
-            }
-            do {
-                var respCode = 0
-                if let httpResponse = response as? HTTPURLResponse {
-                    respCode = httpResponse.statusCode
+        if let url = urlComponents?.url {
+            var req = URLRequest(url: url)
+            req.httpMethod = "GET"
+
+            let task = session.dataTask(with: req, completionHandler: { data, response, error in
+                guard let data = data, error == nil else {
+                    // handle error
+                    completion([], error)
+                    return
                 }
-                let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]]
-                if respCode == 200 {
-                    if !relatedTo.isBlank {
-                        relatedContentCache[String(format: "%@:%@", relatedTo!, rawQuery)] = respData
+                do {
+                    var respCode = 0
+                    if let httpResponse = response as? HTTPURLResponse {
+                        respCode = httpResponse.statusCode
                     }
-                    completion(respData, nil)
-                } else {
-                    completion([], nil)
+                    let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]]
+                    if respCode == 200 {
+                        if let relatedTo, !relatedTo.isBlank {
+                            relatedContentCache[String(format: "%@:%@", relatedTo, rawQuery)] = respData
+                        }
+                        completion(respData, nil)
+                    } else {
+                        completion([], nil)
+                    }
+                } catch {
+                    completion([], error)
                 }
-            } catch {
-                completion([], error)
-            }
-        })
-        task.resume()
+            })
+            task.resume()
+        }
     }
 
     enum MediaType: String {

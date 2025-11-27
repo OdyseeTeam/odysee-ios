@@ -109,10 +109,14 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     }
 
     func abandonChannel(channel: Claim) {
+        guard let claimId = channel.claimId else {
+            showError(message: "channel has nil claimId")
+            return
+        }
         Lbry.apiCall(
             method: Lbry.Methods.channelAbandon,
             params: .init(
-                claimId: channel.claimId!,
+                claimId: claimId,
                 blocking: true
             )
         )

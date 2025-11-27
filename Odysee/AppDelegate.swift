@@ -49,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     func registerPlayerObserver() {
         if let lazyPlayer = lazyPlayer, !playerObserverAdded {
             lazyPlayer.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
-            lazyPlayer.currentItem!.addObserver(
+            lazyPlayer.currentItem?.addObserver(
                 self,
                 forKeyPath: "playbackLikelyToKeepUp",
                 options: [.new],
@@ -76,8 +76,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     @objc func playerDidFinishPlaying(note: NSNotification) {
-        if currentFileViewController != nil {
-            currentFileViewController!.playNextPlaylistItem()
+        if let currentFileViewController {
+            currentFileViewController.playNextPlaylistItem()
         }
     }
 
@@ -87,9 +87,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         change: [NSKeyValueChangeKey: Any]?,
         context: UnsafeMutableRawPointer?
     ) {
-        if object as AnyObject? === lazyPlayer, currentTimeControlStatus != lazyPlayer!.timeControlStatus {
-            currentTimeControlStatus = lazyPlayer!.timeControlStatus
-            if keyPath == "timeControlStatus", lazyPlayer!.timeControlStatus == .playing {
+        if object as AnyObject? === lazyPlayer, currentTimeControlStatus != lazyPlayer?.timeControlStatus {
+            currentTimeControlStatus = lazyPlayer?.timeControlStatus
+            if keyPath == "timeControlStatus", lazyPlayer?.timeControlStatus == .playing {
                 if let currentFileViewController = currentFileViewController {
                     currentFileViewController.checkTimeToStart()
                     DispatchQueue.main.async {
@@ -212,7 +212,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
 
         remoteCommands[.skipBackward] = commandCenter.skipBackwardCommand.addTarget { [unowned self] event in
-            if lazyPlayer != nil, let event = event as? MPSkipIntervalCommandEvent {
+            if let event = event as? MPSkipIntervalCommandEvent {
                 skipBackward(by: event.interval)
                 return .success
             }
@@ -221,7 +221,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
 
         remoteCommands[.skipForward] = commandCenter.skipForwardCommand.addTarget { [unowned self] event in
-            if lazyPlayer != nil, let event = event as? MPSkipIntervalCommandEvent {
+            if let event = event as? MPSkipIntervalCommandEvent {
                 skipForward(by: event.interval)
                 return .success
             }
@@ -231,7 +231,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         // swiftformat:disable:next wrap
         remoteCommands[.changePlaybackPosition] = commandCenter.changePlaybackPositionCommand.addTarget { [unowned self] event in
-            if lazyPlayer != nil, let event = event as? MPChangePlaybackPositionCommandEvent {
+            if let event = event as? MPChangePlaybackPositionCommandEvent {
                 seek(to: event.positionTime)
                 return .success
             }
@@ -257,11 +257,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     private func skipBackward(by interval: TimeInterval) {
-        seek(to: lazyPlayer!.currentTime() - CMTime(seconds: interval, preferredTimescale: 1))
+        if let lazyPlayer {
+            seek(to: lazyPlayer.currentTime() - CMTime(seconds: interval, preferredTimescale: 1))
+        }
     }
 
     private func skipForward(by interval: TimeInterval) {
-        seek(to: lazyPlayer!.currentTime() + CMTime(seconds: interval, preferredTimescale: 1))
+        if let lazyPlayer {
+            seek(to: lazyPlayer.currentTime() + CMTime(seconds: interval, preferredTimescale: 1))
+        }
     }
 
     private func seek(to position: TimeInterval) {
@@ -307,9 +311,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         if currentFileViewController != nil, lazyPlayer != nil {
             if let claim = currentFileViewController?.claim {
                 var nowPlayingInfo = [String: Any]()
-                nowPlayingInfo[MPMediaItemPropertyTitle] = claim.value?.title!
+                nowPlayingInfo[MPMediaItemPropertyTitle] = claim.value?.title ?? ""
                 nowPlayingInfo[MPMediaItemPropertyArtist] = claim.signingChannel != nil ?
-                    (claim.signingChannel!.value?.title ?? claim.signingChannel!.name) : String.localized("Anonymous")
+                    (claim.signingChannel?.value?.title ?? claim.signingChannel?.name ?? "") :
+                    String.localized("Anonymous")
                 nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = ""
 
                 if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init),
@@ -355,10 +360,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     }
                 }
 
-                let playerItem = lazyPlayer!.currentItem!
-                nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playerItem.currentTime().seconds
-                nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playerItem.asset.duration.seconds
-                nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = lazyPlayer!.rate
+                if let lazyPlayer {
+                    let playerItem = lazyPlayer.currentItem!
+                    nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playerItem.currentTime().seconds
+                    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playerItem.asset.duration.seconds
+                    nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = lazyPlayer.rate
+                }
 
                 // Set the metadata
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo

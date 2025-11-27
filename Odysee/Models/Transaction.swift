@@ -22,35 +22,30 @@ struct Transaction: Decodable, Hashable {
     var updateInfo: [TransactionInfo]?
 
     var description: String {
-        if let abandonInfo = abandonInfo {
-            if abandonInfo.count > 0 {
-                if abandonInfo.count == 1 {
-                    return String
-                        .localized(abandonInfo[0].balanceDelta! == abandonInfo[0].amount! ? "Unlock" : "Abandon")
-                } else {
-                    return String.localized("Unlock")
-                }
-            }
+        if let abandonInfo = abandonInfo, abandonInfo.count > 0 {
+            return String.localized(
+                abandonInfo.count > 1 || abandonInfo[0].balanceDelta == abandonInfo[0].amount ? "Unlock" : "Abandon"
+            )
         }
-        if let claimInfo = claimInfo {
-            if claimInfo.count > 0 {
-                return String.localized(claimInfo[0].claimName!.starts(with: "@") ? "Channel" : "Publish")
-            }
+        if let claimInfo, claimInfo.count > 0 {
+            return String.localized(
+                claimInfo[0].claimName?.starts(with: "@") ?? false ? "Channel" : "Publish"
+            )
         }
-        if let updateInfo = updateInfo {
-            if updateInfo.count > 0 {
-                return String
-                    .localized(updateInfo[0].claimName!.starts(with: "@") ? "Channel Update" : "Publish Update")
-            }
+        if let updateInfo, updateInfo.count > 0 {
+            return String.localized(
+                updateInfo[0].claimName?.starts(with: "@") ?? false ? "Channel Update" : "Publish Update"
+            )
         }
-        if let supportInfo = supportInfo {
-            if supportInfo.count > 0 {
-                return String.localized(supportInfo[0].isTip! ? "Tip" : "Support")
-            }
+        if let supportInfo, supportInfo.count > 0 {
+            return String.localized(supportInfo[0].isTip ?? false ? "Tip" : "Support")
         }
 
-        return String
-            .localized(value!.starts(with: "-") || (fee != nil && fee!.starts(with: "-")) ? "Spend" : "Receive")
+        return if let value, let fee, value.starts(with: "-") || fee.starts(with: "-") {
+            String.localized("Spend")
+        } else {
+            String.localized("Receive")
+        }
     }
 
     var claim: Claim? {
