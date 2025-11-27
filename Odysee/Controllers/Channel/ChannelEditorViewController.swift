@@ -100,11 +100,12 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-        scrollView.contentInset = contentInsets
-        scrollView.scrollIndicatorInsets = contentInsets
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+            scrollView.contentInset = contentInsets
+            scrollView.scrollIndicatorInsets = contentInsets
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -120,26 +121,31 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
 
         nameField.isEnabled = false
         nameField.text = currentClaim?.name
-        titleField.text = currentClaim?.value!.title ?? ""
-        nameField.text = currentClaim?.name!
-        depositField.text = currentClaim?.amount!
-        descriptionField.text = currentClaim?.value!.description ?? ""
-        websiteField.text = currentClaim?.value!.websiteUrl ?? ""
-        emailField.text = currentClaim?.value!.email ?? ""
+        titleField.text = currentClaim?.value?.title
+        nameField.text = currentClaim?.name
+        depositField.text = currentClaim?.amount
+        descriptionField.text = currentClaim?.value?.description
+        websiteField.text = currentClaim?.value?.websiteUrl
+        emailField.text = currentClaim?.value?.email
 
-        if let coverUrl = currentClaim?.value?.cover?.url, !coverUrl.isBlank {
-            coverImageView.load(url: URL(string: coverUrl)!)
+        if let coverUrl = currentClaim?.value?.cover?.url,
+           !coverUrl.isBlank,
+           let url = URL(string: coverUrl)
+        {
+            coverImageView.load(url: url)
         }
-        if let thumbnailUrl = currentClaim?.value?.thumbnail?.url, !thumbnailUrl.isBlank {
+        if let thumbnailUrl = currentClaim?.value?.thumbnail?.url,
+           !thumbnailUrl.isBlank,
+           let url = URL(string: thumbnailUrl)
+        {
             thumbnailImageView.backgroundColor = UIColor.clear
-            thumbnailImageView.load(url: URL(string: thumbnailUrl)!)
+            thumbnailImageView.load(url: url)
         }
     }
 
     @IBAction func titleChanged(_ sender: UITextField) {
         let editMode = currentClaim != nil
-        if !nameFieldManualUpdate, !editMode {
-            let title = titleField.text!
+        if !nameFieldManualUpdate, !editMode, let title = titleField.text {
             nameField.text = String(
                 format: "@%@",
                 title.replacingOccurrences(of: LbryUri.regexInvalidUri.pattern, with: "", options: .regularExpression)
@@ -161,12 +167,17 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             return
         }
 
+        guard let depositString = depositField.text else {
+            showError(message: String.localized("Please enter a valid deposit amount"))
+            return
+        }
+
         var name = nameField.text
-        let deposit = Decimal(string: depositField.text!)
+        let deposit = Decimal(string: depositString)
         let editMode = currentClaim != nil
 
-        if name != nil && !name!.starts(with: "@") {
-            name = String(format: "@%@", name!)
+        if let name_ = name, !name_.starts(with: "@") {
+            name = String(format: "@%@", name_)
         }
 
         // Why are Swift substrings so complicated?! name[1:] / name.substring(1), maybe?
@@ -176,24 +187,35 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
-        if !editMode && Lbry.ownChannels.filter({ $0.name!.lowercased() == name?.lowercased() }).first != nil {
+        guard let name else {
+            showError(message: "name is nil and fell through")
+            return
+        }
+        if !editMode && Lbry.ownChannels.filter({ $0.name?.lowercased() == name.lowercased() }).first != nil {
             showError(message: String.localized("A channel with the specified name already exists"))
             return
         }
 
-        if deposit == nil {
+        guard let deposit else {
             showError(message: String.localized("Please enter a valid deposit amount"))
             return
         }
-        if deposit! < Helper.minimumDeposit {
+        if deposit < Helper.minimumDeposit {
             showError(message: String(
                 format: String.localized("The minimum allowed deposit amount is %@"),
                 Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber)!
             ))
             return
         }
-        let prevDeposit: Decimal? = currentClaim != nil ? Decimal(string: currentClaim!.amount!) : 0
-        if Lbry.walletBalance == nil || deposit! - (prevDeposit ?? 0) > Lbry.walletBalance!.available! {
+        let prevDeposit: Decimal = if let currentClaim,
+                                      let amountString = currentClaim.amount,
+                                      let amount = Decimal(string: amountString)
+        {
+            amount
+        } else {
+            0
+        }
+        if Lbry.walletBalance == nil || deposit - prevDeposit > Lbry.walletBalance!.available! {
             showError(message: "Deposit cannot be higher than your wallet balance")
             return
         }
@@ -205,14 +227,14 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             options["claim_id"] = currentClaim?.claimId
         }
 
-        options["bid"] = Helper.sdkAmountFormatter.string(from: deposit! as NSDecimalNumber)!
+        options["bid"] = Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber)!
         options["blocking"] = true
 
-        if !currentCoverUrl.isBlank {
-            options["cover_url"] = currentCoverUrl!
+        if let currentCoverUrl, !currentCoverUrl.isBlank {
+            options["cover_url"] = currentCoverUrl
         }
-        if !currentThumbnailUrl.isBlank {
-            options["thumbnail_url"] = currentThumbnailUrl!
+        if let currentThumbnailUrl, !currentThumbnailUrl.isBlank {
+            options["thumbnail_url"] = currentThumbnailUrl
         }
         if !titleField.text.isBlank {
             options["title"] = titleField.text
@@ -250,14 +272,14 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
                 let outputs = result?["outputs"] as? [[String: Any]]
                 if outputs != nil {
                     outputs?.forEach { item in
-                        let data = try! JSONSerialization.data(
-                            withJSONObject: item,
-                            options: [.prettyPrinted, .sortedKeys]
-                        )
                         do {
+                            let data = try JSONSerialization.data(
+                                withJSONObject: item,
+                                options: [.prettyPrinted, .sortedKeys]
+                            )
                             let claimResult: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                            if claimResult != nil && !editMode {
-                                Lbryio.logPublishEvent(claimResult!)
+                            if let claimResult, !editMode {
+                                Lbryio.logPublishEvent(claimResult)
                             }
                         } catch {
                             print(error)

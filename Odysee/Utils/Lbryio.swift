@@ -305,20 +305,28 @@ enum Lbryio {
         if !authToken.isBlank {
             queryItems.append(URLQueryItem(name: authTokenParam, value: authTokenOverride ?? authToken))
         }
-        if options != nil {
-            for (name, value) in options! {
+        if let options {
+            for (name, value) in options {
                 queryItems.append(URLQueryItem(name: name, value: value))
             }
         }
-        var urlComponents = URLComponents(string: url)
-        urlComponents!.queryItems = queryItems
-        urlComponents!.percentEncodedQuery = urlComponents!.percentEncodedQuery?.replacingOccurrences(
+        guard var urlComponents = URLComponents(string: url) else {
+            completion(nil, GenericError("urlComponents"))
+            return
+        }
+        urlComponents.queryItems = queryItems
+        urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?.replacingOccurrences(
             of: "+",
             with: "%2B"
         )
 
         if Method.GET.isEqual(toString: method) {
-            requestUrl = urlComponents?.url!
+            requestUrl = urlComponents.url
+        }
+
+        guard let requestUrl else {
+            completion(nil, GenericError("requestUrl"))
+            return
         }
 
         let config = URLSessionConfiguration.default
@@ -326,7 +334,7 @@ enum Lbryio {
         config.urlCache = nil
 
         let session = URLSession(configuration: config)
-        var req = URLRequest(url: requestUrl!)
+        var req = URLRequest(url: requestUrl)
         req.httpMethod = method
         if Method.POST.isEqual(toString: method) {
             req.httpBody = buildQueryString(authToken: authTokenOverride ?? authToken, options: options)
@@ -374,14 +382,16 @@ enum Lbryio {
     static func buildQueryString(authToken: String?, options: [String: String]?) -> String {
         var delim = ""
         var qs = ""
-        if !authToken.isBlank {
+        if !authToken.isBlank,
+           let authToken = authToken?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+        {
             qs.append(authTokenParam)
             qs.append("=")
-            qs.append(authToken!.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!)
+            qs.append(authToken)
             delim = "&"
         }
-        if options != nil {
-            for (name, value) in options! {
+        if let options {
+            for (name, value) in options {
                 qs.append(delim)
                 qs.append(name)
                 qs.append("=")
@@ -399,7 +409,7 @@ enum Lbryio {
     }
 
     static func getAuthToken(completion: @escaping (String?, Error?) -> Void) throws {
-        if Lbry.installationId.isBlank {
+        guard let installationId = Lbry.installationId, !installationId.isBlank else {
             throw LbryioRequestError.runtimeError("The installation ID is not set")
         }
 
@@ -407,7 +417,7 @@ enum Lbryio {
         var options = [String: String]()
         options[authTokenParam] = ""
         options["language"] = "en"
-        options["app_id"] = Lbry.installationId!
+        options["app_id"] = installationId
 
         try post(resource: "user", action: "new", options: options, completion: { data, _ in
             generatingAuthToken = false
@@ -435,18 +445,20 @@ enum Lbryio {
             }
 
             if data != nil {
-                let jsonData = try! JSONSerialization.data(
-                    withJSONObject: data as Any,
-                    options: [.prettyPrinted, .sortedKeys]
-                )
                 do {
+                    let jsonData = try JSONSerialization.data(
+                        withJSONObject: data as Any,
+                        options: [.prettyPrinted, .sortedKeys]
+                    )
                     let user: User? = try JSONDecoder().decode(User.self, from: jsonData)
-                    if user != nil {
+                    if let user {
                         currentUser = user
-                        Analytics.setDefaultEventParameters([
-                            "user_id": currentUser!.id!,
-                            "user_email": currentUser!.primaryEmail ?? "",
-                        ])
+                        if let id = user.id {
+                            Analytics.setDefaultEventParameters([
+                                "user_id": id,
+                                "user_email": user.primaryEmail ?? "",
+                            ])
+                        }
 
                         completion(user, nil)
                     }
@@ -480,9 +492,9 @@ enum Lbryio {
 
     static func newInstall(completion: @escaping (Error?) -> Void) {
         Messaging.messaging().token(completion: { token, error in
-            if error != nil {
+            if let error {
                 // no need to fail on error here
-                print(error!)
+                Crashlytics.crashlytics().recordImmediate(error: error)
             }
 
             var options = [String: String]()
@@ -493,8 +505,8 @@ enum Lbryio {
             options["operating_system"] = "ios"
             options["platform"] = "darwin"
             options["domain"] = "odysee.com"
-            if !token.isBlank {
-                options["firebase_token"] = token!
+            if let token, !token.isBlank {
+                options["firebase_token"] = token
             }
             do {
                 try post(resource: "install", action: "new", options: options, completion: { _, error in
@@ -625,8 +637,8 @@ enum Lbryio {
                 "claim_id": claimId,
                 "outpoint": String(format: "%@:%d", txid, nout),
             ]
-            if let signingChannel = claimResult.signingChannel {
-                options["channel_claim_id"] = signingChannel.claimId!
+            if let claimId = claimResult.signingChannel?.claimId {
+                options["channel_claim_id"] = claimId
             }
             try Lbryio.post(resource: "event", action: "publish", options: options, completion: { data, error in
                 guard let _ = data, error == nil else {
@@ -640,36 +652,46 @@ enum Lbryio {
     }
 
     static func addSubscription(sub: LbrySubscription, url: String?) {
-        let url = LbryUri.tryParse(url: url!, requireProto: false)
-        if url != nil {
-            cachedSubscriptions[url!.description] = sub
+        if let url, let url = LbryUri.tryParse(url: url, requireProto: false) {
+            cachedSubscriptions[url.description] = sub
         }
     }
 
-    static func removeSubscription(subUrl: String?) {
-        let url = LbryUri.tryParse(url: subUrl!, requireProto: false)
-        if url != nil {
-            cachedSubscriptions.removeValue(forKey: url!.description)
+    static func removeSubscription(subUrl: String) {
+        if let url = LbryUri.tryParse(url: subUrl, requireProto: false) {
+            cachedSubscriptions.removeValue(forKey: url.description)
         }
     }
 
     static func isFollowing(claim: Claim) -> Bool {
-        let url = LbryUri.tryParse(url: claim.permanentUrl!, requireProto: false)
-        return url != nil && cachedSubscriptions[url!.description] != nil
+        return if let permanentUrl = claim.permanentUrl,
+                  let url = LbryUri.tryParse(url: permanentUrl, requireProto: false)
+        {
+            cachedSubscriptions[url.description] != nil
+        } else {
+            false
+        }
     }
 
     static func isFollowing(subscription: Subscription) -> Bool {
-        let url = LbryUri.tryParse(url: subscription.url!, requireProto: false)
-        return url != nil && cachedSubscriptions[url!.description] != nil
+        return if let subscriptionUrl = subscription.url,
+                  let url = LbryUri.tryParse(url: subscriptionUrl, requireProto: false)
+        {
+            cachedSubscriptions[url.description] != nil
+        } else {
+            false
+        }
     }
 
     static func isNotificationsDisabledForSub(claim: Claim) -> Bool {
-        let url = LbryUri.tryParse(url: claim.permanentUrl!, requireProto: false)
-        if url != nil, cachedSubscriptions[url!.description] != nil {
-            return cachedSubscriptions[url!.description]!.notificationsDisabled ?? true
+        return if let permanentUrl = claim.permanentUrl,
+                  let url = LbryUri.tryParse(url: permanentUrl, requireProto: false),
+                  let sub = cachedSubscriptions[url.description]
+        {
+            sub.notificationsDisabled ?? true
+        } else {
+            true
         }
-
-        return true
     }
 
     static func isClaimAppleFiltered(_ claim: Claim) -> Bool {

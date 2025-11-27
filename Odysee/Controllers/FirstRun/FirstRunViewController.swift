@@ -72,15 +72,16 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        bottomConstraint.constant = -kbSize.height
-        currentVc.view.frame = CGRect(
-            x: 0,
-            y: 0,
-            width: viewContainer.bounds.width,
-            height: viewContainer.bounds.height
-        )
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            bottomConstraint.constant = -kbSize.height
+            currentVc.view.frame = CGRect(
+                x: 0,
+                y: 0,
+                width: viewContainer.bounds.width,
+                height: viewContainer.bounds.height
+            )
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -190,8 +191,8 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         var name = firstChannelName
         let deposit = Helper.minimumDeposit
 
-        if name != nil && !name!.starts(with: "@") {
-            name = String(format: "@%@", name!)
+        if let name_ = name, !name_.starts(with: "@") {
+            name = String(format: "@%@", name_)
         }
 
         // Why are Swift substrings so complicated?! name[1:] / name.substring(1), maybe?
@@ -201,7 +202,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
-        if Lbry.walletBalance == nil || deposit > Lbry.walletBalance!.available! {
+        if Lbry.walletBalance == nil || deposit > Lbry.walletBalance?.available ?? 0 {
             showError(message: "Your channel cannot be created at this time. Please try again later.")
             return
         }
@@ -238,11 +239,11 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
                 let outputs = result?["outputs"] as? [[String: Any]]
                 if outputs != nil {
                     outputs?.forEach { item in
-                        let data = try! JSONSerialization.data(
-                            withJSONObject: item,
-                            options: [.prettyPrinted, .sortedKeys]
-                        )
                         do {
+                            let data = try JSONSerialization.data(
+                                withJSONObject: item,
+                                options: [.prettyPrinted, .sortedKeys]
+                            )
                             let claimResult: Claim? = try JSONDecoder().decode(Claim.self, from: data)
                             if let claimResult = claimResult, claimResult.valueType == .channel {
                                 Lbryio.logPublishEvent(claimResult)
@@ -294,7 +295,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         }
     }
 
-    func updateFirstChannelName(_ name: String) {
+    func updateFirstChannelName(_ name: String?) {
         firstChannelName = name
     }
 

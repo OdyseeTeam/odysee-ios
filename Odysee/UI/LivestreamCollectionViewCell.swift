@@ -86,7 +86,7 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
     }
 
     func setClaimInfo(claim: Claim) {
-        if currentClaim != nil, claim.claimId != currentClaim!.claimId {
+        if let currentClaim, claim.claimId != currentClaim.claimId {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
             thumbnailImageView.pin_cancelImageDownload()
             thumbnailImageView.image = nil

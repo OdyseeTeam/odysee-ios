@@ -120,7 +120,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         if comments.count > 0 {
             // comments already preloaded
-            loadCommentReactions(commentIds: comments.map { $0.commentId! })
+            loadCommentReactions(commentIds: comments.compactMap(\.commentId))
         }
 
         channelDriverView.isHidden = channels.count > 0
@@ -156,11 +156,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-        commentList.contentInset = contentInsets
-        commentList.scrollIndicatorInsets = contentInsets
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+            commentList.contentInset = contentInsets
+            commentList.scrollIndicatorInsets = contentInsets
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -213,6 +214,11 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
 
+        guard let claimId else {
+            showError(message: "couldn't get claimId")
+            return
+        }
+
         DispatchQueue.main.async {
             self.loadingContainer.isHidden = false
         }
@@ -220,7 +226,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         Lbry.commentApiCall(
             method: Lbry.CommentMethods.list,
             params: .init(
-                claimId: claimId!,
+                claimId: claimId,
                 page: commentsCurrentPage,
                 pageSize: commentsPageSize,
                 skipValidation: true
@@ -239,11 +245,11 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 self.comments.append(contentsOf: loadedComments)
 
                 if loadedComments.count > 0 {
-                    self.loadCommentReactions(commentIds: loadedComments.map(\.commentId!))
+                    self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
                 }
                 // resolve author map
                 if self.comments.count > 0 {
-                    self.resolveCommentAuthors(urls: loadedComments.map(\.channelUrl!))
+                    self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
                 }
 
                 self.commentsLoading = false
@@ -375,7 +381,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             showError(message: String.localized("No channel selected. This is probably a bug."))
         }
 
-        if commentInput.text.count > Helper.commentMaxLength {
+        guard let commentText = commentInput.text else {
+            showError(message: String.localized("Please enter a comment"))
+            return
+        }
+
+        if commentText.count > Helper.commentMaxLength {
             showError(message: String.localized("Your comment is too long"))
             return
         }
@@ -383,22 +394,26 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         postingComment = true
         loadingContainer.isHidden = false
         let channel = channels[currentCommentAsIndex]
+        guard let channelId = channel.claimId, let claimId = claimId else {
+            showError(message: "couldn't get channelId and/or claimId")
+            return
+        }
         Lbry.apiCall(
             method: Lbry.Methods.channelSign,
             params: .init(
-                channelId: channel.claimId!,
-                hexdata: Helper.strToHex(commentInput.text!)
+                channelId: channelId,
+                hexdata: Helper.strToHex(commentText)
             )
         )
         .flatMap { channelSignResult in
             Lbry.commentApiCall(
                 method: Lbry.CommentMethods.create,
                 params: .init(
-                    claimId: self.claimId!,
-                    channelId: channel.claimId!,
+                    claimId: claimId,
+                    channelId: channelId,
                     signature: channelSignResult.signature,
                     signingTs: channelSignResult.signingTs,
-                    comment: self.commentInput.text!,
+                    comment: commentText,
                     parentId: self.currentReplyToComment?.commentId
                 )
             )
@@ -435,8 +450,11 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     self.comments.insert(comment, at: 0)
                     self.commentList.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
                 }
-                // TODO: Reactions not loaded here as comment might not be available?
-                self.resolveCommentAuthors(urls: [comment.channelUrl!])
+
+                if let channelUrl = comment.channelUrl {
+                    // TODO: Reactions not loaded here as comment might not be available?
+                    self.resolveCommentAuthors(urls: [channelUrl])
+                }
 
                 self.commentInput.text = ""
                 self.replyToCommentLabel.text = ""
@@ -518,11 +536,15 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             .subscribeResult(handler)
         } else {
             let channel = channels[currentCommentAsIndex]
+            guard let claimId = channel.claimId, let name = channel.name else {
+                showError(message: "couldn't get channel claimId and/or name")
+                return
+            }
             Lbry.apiCall(
                 method: Lbry.Methods.channelSign,
                 params: .init(
-                    channelId: channel.claimId!,
-                    hexdata: Helper.strToHex(channel.name!)
+                    channelId: claimId,
+                    hexdata: Helper.strToHex(name)
                 )
             )
             .flatMap { channelSignResult in
@@ -530,8 +552,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     method: Lbry.CommentMethods.reactList,
                     params: .init(
                         commentIds: commentIds.joined(separator: ","),
-                        channelName: channel.name!,
-                        channelId: channel.claimId!,
+                        channelName: name,
+                        channelId: claimId,
                         signature: channelSignResult.signature,
                         signingTs: channelSignResult.signingTs
                     )
@@ -576,6 +598,15 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             (type == Helper.reactionTypeDislike && (comment.isDisliked ?? false)) ? true : false
         let channel = channels[currentCommentAsIndex]
 
+        guard let claimId = channel.claimId, let name = channel.name else {
+            showError(message: "couldn't get channel claimId and/or name")
+            return
+        }
+        guard let commentId = comment.commentId else {
+            showError(message: "couldn't get commentId")
+            return
+        }
+
         var updatedComment = comment
         if type == Helper.reactionTypeLike {
             updatedComment.isLiked = !remove
@@ -597,20 +628,20 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         Lbry.apiCall(
             method: Lbry.Methods.channelSign,
-            params: .init(channelId: channel.claimId!, hexdata: Helper.strToHex(channel.name!))
+            params: .init(channelId: claimId, hexdata: Helper.strToHex(name))
         )
         .flatMap { channelSignResult in
             Lbry.commentApiCall(
                 method: Lbry.CommentMethods.react,
                 params: .init(
-                    commentIds: comment.commentId!,
+                    commentIds: commentId,
                     signature: channelSignResult.signature,
                     signingTs: channelSignResult.signingTs,
                     remove: remove,
                     clearTypes: type == Helper.reactionTypeLike ? Helper.reactionTypeDislike : Helper.reactionTypeLike,
                     type: type,
-                    channelId: channel.claimId!,
-                    channelName: channel.name!
+                    channelId: claimId,
+                    channelName: name
                 )
             )
         }
@@ -649,13 +680,18 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
 
+        guard let claimId, let parentId = parent.commentId else {
+            showError(message: "couldn't get claimId and/or parent commentId")
+            return
+        }
+
         commentsLoading = true
         loadingContainer.isHidden = false
         Lbry.commentApiCall(
             method: Lbry.CommentMethods.list,
             params: .init(
-                claimId: claimId!,
-                parentId: parent.commentId!,
+                claimId: claimId,
+                parentId: parentId,
                 page: 1,
                 pageSize: 999,
                 skipValidation: true,
@@ -690,8 +726,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                         },
                         with: .automatic
                     )
-                    self.loadCommentReactions(commentIds: loadedComments.map(\.commentId!))
-                    self.resolveCommentAuthors(urls: loadedComments.map(\.channelUrl!))
+                    self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+                    self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
                 }
 
                 self.commentsLoading = false
@@ -701,11 +737,15 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func loadCurrentCommentThread() {
+        guard let currentCommentId else {
+            showError(message: "couldn't get current commentId")
+            return
+        }
         loadingContainer.isHidden = false
         Lbry.commentApiCall(
             method: Lbry.CommentMethods.byId,
             params: .init(
-                commentId: currentCommentId!,
+                commentId: currentCommentId,
                 withAncestors: true
             )
         )
@@ -729,11 +769,14 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     func loadThread(thread: [Comment]) {
         thread.publisher.subscribe(on: DispatchQueue.global()).tryMap { comment -> (Comment, URLRequest) in
-            try (comment, Lbry.apiRequest(
+            guard let claimId = self.claimId, let parentId = comment.commentId else {
+                throw GenericError("couldn't get claimId and/or parent commentId")
+            }
+            return try (comment, Lbry.apiRequest(
                 method: Lbry.CommentMethods.list.name,
                 params: .init(
-                    claimId: self.claimId!,
-                    parentId: comment.commentId!,
+                    claimId: claimId,
+                    parentId: parentId,
                     page: 1,
                     pageSize: 999,
                     skipValidation: true,
@@ -793,8 +836,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                             },
                             with: .automatic
                         )
-                        self.loadCommentReactions(commentIds: loadedComments.map(\.commentId!))
-                        self.resolveCommentAuthors(urls: loadedComments.map(\.channelUrl!))
+                        self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+                        self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
                     }
 
                     self.setCommentRepliesLoaded(parent)
@@ -842,14 +885,10 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         let channel = channels[index]
         commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), channel.name!)
 
-        var thumbnailUrl: URL?
-        if channel.value != nil, channel.value?.thumbnail != nil {
-            thumbnailUrl = URL(string: channel.value!.thumbnail!.url!)!
-                .makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
-        }
-
-        if thumbnailUrl != nil {
-            commentAsThumbnailView.load(url: thumbnailUrl!)
+        if let thumbnailUrlValue = channel.value?.thumbnail?.url,
+           let thumbnailUrl = URL(string: thumbnailUrlValue)?.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+        {
+            commentAsThumbnailView.load(url: thumbnailUrl)
             commentAsThumbnailView.backgroundColor = UIColor.clear
         } else {
             commentAsThumbnailView.image = UIImage(named: "spaceman")

@@ -65,11 +65,12 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-        ytSyncScrollView.contentInset = contentInsets
-        ytSyncScrollView.scrollIndicatorInsets = contentInsets
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+            ytSyncScrollView.contentInset = contentInsets
+            ytSyncScrollView.scrollIndicatorInsets = contentInsets
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -97,7 +98,7 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
-        if Lbry.ownChannels.filter({ $0.name!.lowercased() == channelName.lowercased() }).first != nil {
+        if Lbry.ownChannels.filter({ $0.name?.lowercased() == channelName.lowercased() }).first != nil {
             showError(message: String.localized("A channel with the specified name already exists"))
             return
         }

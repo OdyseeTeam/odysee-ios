@@ -176,22 +176,21 @@ class SearchViewController: UIViewController,
         sortBy: Lighthouse.SortBy?,
         force: Bool = false
     ) {
-        if query.isBlank ||
-            (
-                currentQuery == query &&
-                    currentFrom == from &&
-                    currentClaimType == claimType &&
-                    currentMediaTypes == mediaTypes &&
-                    currentTimeFilter == timeFilter &&
-                    currentSortBy == sortBy &&
-                    !force
-            )
-        {
+        guard let query, !query.isBlank, !(
+            currentQuery == query &&
+                currentFrom == from &&
+                currentClaimType == claimType &&
+                currentMediaTypes == mediaTypes &&
+                currentTimeFilter == timeFilter &&
+                currentSortBy == sortBy &&
+                !force
+        )
+        else {
             return
         }
 
         if from == 0 {
-            Analytics.logEvent("search", parameters: ["query": query!])
+            Analytics.logEvent("search", parameters: ["query": query])
         }
 
         getStartedView.isHidden = true
@@ -206,7 +205,7 @@ class SearchViewController: UIViewController,
         currentTimeFilter = timeFilter
         currentSortBy = sortBy
         Lighthouse.search(
-            rawQuery: query!,
+            rawQuery: query,
             size: pageSize,
             from: currentFrom,
             relatedTo: nil,
@@ -219,7 +218,7 @@ class SearchViewController: UIViewController,
                     DispatchQueue.main.async {
                         self.searching = false
                         self.claims = []
-                        self.resolveWinning(query: query!)
+                        self.resolveWinning(query: query)
                         self.checkNoResults()
                     }
                     return
@@ -245,8 +244,14 @@ class SearchViewController: UIViewController,
         if case let .success(resolve) = result {
             let urls = resolve.claims.values.sorted(
                 like: lighthouseUrls,
-                keyPath: \.permanentUrl!,
-                transform: LbryUri.normalize
+                keyPath: \.permanentUrl,
+                transform: { url in
+                    if let url {
+                        (try? LbryUri.normalize(url: url)) ?? url
+                    } else {
+                        nil
+                    }
+                }
             )
 
             let oldCount = claims.count
@@ -291,15 +296,15 @@ class SearchViewController: UIViewController,
         loadingContainer.isHidden = true
         resultsListView.isHidden = claims.isEmpty
         noResultsView.isHidden = !claims.isEmpty
-        noResultsLabel.text = Lighthouse.containsFilteredKeyword(currentQuery!) ?
-            String
-            .localized(
+        noResultsLabel.text = if let currentQuery, Lighthouse.containsFilteredKeyword(currentQuery) {
+            String.localized(
                 "This search term is restricted for iOS users of Odysee. Consider using odysee.com for the Complete Odysee Experience. Alternatively, you can visit odysee.com from the browser of your iOS device and save the website to your homescreen. This will provide you with a similar app-like experience."
-            ) :
-            String
-            .localized(
+            )
+        } else {
+            String.localized(
                 "Oops! We could not find any content matching your search term. Please try again with something different."
             )
+        }
         refreshControl.endRefreshing()
     }
 
@@ -344,8 +349,8 @@ class SearchViewController: UIViewController,
     }
 
     @IBAction func noResultsViewTapped(_ sender: Any) {
-        if Lighthouse.containsFilteredKeyword(currentQuery!) {
-            if let url = URL(string: String(format: "https://odysee.com/$/search?q=%@", currentQuery!)) {
+        if let currentQuery, Lighthouse.containsFilteredKeyword(currentQuery) {
+            if let url = URL(string: String(format: "https://odysee.com/$/search?q=%@", currentQuery)) {
                 let vc = SFSafariViewController(url: url)
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 appDelegate.mainController.present(vc, animated: true, completion: nil)
@@ -470,7 +475,7 @@ class SearchViewController: UIViewController,
         let claim: Claim = claims[indexPath.row]
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if claim.name!.starts(with: "@") {
+        if claim.name?.starts(with: "@") ?? false {
             // channel claim
             let vc = storyboard?.instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = claim

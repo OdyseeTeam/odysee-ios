@@ -30,6 +30,6 @@ class RewardTableViewCell: UITableViewCell {
         titleLabel.text = reward.rewardTitle
         descriptionLabel.text = reward.rewardDescription
         amountLabel.text = reward.displayAmount
-        uptoLabel.isHidden = reward.rewardRange.isBlank || reward.rewardRange!.firstIndex(of: "-") == nil
+        uptoLabel.isHidden = reward.rewardRange.isBlank || reward.rewardRange?.firstIndex(of: "-") == nil
     }
 }

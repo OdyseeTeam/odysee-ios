@@ -90,15 +90,16 @@ class UserAccountViewController: UIViewController {
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
 
-        let height = UIScreen.main.bounds.height
-        let width = UIScreen.main.bounds.width
-        uaScrollView.contentSize = CGSize(width: width, height: height)
-        haveAccountLabel.isHidden = true
-        switchModeButton.isHidden = true
+            let height = UIScreen.main.bounds.height
+            let width = UIScreen.main.bounds.width
+            uaScrollView.contentSize = CGSize(width: width, height: height)
+            haveAccountLabel.isHidden = true
+            switchModeButton.isHidden = true
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -111,19 +112,23 @@ class UserAccountViewController: UIViewController {
     }
 
     @IBAction func closeButtonTapped(_ sender: Any) {
-        let vcs = navigationController?.viewControllers
-        let index = max(0, vcs!.count - 2)
-        var targetVc = vcs![index]
+        guard let navigationController else {
+            showError(message: "Couldn't get navigation controller")
+            return
+        }
+        let vcs = navigationController.viewControllers
+        let index = max(0, vcs.count - 2)
+        var targetVc = vcs[index]
         if targetVc == self {
-            targetVc = vcs![index - 1]
+            targetVc = vcs[index - 1]
         }
         if targetVc is NotificationsViewController {
-            targetVc = vcs![index - 1]
+            targetVc = vcs[index - 1]
         }
         if let tabVc = targetVc as? AppTabBarController {
             tabVc.selectedIndex = 0
         }
-        navigationController?.popToViewController(targetVc, animated: true)
+        navigationController.popToViewController(targetVc, animated: true)
     }
 
     @IBAction func actionButtonTapped(_ sender: UIButton) {
@@ -185,7 +190,7 @@ class UserAccountViewController: UIViewController {
                 if let stringData = data as? String {
                     if stringData.lowercased() == "ok" {
                         self.currentEmail = email
-                        Analytics.logEvent("email_added", parameters: ["email": self.currentEmail!])
+                        Analytics.logEvent("email_added", parameters: ["email": self.currentEmail])
 
                         // display waiting for email verification view
                         self.waitForVerification()
@@ -269,13 +274,13 @@ class UserAccountViewController: UIViewController {
                     return
                 }
 
-                if user.hasVerifiedEmail! {
+                if user.hasVerifiedEmail ?? false {
                     // stop the timer
                     self.emailVerificationTimer.invalidate()
 
                     // close the view
                     DispatchQueue.main.async {
-                        Analytics.logEvent("email_verified", parameters: ["email": self.currentEmail!])
+                        Analytics.logEvent("email_verified", parameters: ["email": self.currentEmail])
 
                         let appDelegate = UIApplication.shared.delegate as! AppDelegate
                         appDelegate.mainController.checkUploadButton()
@@ -301,6 +306,13 @@ class UserAccountViewController: UIViewController {
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.showError(error: error)
+        }
+    }
+
+    func showError(message: String) {
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(message: message)
         }
     }
 
@@ -330,7 +342,7 @@ class UserAccountViewController: UIViewController {
                                 // old email verification flow
                                 self.currentEmail = email
                                 self.handleUserSignInWithoutPassword(email: email)
-                                Analytics.logEvent("email_added", parameters: ["email": self.currentEmail!])
+                                Analytics.logEvent("email_added", parameters: ["email": self.currentEmail])
                             } else {
                                 DispatchQueue.main.async {
                                     self.defaultActionButton.isEnabled = true
@@ -344,12 +356,13 @@ class UserAccountViewController: UIViewController {
                     }
 
                     self.currentEmail = email
-                    Analytics.logEvent("email_added", parameters: ["email": self.currentEmail!])
+                    Analytics.logEvent("email_added", parameters: ["email": self.currentEmail])
 
                     self.emailSignInChecked = true
-                    let respData = data as? [String: Any]
-                    let hasPassword = respData!["has_password"] as! Bool
-                    if !hasPassword {
+                    guard let respData = data as? [String: Any],
+                          let hasPassword = respData["has_password"] as? Bool,
+                          hasPassword
+                    else {
                         self.handleUserSignInWithoutPassword(email: email)
                         return
                     }
@@ -377,14 +390,14 @@ class UserAccountViewController: UIViewController {
         }
 
         // password entry flow
-        if passwordField.text.isBlank {
+        guard let passwordValue = passwordField.text, !passwordValue.isBlank else {
             showErrorAlert(message: String.localized("Please enter your password"))
             return
         }
 
         var options = [String: String]()
         options["email"] = email
-        options["password"] = passwordField.text!
+        options["password"] = passwordValue
         do {
             requestInProgress = true
             frDelegate?.requestStarted()
@@ -409,24 +422,26 @@ class UserAccountViewController: UIViewController {
                 }
 
                 do {
-                    let jsonData = try! JSONSerialization.data(
+                    let jsonData = try JSONSerialization.data(
                         withJSONObject: data as Any,
                         options: [.prettyPrinted, .sortedKeys]
                     )
                     let user: User? = try JSONDecoder().decode(User.self, from: jsonData)
-                    if user != nil {
+                    if let user {
                         Lbryio.currentUser = user
-                        Analytics.setDefaultEventParameters([
-                            "user_id": user!.id!,
-                            "user_email": user!.primaryEmail ?? "",
-                        ])
+                        if let id = user.id {
+                            Analytics.setDefaultEventParameters([
+                                "user_id": id,
+                                "user_email": user.primaryEmail ?? "",
+                            ])
+                        }
 
                         self.requestInProgress = false
                         self.finishWithWalletSync()
                         return
                     }
                 } catch {
-                    // pass
+                    self.showError(error: error)
                 }
 
                 // possible invalid state

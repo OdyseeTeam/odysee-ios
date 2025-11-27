@@ -9,6 +9,7 @@ import Base58Swift
 import Combine
 import CoreData
 import CryptoKit
+import Firebase
 import Foundation
 import os
 import UIKit
@@ -327,18 +328,20 @@ enum Lbry {
                 return
             }
 
-            let shared = data["shared"] as? [String: Any]
-            if shared != nil, shared!["type"] as? String == "object", shared!["value"] as? [String: Any] != nil {
+            if let shared = data["shared"] as? [String: Any],
+               shared["type"] as? String == "object",
+               let value = shared["value"] as? [String: Any]
+            {
                 // load subscriptions only
-                let value = shared!["value"] as! [String: Any]
                 let subscriptionUrls = value["subscriptions"] as? [String]
                 let following = value["following"] as? [[String: Any]]
 
                 var sharedPrefSubs: [LbrySubscription] = []
-                for urlString in subscriptionUrls! {
-                    let url: LbryUri? = LbryUri.tryParse(url: urlString, requireProto: false)
-                    if url != nil {
-                        sharedPrefSubs.append(buildSharedPreferenceSubscription(url!, following: following ?? []))
+                if let subscriptionUrls {
+                    for urlString in subscriptionUrls {
+                        if let url = LbryUri.tryParse(url: urlString, requireProto: false) {
+                            sharedPrefSubs.append(buildSharedPreferenceSubscription(url, following: following ?? []))
+                        }
                     }
                 }
 
@@ -366,7 +369,7 @@ enum Lbry {
             let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "BlockedChannel")
             let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
             do {
-                let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+                let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
                 try context.execute(deleteRequest)
             } catch {
                 // pass
@@ -376,10 +379,10 @@ enum Lbry {
             if let mainVc = appDelegate.mainViewController as? MainViewController {
                 for aUrl in blockedUrls {
                     let lbryUrl = LbryUri.tryParse(url: aUrl, requireProto: false)
-                    if let theUrl = lbryUrl {
+                    if let claimId = lbryUrl?.claimId, let channelName = lbryUrl?.channelName {
                         mainVc.addBlockedChannel(
-                            claimId: theUrl.claimId!,
-                            channelName: theUrl.channelName!,
+                            claimId: claimId,
+                            channelName: channelName,
                             notifyAfter: false
                         )
                     }
@@ -394,12 +397,13 @@ enum Lbry {
             // clear all subscriptions in local state
             Lbryio.cachedSubscriptions.removeAll()
             for sub in subs {
-                let lbryUrl = LbryUri.tryParse(
-                    url: String(format: "%@:%@", normalizeChannelName(sub.channelName!), sub.claimId!),
-                    requireProto: false
-                )
-                if lbryUrl != nil {
-                    Lbryio.addSubscription(sub: sub, url: lbryUrl!.description)
+                if let channelName = sub.channelName, let claimId = sub.claimId,
+                   let lbryUrl = LbryUri.tryParse(
+                       url: String(format: "%@:%@", normalizeChannelName(channelName), claimId),
+                       requireProto: false
+                   )
+                {
+                    Lbryio.addSubscription(sub: sub, url: lbryUrl.description)
                 }
             }
         }
@@ -407,7 +411,9 @@ enum Lbry {
 
     static func buildSharedPreferenceSubscription(_ url: LbryUri, following: [[String: Any]]?) -> LbrySubscription {
         var sub = LbrySubscription()
-        sub.channelName = normalizeChannelName(url.channelName!)
+        if let channelName = url.channelName {
+            sub.channelName = normalizeChannelName(channelName)
+        }
         sub.claimId = url.claimId
         sub.notificationsDisabled = isNotificationsDisabledForSubUrl(url.description, following: following)
         return sub
@@ -422,8 +428,8 @@ enum Lbry {
     }
 
     static func isNotificationsDisabledForSubUrl(_ url: String, following: [[String: Any]]?) -> Bool {
-        if following != nil {
-            for item in following! {
+        if let following {
+            for item in following {
                 if item["uri"] as? String == url {
                     return (item["notificationsDisabled"] as? Bool) ?? true
                 }
@@ -434,8 +440,8 @@ enum Lbry {
 
     static func saveSharedUserState(completion: @escaping (Bool, Error?) -> Void) {
         getSharedPreference(completion: { data, newState, error in
-            if error != nil {
-                print(error!.localizedDescription)
+            if let error {
+                Crashlytics.crashlytics().recordImmediate(error: error)
                 return
             }
 
@@ -470,27 +476,28 @@ enum Lbry {
                 ]
             }
 
-            let dataToSave = try! JSONSerialization.data(
+            if let dataToSave = try? JSONSerialization.data(
                 withJSONObject: shared as Any,
                 options: [.prettyPrinted, .sortedKeys]
-            )
-            var params = [String: Any]()
-            params["key"] = keyShared
-            params["value"] = String(data: dataToSave, encoding: String.Encoding.utf8)!
-            apiCall(
-                method: methodPreferenceSet,
-                params: params,
-                connectionString: lbrytvConnectionString,
-                authToken: Lbryio.authToken,
-                completion: { data, error in
-                    guard let _ = data, error == nil else {
-                        completion(false, error)
-                        return
-                    }
+            ) {
+                var params = [String: Any]()
+                params["key"] = keyShared
+                params["value"] = String(data: dataToSave, encoding: String.Encoding.utf8)!
+                apiCall(
+                    method: methodPreferenceSet,
+                    params: params,
+                    connectionString: lbrytvConnectionString,
+                    authToken: Lbryio.authToken,
+                    completion: { data, error in
+                        guard let _ = data, error == nil else {
+                            completion(false, error)
+                            return
+                        }
 
-                    completion(true, nil)
-                }
-            )
+                        completion(true, nil)
+                    }
+                )
+            }
         })
     }
 
@@ -515,14 +522,15 @@ enum Lbry {
         var subscriptionUrls: [String] = []
         var following: [[String: Any]] = []
         for (_, value) in Lbryio.cachedSubscriptions {
-            let url: LbryUri? = LbryUri.tryParse(
-                url: String(format: "%@:%@", normalizeChannelName(value.channelName!), value.claimId!),
-                requireProto: false
-            )
-            if url != nil {
-                subscriptionUrls.append(url!.description)
-                following
-                    .append(["uri": url!.description, "notificationsDisabled": value.notificationsDisabled ?? true])
+            if let channelName = value.channelName,
+               let claimId = value.claimId,
+               let url = LbryUri.tryParse(
+                   url: String(format: "%@:%@", normalizeChannelName(channelName), claimId),
+                   requireProto: false
+               )
+            {
+                subscriptionUrls.append(url.description)
+                following.append(["uri": url.description, "notificationsDisabled": value.notificationsDisabled ?? true])
             }
         }
 
@@ -532,11 +540,13 @@ enum Lbry {
     static func buildBlockedUrlsPreference() -> [String] {
         var blockedUrls: [String] = []
         for blockedChannel in Lbry.blockedChannels {
-            let url: LbryUri? = LbryUri.tryParse(
-                url: String(format: "%@:%@", normalizeChannelName(blockedChannel.name!), blockedChannel.claimId!),
-                requireProto: false
-            )
-            if let lbryUrl = url {
+            if let name = blockedChannel.name,
+               let claimId = blockedChannel.claimId,
+               let lbryUrl = LbryUri.tryParse(
+                   url: String(format: "%@:%@", normalizeChannelName(name), claimId),
+                   requireProto: false
+               )
+            {
                 blockedUrls.append(lbryUrl.description)
             }
         }
@@ -558,12 +568,12 @@ enum Lbry {
                     return
                 }
 
-                if data == nil {
+                guard let data else {
                     completion(nil, true, nil)
                     return
                 }
 
-                completion(data!["result"] as? [String: Any], false, nil)
+                completion(data["result"] as? [String: Any], false, nil)
             }
         )
     }
@@ -581,7 +591,7 @@ enum Lbry {
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    print(error!)
+                    Crashlytics.crashlytics().recordImmediate(error: error!)
                     walletSyncInProgress = false
                     return
                 }
@@ -596,7 +606,7 @@ enum Lbry {
                         }
 
                         remoteWalletHash = walletSync.hash
-                        if walletSync.data != nil, walletSync.changed! || localWalletHash != remoteWalletHash {
+                        if walletSync.data != nil, (walletSync.changed ?? true) || localWalletHash != remoteWalletHash {
                             // sync apply changes
                             var params = [String: Any]()
                             params["password"] = ""
@@ -609,9 +619,9 @@ enum Lbry {
                                 authToken: Lbryio.authToken,
                                 completion: { saData, saError in
                                     guard let saData = saData, saError == nil else {
-                                        print(saError!)
-                                        if completion != nil {
-                                            completion!(false)
+                                        Crashlytics.crashlytics().recordImmediate(error: saError!)
+                                        if let completion {
+                                            completion(true)
                                         }
                                         walletSyncInProgress = false
                                         return
@@ -623,8 +633,8 @@ enum Lbry {
 
                                     walletSyncInProgress = false
                                     loadSharedUserState(completion: { _, _ in
-                                        if completion != nil {
-                                            completion!(true)
+                                        if let completion {
+                                            completion(true)
                                         }
                                     })
 
@@ -636,8 +646,8 @@ enum Lbry {
                             walletSyncInProgress = false
                             loadSharedUserState(completion: { _, _ in
                                 // reload all the same
-                                if completion != nil {
-                                    completion!(true)
+                                if let completion {
+                                    completion(true)
                                 }
                             })
                         }
@@ -691,7 +701,7 @@ enum Lbry {
                                 guard let remoteHash = remoteHash, error == nil else {
                                     walletSyncInProgress = false
                                     checkPushSyncQueue()
-                                    print(error!)
+                                    Crashlytics.crashlytics().recordImmediate(error: error!)
                                     return
                                 }
 

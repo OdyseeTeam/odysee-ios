@@ -129,11 +129,12 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-        scrollView.contentInset = contentInsets
-        scrollView.scrollIndicatorInsets = contentInsets
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+            scrollView.contentInset = contentInsets
+            scrollView.scrollIndicatorInsets = contentInsets
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -202,7 +203,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 1
         if channels.count >= index {
             channelPickerView.selectRow(index, inComponent: 0, animated: true)
-            namePrefixLabel.text = String(format: namePrefixFormat, channels[index].name! + "/")
+            namePrefixLabel.text = String(format: namePrefixFormat, (channels[index].name ?? "") + "/")
         }
         populateFieldsForEdit()
     }
@@ -220,14 +221,16 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         depositField.text = currentClaim?.amount ?? ""
         selectVideoArea.isHidden = true
 
-        if let thumbnailUrl = currentClaim?.value?.thumbnail?.url, !thumbnailUrl.isBlank {
-            currentThumbnailUrl = thumbnailUrl
+        if let thumbnailUrlValue = currentClaim?.value?.thumbnail?.url,
+           !thumbnailUrlValue.isBlank,
+           let thumbnailUrl = URL(string: thumbnailUrlValue)
+        {
+            currentThumbnailUrl = thumbnailUrlValue
             thumbnailImageView.backgroundColor = UIColor.clear
-            thumbnailImageView.load(url: URL(string: thumbnailUrl)!)
+            thumbnailImageView.load(url: thumbnailUrl)
         }
 
-        if currentClaim?.signingChannel != nil {
-            let channelClaimId = currentClaim!.signingChannel!.claimId!
+        if let channelClaimId = currentClaim?.signingChannel?.claimId {
             if let index = channels.firstIndex(where: { $0.claimId == channelClaimId }) {
                 channelPickerView.selectRow(Int(index), inComponent: 0, animated: true)
             }
@@ -362,8 +365,14 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
     @IBAction func uploadTapped(_ sender: UIButton) {
         view.endEditing(true)
+
+        guard let depositString = depositField.text else {
+            showError(message: String.localized("Please enter a valid deposit amount"))
+            return
+        }
+
         let name = nameField.text
-        let deposit = Decimal(string: depositField.text!)
+        let deposit = Decimal(string: depositString)
         let title = titleField.text
         let editMode = currentClaim != nil
 
@@ -376,11 +385,15 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             showError(message: String.localized("Please enter a valid name for the content URL"))
             return
         }
-        if uploads.contains(where: { $0.name!.lowercased() == name!.lowercased() }) {
+        guard let name else {
+            showError(message: "name is nil and fell through")
+            return
+        }
+        if uploads.contains(where: { $0.name?.lowercased() == name.lowercased() }) {
             showError(message: String(
                 format: String
                     .localized("You have already uploaded a claim with the name: %@. Please use a different name."),
-                name!
+                name
             ))
             return
         }
@@ -389,12 +402,12 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             return
         }
 
-        if deposit == nil {
+        guard let deposit else {
             showError(message: String.localized("Please enter a valid deposit amount"))
             return
         }
 
-        if deposit! < Helper.minimumDeposit {
+        if deposit < Helper.minimumDeposit {
             showError(message: String(
                 format: String.localized("The minimum allowed deposit amount is %@"),
                 Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber)!
@@ -403,8 +416,15 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         }
 
         // prev deposit only set when it's edit mode
-        let prevDeposit: Decimal? = currentClaim != nil ? Decimal(string: currentClaim!.amount!) : 0
-        if Lbry.walletBalance == nil || deposit! - (prevDeposit ?? 0) > Lbry.walletBalance!.available! {
+        let prevDeposit: Decimal = if let currentClaim,
+                                      let amountString = currentClaim.amount,
+                                      let amount = Decimal(string: amountString)
+        {
+            amount
+        } else {
+            0
+        }
+        if Lbry.walletBalance == nil || deposit - prevDeposit > Lbry.walletBalance!.available! {
             showError(message: "Deposit cannot be higher than your wallet balance")
             return
         }
@@ -416,14 +436,14 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
         var params: [String: Any] = [
             "blocking": true,
-            "bid": Helper.sdkAmountFormatter.string(from: deposit! as NSDecimalNumber)!,
+            "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber)!,
             "title": title ?? "",
             "description": descriptionField.text ?? "",
             "thumbnail_url": currentThumbnailUrl ?? "",
         ]
 
         if !editMode {
-            params["name"] = name!
+            params["name"] = name
         }
 
         let selectedChannelIndex: Int = channelPickerView.selectedRow(inComponent: 0)
@@ -433,12 +453,12 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         }
 
         var releaseTimeSet = false
-        if currentClaim != nil {
-            if let releaseTime = currentClaim?.value?.releaseTime, !releaseTime.isBlank {
+        if let currentClaim {
+            if let releaseTime = currentClaim.value?.releaseTime, !releaseTime.isBlank {
                 params["release_time"] = Int64(releaseTime) ?? Int64(Date().timeIntervalSince1970)
                 releaseTimeSet = true
-            } else if currentClaim!.timestamp! > 0 {
-                params["release_time"] = currentClaim!.timestamp!
+            } else if let timestamp = currentClaim.timestamp, timestamp > 0 {
+                params["release_time"] = timestamp
                 releaseTimeSet = true
             }
         }
@@ -447,13 +467,14 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             params["release_time"] = Int(Date().timeIntervalSince1970)
         }
 
-        let language = Predefined.publishLanguages[languagePickerView.selectedRow(inComponent: 0)]
-        params["languages"] = [language.code!]
+        if let language = Predefined.publishLanguages[languagePickerView.selectedRow(inComponent: 0)].code {
+            params["languages"] = [language]
+        }
 
         let license = Predefined.licenses[licensePickerView.selectedRow(inComponent: 0)]
         params["license"] = license.name
-        if !license.url.isBlank {
-            params["license_url"] = license.url!
+        if let licenseUrl = license.url, !licenseUrl.isBlank {
+            params["license_url"] = licenseUrl
         }
         // TODO: License url input field?
 
@@ -517,10 +538,11 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == channelPickerView {
             let channel = channels[row]
-            if channel.name!.lowercased() == "anonymous" {
+            let name = channel.name ?? ""
+            if name.lowercased() == "anonymous" {
                 namePrefixLabel.text = String(format: namePrefixFormat, "")
             } else {
-                namePrefixLabel.text = String(format: namePrefixFormat, channel.name! + "/")
+                namePrefixLabel.text = String(format: namePrefixFormat, name + "/")
             }
         }
     }
@@ -599,8 +621,8 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 req.httpMethod = "POST"
                 req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
                 req.setValue(String(contentLength), forHTTPHeaderField: "Content-Length")
-                if !Lbryio.authToken.isBlank {
-                    req.addValue(Lbryio.authToken!, forHTTPHeaderField: "X-Lbry-Auth-Token")
+                if let authToken = Lbryio.authToken, authToken.isBlank {
+                    req.addValue(authToken, forHTTPHeaderField: "X-Lbry-Auth-Token")
                 }
                 req.httpBodyStream = Multistream(streams: [headerStream, fileStream, footerStream])
 

@@ -55,7 +55,7 @@ class WalletSyncViewController: UIViewController {
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    print(error!)
+                    self.showError(error: error)
                     return
                 }
 
@@ -80,7 +80,7 @@ class WalletSyncViewController: UIViewController {
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    print(error!)
+                    self.showError(error: error)
                     return
                 }
 
@@ -103,7 +103,7 @@ class WalletSyncViewController: UIViewController {
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    print(error!)
+                    self.showError(error: error)
                     return
                 }
 
@@ -117,7 +117,7 @@ class WalletSyncViewController: UIViewController {
     func startSync(hash: String) {
         Lbryio.syncGet(hash: hash, completion: { walletSync, needsNewWallet, error in
             if error != nil {
-                print(error!)
+                self.showError(error: error)
                 return
             }
 
@@ -211,7 +211,7 @@ class WalletSyncViewController: UIViewController {
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    print(error!)
+                    self.showError(error: error)
                     return
                 }
 
@@ -219,7 +219,7 @@ class WalletSyncViewController: UIViewController {
                     if let hash = result["hash"] as? String, let walletData = result["data"] as? String {
                         Lbryio.syncSet(oldHash: "", newHash: hash, data: walletData, completion: { remoteHash, error in
                             guard let remoteHash = remoteHash, error == nil else {
-                                print(error!)
+                                self.showError(error: error)
                                 return
                             }
 
@@ -232,6 +232,13 @@ class WalletSyncViewController: UIViewController {
                 }
             }
         )
+    }
+
+    func showError(error: Error?) {
+        DispatchQueue.main.async {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(error: error)
+        }
     }
 
     /*

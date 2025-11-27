@@ -56,8 +56,8 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         registerForKeyboardNotifications()
         checkCreditAmount()
 
-        if Lbry.walletBalance != nil {
-            balanceUpdated(balance: Lbry.walletBalance!)
+        if let balance = Lbry.walletBalance {
+            balanceUpdated(balance: balance)
         }
 
         loadChannels()
@@ -127,9 +127,10 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        contentViewBottomConstraint.constant = kbSize.height - 36
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            contentViewBottomConstraint.constant = kbSize.height - 36
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -181,13 +182,14 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             return
         }
 
-        let inputAmount = Decimal(string: tipValueField.text!)
-        if inputAmount != nil {
+        if let tipString = tipValueField.text,
+           let inputAmount = Decimal(string: tipString)
+        {
             let currencyFormatter = Helper.currencyFormatter
             tipButton.setTitle(
                 String(
                     format: String.localized(inputAmount == 1 ? "Tip %@ credit" : "Tip %@ credits"),
-                    currencyFormatter.string(for: inputAmount as NSDecimalNumber?)!
+                    currencyFormatter.string(for: inputAmount as NSDecimalNumber?) ?? ""
                 ),
                 for: .normal
             )
@@ -204,15 +206,17 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         var amount: Decimal? = tipCreditAmount
         if tipValueSegment.selectedSegmentIndex == 4 {
             // validate free-form input
-            amount = Decimal(string: tipValueField.text!)
+            if let tipString = tipValueField.text {
+                amount = Decimal(string: tipString)
+            }
         }
 
-        if amount == nil {
+        guard let amount else {
             showError(message: String.localized("Please enter a valid amount to donate"))
             return
         }
 
-        if Lbry.walletBalance == nil || amount! > Lbry.walletBalance!.available! {
+        if Lbry.walletBalance == nil || amount > Lbry.walletBalance!.available! {
             showError(message: String.localized("Insufficient funds"))
             return
         }
@@ -224,7 +228,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
-            self.confirmSendTip(amount: amount!)
+            self.confirmSendTip(amount: amount)
         }))
         alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
 
@@ -232,13 +236,18 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     }
 
     func confirmSendTip(amount: Decimal) {
+        guard let claimId = claim?.claimId else {
+            showError(message: "couldn't get claimId")
+            return
+        }
+
         tipButton.isEnabled = false
         loadingSendSupportView.isHidden = false
 
         let selectedClaim: Claim = channels[channelPickerView.selectedRow(inComponent: 0)]
         var params = [String: Any]()
         params["blocking"] = true
-        params["claim_id"] = claim?.claimId!
+        params["claim_id"] = claimId
         params["amount"] = Helper.sdkAmountFormatter.string(from: amount as NSDecimalNumber)
         params["tip"] = true
         if selectedClaim.claimId != "anonymous" {

@@ -227,7 +227,7 @@ class YouTubeSyncStatusViewController: UIViewController {
             self.ytChannelNameLabel.text = ytChannelName
             self.channelNameUploadsLabel.text = String(
                 format: String.localized(totalVideos == 1 ? "%@  %d upload" : "%@  %d uploads"),
-                lbryChannelName!,
+                lbryChannelName ?? "",
                 totalVideos ?? 0
             )
 

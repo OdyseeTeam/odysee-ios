@@ -26,11 +26,13 @@ struct Reward: Decodable {
     var rewardCode: String?
 
     var displayAmount: String {
-        if shouldDisplayRange {
-            return String(rewardRange!.split(separator: "-")[1])
+        if shouldDisplayRange, let rewardRange {
+            return String(rewardRange.split(separator: "-")[1])
         }
-        if rewardAmount ?? 0 > 0 {
-            return Helper.currencyFormatter.string(for: rewardAmount!)!
+        if let rewardAmount, rewardAmount > 0,
+           let formatted = Helper.currencyFormatter.string(for: rewardAmount)
+        {
+            return formatted
         }
 
         return "?"

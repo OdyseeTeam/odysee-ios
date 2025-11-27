@@ -113,10 +113,14 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
      */
 
     func abandonClaim(claim: Claim) {
+        guard let claimId = claim.claimId else {
+            showError(message: "claim has nil claimId")
+            return
+        }
         Lbry.apiCall(
             method: Lbry.Methods.streamAbandon,
             params: .init(
-                claimId: claim.claimId!,
+                claimId: claimId,
                 blocking: true
             )
         )

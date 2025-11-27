@@ -36,6 +36,19 @@ struct LbryUri: CustomStringConvertible {
     static let rePartHost = "((?:open.lbry.com/|odysee.com/|lbry.tv/)?)"
     static let rePartStreamOrChannelName = "([^:$#/]*)"
     static let rePartModifierSeparator = "([:$#]?)([^/]*)"
+    static let regexUri = try! NSRegularExpression(
+        pattern: String(
+            format: "%@%@%@%@(/?)%@%@",
+            rePartProtocol,
+            rePartHost,
+            rePartStreamOrChannelName,
+            rePartModifierSeparator,
+            rePartStreamOrChannelName,
+            rePartModifierSeparator
+        ),
+        options: [.caseInsensitive]
+    )
+
     static let queryStringBreaker = "^([\\S]+)([?][\\S]*)"
     static let regexSeparateQueryString = try! NSRegularExpression(
         pattern: queryStringBreaker,
@@ -75,8 +88,11 @@ struct LbryUri: CustomStringConvertible {
     }
 
     static func isNameValid(_ name: String?) -> Bool {
+        guard let name else {
+            return false
+        }
         return !name.isBlank && regexInvalidUri
-            .firstMatch(in: name!, options: [], range: NSRange(name!.startIndex..., in: name!)) == nil
+            .firstMatch(in: name, options: [], range: NSRange(name.startIndex..., in: name)) == nil
     }
 
     static func parse(url: String, requireProto: Bool) throws -> LbryUri {
@@ -91,12 +107,14 @@ struct LbryUri: CustomStringConvertible {
             range: NSRange(url.startIndex..., in: url)
         )
         if qsMatches.count > 0 {
-            let qsRange = Range(qsMatches[0].range(at: 2))
-            queryString = String(cleanUrl[qsRange!])
-            let qsLen = (queryString ?? "").count
-            if qsLen > 0 {
-                cleanUrl = String(url[0 ..< qsRange!.lowerBound])
-                queryString = String(queryString![1 ..< (queryString?.endIndex.utf16Offset(in: queryString!))!])
+            if let qsRange = Range(qsMatches[0].range(at: 2)) {
+                queryString = String(cleanUrl[qsRange])
+                if let queryString_ = queryString {
+                    if queryString_.count > 0 {
+                        cleanUrl = String(url[0 ..< qsRange.lowerBound])
+                        queryString = String(queryString_[1 ..< (queryString_.endIndex.utf16Offset(in: queryString_))])
+                    }
+                }
             }
         }
 
@@ -192,21 +210,8 @@ struct LbryUri: CustomStringConvertible {
             secondaryModSeparator = String(match[secondaryModifierSeparatorRef])
             secondaryModValue = String(match[secondaryModifierValueRef])
         } else {
-            let regexComponents = try! NSRegularExpression(
-                pattern: String(
-                    format: "%@%@%@%@(/?)%@%@",
-                    rePartProtocol,
-                    rePartHost,
-                    rePartStreamOrChannelName,
-                    rePartModifierSeparator,
-                    rePartStreamOrChannelName,
-                    rePartModifierSeparator
-                ),
-                options: [.caseInsensitive]
-            )
-
             var components: [String] = []
-            let results = regexComponents.matches(
+            let results = regexUri.matches(
                 in: cleanUrl,
                 options: [],
                 range: NSRange(cleanUrl.startIndex..., in: cleanUrl)
@@ -302,8 +307,8 @@ struct LbryUri: CustomStringConvertible {
 
     func build(includeProto: Bool, protoDefault: String, vanity: Bool) -> String {
         var formattedChannelName: String?
-        if channelName != nil {
-            formattedChannelName = channelName!.starts(with: "@") ? channelName : String(format: "@%@", channelName!)
+        if let channelName {
+            formattedChannelName = channelName.starts(with: "@") ? channelName : String(format: "@%@", channelName)
         }
 
         let primaryClaimName = !claimName.isBlank ? claimName
@@ -400,12 +405,12 @@ struct LbryUri: CustomStringConvertible {
                 }
             }
 
-            if !claimId.isBlank, claimId!.count > LbryUri.claimIdMaxLength || regexClaimId.firstMatch(
-                in: claimId!,
+            if let claimId, !claimId.isBlank, claimId.count > LbryUri.claimIdMaxLength || regexClaimId.firstMatch(
+                in: claimId,
                 options: [],
-                range: NSRange(claimId!.startIndex..., in: claimId!)
+                range: NSRange(claimId.startIndex..., in: claimId)
             ) == nil {
-                throw LbryUriError.runtimeError(String(format: "Invalid claim ID %@", claimId!))
+                throw LbryUriError.runtimeError(String(format: "Invalid claim ID %@", claimId))
             }
             if claimSequence == -1 {
                 throw LbryUriError.runtimeError("Claim sequence must be a number")

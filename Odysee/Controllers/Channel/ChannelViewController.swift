@@ -150,13 +150,12 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         // TODO: If channelClaim is not set, resolve the claim url before displaying
-        if channelClaim == nil, claimUrl != nil {
-            resolveAndDisplayClaim()
-        } else if channelClaim != nil {
-            if Lbryio.isClaimAppleFiltered(channelClaim!) {
+        if channelClaim == nil, let claimUrl {
+            resolveAndDisplayClaim(claimUrl: claimUrl)
+        } else if let channelClaim, let claimId = channelClaim.claimId {
+            if Lbryio.isClaimAppleFiltered(channelClaim) {
                 displayClaimBlockedWithMessage(
-                    message: Lbryio
-                        .getFilteredMessageForClaim(channelClaim!.claimId!, channelClaim!.claimId!)
+                    message: Lbryio.getFilteredMessageForClaim(claimId, claimId)
                 )
                 return
             }
@@ -184,7 +183,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         let vc = storyboard?.instantiateViewController(identifier: "comments_vc") as! CommentsViewController
-        vc.claimId = channelClaim?.claimId!
+        vc.claimId = channelClaim?.claimId
         vc.commentsDisabled = commentsDisabled
         vc.isChannelComments = true
         vc.currentCommentId = currentCommentId
@@ -249,10 +248,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         channels.append(contentsOf: page.items)
     }
 
-    func resolveAndDisplayClaim() {
+    func resolveAndDisplayClaim(claimUrl: LbryUri) {
         displayResolving()
 
-        let url = claimUrl!.description
+        let url = claimUrl.description
 
         channelClaim = Lbry.cachedClaim(url: url)
         if channelClaim != nil {
@@ -277,10 +276,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         channelClaim = claim
-        if Lbryio.isClaimAppleFiltered(channelClaim!) {
+        if Lbryio.isClaimAppleFiltered(claim) {
             displayClaimBlockedWithMessage(
                 message: Lbryio
-                    .getFilteredMessageForClaim(channelClaim!.claimId!, channelClaim!.claimId!)
+                    .getFilteredMessageForClaim(claim.claimId ?? "", claim.claimId ?? "")
             )
             return
         }
@@ -335,44 +334,49 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func displayClaim() {
         resolvingView.isHidden = true
 
-        if channelClaim?.value != nil {
+        if let value = channelClaim?.value,
+           let claimId = channelClaim?.claimId,
+           let name = channelClaim?.name
+        {
             blockUnblockLabel.text = String.localized(
                 Helper.isChannelBlocked(claimId: channelClaim?.claimId) ?
                     "Unblock channel" : "Block channel"
             )
 
             Lbryio.areCommentsEnabled(
-                channelId: channelClaim!.claimId!,
-                channelName: channelClaim!.name!,
+                channelId: claimId,
+                channelName: name,
                 completion: { enabled in
                     self.commentsDisabledChecked = true
                     self.checkCommentsDisabled(!enabled)
                 }
             )
 
-            if channelClaim?.value?.thumbnail != nil {
-                let optimisedThumbUrl = URL(string: (channelClaim?.value?.thumbnail?.url)!)!
-                    .makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+            if let thumbnailUrlValue = value.thumbnail?.url,
+               let thumbnailUrl = URL(string: thumbnailUrlValue)
+            {
+                let optimisedThumbUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
                 thumbnailImageView.load(url: optimisedThumbUrl)
             } else {
                 thumbnailImageView.image = UIImage(named: "spaceman")
                 thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
             }
 
-            if channelClaim?.value?.cover != nil {
-                let optimisedCoverUrl = URL(string: (channelClaim?.value?.cover?.url)!)!
-                    .makeImageURL(spec: coverImageSpec)
+            if let coverUrlValue = value.cover?.url,
+               let coverUrl = URL(string: coverUrlValue)
+            {
+                let optimisedCoverUrl = coverUrl.makeImageURL(spec: coverImageSpec)
                 coverImageView.load(url: optimisedCoverUrl)
             } else {
                 coverImageView.image = UIImage(named: "spaceman_cover")
             }
 
-            titleLabel.text = channelClaim?.value?.title
+            titleLabel.text = value.title
 
             // about page
-            let website = channelClaim?.value?.websiteUrl
-            let email = channelClaim?.value?.email
-            let description = channelClaim?.value?.description
+            let website = value.websiteUrl
+            let email = value.email
+            let description = value.description
 
             if website.isBlank, email.isBlank, description.isBlank {
                 websiteStackView.isHidden = true
@@ -403,20 +407,24 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func loadAndDisplayFollowerCount() {
         var options = [String: String]()
         options["claim_id"] = channelClaim?.claimId
-        try! Lbryio.get(resource: "subscription", action: "sub_count", options: options, completion: { data, error in
-            guard let data = data, error == nil else {
-                return
-            }
-            DispatchQueue.main.async {
-                let formatter = Helper.interactionCountFormatter
-                let followerCount = (data as! NSArray)[0] as! Int
-                self.followerCountLabel.isHidden = false
-                self.followerCountLabel.text = String(
-                    format: followerCount == 1 ? String.localized("%@ follower") : String.localized("%@ followers"),
-                    formatter.string(for: followerCount)!
-                )
-            }
-        })
+        do {
+            try Lbryio.get(resource: "subscription", action: "sub_count", options: options, completion: { data, error in
+                guard let data = data, error == nil else {
+                    return
+                }
+                DispatchQueue.main.async {
+                    let formatter = Helper.interactionCountFormatter
+                    let followerCount = (data as! NSArray)[0] as! Int
+                    self.followerCountLabel.isHidden = false
+                    self.followerCountLabel.text = String(
+                        format: followerCount == 1 ? String.localized("%@ follower") : String.localized("%@ followers"),
+                        formatter.string(for: followerCount) ?? ""
+                    )
+                }
+            })
+        } catch {
+            showError(error: error)
+        }
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -734,8 +742,11 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     @objc func activeLivestreamTapped(_ sender: Any) {
         if let claim = activeLivestreamClaim {
-            let actualClaim = (claim.valueType == ClaimType.repost && claim.repostedClaim != nil) ?
-                claim.repostedClaim! : claim
+            let actualClaim = if claim.valueType == ClaimType.repost, let repostedClaim = claim.repostedClaim {
+                repostedClaim
+            } else {
+                claim
+            }
 
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
@@ -751,7 +762,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func checkFollowing() {
         DispatchQueue.main.async {
-            if Lbryio.isFollowing(claim: self.channelClaim!) {
+            if let channelClaim = self.channelClaim, Lbryio.isFollowing(claim: channelClaim) {
                 // show unfollow and bell icons
                 self.followLabel.isHidden = true
                 self.bellView.isHidden = false
@@ -767,12 +778,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     func checkNotificationsDisabled(showMessage: Bool = false) {
-        if !Lbryio.isFollowing(claim: channelClaim!) {
+        guard let channelClaim,
+              Lbryio.isFollowing(claim: channelClaim)
+        else {
             return
         }
 
         DispatchQueue.main.async {
-            if Lbryio.isNotificationsDisabledForSub(claim: self.channelClaim!) {
+            if Lbryio.isNotificationsDisabledForSub(claim: channelClaim) {
                 self.bellIconView.image = UIImage(systemName: "bell.fill")
                 if showMessage {
                     self.showMessage(message: String.localized("You will not receive notifications for this channel"))
@@ -787,8 +800,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func shareActionTapped(_ sender: Any) {
-        let url = LbryUri.tryParse(url: channelClaim!.shortUrl!, requireProto: false)
-        if let url = url {
+        if let shortUrl = channelClaim?.shortUrl,
+           let url = LbryUri.tryParse(url: shortUrl, requireProto: false)
+        {
             let items: [Any] = [URL(string: url.odyseeString) ?? url.odyseeString]
             let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
             vc.popoverPresentationController?.sourceView = shareView
@@ -802,35 +816,41 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
+        guard let channelClaim else {
+            return
+        }
+
         let vc = storyboard?.instantiateViewController(identifier: "support_vc") as! SupportViewController
-        vc.claim = channelClaim!
+        vc.claim = channelClaim
         vc.modalPresentationStyle = .overCurrentContext
         present(vc, animated: true)
     }
 
     @IBAction func blockUnblockActionTapped(_ sender: Any) {
-        if let current = channelClaim {
+        if let claimId = channelClaim?.claimId,
+           let name = channelClaim?.name
+        {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let isBlocked = Helper.isChannelBlocked(claimId: current.claimId)
+            let isBlocked = Helper.isChannelBlocked(claimId: claimId)
             if let mainVc = appDelegate.mainViewController as? MainViewController {
                 if isBlocked {
-                    mainVc.removeBlockedChannel(claimId: current.claimId!)
+                    mainVc.removeBlockedChannel(claimId: claimId)
                 } else {
                     let alert = UIAlertController(
-                        title: String(format: String.localized("Block %@?"), current.name!),
+                        title: String(format: String.localized("Block %@?"), name),
                         message: String(
                             format: String
                                 .localized(
                                     "Are you sure you want to block this channel? You will no longer see comments nor content from %@."
                                 ),
-                            current.name!
+                            name
                         ),
                         preferredStyle: .alert
                     )
                     alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
                         mainVc.addBlockedChannel(
-                            claimId: current.claimId!,
-                            channelName: current.name!,
+                            claimId: claimId,
+                            channelName: name,
                             notifyAfter: true
                         )
                     }))
@@ -842,14 +862,13 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func reportActionTapped(_ sender: Any) {
-        if let current = channelClaim {
-            if let url =
-                URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", current.claimId!))
-            {
-                let vc = SFSafariViewController(url: url)
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.present(vc, animated: true, completion: nil)
-            }
+        if let claimId = channelClaim?.claimId,
+           let url =
+           URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", claimId))
+        {
+            let vc = SFSafariViewController(url: url)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.present(vc, animated: true, completion: nil)
         }
     }
 
@@ -864,7 +883,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             showUAView()
             return
         }
-        if Lbryio.isFollowing(claim: channelClaim!) {
+        guard let channelClaim else {
+            return
+        }
+        if Lbryio.isFollowing(claim: channelClaim) {
             let alert = UIAlertController(
                 title: String.localized("Stop following channel?"),
                 message: String.localized("Are you sure you want to stop following this channel?"),
@@ -872,23 +894,23 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             )
             alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
                 self.subscribeOrUnsubscribe(
-                    claim: self.channelClaim!,
-                    notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: self.channelClaim!),
+                    claim: channelClaim,
+                    notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
                     unsubscribing: true
                 )
 
                 // check if the following tab is open to prevent a crash
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 if let vc = appDelegate.mainTabViewController?.selectedViewController as? FollowingViewController {
-                    vc.removeFollowing(claim: self.channelClaim!)
+                    vc.removeFollowing(claim: channelClaim)
                 }
             })
             alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
             present(alert, animated: true, completion: nil)
         } else {
             subscribeOrUnsubscribe(
-                claim: channelClaim!,
-                notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim!),
+                claim: channelClaim,
+                notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
                 unsubscribing: false
             )
         }
@@ -899,28 +921,37 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             showUAView()
             return
         }
+        guard let channelClaim else {
+            return
+        }
         subscribeOrUnsubscribe(
-            claim: channelClaim!,
-            notificationsDisabled: !Lbryio.isNotificationsDisabledForSub(claim: channelClaim!),
+            claim: channelClaim,
+            notificationsDisabled: !Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
             unsubscribing: false
         )
     }
 
-    func subscribeOrUnsubscribe(claim: Claim?, notificationsDisabled: Bool, unsubscribing: Bool) {
+    func subscribeOrUnsubscribe(claim: Claim, notificationsDisabled: Bool, unsubscribing: Bool) {
         if subscribeUnsubscribeInProgress {
+            return
+        }
+
+        guard let claimId = claim.claimId,
+              let permanentUrl = claim.permanentUrl
+        else {
             return
         }
 
         subscribeUnsubscribeInProgress = true
         do {
             var options = [String: String]()
-            options["claim_id"] = claim?.claimId!
+            options["claim_id"] = claimId
             if !unsubscribing {
-                options["channel_name"] = claim?.name
+                options["channel_name"] = claim.name
                 options["notifications_disabled"] = String(notificationsDisabled)
             }
 
-            let subUrl: LbryUri = try LbryUri.parse(url: (claim?.permanentUrl!)!, requireProto: false)
+            let subUrl: LbryUri = try LbryUri.parse(url: permanentUrl, requireProto: false)
             try Lbryio.get(
                 resource: "subscription",
                 action: unsubscribing ? "delete" : "new",
@@ -938,20 +969,24 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     if !unsubscribing {
                         Lbryio.addSubscription(
                             sub: LbrySubscription.fromClaim(
-                                claim: claim!,
+                                claim: claim,
                                 notificationsDisabled: notificationsDisabled
                             ),
                             url: subUrl.description
                         )
-                        self.addSubscription(
-                            url: subUrl.description,
-                            channelName: subUrl.channelName!,
-                            isNotificationsDisabled: notificationsDisabled,
-                            reloadAfter: true
-                        )
+                        if let channelName = subUrl.channelName {
+                            self.addSubscription(
+                                url: subUrl.description,
+                                channelName: channelName,
+                                isNotificationsDisabled: notificationsDisabled,
+                                reloadAfter: true
+                            )
+                        }
                     } else {
                         Lbryio.removeSubscription(subUrl: subUrl.description)
-                        self.removeSubscription(url: subUrl.description, channelName: subUrl.channelName!)
+                        if let channelName = subUrl.channelName {
+                            self.removeSubscription(url: subUrl.description, channelName: channelName)
+                        }
                     }
 
                     self.checkFollowing()
@@ -979,7 +1014,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         // persist the subscription to CoreData
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
             context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
             let subToSave = Subscription(context: context)
@@ -994,19 +1029,19 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func removeSubscription(url: String, channelName: String) {
         // remove the subscription from CoreData
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
-            let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-            let subs = try! context.fetch(fetchRequest)
-            for sub in subs {
-                context.delete(sub)
-            }
-
             do {
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
+                let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "url == %@", url)
+                let subs = try context.fetch(fetchRequest)
+                for sub in subs {
+                    context.delete(sub)
+                }
+
                 try context.save()
             } catch {
-                // pass
+                self.showError(error: error)
             }
         }
     }

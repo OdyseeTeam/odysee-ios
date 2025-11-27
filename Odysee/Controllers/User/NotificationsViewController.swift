@@ -78,9 +78,11 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
     func markNotificationsSeen() {
         var seenIds: [Int64] = []
         for index in 0 ..< Lbryio.cachedNotifications.count {
-            if !Lbryio.cachedNotifications[index].isSeen! {
+            if !(Lbryio.cachedNotifications[index].isSeen ?? false) {
                 Lbryio.cachedNotifications[index].isSeen = true
-                seenIds.append(Lbryio.cachedNotifications[index].id!)
+                if let id = Lbryio.cachedNotifications[index].id {
+                    seenIds.append(id)
+                }
             }
         }
 
@@ -107,7 +109,11 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
 
-    func markSingleNotificationRead(id: Int64) {
+    func markSingleNotificationRead(id: Int64?) {
+        guard let id else {
+            showError(message: "no notification id")
+            return
+        }
         if let index = Lbryio.cachedNotifications.firstIndex(where: { $0.id == id }) {
             Lbryio.cachedNotifications[index].isRead = true
             Lbryio.cachedNotifications[index].isSeen = true
@@ -132,7 +138,11 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         }
     }
 
-    func deleteNotification(id: Int64) {
+    func deleteNotification(id: Int64?) {
+        guard let id else {
+            showError(message: "no notification id")
+            return
+        }
         var options: [String: String] = [:]
         options["notification_ids"] = String(id)
         do {
@@ -185,8 +195,8 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                             )
                             let notification: LbryNotification? = try JSONDecoder()
                                 .decode(LbryNotification.self, from: jsonData)
-                            if notification != nil, !self.notifications.contains(where: { $0.id == notification?.id }) {
-                                loadedNotifications.append(notification!)
+                            if let notification, !self.notifications.contains(where: { $0.id == notification.id }) {
+                                loadedNotifications.append(notification)
                             }
                         } catch {
                             // pass
@@ -195,7 +205,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                     self.notifications.append(contentsOf: loadedNotifications)
                     self.notifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "") })
                     Lbryio.cachedNotifications = self.notifications
-                    Lbryio.latestNotificationId = Lbryio.cachedNotifications.map { $0.id! }.max() ?? 0
+                    Lbryio.latestNotificationId = Lbryio.cachedNotifications.compactMap(\.id).max() ?? 0
                 }
 
                 self.loadingNotifications = false
@@ -251,16 +261,16 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         tableView.deselectRow(at: indexPath, animated: true)
         let notification: LbryNotification = notifications[indexPath.row]
 
-        if notification.targetUrl != nil {
-            markSingleNotificationRead(id: notification.id!)
+        if let targetUrl = notification.targetUrl {
+            markSingleNotificationRead(id: notification.id)
 
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            if appDelegate.mainController.handleSpecialUrl(url: notification.targetUrl!) {
+            if appDelegate.mainController.handleSpecialUrl(url: targetUrl) {
                 navigationController?.popViewController(animated: true)
                 return
             }
 
-            if let lbryUrl = LbryUri.tryParse(url: notification.targetUrl!, requireProto: false) {
+            if let lbryUrl = LbryUri.tryParse(url: targetUrl, requireProto: false) {
                 if lbryUrl.isChannel {
                     let vc = storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
@@ -296,7 +306,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
     ) {
         if editingStyle == .delete {
             let notification: LbryNotification = notifications[indexPath.row]
-            deleteNotification(id: notification.id!)
+            deleteNotification(id: notification.id)
             notifications.remove(at: indexPath.row)
             Lbryio.cachedNotifications = notifications
 

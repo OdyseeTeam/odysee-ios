@@ -63,8 +63,8 @@ class ClaimTableViewCell: UITableViewCell {
         }
 
         var actualClaim: Claim = claim
-        if claim.valueType == ClaimType.repost, claim.repostedClaim != nil {
-            actualClaim = claim.repostedClaim!
+        if claim.valueType == ClaimType.repost, let repostedClaim = claim.repostedClaim {
+            actualClaim = repostedClaim
         }
 
         var result = [URL]()
@@ -103,16 +103,16 @@ class ClaimTableViewCell: UITableViewCell {
         }
 
         var actualClaim: Claim = claim
-        if claim.valueType == ClaimType.repost && claim.repostedClaim != nil {
+        if claim.valueType == ClaimType.repost, let repostedClaim = claim.repostedClaim {
             reposterOverlay.isHidden = !showRepostOverlay
             reposterChannelClaim = claim.signingChannel
             reposterLabel.text = reposterChannelClaim?.name ?? claim.shortUrl
-            actualClaim = claim.repostedClaim!
+            actualClaim = repostedClaim
         } else {
             reposterOverlay.isHidden = true
         }
 
-        if currentClaim != nil && actualClaim.claimId != currentClaim!.claimId {
+        if let currentClaim, actualClaim.claimId != currentClaim.claimId {
             // reset the thumbnail image (to prevent the user from seeing image load changes when scrolling due to cell reuse)
             thumbnailImageView.pin_cancelImageDownload()
             thumbnailImageView.image = nil
@@ -147,7 +147,7 @@ class ClaimTableViewCell: UITableViewCell {
 
         currentClaim = actualClaim
 
-        let isChannel = actualClaim.name!.starts(with: "@")
+        let isChannel = actualClaim.name?.starts(with: "@") ?? false
         channelImageView.isHidden = !isChannel
         thumbnailImageView.isHidden = isChannel
 
@@ -262,8 +262,7 @@ class ClaimTableViewCell: UITableViewCell {
     }
 
     @objc func publisherTapped(_ sender: Any) {
-        if currentClaim!.signingChannel != nil {
-            let channelClaim = currentClaim!.signingChannel!
+        if let channelClaim = currentClaim?.signingChannel {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
             let currentVc = UIApplication.currentViewController()
