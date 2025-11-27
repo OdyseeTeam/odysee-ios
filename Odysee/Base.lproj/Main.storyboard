@@ -2065,7 +2065,7 @@
                                                     </switch>
                                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jcS-s2-XF0">
                                                         <rect key="frame" x="77" y="8" width="305" height="67"/>
-                                                        <string key="text">I want to sync my content to Odysee and the LBRY network and agree to these terms. I have also read and understand how the program works.</string>
+                                                        <string key="text">I want to sync my content to the Odysee network and agree to these terms. I have also read and understand how the program works.</string>
                                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                         <nil key="textColor"/>
                                                         <nil key="highlightedColor"/>
