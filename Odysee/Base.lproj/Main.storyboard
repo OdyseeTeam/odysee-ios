@@ -1006,7 +1006,7 @@
                         <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="XT5-Ft-Hxx" firstAttribute="leading" secondItem="50d-7c-HSY" secondAttribute="leading" id="Asb-FW-VGW"/>
-                            <constraint firstItem="XT5-Ft-Hxx" firstAttribute="bottom" secondItem="50d-7c-HSY" secondAttribute="bottom" id="HUJ-kS-XQe"/>
+                            <constraint firstAttribute="bottom" secondItem="XT5-Ft-Hxx" secondAttribute="bottom" id="Rcg-qL-94p"/>
                             <constraint firstItem="XT5-Ft-Hxx" firstAttribute="top" secondItem="KLY-Jn-cVs" secondAttribute="top" id="ajy-Ov-KzG"/>
                             <constraint firstItem="XT5-Ft-Hxx" firstAttribute="trailing" secondItem="50d-7c-HSY" secondAttribute="trailing" id="we9-9L-3Nk"/>
                         </constraints>
@@ -1067,9 +1067,9 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="o77-y4-e50" firstAttribute="top" secondItem="O4a-O3-pFP" secondAttribute="top" id="6Uo-gs-PTB"/>
-                            <constraint firstItem="O4a-O3-pFP" firstAttribute="bottom" secondItem="o77-y4-e50" secondAttribute="bottom" id="9aQ-eX-QnO"/>
                             <constraint firstItem="O4a-O3-pFP" firstAttribute="trailing" secondItem="o77-y4-e50" secondAttribute="trailing" id="dm6-cV-f1j"/>
                             <constraint firstItem="o77-y4-e50" firstAttribute="leading" secondItem="O4a-O3-pFP" secondAttribute="leading" id="nPh-q2-8TI"/>
+                            <constraint firstAttribute="bottom" secondItem="o77-y4-e50" secondAttribute="bottom" id="wZQ-jI-3nT"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Library" image="play.tv" catalog="system" id="I6n-vK-zU2"/>
@@ -1357,6 +1357,7 @@
                             <constraint firstItem="EcR-1L-mWs" firstAttribute="leading" secondItem="zmS-y5-O2f" secondAttribute="leading" id="63I-uQ-mds"/>
                             <constraint firstItem="zmS-y5-O2f" firstAttribute="bottom" secondItem="1yL-UK-7uX" secondAttribute="bottom" id="Fis-vM-yAp"/>
                             <constraint firstItem="EcR-1L-mWs" firstAttribute="top" secondItem="zmS-y5-O2f" secondAttribute="top" id="HJN-nD-QK0"/>
+                            <constraint firstAttribute="bottom" secondItem="EcR-1L-mWs" secondAttribute="bottom" id="HXI-Au-ubx"/>
                             <constraint firstItem="zmS-y5-O2f" firstAttribute="trailing" secondItem="1yL-UK-7uX" secondAttribute="trailing" id="JFc-iw-u6m"/>
                             <constraint firstItem="zmS-y5-O2f" firstAttribute="bottom" secondItem="EcR-1L-mWs" secondAttribute="bottom" id="LfK-6o-mk3"/>
                             <constraint firstItem="EcR-1L-mWs" firstAttribute="trailing" secondItem="zmS-y5-O2f" secondAttribute="trailing" id="S5N-hG-che"/>
@@ -1365,7 +1366,6 @@
                             <constraint firstItem="IFd-jt-YE1" firstAttribute="centerX" secondItem="Scz-9v-AbQ" secondAttribute="centerX" id="hcr-0j-7fb"/>
                             <constraint firstItem="IFd-jt-YE1" firstAttribute="centerY" secondItem="Scz-9v-AbQ" secondAttribute="centerY" id="lC6-P0-wKr"/>
                             <constraint firstItem="1yL-UK-7uX" firstAttribute="leading" secondItem="zmS-y5-O2f" secondAttribute="leading" id="n6f-89-i6x"/>
-                            <constraint firstItem="EcR-1L-mWs" firstAttribute="bottom" secondItem="zmS-y5-O2f" secondAttribute="bottom" id="ofW-3v-wKh"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Following" image="heart.fill" catalog="system" id="40e-nO-w7b"/>
@@ -1688,7 +1688,7 @@
                             <constraint firstItem="E1b-cq-Meq" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="2K8-dz-fbe"/>
                             <constraint firstItem="CEB-nI-u0n" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="A7d-AD-RHv"/>
                             <constraint firstItem="9jV-NE-VWg" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="FTR-5N-uRP"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="E1b-cq-Meq" secondAttribute="bottom" id="HXl-LP-368"/>
+                            <constraint firstAttribute="bottom" secondItem="E1b-cq-Meq" secondAttribute="bottom" id="LKF-o6-zk5"/>
                             <constraint firstItem="9jV-NE-VWg" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="NMv-fq-1c6"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="9jV-NE-VWg" secondAttribute="trailing" id="REE-4p-edF"/>
                             <constraint firstItem="azd-7J-GfZ" firstAttribute="top" secondItem="9jV-NE-VWg" secondAttribute="bottom" constant="4" id="aQ9-Gb-kBS"/>
@@ -2814,11 +2814,11 @@
                             <constraint firstItem="FCD-xh-esE" firstAttribute="trailing" secondItem="GQL-Lh-auD" secondAttribute="trailing" id="QB8-8c-A9b"/>
                             <constraint firstItem="GQL-Lh-auD" firstAttribute="top" secondItem="FCD-xh-esE" secondAttribute="top" id="RcY-sh-VgD"/>
                             <constraint firstItem="GQL-Lh-auD" firstAttribute="leading" secondItem="FCD-xh-esE" secondAttribute="leading" id="SPl-dv-LBz"/>
+                            <constraint firstAttribute="bottom" secondItem="kua-MI-1Rj" secondAttribute="bottom" id="U41-SQ-o4i"/>
                             <constraint firstItem="kua-MI-1Rj" firstAttribute="top" secondItem="GQL-Lh-auD" secondAttribute="bottom" id="Z1O-F9-MZU"/>
                             <constraint firstItem="h4U-Ns-b5g" firstAttribute="centerY" secondItem="Mb7-Zl-als" secondAttribute="centerY" id="krT-3G-Wvf"/>
                             <constraint firstItem="fuq-Gc-HUF" firstAttribute="centerX" secondItem="Mb7-Zl-als" secondAttribute="centerX" id="l3x-RZ-cm5"/>
                             <constraint firstItem="kua-MI-1Rj" firstAttribute="leading" secondItem="FCD-xh-esE" secondAttribute="leading" id="upS-0B-l52"/>
-                            <constraint firstItem="FCD-xh-esE" firstAttribute="bottom" secondItem="kua-MI-1Rj" secondAttribute="bottom" id="xQm-4g-rIc"/>
                             <constraint firstItem="h4U-Ns-b5g" firstAttribute="centerX" secondItem="Mb7-Zl-als" secondAttribute="centerX" id="xiZ-Oq-Dko"/>
                         </constraints>
                     </view>
