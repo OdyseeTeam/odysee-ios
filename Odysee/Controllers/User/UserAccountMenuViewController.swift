@@ -10,7 +10,7 @@ import SafariServices
 import UIKit
 
 class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelegate {
-    @IBOutlet var contentView: UIView!
+    @IBOutlet var contentView: UIVisualEffectView!
     @IBOutlet var signUpLoginButton: UIButton!
     @IBOutlet var loggedInMenu: UIView!
     @IBOutlet var userEmailLabel: UILabel!
@@ -32,6 +32,13 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        if #available(iOS 26.0, *) {
+            contentView.effect = UIGlassEffect(style: .regular)
+        } else {
+            contentView.effect = nil
+            contentView.backgroundColor = .systemBackground
+        }
 
         // Do any additional setup after loading the view.
         contentView.layer.cornerRadius = 16
