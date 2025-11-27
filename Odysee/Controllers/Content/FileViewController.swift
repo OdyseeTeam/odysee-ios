@@ -1910,6 +1910,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBAction func publisherTapped(_ sender: Any) {
         let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
+            navigationController?.popViewController(animated: false)
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = appDelegate.mainController.storyboard?
                 .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
