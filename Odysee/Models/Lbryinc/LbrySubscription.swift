@@ -29,10 +29,11 @@ struct LbrySubscription: Decodable {
 
     static func fromLocalSubscription(subscription: Subscription) -> LbrySubscription {
         var sub = LbrySubscription()
-        let url = LbryUri.tryParse(url: subscription.url!, requireProto: false)
-        if url != nil {
-            sub.claimId = url!.channelClaimId
-            sub.channelName = url!.channelName
+        if let subUrl = subscription.url,
+           let url = LbryUri.tryParse(url: subUrl, requireProto: false)
+        {
+            sub.claimId = url.channelClaimId
+            sub.channelName = url.channelName
         }
         sub.notificationsDisabled = subscription.isNotificationsDisabled
 

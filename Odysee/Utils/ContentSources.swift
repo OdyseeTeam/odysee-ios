@@ -37,13 +37,17 @@ enum ContentSources {
     }
 
     static func loadRemoteCategories(completion: @escaping ([Category]?, Error?) -> Void) {
-        let requestUrl = URL(string: ContentSources.endpoint)
+        guard let requestUrl = URL(string: ContentSources.endpoint) else {
+            completion(nil, GenericError("requestUrl"))
+            return
+        }
+
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.urlCache = nil
 
         let session = URLSession(configuration: config)
-        let req = URLRequest(url: requestUrl!)
+        let req = URLRequest(url: requestUrl)
         let task = session.dataTask(with: req, completionHandler: { data, response, error in
             guard let data = data, error == nil else {
                 // handle error
@@ -107,10 +111,16 @@ enum ContentSources {
 
                     // cache the categories
                     let csCache = ContentSourceCache(categories: categories, lastUpdated: Date())
-                    UserDefaults.standard.setValue(
-                        String(data: try! JSONEncoder().encode(csCache), encoding: .utf8),
-                        forKey: defaultsKey
-                    )
+                    do {
+                        let data = try JSONEncoder().encode(csCache)
+                        UserDefaults.standard.setValue(
+                            String(data: data, encoding: .utf8),
+                            forKey: defaultsKey
+                        )
+                    } catch {
+                        completion(nil, error)
+                        return
+                    }
 
                     completion(categories, nil)
                     return

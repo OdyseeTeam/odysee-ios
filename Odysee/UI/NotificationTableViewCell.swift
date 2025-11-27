@@ -39,7 +39,7 @@ class NotificationTableViewCell: UITableViewCell {
     }
 
     func setNotification(notification: LbryNotification) {
-        if currentNotification != nil, notification.id != currentNotification!.id {
+        if let currentNotification, notification.id != currentNotification.id {
             iconView.isHidden = true
             avatarView.isHidden = true
             iconView.image = nil
@@ -76,8 +76,9 @@ class NotificationTableViewCell: UITableViewCell {
         bodyView.text = notification.text ?? ""
         if let date = Helper.apiDateFormatter.date(from: notification.createdAt ?? "") {
             let localDateString = Helper.localDateFormatter.string(from: date)
-            let localDate = Helper.localDateFormatter.date(from: localDateString)
-            timeView.text = Helper.fullRelativeDateFormatter.localizedString(for: localDate!, relativeTo: Date())
+            if let localDate = Helper.localDateFormatter.date(from: localDateString) {
+                timeView.text = Helper.fullRelativeDateFormatter.localizedString(for: localDate, relativeTo: Date())
+            }
         }
     }
 }

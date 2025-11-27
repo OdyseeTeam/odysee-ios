@@ -32,17 +32,20 @@ class TransactionTableViewCell: UITableViewCell {
     func setTransaction(transaction: Transaction) {
         tx = transaction
         descriptionLabel.text = transaction.description
-        amountLabel.text = Helper.currencyFormatter4
-            .string(from: Decimal(string: transaction.value!)! as NSDecimalNumber)
-        txidLabel.text = String(transaction.txid!.prefix(7))
+        if let value = transaction.value, let valueDecimal = Decimal(string: value) {
+            amountLabel.text = Helper.currencyFormatter4.string(from: valueDecimal as NSDecimalNumber)
+        }
+        if let txid = transaction.txid {
+            txidLabel.text = String(txid.prefix(7))
+        }
 
-        claimInfoLabel.text = transaction.claim != nil ? transaction.claim!.name : ""
+        claimInfoLabel.text = transaction.claim?.name
 
-        if transaction.timestamp == nil {
-            dateLabel.text = String.localized("Pending")
-        } else {
-            let date: Date = NSDate(timeIntervalSince1970: Double(transaction.timestamp!)) as Date
+        if let timestamp = transaction.timestamp {
+            let date: Date = NSDate(timeIntervalSince1970: Double(timestamp)) as Date
             dateLabel.text = Helper.shortRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
+        } else {
+            dateLabel.text = String.localized("Pending")
         }
         feeLabel.text = ""
 
@@ -54,12 +57,10 @@ class TransactionTableViewCell: UITableViewCell {
     }
 
     @objc func claimInfoTapped(_ sender: Any) {
-        if tx != nil, tx!.claim != nil {
+        if let name = tx?.claim?.name, let claimId = tx?.claim?.claimId {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let claim = tx!.claim!
-            let url = LbryUri.tryParse(url: String(format: "%@#%@", claim.name!, claim.claimId!), requireProto: false)
-            if url != nil {
-                if claim.name!.starts(with: "@") {
+            if let url = LbryUri.tryParse(url: String(format: "%@#%@", name, claimId), requireProto: false) {
+                if name.starts(with: "@") {
                     let vc = appDelegate.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = url
@@ -80,8 +81,8 @@ class TransactionTableViewCell: UITableViewCell {
     }
 
     @objc func txidTapped(_ sender: Any) {
-        if tx != nil {
-            if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, tx!.txid!)) {
+        if let txid = tx?.txid {
+            if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, txid)) {
                 let vc = SFSafariViewController(url: url)
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
                 appDelegate.mainController.present(vc, animated: true, completion: nil)

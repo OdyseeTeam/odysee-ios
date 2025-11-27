@@ -199,17 +199,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
         appDelegate.currentFileViewController = self
 
-        if claim != nil, !isPlaylist {
-            checkFollowing(claim!)
-            checkNotificationsDisabled(claim!)
+        if let claim, !isPlaylist {
+            checkFollowing(claim)
+            checkNotificationsDisabled(claim)
         }
     }
 
     // Returns true if reposted claim is a channel
     func checkRepost() -> Bool {
-        if claim != nil, claim?.repostedClaim != nil {
-            claim = claim?.repostedClaim
-            if claim!.name!.starts(with: "@") {
+        if let claim = claim?.repostedClaim, let name = claim.name {
+            if name.starts(with: "@") {
                 // reposted channel, simply dismiss the view and show a channel view controller instead
                 navigationController?.popViewController(animated: false)
                 let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -291,46 +290,32 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         // Do any additional setup after loading the view.
         if claim == nil, claimUrl != nil {
             resolveAndDisplayClaim()
-        } else if let currentClaim = claim, let _ = currentClaim.claimId {
+        } else if let currentClaim = claim,
+                  let signingChannel = currentClaim.signingChannel,
+                  let claimId = currentClaim.claimId
+        {
             if checkRepost() {
                 return
             }
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            if Lbryio
-                .isClaimBlocked(currentClaim) ||
-                (currentClaim.signingChannel != nil && Lbryio.isClaimBlocked(currentClaim.signingChannel!))
-            {
+            if Lbryio.isClaimBlocked(currentClaim) || Lbryio.isClaimBlocked(signingChannel) {
                 displayClaimBlocked()
-            } else if Lbryio.isClaimAppleFiltered(currentClaim) ||
-                (
-                    currentClaim.signingChannel != nil && Lbryio
-                        .isClaimAppleFiltered(currentClaim.signingChannel!)
+            } else if Lbryio.isClaimAppleFiltered(currentClaim) || Lbryio.isClaimAppleFiltered(signingChannel) {
+                displayClaimBlockedWithMessage(
+                    message: Lbryio.getFilteredMessageForClaim(claimId, signingChannel.claimId ?? "")
                 )
+            } else if Helper.isCustomBlocked(claimId: claimId, appDelegate: appDelegate) ||
+                Helper.isCustomBlocked(claimId: signingChannel.claimId ?? "", appDelegate: appDelegate)
             {
                 displayClaimBlockedWithMessage(
-                    message: Lbryio
-                        .getFilteredMessageForClaim(currentClaim.claimId!, currentClaim.signingChannel?.claimId ?? "")
+                    message: Helper.getCustomBlockedMessage(
+                        claimId: claimId, appDelegate: appDelegate
+                    ) ?? Helper.getCustomBlockedMessage(
+                        claimId: signingChannel.claimId ?? "",
+                        appDelegate: appDelegate
+                    ) ?? ""
                 )
-            } else if Helper.isCustomBlocked(claimId: currentClaim.claimId!, appDelegate: appDelegate) ||
-                (
-                    currentClaim.signingChannel != nil &&
-                        Helper.isCustomBlocked(claimId: currentClaim.signingChannel!.claimId!, appDelegate: appDelegate)
-                )
-            {
-                displayClaimBlockedWithMessage(
-                    message: Helper
-                        .getCustomBlockedMessage(claimId: currentClaim.claimId!, appDelegate: appDelegate)
-                        ??
-                        (
-                            Helper
-                                .getCustomBlockedMessage(
-                                    claimId: currentClaim.signingChannel!
-                                        .claimId!,
-                                    appDelegate: appDelegate
-                                ) ?? ""
-                        )
-                )
-            } else if claim?.value?.tags?.contains(Constants.MembersOnly) ?? false {
+            } else if currentClaim.value?.tags?.contains(Constants.MembersOnly) ?? false {
                 membersOnly = true
                 checkHasAccess()
             } else {
@@ -362,11 +347,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        bottomLayoutConstraint.constant = kbSize.height
-        streamerAreaHeightConstraint.constant = 0
-        livestreamerArea.isHidden = true
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            bottomLayoutConstraint.constant = kbSize.height
+            streamerAreaHeightConstraint.constant = 0
+            livestreamerArea.isHidden = true
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -403,46 +389,39 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if checkRepost() {
             return
         }
+        guard let claim, let signingChannel = claim.signingChannel else {
+            return
+        }
+
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if Lbryio
-            .isClaimBlocked(claim!) || (claim!.signingChannel != nil && Lbryio.isClaimBlocked(claim!.signingChannel!))
-        {
+        if Lbryio.isClaimBlocked(claim) || Lbryio.isClaimBlocked(signingChannel) {
             displayClaimBlocked()
-        } else if Lbryio.isClaimAppleFiltered(claim!) ||
-            (claim!.signingChannel != nil && Lbryio.isClaimAppleFiltered(claim!.signingChannel!))
-        {
-            displayClaimBlockedWithMessage(
-                message: Lbryio
-                    .getFilteredMessageForClaim(claim!.claimId!, claim!.signingChannel?.claimId ?? "")
-            )
-        } else if Helper.isCustomBlocked(claimId: claim!.claimId!, appDelegate: appDelegate) ||
-            (claim!.signingChannel != nil && Helper.isCustomBlocked(
-                claimId: claim!.signingChannel!.claimId!,
-                appDelegate: appDelegate
+        } else if Lbryio.isClaimAppleFiltered(claim) || Lbryio.isClaimAppleFiltered(signingChannel) {
+            displayClaimBlockedWithMessage(message: Lbryio.getFilteredMessageForClaim(
+                claim.claimId ?? "", signingChannel.claimId ?? ""
             ))
+        } else if Helper.isCustomBlocked(claimId: claim.claimId ?? "", appDelegate: appDelegate) ||
+            Helper.isCustomBlocked(claimId: signingChannel.claimId ?? "", appDelegate: appDelegate)
         {
-            displayClaimBlockedWithMessage(
-                message: Helper
-                    .getCustomBlockedMessage(claimId: claim!.claimId!, appDelegate: appDelegate)
-                    ??
-                    (
-                        Helper
-                            .getCustomBlockedMessage(
-                                claimId: claim!.signingChannel!.claimId!,
-                                appDelegate: appDelegate
-                            ) ?? ""
-                    )
+            displayClaimBlockedWithMessage(message:
+                Helper.getCustomBlockedMessage(
+                    claimId: claim.claimId ?? "",
+                    appDelegate: appDelegate
+                ) ?? Helper.getCustomBlockedMessage(
+                    claimId: signingChannel.claimId ?? "",
+                    appDelegate: appDelegate
+                ) ?? ""
             )
-        } else if claim?.value?.tags?.contains(Constants.MembersOnly) ?? false {
+        } else if claim.value?.tags?.contains(Constants.MembersOnly) ?? false {
             membersOnly = true
             checkHasAccess()
-        } else if let currentClaim = claim {
+        } else {
             displayClaim()
             if !isPlaylist {
-                loadAndDisplayViewCount(currentClaim)
-                loadReactions(currentClaim)
-                checkFollowing(currentClaim)
-                checkNotificationsDisabled(currentClaim)
+                loadAndDisplayViewCount(claim)
+                loadReactions(claim)
+                checkFollowing(claim)
+                checkNotificationsDisabled(claim)
             }
             loadPlaylistOrRelated()
         }
@@ -451,7 +430,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func resolveAndDisplayClaim() {
         displayResolving()
 
-        let url = claimUrl!.description
+        guard let url = claimUrl?.description else {
+            showError(message: "couldn't get claimUrl")
+            return
+        }
+
         claim = Lbry.cachedClaim(url: url)
         if claim != nil {
             DispatchQueue.main.async {
@@ -541,8 +524,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @objc func loadStreamInfo() {
+        guard let streamInfoUrl, let claim else {
+            showError(message: "couldn't get streamInfoUrl and/or claim")
+            return
+        }
+
         let session = URLSession.shared
-        var req = URLRequest(url: streamInfoUrl!)
+        var req = URLRequest(url: streamInfoUrl)
         req.httpMethod = "GET"
 
         let task = session.dataTask(with: req, completionHandler: { data, _, error in
@@ -573,7 +561,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         ]
                         DispatchQueue.main.async {
                             self.initializePlayerWithUrl(
-                                singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers, forceInit: true
+                                singleClaim: claim, sourceUrl: streamUrl, headers: headers, forceInit: true
                             )
                         }
                         self.currentStreamUrl = streamUrl
@@ -599,11 +587,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func loadLivestreamNew() {
+        guard let claim,
+              let claimId = claim.signingChannel?.claimId,
+              let checkLiveUrl = URL(string: String(
+                  format: "https://api.odysee.live/livestream/is_live?channel_claim_id=%@",
+                  claimId
+              ))
+        else {
+            showError(message: "couldn't get claim and/or checkLiveUrl")
+            return
+        }
+
         let session = URLSession.shared
-        let checkLiveUrl = URL(string: String(
-            format: "https://api.odysee.live/livestream/is_live?channel_claim_id=%@",
-            claim!.signingChannel!.claimId!
-        ))!
         var req = URLRequest(url: checkLiveUrl)
         req.httpMethod = "GET"
 
@@ -629,12 +624,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             ]
                             DispatchQueue.main.async {
                                 self.initializePlayerWithUrl(
-                                    singleClaim: self.claim!, sourceUrl: streamUrl, headers: headers, forceInit: true
+                                    singleClaim: claim, sourceUrl: streamUrl, headers: headers, forceInit: true
                                 )
                             }
                         } else {
                             self.getStreamingUrl(
-                                self.claim!,
+                                claim,
                                 baseStreamingUrl: streamUrl.absoluteString
                             )
                         }
@@ -650,10 +645,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func loadLivestreamLegacy() {
+        guard let claimId = claim?.signingChannel?.claimId else {
+            showError(message: "couldn't get claimId")
+            return
+        }
         streamInfoUrl =
             URL(string: String(
                 format: "https://api.live.odysee.com/v1/odysee/live/%@",
-                claim!.signingChannel!.claimId!
+                claimId
             ))
         loadStreamInfo()
     }
@@ -668,7 +667,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             self.livestreamOfflineMessageView.isHidden = false
             self.livestreamOfflineLabel.text = String(
                 format: String.localized("%@ isn't live right now. Check back later to watch the stream."),
-                self.claim!.signingChannel!.name!
+                self.claim?.signingChannel?.name ?? ""
             )
         }
     }
@@ -711,30 +710,37 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
 
-    func displayClaimContentFromUrl(singleClaim: Claim, contentType: String, contentUrl: URL?) {
+    func displayClaimContentFromUrl(singleClaim: Claim, contentType: String, contentUrl: URL) {
+        guard let permanentUrl = singleClaim.permanentUrl else {
+            showError(message: "couldn't get permanentUrl")
+            return
+        }
+
         if isTextContent {
             webView.isHidden = false
             contentInfoDescription.text = String.localized("Loading content...")
             contentInfoLoading.isHidden = false
-            loadTextContent(url: contentUrl!, contentType: contentType)
-            logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
+            loadTextContent(url: contentUrl, contentType: contentType)
+            logFileView(url: permanentUrl, timeToStart: 0)
         } else if isImageContent {
             var thumbnailDisplayUrl = contentUrl
-            if let thumbnailUrl = singleClaim.value?.thumbnail?.url, !thumbnailUrl.isBlank {
-                thumbnailDisplayUrl = URL(string: thumbnailUrl)!.makeImageURL(spec: bigThumbSpec)
+            if let thumbnail = singleClaim.value?.thumbnail?.url, !thumbnail.isBlank,
+               let thumbnailUrl = URL(string: thumbnail)
+            {
+                thumbnailDisplayUrl = thumbnailUrl.makeImageURL(spec: bigThumbSpec)
             }
             contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
             let manager = PINRemoteImageManager.shared()
             manager.setValue("https://ios.odysee.com/", forHTTPHeaderField: "Referer")
-            manager.downloadImage(with: contentUrl!) { result in
+            manager.downloadImage(with: contentUrl) { result in
                 guard let image = result.image else { return }
                 Thread.performOnMain {
                     self.imageViewer.display(image: image)
                 }
             }
             contentInfoViewButton.isHidden = false
-            logFileView(url: singleClaim.permanentUrl!, timeToStart: 0)
-        } else if let url = LbryUri.tryParse(url: singleClaim.permanentUrl!, requireProto: false) {
+            logFileView(url: permanentUrl, timeToStart: 0)
+        } else if let url = LbryUri.tryParse(url: permanentUrl, requireProto: false) {
             contentInfoLoading.isHidden = true
             let messageString = NSMutableAttributedString(string: String(
                 format: String
@@ -753,6 +759,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func displaySingleClaim(_ singleClaim: Claim) {
+        guard let permanentUrl = singleClaim.permanentUrl else {
+            showError(message: "couldn't get permanentUrl")
+            return
+        }
+
         commentsDisabledChecked = false
         resolvingView.isHidden = true
         descriptionArea.isHidden = true
@@ -781,7 +792,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             contentInfoImage.image = nil
 
             var params = [String: Any]()
-            params["uri"] = singleClaim.permanentUrl!
+            params["uri"] = permanentUrl
             Lbry.apiCall(
                 method: Lbry.methodGet,
                 params: params,
@@ -803,7 +814,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             DispatchQueue.main.async {
                                 self.displayClaimContentFromUrl(
                                     singleClaim: singleClaim,
-                                    contentType: contentType!,
+                                    contentType: contentType ?? "",
                                     contentUrl: contentUrl
                                 )
                             }
@@ -845,10 +856,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             avpcInitialised = true
         }
 
-        if let publisher = claim?.signingChannel {
+        if let channelId = claim?.signingChannel?.claimId, let name = claim?.signingChannel?.name {
             Lbryio.areCommentsEnabled(
-                channelId: publisher.claimId!,
-                channelName: publisher.name!,
+                channelId: channelId,
+                channelName: name,
                 completion: { enabled in
                     self.commentsDisabledChecked = true
                     self.checkCommentsDisabled(commentsDisabled: !enabled, currentClaim: singleClaim)
@@ -875,21 +886,22 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 livestreamerTitleLabel.text = singleClaim.signingChannel?.value?.title
                 livestreamerNameLabel.text = singleClaim.signingChannel?.name
             }
-            if singleClaim.signingChannel?.value != nil, singleClaim.signingChannel?.value?.thumbnail != nil {
-                thumbnailUrl = URL(string: singleClaim.signingChannel!.value!.thumbnail!.url!)!
-                    .makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+            if let thumbnail = singleClaim.value?.thumbnail?.url,
+               let thumbnailUrl_ = URL(string: thumbnail)
+            {
+                thumbnailUrl = thumbnailUrl_.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
             }
         } else {
             publisherTitleLabel.text = String.localized("Anonymous")
             publisherActionsArea.isHidden = true
         }
 
-        if thumbnailUrl != nil {
-            let optimisedThumbUrl = thumbnailUrl?.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+        if let thumbnailUrl {
+            let optimisedThumbUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
             if !isLivestream {
-                publisherImageView.load(url: optimisedThumbUrl!)
+                publisherImageView.load(url: optimisedThumbUrl)
             } else {
-                livestreamerImageView.load(url: optimisedThumbUrl!)
+                livestreamerImageView.load(url: optimisedThumbUrl)
             }
         } else {
             if !isLivestream {
@@ -1035,44 +1047,44 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func displayClaim() {
-        guard let _ = claim else {
+        guard let claim else {
             displayNothingAtLocation()
             return
         }
 
-        isPlaylist = claim?.valueType == .collection
-        isLivestream = !isPlaylist && claim?.value?.source == nil
+        isPlaylist = claim.valueType == .collection
+        isLivestream = !isPlaylist && claim.value?.source == nil
         detailsScrollView.isHidden = isLivestream
         livestreamChatView.isHidden = !isLivestream
         reloadStreamView.isHidden = !isLivestream
-        relatedOrPlaylistTitle.text = isPlaylist ? claim?.value?.title : String.localized("Related Content")
+        relatedOrPlaylistTitle.text = isPlaylist ? claim.value?.title : String.localized("Related Content")
 
         displayRelatedPlaceholders()
 
         if !isPlaylist {
             // for a playlist, we need to do a claim_search for the list of claim IDs first, and then display the first result
             connectChatSocket()
-            displaySingleClaim(claim!)
+            displaySingleClaim(claim)
 
             // check if the content is paid
-            if let fee = claim?.value?.fee {
-                let amount = Decimal(string: fee.amount!)
-                if amount! > 0 {
-                    let alert = UIAlertController(
-                        title: String.localized("Content not supported"),
-                        message: String.localized("This content is not supported in the app at this time."),
-                        preferredStyle: .alert
-                    )
-                    alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in }))
-                    present(alert, animated: true, completion: nil)
-                }
+            if let fee = claim.value?.fee?.amount,
+               let amount = Decimal(string: fee),
+               amount > 0
+            {
+                let alert = UIAlertController(
+                    title: String.localized("Content not supported"),
+                    message: String.localized("This content is not supported in the app at this time."),
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in }))
+                present(alert, animated: true, completion: nil)
                 return
             }
 
             if isLivestream {
                 loadLivestream()
             } else if !isTextContent, !isImageContent, !isOtherContent {
-                getStreamingUrl(claim!)
+                getStreamingUrl(claim)
             }
         }
     }
@@ -1166,8 +1178,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let timeToStartMs = Int64(Date().timeIntervalSince1970 * 1000.0) - playRequestTime
         let timeToStartSeconds = Int64(Double(timeToStartMs) / 1000.0)
-        let url = isPlaylist ? currentPlaylistClaim().permanentUrl! : (claim != nil ? claim!.permanentUrl! : nil)
-        if let claimUrl = url {
+        if let claimUrl = (isPlaylist ? currentPlaylistClaim().permanentUrl : claim?.permanentUrl) {
             Analytics.logEvent("play", parameters: [
                 "url": claimUrl,
                 "time_to_start_ms": timeToStartMs,
@@ -1196,12 +1207,17 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        guard let claimId = claim?.claimId, let txid = claim?.txid, let nout = claim?.nout else {
+            showError(message: "couldn't get claim info")
+            return
+        }
+
         loggingInProgress = true
 
         var options = [String: String]()
         options["uri"] = url
-        options["claim_id"] = claim?.claimId!
-        options["outpoint"] = String(format: "%@:%d", claim!.txid!, claim!.nout!)
+        options["claim_id"] = claimId
+        options["outpoint"] = String(format: "%@:%d", txid, nout)
         if timeToStart > 0 {
             options["time_to_start"] = String(timeToStart)
         }
@@ -1220,7 +1236,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func claimDailyView() {
         let defaults = UserDefaults.standard
-        let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress)
+        guard let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress) else {
+            showError(message: "couldn't get receiveAddress")
+            return
+        }
         if receiveAddress.isBlank {
             Lbry.apiCall(
                 method: Lbry.Methods.addressUnused,
@@ -1238,7 +1257,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        Lbryio.claimReward(type: "daily_view", walletAddress: receiveAddress!, completion: { _, _ in
+        Lbryio.claimReward(type: "daily_view", walletAddress: receiveAddress, completion: { _, _ in
             // don't do anything here
         })
     }
@@ -1248,11 +1267,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        guard let claimId = singleClaim.claimId else {
+            showError(message: "couldn't get claimId")
+            return
+        }
+
         do {
             try Lbryio.get(
                 resource: "file",
                 action: "view_count",
-                options: ["claim_id": singleClaim.claimId!],
+                options: ["claim_id": claimId],
                 completion: { data, error in
                     guard let data = data, error == nil else {
                         // couldn't load the view count for display
@@ -1282,8 +1306,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        guard let claimId = singleClaim.claimId else {
+            showError(message: "couldn't get claimId")
+            return
+        }
+
         do {
-            let claimId = singleClaim.claimId!
             let options: [String: String] = ["claim_ids": claimId]
             try Lbryio.post(resource: "reaction", action: "list", options: options, completion: { data, error in
                 guard let data = data, error == nil else {
@@ -1345,7 +1373,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let oldNumDislikes = numDislikes
         do {
             var remove = false
-            let claimId = isPlaylist ? currentPlaylistClaim().claimId! : claim!.claimId!
+            guard let claimId = isPlaylist ? currentPlaylistClaim().claimId : claim?.claimId else {
+                throw GenericError("couldn't get claimId")
+            }
             var options: [String: String] = [
                 "claim_ids": claimId,
                 "type": type,
@@ -1431,7 +1461,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         loadingRelated = true
         loadingRelatedView.isHidden = false
 
-        if let playlistClaims = claim?.value!.claims {
+        if let playlistClaims = claim?.value?.claims {
             Lbry.apiCall(
                 method: Lbry.Methods.claimSearch,
                 params: .init(
@@ -1518,8 +1548,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func getStreamingUrl(_ singleClaim: Claim, baseStreamingUrl: String? = nil) {
+        guard let uri = singleClaim.permanentUrl else {
+            showError(message: "couldn't get permanentUrl")
+            return
+        }
+
         var params = [String: Any]()
-        params["uri"] = singleClaim.permanentUrl!
+        params["uri"] = uri
         if let baseStreamingUrl = baseStreamingUrl {
             params["base_streaming_url"] = baseStreamingUrl
         }
@@ -1649,11 +1684,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        guard let query = claim?.value?.title, let claimId = claim?.claimId else {
+            showError(message: "couldn't get title and/or claimId")
+            return
+        }
+
         loadingRelated = true
         loadingRelatedView.isHidden = false
-        let query = claim?.value?.title!
-        Lighthouse.search(rawQuery: query!, size: 16, from: 0, relatedTo: claim!.claimId!, completion: { results, _ in
-            if results == nil || results!.count == 0 {
+        Lighthouse.search(rawQuery: query, size: 16, from: 0, relatedTo: claimId, completion: { results, _ in
+            guard let results, results.count != 0 else {
                 // self.checkNoResults()
                 DispatchQueue.main.async {
                     self.loadingRelatedView.isHidden = true
@@ -1661,7 +1700,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 return
             }
 
-            let urls = results!.compactMap { item in
+            let urls = results.compactMap { item in
                 LbryUri.tryParse(
                     url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String),
                     requireProto: false
@@ -1698,7 +1737,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     ) {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if object as AnyObject? === appDelegate.lazyPlayer {
-            if keyPath == "timeControlStatus", appDelegate.lazyPlayer!.timeControlStatus == .playing {
+            if keyPath == "timeControlStatus", appDelegate.lazyPlayer?.timeControlStatus == .playing {
                 checkTimeToStart()
                 return
             }
@@ -1820,7 +1859,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         commentsVc = storyboard?.instantiateViewController(identifier: "comments_vc") as? CommentsViewController
-        commentsVc.claimId = isPlaylist ? playlistItems[currentPlaylistIndex].claimId! : claim?.claimId!
+        commentsVc.claimId = isPlaylist ? playlistItems[currentPlaylistIndex].claimId : claim?.claimId
         commentsVc.commentsDisabled = commentsDisabled
         commentsVc.comments = comments.elements
         commentsVc.currentCommentId = currentCommentId
@@ -1925,11 +1964,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func checkFollowing(_ singleClaim: Claim) {
-        if singleClaim.signingChannel == nil {
+        guard let channelClaim = singleClaim.signingChannel else {
             return
         }
 
-        let channelClaim = singleClaim.signingChannel!
         DispatchQueue.main.async {
             if Lbryio.isFollowing(claim: channelClaim) {
                 // show unfollow and bell icons
@@ -1957,11 +1995,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func checkNotificationsDisabled(_ singleClaim: Claim) {
-        if singleClaim.signingChannel == nil {
+        guard let channelClaim = singleClaim.signingChannel else {
             return
         }
 
-        let channelClaim = singleClaim.signingChannel!
         if !Lbryio.isFollowing(claim: channelClaim) {
             return
         }
@@ -1985,16 +2022,26 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        guard let actualClaim = isPlaylist ? currentPlaylistClaim() : self.claim,
+              let claim,
+              let claimId = claim.claimId,
+              let name = claim.name,
+              let permanentUrl = claim.permanentUrl
+        else {
+            showError(message: "couldn't get claim")
+            return
+        }
+
         subscribeUnsubscribeInProgress = true
         do {
             var options = [String: String]()
-            options["claim_id"] = claim?.claimId!
+            options["claim_id"] = claimId
             if !unsubscribing {
-                options["channel_name"] = claim?.name
+                options["channel_name"] = name
                 options["notifications_disabled"] = String(notificationsDisabled)
             }
 
-            let subUrl: LbryUri = try LbryUri.parse(url: (claim?.permanentUrl!)!, requireProto: false)
+            let subUrl: LbryUri = try LbryUri.parse(url: permanentUrl, requireProto: false)
             try Lbryio.get(
                 resource: "subscription",
                 action: unsubscribing ? "delete" : "new",
@@ -2003,32 +2050,36 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     self.subscribeUnsubscribeInProgress = false
                     guard let _ = data, error == nil else {
                         self.showError(error: error)
-                        self.checkFollowing(self.isPlaylist ? self.currentPlaylistClaim() : self.claim!)
-                        self.checkNotificationsDisabled(self.isPlaylist ? self.currentPlaylistClaim() : self.claim!)
+                        self.checkFollowing(actualClaim)
+                        self.checkNotificationsDisabled(actualClaim)
                         return
                     }
 
                     if !unsubscribing {
                         Lbryio.addSubscription(
                             sub: LbrySubscription.fromClaim(
-                                claim: claim!,
+                                claim: claim,
                                 notificationsDisabled: notificationsDisabled
                             ),
                             url: subUrl.description
                         )
-                        self.addSubscription(
-                            url: subUrl.description,
-                            channelName: subUrl.channelName!,
-                            isNotificationsDisabled: notificationsDisabled,
-                            reloadAfter: true
-                        )
+                        if let channelName = subUrl.channelName {
+                            self.addSubscription(
+                                url: subUrl.description,
+                                channelName: channelName,
+                                isNotificationsDisabled: notificationsDisabled,
+                                reloadAfter: true
+                            )
+                        }
                     } else {
                         Lbryio.removeSubscription(subUrl: subUrl.description)
-                        self.removeSubscription(url: subUrl.description, channelName: subUrl.channelName!)
+                        if let channelName = subUrl.channelName {
+                            self.removeSubscription(url: subUrl.description, channelName: channelName)
+                        }
                     }
 
-                    self.checkFollowing(self.isPlaylist ? self.currentPlaylistClaim() : self.claim!)
-                    self.checkNotificationsDisabled(self.isPlaylist ? self.currentPlaylistClaim() : self.claim!)
+                    self.checkFollowing(actualClaim)
+                    self.checkNotificationsDisabled(actualClaim)
                     Lbryio.subscriptionsDirty = true
                     Lbry.saveSharedUserState(completion: { success, err in
                         guard err == nil else {
@@ -2051,7 +2102,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         // persist the subscription to CoreData
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
             context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
             let subToSave = Subscription(context: context)
@@ -2067,15 +2118,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         // remove the subscription from CoreData
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
             let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-            let subs = try! context.fetch(fetchRequest)
-            for sub in subs {
-                context.delete(sub)
-            }
 
             do {
+                let subs = try context.fetch(fetchRequest)
+                for sub in subs {
+                    context.delete(sub)
+                }
+
                 try context.save()
             } catch {
                 // pass
@@ -2175,9 +2227,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func shareActionTapped(_ sender: Any) {
-        let shareClaim = isPlaylist ? currentPlaylistClaim() : claim!
-        let url = LbryUri.tryParse(url: shareClaim.canonicalUrl!, requireProto: false)
-        if let url = url {
+        if let shareClaim = isPlaylist ? currentPlaylistClaim() : claim,
+           let canonicalUrl = shareClaim.canonicalUrl,
+           let url = LbryUri.tryParse(url: canonicalUrl, requireProto: false)
+        {
             let items: [Any] = [URL(string: url.odyseeString) ?? url.odyseeString]
             let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
             vc.popoverPresentationController?.sourceView = shareActionView
@@ -2192,7 +2245,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         let vc = storyboard?.instantiateViewController(identifier: "support_vc") as! SupportViewController
-        let supportClaim = isPlaylist ? currentPlaylistClaim() : claim!
+        let supportClaim = isPlaylist ? currentPlaylistClaim() : claim
         vc.claim = supportClaim
         vc.modalPresentationStyle = .overCurrentContext
         present(vc, animated: true)
@@ -2203,7 +2256,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func reportActionTapped(_ sender: Any) {
-        if let url = URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", claim!.claimId!)) {
+        if let claimId = claim?.claimId,
+           let url = URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", claimId))
+        {
             let vc = SFSafariViewController(url: url)
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
             appDelegate.mainController.present(vc, animated: true, completion: nil)
@@ -2244,11 +2299,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        guard let claimId = singleClaim.claimId else {
+            showError(message: "couldn't get claimId")
+            return
+        }
+
         commentsLoading = true
         Lbry.commentApiCall(
             method: Lbry.CommentMethods.list,
             params: .init(
-                claimId: singleClaim.claimId!,
+                claimId: claimId,
                 page: commentsCurrentPage,
                 pageSize: commentsPageSize,
                 skipValidation: true
@@ -2273,7 +2333,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let newComments = comments.suffix(from: oldCount)
 
         if !comments.isEmpty {
-            resolveCommentAuthors(urls: newComments.map { $0.channelUrl! })
+            resolveCommentAuthors(urls: newComments.compactMap(\.channelUrl))
         }
         checkNoComments()
         checkFeaturedComment()
@@ -2282,7 +2342,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func checkFeaturedComment() {
         if comments.count > 0 {
             featuredCommentLabel.text = comments[0].comment
-            if let thumbUrl = authorThumbnailMap[comments[0].channelUrl!] {
+            if let channelUrl = comments[0].channelUrl,
+               let thumbUrl = authorThumbnailMap[channelUrl]
+            {
                 featuredCommentThumbnail.backgroundColor = UIColor.clear
                 featuredCommentThumbnail.load(url: thumbUrl)
             } else {
@@ -2347,10 +2409,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func connectChatSocket() {
-        if isLivestream {
-            let url = URL(string: String(format: "%@%@", Lbryio.wsCommmentBaseUrl, claim!.claimId!))
-            chatWebsocket = WebSocket(request: URLRequest(url: url!))
-            chatWebsocket!.delegate = self
+        if isLivestream,
+           let claimId = claim?.claimId,
+           let url = URL(string: String(format: "%@%@", Lbryio.wsCommmentBaseUrl, claimId))
+        {
+            chatWebsocket = WebSocket(request: URLRequest(url: url))
+            chatWebsocket?.delegate = self
             chatWebsocket?.connect()
         }
     }
@@ -2360,10 +2424,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        guard let claimId = claim?.claimId else {
+            showError(message: "couldn't get claimId")
+            return
+        }
+
         Lbry.commentApiCall(
             method: Lbry.CommentMethods.list,
             params: .init(
-                claimId: claim!.claimId!,
+                claimId: claimId,
                 page: 1,
                 pageSize: 75,
                 skipValidation: true
@@ -2518,27 +2587,37 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 showError(message: String.localized("No channel selected. This is probably a bug."))
             }
 
+            guard let chatText = chatInputField.text else {
+                showError(message: String.localized("Please enter a chat message"))
+                return false
+            }
+
             let commentAsChannel = channels[currentCommentAsIndex]
             DispatchQueue.main.async {
                 self.chatInputField.isEnabled = false
             }
 
+            guard let channelId = commentAsChannel.claimId, let claimId = claim?.claimId else {
+                showError(message: "couldn't get channelId and/or claimId")
+                return false
+            }
+
             Lbry.apiCall(
                 method: Lbry.Methods.channelSign,
                 params: .init(
-                    channelId: commentAsChannel.claimId!,
-                    hexdata: Helper.strToHex(chatInputField.text!)
+                    channelId: channelId,
+                    hexdata: Helper.strToHex(chatText)
                 )
             )
             .flatMap { channelSignResult in
                 Lbry.commentApiCall(
                     method: Lbry.CommentMethods.create,
                     params: .init(
-                        claimId: self.claim!.claimId!,
-                        channelId: commentAsChannel.claimId!,
+                        claimId: claimId,
+                        channelId: channelId,
                         signature: channelSignResult.signature,
                         signingTs: channelSignResult.signingTs,
-                        comment: self.chatInputField.text!
+                        comment: chatText
                     )
                 )
             }

@@ -86,7 +86,7 @@ class CreateChannelViewController: UIViewController, UITextFieldDelegate {
     }
 
     @IBAction func channelNameFieldChanged(_ sender: UITextField) {
-        frDelegate?.updateFirstChannelName(sender.text!)
+        frDelegate?.updateFirstChannelName(sender.text)
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

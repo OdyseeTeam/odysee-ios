@@ -67,8 +67,8 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         if Lbryio.isSignedIn() {
             checkReceiveAddress()
             loadRecentTransactions()
-            if Lbry.walletBalance != nil {
-                balanceUpdated(balance: Lbry.walletBalance!)
+            if let balance = Lbry.walletBalance {
+                balanceUpdated(balance: balance)
             }
         }
 
@@ -109,11 +109,12 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        let info = notification.userInfo
-        let kbSize = (info![UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-        let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-        walletScrollView.contentInset = contentInsets
-        walletScrollView.scrollIndicatorInsets = contentInsets
+        if let info = notification.userInfo {
+            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
+            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
+            walletScrollView.contentInset = contentInsets
+            walletScrollView.scrollIndicatorInsets = contentInsets
+        }
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -140,17 +141,17 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         sendAddressTextField.resignFirstResponder()
         sendAmountTextField.resignFirstResponder()
 
-        let recipientAddress = sendAddressTextField.text
-        let amount = Decimal(string: sendAmountTextField.text!)
-        if !Helper.isAddressValid(address: recipientAddress) {
+        guard let recipientAddress = sendAddressTextField.text,
+              Helper.isAddressValid(address: recipientAddress)
+        else {
             showError(message: String.localized("Please enter a valid address to send to"))
             return
         }
-        if amount == nil {
+        guard let amount = Decimal(string: recipientAddress) else {
             showError(message: String.localized("Please enter valid amount"))
             return
         }
-        if amount! > (Lbry.walletBalance?.available)! {
+        if amount > Lbry.walletBalance?.available ?? 0 {
             showError(message: String.localized("Insufficient funds"))
             return
         }
@@ -158,13 +159,13 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         let alert = UIAlertController(
             title: String.localized("Send credits?"),
             message: String
-                .localized(String(format: "Are you sure you want to send credits to %@?", recipientAddress!)),
+                .localized(String(format: "Are you sure you want to send credits to %@?", recipientAddress)),
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
             self.confirmSendCredits(
-                recipientAddress: recipientAddress!,
-                amount: Helper.sdkAmountFormatter.string(from: amount! as NSDecimalNumber)!
+                recipientAddress: recipientAddress,
+                amount: Helper.sdkAmountFormatter.string(from: amount as NSDecimalNumber) ?? ""
             )
         }))
         alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
@@ -278,25 +279,25 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 .string(from: NSDecimalNumber(decimal: balance.supports ?? Decimal(0)))
 
             if let total = balance.total {
-                if (Lbryio.currentLbcUsdRate ?? 0) == 0 {
+                if let rate = Lbryio.currentLbcUsdRate {
+                    usdBalanceLabel.text = String(
+                        format: "≈$%@",
+                        currencyFormatter.string(from: (total * rate) as NSDecimalNumber) ?? ""
+                    )
+                } else {
                     // attempt to reload the exchange rate (if it wasn't loaded previously)
                     Lbryio.loadExchangeRate(completion: { rate, error in
                         guard let rate = rate, error == nil else {
-                            // pass
+                            self.showError(error: error)
                             return
                         }
                         DispatchQueue.main.async {
                             self.usdBalanceLabel.text = String(
                                 format: "≈$%@",
-                                currencyFormatter.string(from: (total * rate) as NSDecimalNumber)!
+                                currencyFormatter.string(from: (total * rate) as NSDecimalNumber) ?? ""
                             )
                         }
                     })
-                } else {
-                    usdBalanceLabel.text = String(
-                        format: "≈$%@",
-                        currencyFormatter.string(from: (total * Lbryio.currentLbcUsdRate!) as NSDecimalNumber)!
-                    )
                 }
             }
         }

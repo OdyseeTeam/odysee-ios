@@ -63,12 +63,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         checkUploadButton()
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.pendingOpenUrl != nil {
-            if handleSpecialUrl(url: appDelegate.pendingOpenUrl!) {
+        if let pendingOpenUrl = appDelegate.pendingOpenUrl {
+            if handleSpecialUrl(url: pendingOpenUrl) {
                 return
             }
 
-            if let lbryUrl = LbryUri.tryParse(url: appDelegate.pendingOpenUrl!, requireProto: false) {
+            if let lbryUrl = LbryUri.tryParse(url: pendingOpenUrl, requireProto: false) {
                 if lbryUrl.isChannel {
                     let vc = storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
@@ -157,7 +157,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     func checkAndClaimEmailReward(completion: @escaping (() -> Void)) {
         if !Lbryio.Defaults.isEmailRewardClaimed {
             let receiveAddress = UserDefaults.standard.string(forKey: Helper.keyReceiveAddress)
-            if receiveAddress.isBlank {
+            if let receiveAddress, !receiveAddress.isBlank {
+                claimEmailReward(walletAddress: receiveAddress, completion: completion)
+            } else {
                 Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
                     guard case let .success(newAddress) = result else {
                         return
@@ -168,8 +170,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
                 return
             }
-
-            claimEmailReward(walletAddress: receiveAddress!, completion: completion)
         } else {
             completion()
         }
@@ -249,7 +249,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     func toggleHeaderVisibility(hidden: Bool) {
         headerArea.isHidden = hidden
         headerAreaHeightConstraint.constant = hidden ? 0 : 52
-        view!.layoutIfNeeded()
+        view.layoutIfNeeded()
     }
 
     func adjustMiniPlayerBottom(bottom: CGFloat) {
@@ -500,29 +500,30 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
                     if let videos = result["videos"] as? [String: Any] {
                         for (claimId, value) in videos {
-                            var cbRules: [CustomBlockRule]? = self.customBlockRulesMap[claimId]
-                            if cbRules == nil {
-                                cbRules = []
+                            var cbRules: [CustomBlockRule] = if let cbRules = self.customBlockRulesMap[claimId] {
+                                cbRules
+                            } else {
+                                []
                             }
                             if let rules = value as? [String: [Any]] {
-                                cbRules! += self.parseCustomBlockRules(
+                                cbRules += self.parseCustomBlockRules(
                                     rules: rules["countries"],
                                     type: CustomBlockContentType.videos,
                                     scope: CustomBlockScope.country
                                 )
-                                cbRules! += self.parseCustomBlockRules(
+                                cbRules += self.parseCustomBlockRules(
                                     rules: rules["continents"],
                                     type: CustomBlockContentType.videos,
                                     scope: CustomBlockScope.continent
                                 )
-                                cbRules! += self.parseCustomBlockRules(
+                                cbRules += self.parseCustomBlockRules(
                                     rules: rules["specials"],
                                     type: CustomBlockContentType.videos,
                                     scope: CustomBlockScope.special
                                 )
                             }
 
-                            self.customBlockRulesMap[claimId] = cbRules!
+                            self.customBlockRulesMap[claimId] = cbRules
                         }
                     }
                 }
@@ -537,12 +538,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         type: CustomBlockContentType,
         scope: CustomBlockScope
     ) -> [CustomBlockRule] {
-        if rules == nil {
+        guard let rules else {
             return []
         }
 
         var cbRules: [CustomBlockRule] = []
-        rules!.forEach { rule in
+        for rule in rules {
             if let indvRule = rule as? [String: Any] {
                 var cbRule = CustomBlockRule()
                 cbRule.type = type
@@ -583,8 +584,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                             )
                             let notification: LbryNotification? = try JSONDecoder()
                                 .decode(LbryNotification.self, from: jsonData)
-                            if notification != nil {
-                                loadedNotifications.append(notification!)
+                            if let notification {
+                                loadedNotifications.append(notification)
                             }
                         } catch {
                             // pass
@@ -592,7 +593,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                     }
                     Lbryio.cachedNotifications.append(contentsOf: loadedNotifications)
                     Lbryio.cachedNotifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "") })
-                    Lbryio.latestNotificationId = Lbryio.cachedNotifications.map { $0.id! }.max() ?? 0
+                    Lbryio.latestNotificationId = Lbryio.cachedNotifications.compactMap(\.id).max() ?? 0
                 }
 
                 self.loadingNotifications = false
@@ -604,7 +605,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     func updateUnseenCount() {
-        let unseenCount = Lbryio.cachedNotifications.reduce(0) { $0 + ($1.isSeen! ? 0 : 1) }
+        let unseenCount = Lbryio.cachedNotifications.reduce(0) { $0 + ($1.isSeen ?? false ? 0 : 1) }
         DispatchQueue.main.async {
             if unseenCount > 0 {
                 self.notificationBadgeView.isHidden = false
@@ -902,7 +903,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         for observer in blockChannelObservers.values {
             if let observer = observer, Lbry.blockedChannels.count > 0 {
                 // use the first claim ID to trigger (this will be used after initial load or sync get)
-                observer.blockChannelStatusChanged(claimId: Lbry.blockedChannels[0].claimId!, isBlocked: true)
+                observer.blockChannelStatusChanged(claimId: Lbry.blockedChannels[0].claimId ?? "", isBlocked: true)
             }
         }
     }
@@ -911,7 +912,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         // persist the subscription to CoreData
         DispatchQueue.main.async {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
             context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
             let entity = BlockedChannel(context: context)
@@ -951,19 +952,19 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     func removeBlockedChannel(claimId: String) {
         // remove the subscription from CoreData
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext! = appDelegate.persistentContainer.viewContext
-            let fetchRequest: NSFetchRequest<BlockedChannel> = BlockedChannel.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "claimId == %@", claimId)
-            let entities = try! context.fetch(fetchRequest)
-
-            if entities.count > 0 {
-                let entityToDelete = entities[0]
-                context.delete(entityToDelete)
-                Lbry.blockedChannels = Lbry.blockedChannels.filter { $0.claimId != entityToDelete.claimId }
-            }
-
             do {
+                let appDelegate = UIApplication.shared.delegate as! AppDelegate
+                let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
+                let fetchRequest: NSFetchRequest<BlockedChannel> = BlockedChannel.fetchRequest()
+                fetchRequest.predicate = NSPredicate(format: "claimId == %@", claimId)
+                let entities = try context.fetch(fetchRequest)
+
+                if entities.count > 0 {
+                    let entityToDelete = entities[0]
+                    context.delete(entityToDelete)
+                    Lbry.blockedChannels = Lbry.blockedChannels.filter { $0.claimId != entityToDelete.claimId }
+                }
+
                 try context.save()
 
                 for observer in self.blockChannelObservers.values {
@@ -975,7 +976,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                 // run a wallet sync operation
                 Lbry.saveSharedUserState(completion: { success, err in
                     guard err == nil else {
-                        // pass
+                        self.showError(error: err)
                         return
                     }
                     if success {
@@ -984,7 +985,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                     }
                 })
             } catch {
-                // pass
+                self.showError(error: error)
             }
         }
     }

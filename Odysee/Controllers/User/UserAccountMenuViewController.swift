@@ -56,7 +56,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         signOutLabel.isHidden = !Lbryio.isSignedIn()
 
         if Lbryio.isSignedIn() {
-            userEmailLabel.text = Lbryio.currentUser?.primaryEmail!
+            userEmailLabel.text = Lbryio.currentUser?.primaryEmail
             loadChannels()
         }
 
@@ -112,14 +112,15 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         appDelegate.mainController.resetUserAndViews()
 
         let initVc = storyboard?.instantiateViewController(identifier: "init_vc") as! InitViewController
-        let window = view.window!
-        window.rootViewController = initVc
-        UIView.transition(
-            with: window,
-            duration: 0.2,
-            options: .transitionCrossDissolve,
-            animations: nil
-        )
+        if let window = view.window {
+            window.rootViewController = initVc
+            UIView.transition(
+                with: window,
+                duration: 0.2,
+                options: .transitionCrossDissolve,
+                animations: nil
+            )
+        }
     }
 
     @IBAction func youTubeSyncTapped(_ sender: Any) {
@@ -183,7 +184,13 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                 )
                 alert.addTextField(configurationHandler: nil)
                 alert.addAction(UIAlertAction(title: String.localized("Delete Anyway"), style: .default, handler: { _ in
-                    let response = alert.textFields![0].text
+                    guard let textFields = alert.textFields,
+                          textFields.count > 0,
+                          let response = textFields[0].text
+                    else {
+                        self.showError(message: String.localized("Failed to get text"))
+                        return
+                    }
                     if response != self.forfeitCreditsVerfication {
                         self.showError(message: String.localized("Please type the verification phrase to continue"))
                         self.deleteAccountTapped(UIButton())
@@ -215,32 +222,34 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     func sweepCredits() {
-        let available = Lbry.walletBalance!.available! - 0.1
+        if let available = Lbry.walletBalance?.available {
+            let available = available - 0.1 // TODO: What if this goes below 0?
 
-        var params = [String: Any]()
-        params["addresses"] = [sweepWalletTarget]
-        params["amount"] = Helper.sdkAmountFormatter.string(from: available as NSDecimalNumber)!
-        params["blocking"] = true
+            var params = [String: Any]()
+            params["addresses"] = [sweepWalletTarget]
+            params["amount"] = Helper.sdkAmountFormatter.string(from: available as NSDecimalNumber)!
+            params["blocking"] = true
 
-        Lbry.apiCall(
-            method: Lbry.methodWalletSend,
-            params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
-            completion: { data, error in
-                guard let _ = data, error == nil else {
-                    DispatchQueue.main.async {
-                        self.showError(error: error)
-                        self.deleteAccountTapped(UIButton())
+            Lbry.apiCall(
+                method: Lbry.methodWalletSend,
+                params: params,
+                connectionString: Lbry.lbrytvConnectionString,
+                authToken: Lbryio.authToken,
+                completion: { data, error in
+                    guard let _ = data, error == nil else {
+                        DispatchQueue.main.async {
+                            self.showError(error: error)
+                            self.deleteAccountTapped(UIButton())
+                        }
+                        return
                     }
-                    return
-                }
 
-                DispatchQueue.main.async {
-                    self.confirmDeleteAccount()
+                    DispatchQueue.main.async {
+                        self.confirmDeleteAccount()
+                    }
                 }
-            }
-        )
+            )
+        }
     }
 
     func confirmDeleteAccount() {
@@ -254,7 +263,13 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         )
         alert.addTextField(configurationHandler: nil)
         alert.addAction(UIAlertAction(title: String.localized("Delete"), style: .default, handler: { _ in
-            let response = alert.textFields![0].text
+            guard let textFields = alert.textFields,
+                  textFields.count > 0,
+                  let response = textFields[0].text
+            else {
+                self.showError(message: String.localized("Failed to get text"))
+                return
+            }
             if response != self.deleteAccountVerification {
                 self.showError(message: String.localized("Please type the verification phrase to continue"))
                 self.deleteAccountTapped(UIButton())
@@ -342,20 +357,25 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                         Lbry.pushSyncWallet()
                     }
                 }
-                for action in self.changeDefaultChannelButton.menu!.children {
-                    (action as? UIAction)?.state = action == selected ? .on : .off
+                if let menu = self.changeDefaultChannelButton.menu {
+                    for action in menu.children {
+                        (action as? UIAction)?.state = action == selected ? .on : .off
+                    }
                 }
             }
-            let channelActions = channels.map { claim -> UIAction in
-                let action = UIAction(
-                    title: claim.name!,
-                    identifier: .init(claim.claimId!),
-                    handler: channelActionHandler
-                )
-                if claim.claimId == Lbry.defaultChannelId {
-                    action.state = .on
+            let channelActions = channels.compactMap { claim -> UIAction? in
+                if let name = claim.name, let claimId = claim.claimId {
+                    let action = UIAction(
+                        title: name,
+                        identifier: .init(claimId),
+                        handler: channelActionHandler
+                    )
+                    if claim.claimId == Lbry.defaultChannelId {
+                        action.state = .on
+                    }
+                    return action
                 }
-                return action
+                return nil
             }
             changeDefaultChannelButton.menu = UIMenu(title: "", children: channelActions)
             changeDefaultChannelButton.showsMenuAsPrimaryAction = true
