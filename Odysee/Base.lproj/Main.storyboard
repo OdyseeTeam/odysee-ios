@@ -1051,7 +1051,7 @@
             </objects>
             <point key="canvasLocation" x="-1568.1159420289857" y="265.84821428571428"/>
         </scene>
-        <!--Library-->
+        <!--Uploads-->
         <scene sceneID="pas-1Y-Kiw">
             <objects>
                 <viewController id="vf1-cE-yLr" customClass="LibraryViewController" customModule="Odysee" customModuleProvider="target" sceneMemberID="viewController">
@@ -1072,7 +1072,7 @@
                             <constraint firstAttribute="bottom" secondItem="o77-y4-e50" secondAttribute="bottom" id="wZQ-jI-3nT"/>
                         </constraints>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Library" image="play.tv" catalog="system" id="I6n-vK-zU2"/>
+                    <tabBarItem key="tabBarItem" title="Uploads" image="play.tv" catalog="system" id="I6n-vK-zU2"/>
                     <connections>
                         <outlet property="viewContainer" destination="o77-y4-e50" id="Lxs-VZ-bE9"/>
                     </connections>
