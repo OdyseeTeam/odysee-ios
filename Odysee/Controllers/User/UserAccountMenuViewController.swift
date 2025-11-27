@@ -137,32 +137,20 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @IBAction func communityGuidelinesTapped(_ sender: Any) {
-        // https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c
-        if let url = LbryUri.tryParse(
-            url: "https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c",
-            requireProto: false
-        ) {
+        if let url = URL(string: "https://help.odysee.tv/communityguidelines/") {
+            let vc = SFSafariViewController(url: url)
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-            vc.claimUrl = url
             presentingViewController?.dismiss(animated: false, completion: nil)
-            appDelegate.mainNavigationController?.view.layer.add(
-                Helper.buildFileViewTransition(),
-                forKey: kCATransition
-            )
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+            appDelegate.mainController.present(vc, animated: true, completion: nil)
         }
     }
 
     @IBAction func helpAndSupportTapped(_ sender: Any) {
-        // https://odysee.com/@OdyseeHelp:b?view=about
-        if let url = LbryUri.tryParse(url: "https://odysee.com/@OdyseeHelp:b", requireProto: false) {
+        if let url = URL(string: "https://help.odysee.tv/") {
+            let vc = SFSafariViewController(url: url)
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let vc = storyboard?.instantiateViewController(withIdentifier: "channel_view_vc") as! ChannelViewController
-            vc.claimUrl = url
-            vc.page = 2
             presentingViewController?.dismiss(animated: false, completion: nil)
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            appDelegate.mainController.present(vc, animated: true, completion: nil)
         }
     }
 
