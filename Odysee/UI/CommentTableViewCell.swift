@@ -109,15 +109,14 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     @objc func authorTapped(_ sender: Any) {
-        if let channelUrl = currentComment?.channelUrl {
-            let url = LbryUri.tryParse(url: channelUrl, requireProto: false)
-            if url != nil {
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                let vc = appDelegate.mainViewController?.storyboard?
-                    .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
-                vc.claimUrl = url
-                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
-            }
+        if let channelUrl = currentComment?.channelUrl,
+           let url = LbryUri.tryParse(url: channelUrl, requireProto: false)
+        {
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let vc = appDelegate.mainViewController?.storyboard?
+                .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+            vc.claimUrl = url
+            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 
