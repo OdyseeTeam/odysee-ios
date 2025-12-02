@@ -40,8 +40,10 @@ class ChannelListTableViewCell: UITableViewCell {
         placeholderLabel.isHidden = !(currentClaim?.claimId == "new")
 
         thumbnailImageView.rounded()
-        if !(claim.value?.thumbnail?.url).isBlank {
-            let thumbnailUrl = URL(string: (claim.value?.thumbnail?.url)!)!
+        if let thumbnailUrlValue = claim.value?.thumbnail?.url,
+           !thumbnailUrlValue.isBlank,
+           let thumbnailUrl = URL(string: thumbnailUrlValue)
+        {
             thumbnailImageView.backgroundColor = UIColor.clear
             thumbnailImageView.load(url: thumbnailUrl)
         } else {
@@ -52,7 +54,7 @@ class ChannelListTableViewCell: UITableViewCell {
         titleLabel.text = claim.value?.title ?? claim.name
         nameLabel.text = claim.name
 
-        var releaseTime = Double(claim.value?.releaseTime ?? "0")!
+        var releaseTime = Double(claim.value?.releaseTime ?? "0") ?? 0
         if releaseTime == 0 {
             releaseTime = Double(claim.timestamp ?? 0)
         }

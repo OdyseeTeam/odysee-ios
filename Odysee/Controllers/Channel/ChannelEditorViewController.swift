@@ -203,7 +203,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         if deposit < Helper.minimumDeposit {
             showError(message: String(
                 format: String.localized("The minimum allowed deposit amount is %@"),
-                Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber)!
+                Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber) ?? ""
             ))
             return
         }
@@ -227,7 +227,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             options["claim_id"] = currentClaim?.claimId
         }
 
-        options["bid"] = Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber)!
+        options["bid"] = Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber) ?? "0"
         options["blocking"] = true
 
         if let currentCoverUrl, !currentCoverUrl.isBlank {

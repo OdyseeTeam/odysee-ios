@@ -191,13 +191,13 @@ enum Helper {
         formatter.maximumFractionDigits = 2
 
         if value > 1_000_000_000 {
-            return String(format: "%@B", formatter.string(for: (value / 1_000_000_000) as NSDecimalNumber)!)
+            return String(format: "%@B", formatter.string(for: (value / 1_000_000_000) as NSDecimalNumber) ?? "")
         }
         if value > 1_000_000 {
-            return String(format: "%@M", formatter.string(for: (value / 1_000_000) as NSDecimalNumber)!)
+            return String(format: "%@M", formatter.string(for: (value / 1_000_000) as NSDecimalNumber) ?? "")
         }
         if value > 1000 {
-            return String(format: "%@K", formatter.string(for: (value / 1000) as NSDecimalNumber)!)
+            return String(format: "%@K", formatter.string(for: (value / 1000) as NSDecimalNumber) ?? "")
         }
 
         return formatter.string(for: value as NSDecimalNumber) ?? ""
@@ -213,13 +213,15 @@ enum Helper {
     }
 
     static func miniPlayerBottomWithoutTabBar() -> CGFloat {
-        let window = UIApplication.shared.windows.filter(\.isKeyWindow).first!
-        let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
-        return CGFloat(window.frame.maxY - safeAreaFrame.maxY + 2)
+        if let window = UIApplication.shared.windows.filter(\.isKeyWindow).first {
+            let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
+            return CGFloat(window.frame.maxY - safeAreaFrame.maxY + 2)
+        }
+        return 0
     }
 
     static func miniPlayerBottomWithTabBar(appDelegate: AppDelegate) -> CGFloat {
-        return (appDelegate.mainTabViewController?.tabBar.frame.size.height)! + 2
+        return (appDelegate.mainTabViewController?.tabBar.frame.size.height ?? 0) + 2
     }
 
     static func makeid() -> String {

@@ -171,7 +171,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         tipButton.setTitle(
             String(
                 format: String.localized("Tip %@ credits"),
-                currencyFormatter.string(for: tipCreditAmount as NSDecimalNumber)!
+                currencyFormatter.string(for: tipCreditAmount as NSDecimalNumber) ?? ""
             ),
             for: .normal
         )

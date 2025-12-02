@@ -172,7 +172,7 @@ class ClaimTableViewCell: UITableViewCell {
             }
         }
 
-        var releaseTime = Double(actualClaim.value?.releaseTime ?? "0")!
+        var releaseTime = Double(actualClaim.value?.releaseTime ?? "0") ?? 0
         if releaseTime == 0 {
             releaseTime = Double(actualClaim.timestamp ?? 0)
         }
