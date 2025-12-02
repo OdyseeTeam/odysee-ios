@@ -40,7 +40,7 @@ class InitViewController: UIViewController {
             guard let _ = categories, error == nil else {
                 // Categories have to be properly loaded for the home page
                 // If they are not properly loaded, display the startup error
-                self.showError()
+                self.showError(error: error)
                 return
             }
 
@@ -71,7 +71,7 @@ class InitViewController: UIViewController {
 
                     // show a startup error message
                     self.initErrorState = true
-                    self.showError() // TODO: Show more meaningful errors for /user/me failures?
+                    self.showError(error: error) // TODO: Show more meaningful errors for /user/me failures?
                     return
                 }
 
@@ -83,7 +83,7 @@ class InitViewController: UIViewController {
             // user/me failed
             // show eror message
             initErrorState = true
-            showError()
+            showError(error: error)
         }
     }
 
@@ -92,7 +92,7 @@ class InitViewController: UIViewController {
             if error != nil {
                 // show error
                 self.initErrorState = true
-                self.showError()
+                self.showError(error: error)
                 return
             }
 
@@ -195,10 +195,12 @@ class InitViewController: UIViewController {
         }
     }
 
-    func showError() {
+    func showError(error: Error?) {
         DispatchQueue.main.async {
             self.loadingIndicator.isHidden = true
             self.errorView.isHidden = false
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.showError(error: error)
         }
     }
 
