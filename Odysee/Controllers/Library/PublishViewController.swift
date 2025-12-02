@@ -621,7 +621,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 req.httpMethod = "POST"
                 req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
                 req.setValue(String(contentLength), forHTTPHeaderField: "Content-Length")
-                if let authToken = Lbryio.authToken, authToken.isBlank {
+                if let authToken = Lbryio.authToken, !authToken.isBlank {
                     req.addValue(authToken, forHTTPHeaderField: "X-Lbry-Auth-Token")
                 }
                 req.httpBodyStream = Multistream(streams: [headerStream, fileStream, footerStream])
