@@ -505,7 +505,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         let suffix = String(describing: Int(Date().timeIntervalSince1970))
         let options: [String: Any] = [
             "blocking": true,
-            "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber)!,
+            "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber) ?? "0",
             "title": title,
             "description": "",
             "thumbnail_url": currentThumbnailUrl ?? (channel.value?.thumbnail?.url ?? ""),

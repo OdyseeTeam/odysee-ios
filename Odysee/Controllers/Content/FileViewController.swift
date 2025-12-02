@@ -869,7 +869,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         titleLabel.text = singleClaim.value?.title
 
-        let releaseTime = Double(singleClaim.value?.releaseTime ?? "0")!
+        let releaseTime = Double(singleClaim.value?.releaseTime ?? "0") ?? 0
         let date: Date = NSDate(timeIntervalSince1970: releaseTime) as Date // TODO: Timezone check / conversion?
 
         timeAgoLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())
@@ -1178,7 +1178,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let timeToStartMs = Int64(Date().timeIntervalSince1970 * 1000.0) - playRequestTime
         let timeToStartSeconds = Int64(Double(timeToStartMs) / 1000.0)
-        if let claimUrl = (isPlaylist ? currentPlaylistClaim().permanentUrl : claim?.permanentUrl) {
+        if let claimUrl = isPlaylist ? currentPlaylistClaim().permanentUrl : claim?.permanentUrl {
             Analytics.logEvent("play", parameters: [
                 "url": claimUrl,
                 "time_to_start_ms": timeToStartMs,
@@ -1291,7 +1291,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         self.viewCountLabel.isHidden = false
                         self.viewCountLabel.text = String(
                             format: viewCount == 1 ? String.localized("%@ view") : String.localized("%@ views"),
-                            formatter.string(for: viewCount)!
+                            formatter.string(for: viewCount) ?? ""
                         )
                     }
                 }
@@ -2540,12 +2540,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func updateCommentAsChannel(_ index: Int) {
-        if index < 0 || channels.count == 0 {
+        guard index > 0,
+              channels.count > index,
+              let name = channels[index].name
+        else {
             return
         }
 
-        let channel = channels[index]
-        commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), channel.name!)
+        commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), name)
     }
 
     @objc func playerRateTapped(_ sender: Any) {

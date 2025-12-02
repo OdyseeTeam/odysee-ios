@@ -23,8 +23,10 @@ class SuggestedChannelCollectionViewCell: UICollectionViewCell {
         currentClaim = claim
 
         thumbnailImageView.rounded()
-        if claim.value?.thumbnail != nil, claim.value?.thumbnail?.url != nil {
-            thumbnailImageView.load(url: URL(string: (claim.value?.thumbnail?.url)!)!)
+        if let thumbnailUrlValue = claim.value?.thumbnail?.url,
+           let thumbnailUrl = URL(string: thumbnailUrlValue)
+        {
+            thumbnailImageView.load(url: thumbnailUrl)
         } else {
             thumbnailImageView.image = UIImage(named: "spaceman")
             thumbnailImageView.backgroundColor = Helper.lightPrimaryColor

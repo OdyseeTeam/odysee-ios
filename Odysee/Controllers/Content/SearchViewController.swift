@@ -133,8 +133,8 @@ class SearchViewController: UIViewController,
             if winningClaims.count > 0 {
                 winningClaims
                     .sort(by: {
-                        Decimal(string: $0.meta?.effectiveAmount ?? "0")! >
-                            Decimal(string: $1.meta?.effectiveAmount ?? "0")!
+                        Decimal(string: $0.meta?.effectiveAmount ?? "0") ?? 0 >
+                            Decimal(string: $1.meta?.effectiveAmount ?? "0") ?? 0
                     })
                 let winningClaim = winningClaims[0]
                 winningClaim.featured = true
@@ -349,12 +349,12 @@ class SearchViewController: UIViewController,
     }
 
     @IBAction func noResultsViewTapped(_ sender: Any) {
-        if let currentQuery, Lighthouse.containsFilteredKeyword(currentQuery) {
-            if let url = URL(string: String(format: "https://odysee.com/$/search?q=%@", currentQuery)) {
-                let vc = SFSafariViewController(url: url)
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.present(vc, animated: true, completion: nil)
-            }
+        if let currentQuery, Lighthouse.containsFilteredKeyword(currentQuery),
+           let url = URL(string: String(format: "https://odysee.com/$/search?q=%@", currentQuery))
+        {
+            let vc = SFSafariViewController(url: url)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            appDelegate.mainController.present(vc, animated: true, completion: nil)
         }
     }
 

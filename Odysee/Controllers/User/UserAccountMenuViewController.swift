@@ -227,7 +227,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
             var params = [String: Any]()
             params["addresses"] = [sweepWalletTarget]
-            params["amount"] = Helper.sdkAmountFormatter.string(from: available as NSDecimalNumber)!
+            params["amount"] = Helper.sdkAmountFormatter.string(from: available as NSDecimalNumber) ?? "0"
             params["blocking"] = true
 
             Lbry.apiCall(

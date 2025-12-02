@@ -66,7 +66,7 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
     func setFutureStreamClaim(claim: Claim) {
         setClaimInfo(claim: claim)
 
-        var releaseTime = Double(claim.value?.releaseTime ?? "0")!
+        var releaseTime = Double(claim.value?.releaseTime ?? "0") ?? 0
         if releaseTime == 0 {
             releaseTime = Double(claim.timestamp ?? 0)
         }

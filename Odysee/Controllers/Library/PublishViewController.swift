@@ -410,7 +410,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         if deposit < Helper.minimumDeposit {
             showError(message: String(
                 format: String.localized("The minimum allowed deposit amount is %@"),
-                Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber)!
+                Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber) ?? ""
             ))
             return
         }
@@ -436,7 +436,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
         var params: [String: Any] = [
             "blocking": true,
-            "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber)!,
+            "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber) ?? "0",
             "title": title ?? "",
             "description": descriptionField.text ?? "",
             "thumbnail_url": currentThumbnailUrl ?? "",
