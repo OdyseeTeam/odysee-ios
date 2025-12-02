@@ -216,7 +216,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             return
         }
 
-        if Lbry.walletBalance == nil || amount > Lbry.walletBalance!.available! {
+        if Lbry.walletBalance == nil || amount > Lbry.walletBalance?.available ?? 0 {
             showError(message: String.localized("Insufficient funds"))
             return
         }
