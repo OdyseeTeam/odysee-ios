@@ -215,7 +215,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         } else {
             0
         }
-        if Lbry.walletBalance == nil || deposit - prevDeposit > Lbry.walletBalance!.available! {
+        if Lbry.walletBalance == nil || deposit - prevDeposit > Lbry.walletBalance?.available ?? 0 {
             showError(message: "Deposit cannot be higher than your wallet balance")
             return
         }
