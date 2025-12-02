@@ -147,7 +147,9 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             showError(message: String.localized("Please enter a valid address to send to"))
             return
         }
-        guard let amount = Decimal(string: recipientAddress) else {
+        guard let amountValue = sendAmountTextField.text,
+              let amount = Decimal(string: amountValue)
+        else {
             showError(message: String.localized("Please enter valid amount"))
             return
         }
