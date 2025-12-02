@@ -113,7 +113,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
-        if channels.count >= index, currentCommentAsIndex == -1 {
+        if channels.count > index, currentCommentAsIndex == -1 {
             currentCommentAsIndex = index
             updateCommentAsChannel(index)
         }

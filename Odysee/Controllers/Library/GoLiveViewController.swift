@@ -308,7 +308,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             channelPicker.reloadAllComponents()
 
             let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
-            if channels.count >= index {
+            if channels.count > index {
                 channelPicker.selectRow(index, inComponent: 0, animated: true)
             }
 
