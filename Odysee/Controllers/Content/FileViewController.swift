@@ -886,7 +886,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 livestreamerTitleLabel.text = singleClaim.signingChannel?.value?.title
                 livestreamerNameLabel.text = singleClaim.signingChannel?.name
             }
-            if let thumbnail = singleClaim.value?.thumbnail?.url,
+            if let thumbnail = singleClaim.signingChannel?.value?.thumbnail?.url,
                let thumbnailUrl_ = URL(string: thumbnail)
             {
                 thumbnailUrl = thumbnailUrl_.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
