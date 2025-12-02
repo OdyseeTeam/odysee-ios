@@ -36,8 +36,8 @@ class InitViewController: UIViewController {
     }
 
     func loadCategories() {
-        ContentSources.loadCategories(completion: { categories, error in
-            guard let _ = categories, error == nil else {
+        ContentSources.loadCategories(completion: { error in
+            guard error == nil else {
                 // Categories have to be properly loaded for the home page
                 // If they are not properly loaded, display the startup error
                 self.showError(error: error)

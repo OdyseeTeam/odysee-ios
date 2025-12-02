@@ -15,9 +15,25 @@ enum ContentSources {
     static let defaultsKey = "ContentSourcesCache"
     static let endpoint = "https://odysee.com/$/api/content/v2/get"
 
-    static var DynamicContentCategories: [Category] = []
+    static let placeholderDiscoverCategory = Category(
+        sortOrder: 1,
+        key: "EXPLORABLE_CHANNEL",
+        name: "explore",
+        label: "DIscover",
+        channelLimit: 1,
+        channelIds: [],
+        excludedChannelIds: []
+    )
 
-    static func loadCategories(completion: @escaping ([Category]?, Error?) -> Void) {
+    static var DynamicContentCategories: [Category] = [placeholderDiscoverCategory] {
+        didSet {
+            if DynamicContentCategories.count == 0 {
+                DynamicContentCategories = [placeholderDiscoverCategory]
+            }
+        }
+    }
+
+    static func loadCategories(completion: @escaping (Error?) -> Void) {
         let defaults = UserDefaults.standard
 
         do {
@@ -27,7 +43,7 @@ enum ContentSources {
                    diff < 24
                 {
                     ContentSources.DynamicContentCategories = csCache.categories
-                    completion(csCache.categories, nil)
+                    completion(nil)
                     return
                 }
             }
@@ -36,9 +52,9 @@ enum ContentSources {
         loadRemoteCategories(completion: completion)
     }
 
-    static func loadRemoteCategories(completion: @escaping ([Category]?, Error?) -> Void) {
+    static func loadRemoteCategories(completion: @escaping (Error?) -> Void) {
         guard let requestUrl = URL(string: ContentSources.endpoint) else {
-            completion(nil, GenericError("requestUrl"))
+            completion(GenericError("requestUrl"))
             return
         }
 
@@ -51,7 +67,7 @@ enum ContentSources {
         let task = session.dataTask(with: req, completionHandler: { data, response, error in
             guard let data = data, error == nil else {
                 // handle error
-                completion(nil, error)
+                completion(error)
                 return
             }
 
@@ -65,7 +81,7 @@ enum ContentSources {
                 Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
                 if respCode >= 200, respCode < 300 {
                     if respData?["data"] == nil {
-                        completion(nil, LbryioResponseError("Could not find data key in response returned", respCode))
+                        completion(LbryioResponseError("Could not find data key in response returned", respCode))
                         return
                     }
 
@@ -118,23 +134,23 @@ enum ContentSources {
                             forKey: defaultsKey
                         )
                     } catch {
-                        completion(nil, error)
+                        completion(error)
                         return
                     }
 
-                    completion(categories, nil)
+                    completion(nil)
                     return
                 }
 
                 if respData?["error"] as? NSNull != nil {
-                    completion(nil, LbryioResponseError("no error message", respCode))
+                    completion(LbryioResponseError("no error message", respCode))
                 } else if respData?["error"] as? String != nil {
-                    completion(nil, LbryioResponseError(respData?["error"] as! String, respCode))
+                    completion(LbryioResponseError(respData?["error"] as! String, respCode))
                 } else {
-                    completion(nil, LbryioResponseError("Unknown api error signature", respCode))
+                    completion(LbryioResponseError("Unknown api error signature", respCode))
                 }
             } catch let err {
-                completion(nil, err)
+                completion(err)
             }
         })
         task.resume()
