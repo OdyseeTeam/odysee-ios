@@ -567,6 +567,18 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                             self.removeSubscription(url: subUrl.description, channelName: channelName)
                         }
                     }
+
+                    Lbryio.subscriptionsDirty = true
+                    Lbry.saveSharedUserState(completion: { success, err in
+                        guard err == nil else {
+                            // pass
+                            return
+                        }
+                        if success {
+                            // run wallet sync
+                            Lbry.pushSyncWallet()
+                        }
+                    })
                 }
             )
         } catch {
