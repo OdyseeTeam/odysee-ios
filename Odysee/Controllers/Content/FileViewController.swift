@@ -1235,12 +1235,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func claimDailyView() {
-        let defaults = UserDefaults.standard
-        guard let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress) else {
-            showError(message: "couldn't get receiveAddress")
-            return
-        }
-        if receiveAddress.isBlank {
+        if let receiveAddress = UserDefaults.standard.string(forKey: Helper.keyReceiveAddress),
+           !receiveAddress.isBlank
+        {
+            Lbryio.claimReward(type: "daily_view", walletAddress: receiveAddress, completion: { _, _ in
+                // don't do anything here
+            })
+        } else {
             Lbry.apiCall(
                 method: Lbry.Methods.addressUnused,
                 params: .init()
@@ -1253,13 +1254,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 UserDefaults.standard.set(newAddress, forKey: Helper.keyReceiveAddress)
                 Lbryio.claimReward(type: "daily_view", walletAddress: newAddress, completion: { _, _ in })
             }
-
-            return
         }
-
-        Lbryio.claimReward(type: "daily_view", walletAddress: receiveAddress, completion: { _, _ in
-            // don't do anything here
-        })
     }
 
     func loadAndDisplayViewCount(_ singleClaim: Claim) {
