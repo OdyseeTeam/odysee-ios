@@ -47,9 +47,8 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.toggleMiniPlayer(hidden: true)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
     }
 
     override func viewDidLoad() {
@@ -159,8 +158,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             rtmpConnection.close()
         }
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainNavigationController?.popViewController(animated: true)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
         }
     }
 
@@ -624,15 +622,13 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 

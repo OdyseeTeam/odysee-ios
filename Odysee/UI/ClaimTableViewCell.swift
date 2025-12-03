@@ -263,8 +263,6 @@ class ClaimTableViewCell: UITableViewCell {
 
     @objc func publisherTapped(_ sender: Any) {
         if let channelClaim = currentClaim?.signingChannel {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
             let currentVc = UIApplication.currentViewController()
             if let channelVc = currentVc as? ChannelViewController {
                 if channelVc.channelClaim?.claimId == channelClaim.claimId {
@@ -272,20 +270,18 @@ class ClaimTableViewCell: UITableViewCell {
                     return
                 }
             } else if currentVc as? FileViewController != nil {
-                appDelegate.mainNavigationController?.popViewController(animated: false)
+                AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
 
-            let vc = appDelegate.mainController.storyboard?
+            let vc = AppDelegate.shared.mainController.storyboard?
                 .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 
     @objc func reposterTapped(_ sender: Any) {
         if let channelClaim = reposterChannelClaim {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
             let currentVc = UIApplication.currentViewController()
             if let channelVc = currentVc as? ChannelViewController {
                 if channelVc.channelClaim?.claimId == channelClaim.claimId {
@@ -293,13 +289,13 @@ class ClaimTableViewCell: UITableViewCell {
                     return
                 }
             } else if currentVc as? FileViewController != nil {
-                appDelegate.mainNavigationController?.popViewController(animated: false)
+                AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
 
-            let vc = appDelegate.mainController.storyboard?
+            let vc = AppDelegate.shared.mainController.storyboard?
                 .instantiateViewController(withIdentifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 }

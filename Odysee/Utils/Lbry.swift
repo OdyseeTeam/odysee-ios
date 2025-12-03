@@ -365,18 +365,17 @@ enum Lbry {
     // move to main thread due to the appdelegate reference
     static func processBlockedUrls(_ blockedUrls: [String]) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "BlockedChannel")
             let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
             do {
-                let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
+                let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
                 try context.execute(deleteRequest)
             } catch {
                 // pass
                 return
             }
 
-            if let mainVc = appDelegate.mainViewController as? MainViewController {
+            if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
                 for aUrl in blockedUrls {
                     let lbryUrl = LbryUri.tryParse(url: aUrl, requireProto: false)
                     if let claimId = lbryUrl?.claimId, let channelName = lbryUrl?.channelName {

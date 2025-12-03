@@ -35,9 +35,8 @@ class YouTubeSyncStatusViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -173,14 +172,12 @@ class YouTubeSyncStatusViewController: UIViewController {
     func finishClaimChannel() {
         DispatchQueue.main.async {
             self.showMessage(message: "You have successfully claimed your YouTube channel")
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainNavigationController?.popViewController(animated: true)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
         }
     }
 
     @IBAction func exploreOdyseeTapped(_ sender: UIButton) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainNavigationController?.popViewController(animated: true)
+        AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
     }
 
     @objc func fetchSyncStatus() {
@@ -259,22 +256,19 @@ class YouTubeSyncStatusViewController: UIViewController {
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
 

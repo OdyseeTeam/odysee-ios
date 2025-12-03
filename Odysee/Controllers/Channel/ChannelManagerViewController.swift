@@ -23,9 +23,8 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -158,11 +157,10 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             return
         }
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let vc = appDelegate.mainController.storyboard?
+        let vc = AppDelegate.shared.mainController.storyboard?
             .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
         vc.channelClaim = claim
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     @objc func handleUploadCellLongPress(sender: UILongPressGestureRecognizer) {
@@ -209,13 +207,11 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     }
 
     func showError(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(message: message)
+        AppDelegate.shared.mainController.showError(message: message)
     }
 
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        AppDelegate.shared.mainController.showError(error: error)
     }
 
     @IBAction func backTapped(_ sender: Any) {
@@ -225,9 +221,8 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     }
 
     @IBAction func newChannelTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     /*
