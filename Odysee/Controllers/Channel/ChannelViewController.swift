@@ -952,7 +952,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 options: options,
                 completion: { data, error in
                     self.subscribeUnsubscribeInProgress = false
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         // print(error)
                         self.showError(error: error)
                         self.checkFollowing()
