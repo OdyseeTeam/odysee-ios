@@ -126,16 +126,14 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         channelDriverView.isHidden = channels.count > 0
         channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let mainVc = appDelegate.mainViewController as? MainViewController {
+        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
             mainVc.addBlockChannelObserver(name: "comments", observer: self)
         }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let mainVc = appDelegate.mainViewController as? MainViewController {
+        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
             mainVc.removeBlockChannelObserver(name: "comments")
         }
     }
@@ -901,31 +899,27 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        AppDelegate.shared.mainController.showError(error: error)
     }
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
 
     func showUAView() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if UIApplication.currentViewController() as? FileViewController != nil {
-            appDelegate.mainNavigationController?.popViewController(animated: false)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     func filterBlockedChannels(_ reload: Bool) {

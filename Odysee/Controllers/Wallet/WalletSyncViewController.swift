@@ -17,15 +17,13 @@ class WalletSyncViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.toggleMiniPlayer(hidden: true)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
     }
 
     override func viewDidDisappear(_ animated: Bool) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.lazyPlayer != nil {
-            appDelegate.mainController.toggleMiniPlayer(hidden: false)
+        if AppDelegate.shared.lazyPlayer != nil {
+            AppDelegate.shared.mainController.toggleMiniPlayer(hidden: false)
         }
     }
 
@@ -162,9 +160,8 @@ class WalletSyncViewController: UIViewController {
     func closeWalletSync() {
         DispatchQueue.main.async {
             // sync_apply was successful, we can proceed
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.startWalletBalanceTimer()
-            appDelegate.mainController.checkAndClaimEmailReward(completion: {})
+            AppDelegate.shared.mainController.startWalletBalanceTimer()
+            AppDelegate.shared.mainController.checkAndClaimEmailReward(completion: {})
 
             if self.firstRunFlow {
                 self.frDelegate?.requestFinished(showSkip: true, showContinue: true)
@@ -186,15 +183,14 @@ class WalletSyncViewController: UIViewController {
     }
 
     func checkAndShowYouTubeSync(popViewController: Bool) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if popViewController {
-            appDelegate.mainNavigationController?.popViewController(animated: false)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
         guard !Lbryio.Defaults.isYouTubeSyncDone else {
             return
         }
         let vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     func requestSyncApplyWithPassword() {}
@@ -236,8 +232,7 @@ class WalletSyncViewController: UIViewController {
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 
