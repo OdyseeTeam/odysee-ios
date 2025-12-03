@@ -1396,7 +1396,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             try Lbryio.post(resource: "reaction", action: "react", options: options, completion: { data, error in
                 self.reacting = false
 
-                guard let _ = data, error == nil else {
+                guard data != nil, error == nil else {
                     self.showError(error: error)
                     self.likesContent = oldLikesContent
                     self.numLikes = oldNumLikes
@@ -2029,7 +2029,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 options: options,
                 completion: { data, error in
                     self.subscribeUnsubscribeInProgress = false
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         self.showError(error: error)
                         self.checkFollowing(actualClaim)
                         self.checkNotificationsDisabled(actualClaim)

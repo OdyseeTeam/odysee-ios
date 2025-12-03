@@ -461,7 +461,7 @@ class UserAccountViewController: UIViewController {
                 action: "resend_token",
                 options: options,
                 completion: { data, error in
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         self.showError(error: error)
                         return
                     }
@@ -480,7 +480,7 @@ class UserAccountViewController: UIViewController {
             options["email"] = email
             options["send_verification_email"] = "true"
             try Lbryio.post(resource: "user_email", action: "new", options: options, completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard data != nil, error == nil else {
                     if let responseError = error as? LbryioResponseError {
                         if responseError.code == 409 {
                             self.handleEmailVerificationFlow(email: email)

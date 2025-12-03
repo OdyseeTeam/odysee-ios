@@ -258,7 +258,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard data != nil, error == nil else {
                     self.showError(error: error)
                     return
                 }

@@ -145,7 +145,7 @@ class WalletSyncViewController: UIViewController {
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard data != nil, error == nil else {
                     // sync apply wasn't successful, ask the user to enter a password to unlock
                     self.requestSyncApplyWithPassword()
                     return

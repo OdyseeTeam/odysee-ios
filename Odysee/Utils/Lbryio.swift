@@ -162,7 +162,7 @@ enum Lbryio {
     static let authTokenParam = "auth_token"
     static var authToken: String? {
         didSet {
-            guard let _ = authToken else {
+            guard authToken != nil else {
                 deleteAuthToken()
                 return
             }
@@ -641,7 +641,7 @@ enum Lbryio {
                 options["channel_claim_id"] = claimId
             }
             try Lbryio.post(resource: "event", action: "publish", options: options, completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard data != nil, error == nil else {
                     // ignore errors, can always retry at a later time
                     return
                 }

@@ -147,7 +147,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @IBAction func deleteAccountTapped(_ sender: Any) {
-        if let _ = Lbryio.currentUser {
+        if Lbryio.currentUser != nil {
             if !Lbry.ownChannels.isEmpty {
                 let alert = UIAlertController(
                     title: String.localized("Delete Account: Delete your Channels"),
@@ -227,7 +227,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                 connectionString: Lbry.lbrytvConnectionString,
                 authToken: Lbryio.authToken,
                 completion: { data, error in
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         DispatchQueue.main.async {
                             self.showError(error: error)
                             self.deleteAccountTapped(UIButton())

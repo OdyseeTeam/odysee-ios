@@ -95,7 +95,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
             options["is_seen"] = "true"
             do {
                 try Lbryio.post(resource: "notification", action: "edit", options: options, completion: { data, error in
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         return
                     }
                 })
@@ -124,7 +124,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
             options["is_read"] = "true"
             do {
                 try Lbryio.post(resource: "notification", action: "edit", options: options, completion: { data, error in
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         return
                     }
                 })
@@ -143,7 +143,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         options["notification_ids"] = String(id)
         do {
             try Lbryio.post(resource: "notification", action: "delete", options: options, completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard data != nil, error == nil else {
                     return
                 }
             })

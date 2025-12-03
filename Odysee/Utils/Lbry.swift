@@ -488,7 +488,7 @@ enum Lbry {
                     connectionString: lbrytvConnectionString,
                     authToken: Lbryio.authToken,
                     completion: { data, error in
-                        guard let _ = data, error == nil else {
+                        guard data != nil, error == nil else {
                             completion(false, error)
                             return
                         }
