@@ -58,23 +58,22 @@ class TransactionTableViewCell: UITableViewCell {
 
     @objc func claimInfoTapped(_ sender: Any) {
         if let name = tx?.claim?.name, let claimId = tx?.claim?.claimId {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             if let url = LbryUri.tryParse(url: String(format: "%@#%@", name, claimId), requireProto: false) {
                 if name.starts(with: "@") {
-                    let vc = appDelegate.mainViewController?.storyboard?
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = url
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
                     // file claim
-                    let vc = appDelegate.mainViewController?.storyboard?
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = url
-                    appDelegate.mainNavigationController?.view.layer.add(
+                    AppDelegate.shared.mainNavigationController?.view.layer.add(
                         Helper.buildFileViewTransition(),
                         forKey: kCATransition
                     )
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
                 }
             }
         }
@@ -84,8 +83,7 @@ class TransactionTableViewCell: UITableViewCell {
         if let txid = tx?.txid {
             if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, txid)) {
                 let vc = SFSafariViewController(url: url)
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.present(vc, animated: true, completion: nil)
+                AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
             }
         }
     }

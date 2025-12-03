@@ -23,15 +23,14 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         super.viewWillAppear(animated)
         view.isHidden = !Lbryio.isSignedIn()
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.notificationBadgeIcon.tintColor = Helper.primaryColor
-        appDelegate.mainController.notificationsViewActive = true
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.notificationBadgeIcon.tintColor = Helper.primaryColor
+        AppDelegate.shared.mainController.notificationsViewActive = true
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
 
         if !Lbryio.isSignedIn() {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 
@@ -45,8 +44,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
             ]
         )
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
 
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
@@ -54,9 +52,8 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.notificationBadgeIcon.tintColor = UIColor.label
-        appDelegate.mainController.notificationsViewActive = false
+        AppDelegate.shared.mainController.notificationBadgeIcon.tintColor = UIColor.label
+        AppDelegate.shared.mainController.notificationsViewActive = false
     }
 
     override func viewDidLoad() {
@@ -88,8 +85,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
         notifications = Lbryio.cachedNotifications
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.updateUnseenCount()
+            AppDelegate.shared.mainController.updateUnseenCount()
         }
 
         // send remote request
@@ -229,15 +225,13 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 
@@ -264,8 +258,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         if let targetUrl = notification.targetUrl {
             markSingleNotificationRead(id: notification.id)
 
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            if appDelegate.mainController.handleSpecialUrl(url: targetUrl) {
+            if AppDelegate.shared.mainController.handleSpecialUrl(url: targetUrl) {
                 navigationController?.popViewController(animated: true)
                 return
             }
@@ -280,7 +273,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                         vc.currentCommentIsReply = !(notification.notificationParameters?.dynamic?.parentId ?? "")
                             .isEmpty
                     }
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
                     let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
@@ -289,11 +282,11 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                         vc.currentCommentIsReply = !(notification.notificationParameters?.dynamic?.parentId)
                             .isBlank
                     }
-                    appDelegate.mainNavigationController?.view.layer.add(
+                    AppDelegate.shared.mainNavigationController?.view.layer.add(
                         Helper.buildFileViewTransition(),
                         forKey: kCATransition
                     )
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
                 }
             }
         }
