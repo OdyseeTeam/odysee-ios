@@ -4,6 +4,7 @@
 	"indentation": {
 		"spaces": 4
 	},
+	"spacesAroundRangeFormationOperators": true,
 	"spacesBeforeEndOfLineComments": 1,
 	"rules": {
 		"AllPublicDeclarationsHaveDocumentation": false,
