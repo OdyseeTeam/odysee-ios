@@ -98,7 +98,7 @@ class ClaimTableViewCell: UITableViewCell {
     }
 
     func setClaim(claim: Claim, showRepostOverlay: Bool) {
-        guard let _ = claim.claimId else {
+        guard claim.claimId != nil else {
             return
         }
 

@@ -539,7 +539,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 action: unsubscribing ? "delete" : "new",
                 options: options,
                 completion: { data, error in
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         self.showError(error: error)
                         return
                     }

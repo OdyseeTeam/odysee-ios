@@ -372,7 +372,7 @@ enum Helper {
     }
 
     static func isChannelBlocked(claimId: String?) -> Bool {
-        guard let _ = claimId else {
+        guard claimId != nil else {
             return false
         }
         return Lbry.blockedChannels.map(\.claimId).contains(claimId)

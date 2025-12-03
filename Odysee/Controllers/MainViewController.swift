@@ -147,7 +147,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     func removeBlockChannelObserver(name: String) {
-        if let _ = blockChannelObservers[name] {
+        if blockChannelObservers[name] != nil {
             blockChannelObservers.removeValue(forKey: name)
         }
     }
@@ -175,7 +175,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func claimEmailReward(walletAddress: String, completion: @escaping (() -> Void)) {
         Lbryio.claimReward(type: "email_provided", walletAddress: walletAddress, completion: { data, error in
-            guard let _ = data, error == nil else {
+            guard data != nil, error == nil else {
                 // self.showError(error: error)
                 completion()
                 return
