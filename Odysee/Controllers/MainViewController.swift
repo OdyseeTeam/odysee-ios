@@ -289,8 +289,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     @IBAction func uploadTapped(_ sender: Any) {
-        let currentVc = UIApplication.currentViewController()
-        if (currentVc as? PublishViewController) != nil {
+        if UIApplication.currentViewController() as? PublishViewController != nil {
             return
         }
 
