@@ -13,14 +13,13 @@ class LibraryViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         view.isHidden = !Lbryio.isSignedIn()
 
         // check if current user is signed in
         if !Lbryio.isSignedIn() {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 
@@ -42,10 +41,9 @@ class LibraryViewController: UIViewController {
             ]
         )
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-        appDelegate.mainController.adjustMiniPlayerBottom(
-            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: appDelegate))
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(
+            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
     func showPublishesView() {

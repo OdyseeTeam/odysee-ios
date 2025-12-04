@@ -6794,7 +6794,7 @@
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ia6-r3-4DT">
                                 <rect key="frame" x="376" y="112" width="22" height="21"/>
                                 <connections>
-                                    <action selector="closeOtherContentTappedWith_sender:" destination="Wx8-f6-Mvh" eventType="touchUpInside" id="Cmj-Kb-NBm"/>
+                                    <action selector="closeOtherContentTapped:" destination="Wx8-f6-Mvh" eventType="touchUpInside" id="z6z-DN-hKi"/>
                                 </connections>
                             </button>
                         </subviews>
