@@ -218,6 +218,7 @@ class SearchViewController: UIViewController,
                     DispatchQueue.main.async {
                         self.searching = false
                         self.claims = []
+                        self.resultsListView.reloadData()
                         self.resolveWinning(query: query)
                         self.checkNoResults()
                     }
