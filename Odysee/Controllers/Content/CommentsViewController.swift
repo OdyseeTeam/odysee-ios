@@ -429,10 +429,10 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                             $0.commentId == currentReplyToComment.commentId
                         }) {
                             var currentComment: Comment? = comment
-                            while let _currentComment = currentComment {
+                            while let currentComment_ = currentComment {
                                 comment.replyDepth += 1
                                 currentComment = self.comments.first(where: {
-                                    $0.commentId == _currentComment.parentId
+                                    $0.commentId == currentComment_.parentId
                                 })
                             }
                             self.comments.insert(comment, at: parentIndex + 1)
@@ -711,9 +711,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 }.map { comment in
                     var comment = comment
                     var currentComment: Comment? = comment
-                    while let _currentComment = currentComment {
+                    while let currentComment_ = currentComment {
                         comment.replyDepth += 1
-                        currentComment = self.comments.first(where: { $0.commentId == _currentComment.parentId })
+                        currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
                     }
                     return comment
                 }
@@ -821,9 +821,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     }.map { comment in
                         var comment = comment
                         var currentComment: Comment? = comment
-                        while let _currentComment = currentComment {
+                        while let currentComment_ = currentComment {
                             comment.replyDepth += 1
-                            currentComment = self.comments.first(where: { $0.commentId == _currentComment.parentId })
+                            currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
                         }
                         return comment
                     }

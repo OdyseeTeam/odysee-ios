@@ -1808,7 +1808,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         navigationController?.popViewController(animated: true)
     }
 
-    @IBAction func closeOtherContentTapped(_sender: UIButton) {
+    @IBAction func closeOtherContentTapped(_ sender: UIButton) {
         if imageViewerActive {
             imageViewer.isHidden = true
             imageViewerActive = false
