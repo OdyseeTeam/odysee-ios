@@ -7,6 +7,7 @@
 
 import AVKit
 import CoreData
+import Firebase
 import UIKit
 
 class InitViewController: UIViewController {
@@ -196,11 +197,14 @@ class InitViewController: UIViewController {
     }
 
     func showError(error: Error?) {
+        Crashlytics.crashlytics().recordImmediate(
+            error: GenericError(""),
+            userInfo: ["MESSAGE_KEY": error?.localizedDescription ?? ""]
+        )
+
         DispatchQueue.main.async {
             self.loadingIndicator.isHidden = true
             self.errorView.isHidden = false
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
         }
     }
 
