@@ -113,6 +113,9 @@ class CommentTableViewCell: UITableViewCell {
            let url = LbryUri.tryParse(url: channelUrl, requireProto: false)
         {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            if UIApplication.currentViewController() as? FileViewController != nil {
+                appDelegate.mainNavigationController?.popViewController(animated: false)
+            }
             let vc = appDelegate.mainViewController?.storyboard?
                 .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.claimUrl = url

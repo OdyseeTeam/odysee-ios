@@ -271,6 +271,8 @@ class ClaimTableViewCell: UITableViewCell {
                     // if we already have the channel page open, don't do anything
                     return
                 }
+            } else if currentVc as? FileViewController != nil {
+                appDelegate.mainNavigationController?.popViewController(animated: false)
             }
 
             let vc = appDelegate.mainController.storyboard?
@@ -284,11 +286,14 @@ class ClaimTableViewCell: UITableViewCell {
         if let channelClaim = reposterChannelClaim {
             let appDelegate = UIApplication.shared.delegate as! AppDelegate
 
-            if let currentVc = UIApplication.currentViewController() as? ChannelViewController {
-                if currentVc.channelClaim?.claimId == channelClaim.claimId {
+            let currentVc = UIApplication.currentViewController()
+            if let channelVc = currentVc as? ChannelViewController {
+                if channelVc.channelClaim?.claimId == channelClaim.claimId {
                     // if we already have the channel page open, don't do anything
                     return
                 }
+            } else if currentVc as? FileViewController != nil {
+                appDelegate.mainNavigationController?.popViewController(animated: false)
             }
 
             let vc = appDelegate.mainController.storyboard?
