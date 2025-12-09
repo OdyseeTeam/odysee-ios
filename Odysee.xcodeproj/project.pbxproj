@@ -91,7 +91,6 @@
 		64BAFBB22609ED5900BD4B9A /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BAFBB12609ED5900BD4B9A /* LibraryViewController.swift */; };
 		64CB288225768A9A00FE48B3 /* Snackbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CB288125768A9A00FE48B3 /* Snackbar.swift */; };
 		64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */; };
-		64D72BB5258C54B100F5C4E3 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 64D72BB4258C54B100F5C4E3 /* Secrets.plist */; };
 		64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D72BB9258C952A00F5C4E3 /* RewardVerified.swift */; };
 		64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D72BC2258CDEC400F5C4E3 /* Reward.swift */; };
 		64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE79C25502A290082AF2E /* AppDelegate.swift */; };
@@ -232,7 +231,6 @@
 		64BAFBB12609ED5900BD4B9A /* LibraryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		64CB288125768A9A00FE48B3 /* Snackbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snackbar.swift; sourceTree = "<group>"; };
 		64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingViewController.swift; sourceTree = "<group>"; };
-		64D72BB4258C54B100F5C4E3 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Secrets.plist; sourceTree = "<group>"; };
 		64D72BB9258C952A00F5C4E3 /* RewardVerified.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerified.swift; sourceTree = "<group>"; };
 		64D72BC2258CDEC400F5C4E3 /* Reward.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reward.swift; sourceTree = "<group>"; };
 		64FBE79925502A290082AF2E /* Odysee.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Odysee.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -519,7 +517,6 @@
 				64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */,
 				64FBE7AD25502A2C0082AF2E /* Info.plist */,
 				64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */,
-				64D72BB4258C54B100F5C4E3 /* Secrets.plist */,
 				532650E3286EAB1B00F0FF0B /* Settings.bundle */,
 				53FAD3FB288504C60000F980 /* Localizable.strings */,
 			);
@@ -693,7 +690,6 @@
 				53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */,
 				649EA90626528D8D00F45129 /* launch_screen.png in Resources */,
 				64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */,
-				64D72BB5258C54B100F5C4E3 /* Secrets.plist in Resources */,
 				641615052581267B003A2194 /* GoogleService-Info.plist in Resources */,
 				538C8CC62ED74B8C00E20949 /* AppIcon.icon in Resources */,
 				53FAD3FD288504C60000F980 /* Localizable.strings in Resources */,
