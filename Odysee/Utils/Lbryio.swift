@@ -354,6 +354,12 @@ enum Lbryio {
                 }
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
 
+                Crashlytics.crashlytics().setCustomValue(
+                    String(data: data, encoding: .utf8),
+                    forKey: "Lbryio.call_data"
+                )
+                Crashlytics.crashlytics().setCustomValue(respCode, forKey: "Lbryio.call_respCode")
+
                 Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
 
                 if respCode >= 200, respCode < 300 {
@@ -446,6 +452,7 @@ enum Lbryio {
 
             if data != nil {
                 do {
+                    Crashlytics.crashlytics().setCustomValue(data as Any, forKey: "fetchCurrentUser_data")
                     let jsonData = try JSONSerialization.data(
                         withJSONObject: data as Any,
                         options: [.prettyPrinted, .sortedKeys]
