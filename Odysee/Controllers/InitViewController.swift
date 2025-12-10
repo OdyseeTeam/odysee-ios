@@ -166,24 +166,22 @@ class InitViewController: UIViewController {
     }
 
     func loadLocalSubscriptions() {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Subscription")
+        let fetchRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
         fetchRequest.returnsObjectsAsFaults = false
-        let asyncFetchRequest = NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { asyncFetchResult in
-            guard let subscriptions = asyncFetchResult.finalResult as? [Subscription] else { return }
-            for sub in subscriptions {
-                let cacheSub = LbrySubscription.fromLocalSubscription(subscription: sub)
-                if !cacheSub.claimId.isBlank {
-                    Lbryio.addSubscription(sub: cacheSub, url: sub.url)
-                }
-            }
-        }
 
         DispatchQueue.main.async {
-            let context = AppDelegate.shared.persistentContainer.newBackgroundContext()
-            do {
-                try context.execute(asyncFetchRequest)
-            } catch {
-                // pass
+            AppDelegate.shared.persistentContainer.performBackgroundTask { context in
+                do {
+                    let subs = try context.fetch(fetchRequest)
+                    for sub in subs {
+                        let cacheSub = LbrySubscription.fromLocalSubscription(subscription: sub)
+                        if !cacheSub.claimId.isBlank {
+                            Lbryio.addSubscription(sub: cacheSub, url: sub.url)
+                        }
+                    }
+                } catch {
+                    // pass
+                }
             }
         }
     }
