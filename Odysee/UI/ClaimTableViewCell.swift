@@ -40,21 +40,6 @@ class ClaimTableViewCell: UITableViewCell {
         channelImageView.backgroundColor = Helper.lightPrimaryColor
         thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
         createRepostOverlay()
-
-        if #available(iOS 14, *) {
-        } else {
-            let viewerCountBackground = UIView()
-            viewerCountBackground.backgroundColor = Helper.primaryColor
-            viewerCountBackground.layer.cornerRadius = 6
-            viewerCountBackground.translatesAutoresizingMaskIntoConstraints = false
-            viewerCountStackView.insertSubview(viewerCountBackground, at: 0)
-            NSLayoutConstraint.activate([
-                viewerCountBackground.leadingAnchor.constraint(equalTo: viewerCountStackView.leadingAnchor),
-                viewerCountBackground.trailingAnchor.constraint(equalTo: viewerCountStackView.trailingAnchor),
-                viewerCountBackground.topAnchor.constraint(equalTo: viewerCountStackView.topAnchor),
-                viewerCountBackground.bottomAnchor.constraint(equalTo: viewerCountStackView.bottomAnchor)
-            ])
-        }
     }
 
     static func imagePrefetchURLs(claim: Claim) -> [URL] {
