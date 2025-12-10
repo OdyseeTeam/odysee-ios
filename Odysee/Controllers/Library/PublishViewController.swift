@@ -6,7 +6,6 @@
 //
 
 import Firebase
-import MobileCoreServices
 import OrderedCollections
 import os
 import Photos
@@ -43,7 +42,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     var channels: [Claim] = []
     var uploads: OrderedSet<Claim> = []
     var currentClaim: Claim?
-    let videoPickerController = makeVideoPickerController()
+    let videoPickerController = VideoPickerController()
     var selectingThumbnail: Bool = false
 
     var currentThumbnailImage: UIImage!
@@ -566,14 +565,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
                 var mimeType = "application/octet-stream"
                 let pathExt = videoUrl.pathExtension
-                if let uti = UTTypeCreatePreferredIdentifierForTag(
-                    kUTTagClassFilenameExtension,
-                    pathExt as NSString,
-                    nil
-                )?.takeRetainedValue() {
-                    if let mimetype = UTTypeCopyPreferredTagWithClass(uti, kUTTagClassMIMEType)?.takeRetainedValue() {
-                        mimeType = mimetype as String
-                    }
+
+                let types = UTType.types(tag: pathExt, tagClass: .filenameExtension, conformingTo: nil)
+                if types.count > 0, let mimetype = types[0].preferredMIMEType {
+                    mimeType = mimetype
                 }
 
                 let boundary = "Boundary-\(UUID().uuidString)"
