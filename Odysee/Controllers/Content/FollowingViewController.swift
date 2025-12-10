@@ -151,31 +151,28 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     func loadLocalSubscriptions(_ refresh: Bool = false) {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Subscription")
+        let fetchRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
         fetchRequest.returnsObjectsAsFaults = false
-        let asyncFetchRequest = NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { asyncFetchResult in
-            guard let subscriptions = asyncFetchResult.finalResult as? [Subscription] else { return }
-            self.subscriptions = subscriptions
-            if self.subscriptions.count == 0 {
-                // load remote
-                self.loadRemoteSubscriptions()
-            } else {
-                self.resolveChannelList(refresh)
-                if !self.showingSuggested {
-                    DispatchQueue.main.async {
-                        self.suggestedView.isHidden = true
-                        self.mainView.isHidden = false
-                    }
-                }
-            }
-        }
 
         DispatchQueue.main.async {
-            let context = AppDelegate.shared.persistentContainer.newBackgroundContext()
-            do {
-                try context.execute(asyncFetchRequest)
-            } catch {
-                print("NSAsynchronousFetchRequest error: \(error)")
+            AppDelegate.shared.persistentContainer.performBackgroundTask { context in
+                do {
+                    self.subscriptions = try context.fetch(fetchRequest)
+                    if self.subscriptions.count == 0 {
+                        // load remote
+                        self.loadRemoteSubscriptions()
+                    } else {
+                        self.resolveChannelList(refresh)
+                        if !self.showingSuggested {
+                            DispatchQueue.main.async {
+                                self.suggestedView.isHidden = true
+                                self.mainView.isHidden = false
+                            }
+                        }
+                    }
+                } catch {
+                    print("NSAsynchronousFetchRequest error: \(error)")
+                }
             }
         }
     }
