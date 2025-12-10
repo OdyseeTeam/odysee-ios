@@ -101,22 +101,22 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         notificationBadgeView.layer.cornerRadius = 6
 
         // Load blocked channels
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "BlockedChannel")
+        let fetchRequest = NSFetchRequest<BlockedChannel>(entityName: "BlockedChannel")
         fetchRequest.returnsObjectsAsFaults = false
-        let asyncFetchRequest = NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { asyncFetchResult in
-            guard let blockedChannels = asyncFetchResult.finalResult as? [BlockedChannel] else { return }
-            Lbry.blockedChannels = blockedChannels
-            DispatchQueue.main.async {
-                // notify observers, if any
-                self.notifyBlockChannelObservers()
-            }
-        }
 
-        fetchContext = AppDelegate.shared.persistentContainer.newBackgroundContext()
-        do {
-            try fetchContext?.execute(asyncFetchRequest)
-        } catch {
-            print("NSAsynchronousFetchRequest error: \(error)")
+        DispatchQueue.main.async {
+            AppDelegate.shared.persistentContainer.performBackgroundTask { context in
+                do {
+                    let blockedChannels = try context.fetch(fetchRequest)
+                    Lbry.blockedChannels = blockedChannels
+                    DispatchQueue.main.async {
+                        // notify observers, if any
+                        self.notifyBlockChannelObservers()
+                    }
+                } catch {
+                    print("NSAsynchronousFetchRequest error: \(error)")
+                }
+            }
         }
 
         // Do any additional setup after loading the view
