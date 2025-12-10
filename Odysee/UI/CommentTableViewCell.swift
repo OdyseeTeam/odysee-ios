@@ -112,11 +112,13 @@ class CommentTableViewCell: UITableViewCell {
         if let channelUrl = currentComment?.channelUrl,
            let url = LbryUri.tryParse(url: channelUrl, requireProto: false)
         {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let vc = appDelegate.mainViewController?.storyboard?
+            if UIApplication.currentViewController() as? FileViewController != nil {
+                AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
+            }
+            let vc = AppDelegate.shared.mainViewController?.storyboard?
                 .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.claimUrl = url
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 
@@ -145,8 +147,7 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     @objc func blockChannelTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let mainVc = appDelegate.mainViewController as? MainViewController,
+        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController,
            let channelId = currentComment?.channelId,
            let channelName = currentComment?.channelName
         {
@@ -183,8 +184,7 @@ class CommentTableViewCell: UITableViewCell {
                 commentId
             )) {
                 let vc = SFSafariViewController(url: url)
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.present(vc, animated: true, completion: nil)
+                AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
             }
         }
     }

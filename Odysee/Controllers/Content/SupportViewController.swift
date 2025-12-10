@@ -29,14 +29,12 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.addWalletObserver(key: keyBalanceObserver, observer: self)
+        AppDelegate.shared.mainController.addWalletObserver(key: keyBalanceObserver, observer: self)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.removeWalletObserver(key: keyBalanceObserver)
+        AppDelegate.shared.mainController.removeWalletObserver(key: keyBalanceObserver)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -260,7 +258,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard data != nil, error == nil else {
                     self.showError(error: error)
                     return
                 }
@@ -306,18 +304,15 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     }
 
     func showError(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(message: message)
+        AppDelegate.shared.mainController.showError(message: message)
     }
 
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        AppDelegate.shared.mainController.showError(error: error)
     }
 
     func showMessage(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showMessage(message: message)
+        AppDelegate.shared.mainController.showMessage(message: message)
     }
 
     /*

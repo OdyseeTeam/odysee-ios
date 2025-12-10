@@ -126,16 +126,14 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         channelDriverView.isHidden = channels.count > 0
         channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let mainVc = appDelegate.mainViewController as? MainViewController {
+        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
             mainVc.addBlockChannelObserver(name: "comments", observer: self)
         }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let mainVc = appDelegate.mainViewController as? MainViewController {
+        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
             mainVc.removeBlockChannelObserver(name: "comments")
         }
     }
@@ -431,10 +429,10 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                             $0.commentId == currentReplyToComment.commentId
                         }) {
                             var currentComment: Comment? = comment
-                            while let _currentComment = currentComment {
+                            while let currentComment_ = currentComment {
                                 comment.replyDepth += 1
                                 currentComment = self.comments.first(where: {
-                                    $0.commentId == _currentComment.parentId
+                                    $0.commentId == currentComment_.parentId
                                 })
                             }
                             self.comments.insert(comment, at: parentIndex + 1)
@@ -474,9 +472,13 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @IBAction func channelDriverTapped(_ sender: Any) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if UIApplication.currentViewController() as? FileViewController != nil {
+            appDelegate.mainNavigationController?.popViewController(animated: false)
+        }
         let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
         vc.commentsVc = self
-        navigationController?.pushViewController(vc, animated: true)
+        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -709,9 +711,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 }.map { comment in
                     var comment = comment
                     var currentComment: Comment? = comment
-                    while let _currentComment = currentComment {
+                    while let currentComment_ = currentComment {
                         comment.replyDepth += 1
-                        currentComment = self.comments.first(where: { $0.commentId == _currentComment.parentId })
+                        currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
                     }
                     return comment
                 }
@@ -819,9 +821,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     }.map { comment in
                         var comment = comment
                         var currentComment: Comment? = comment
-                        while let _currentComment = currentComment {
+                        while let currentComment_ = currentComment {
                             comment.replyDepth += 1
-                            currentComment = self.comments.first(where: { $0.commentId == _currentComment.parentId })
+                            currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
                         }
                         return comment
                     }
@@ -897,28 +899,27 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        AppDelegate.shared.mainController.showError(error: error)
     }
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
 
     func showUAView() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        if UIApplication.currentViewController() as? FileViewController != nil {
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
+        }
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     func filterBlockedChannels(_ reload: Bool) {

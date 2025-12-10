@@ -54,22 +54,20 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.addWalletSyncObserver(key: keySyncObserver, observer: self)
+        AppDelegate.shared.mainController.addWalletSyncObserver(key: keySyncObserver, observer: self)
         view.isHidden = !Lbryio.isSignedIn()
 
         // check if current user is signed in
         if !Lbryio.isSignedIn() {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.removeWalletSyncObserver(key: keySyncObserver)
+        AppDelegate.shared.mainController.removeWalletSyncObserver(key: keySyncObserver)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -90,10 +88,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             }
         }
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-        appDelegate.mainController.adjustMiniPlayerBottom(
-            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: appDelegate))
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(
+            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
     func removeFollowing(claim: Claim) {
@@ -174,8 +171,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context = appDelegate.persistentContainer.newBackgroundContext()
+            let context = AppDelegate.shared.persistentContainer.newBackgroundContext()
             do {
                 try context.execute(asyncFetchRequest)
             } catch {
@@ -350,8 +346,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
 
@@ -397,12 +392,14 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = claims[indexPath.row]
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
 
-        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        AppDelegate.shared.mainNavigationController?.view.layer.add(
+            Helper.buildFileViewTransition(),
+            forKey: kCATransition
+        )
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -542,7 +539,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 action: unsubscribing ? "delete" : "new",
                 options: options,
                 completion: { data, error in
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         self.showError(error: error)
                         return
                     }
@@ -602,8 +599,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
         // persist the subscription to CoreData
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
             context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
             let subToSave = Subscription(context: context)
@@ -615,7 +611,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 self.subscriptions.append(subToSave)
             }
 
-            appDelegate.saveContext()
+            AppDelegate.shared.saveContext()
         }
 
         // TODO: wallet sync
@@ -627,8 +623,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func removeSubscription(url: String, channelName: String) {
         // remove the subscription from CoreData
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
             let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
             fetchRequest.predicate = NSPredicate(format: "url == %@", url)
 
@@ -754,11 +749,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     func syncCompleted() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Subscription")
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         do {
-            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
             try context.execute(deleteRequest)
         } catch {
             showError(error: error)
@@ -784,15 +778,13 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 }

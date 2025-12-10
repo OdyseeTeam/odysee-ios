@@ -221,7 +221,7 @@ enum Helper {
     }
 
     static func miniPlayerBottomWithTabBar(appDelegate: AppDelegate) -> CGFloat {
-        return (appDelegate.mainTabViewController?.tabBar.frame.size.height ?? 0) + 2
+        return (AppDelegate.shared.mainTabViewController?.tabBar.frame.size.height ?? 0) + 2
     }
 
     static func makeid() -> String {
@@ -317,8 +317,8 @@ enum Helper {
 
     static func isCustomBlocked(claimId: String, appDelegate: AppDelegate) -> Bool {
         var isBlocked = false
-        if let rules = appDelegate.mainController.customBlockRulesMap[claimId],
-           let locale = appDelegate.mainController.currentLocale
+        if let rules = AppDelegate.shared.mainController.customBlockRulesMap[claimId],
+           let locale = AppDelegate.shared.mainController.currentLocale
         {
             for rule in rules {
                 if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only",
@@ -345,8 +345,8 @@ enum Helper {
 
     static func getCustomBlockedMessage(claimId: String, appDelegate: AppDelegate) -> String? {
         var message: String?
-        if let rules = appDelegate.mainController.customBlockRulesMap[claimId],
-           let locale = appDelegate.mainController.currentLocale
+        if let rules = AppDelegate.shared.mainController.customBlockRulesMap[claimId],
+           let locale = AppDelegate.shared.mainController.currentLocale
         {
             for rule in rules {
                 if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only",
@@ -372,7 +372,7 @@ enum Helper {
     }
 
     static func isChannelBlocked(claimId: String?) -> Bool {
-        guard let _ = claimId else {
+        guard claimId != nil else {
             return false
         }
         return Lbry.blockedChannels.map(\.claimId).contains(claimId)

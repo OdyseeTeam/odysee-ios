@@ -46,14 +46,13 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.addWalletObserver(key: keyBalanceObserver, observer: self)
+        AppDelegate.shared.mainController.addWalletObserver(key: keyBalanceObserver, observer: self)
         view.isHidden = !Lbryio.isSignedIn()
 
         if !Lbryio.isSignedIn() {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 
@@ -72,16 +71,14 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-        appDelegate.mainController.adjustMiniPlayerBottom(
-            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: appDelegate))
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(
+            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.removeWalletObserver(key: keyBalanceObserver)
+        AppDelegate.shared.mainController.removeWalletObserver(key: keyBalanceObserver)
     }
 
     override func viewDidLoad() {
@@ -176,9 +173,8 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     @IBAction func viewAllTapped(_ sender: UIButton) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "transactions_vc") as! TransactionsViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     @IBAction func boostingMoreTapped(_ sender: Any) {
@@ -201,7 +197,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard data != nil, error == nil else {
                     self.showError(error: error)
                     DispatchQueue.main.async {
                         self.loadingSendView.isHidden = true
@@ -359,22 +355,19 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 

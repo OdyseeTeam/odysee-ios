@@ -47,7 +47,9 @@ enum ContentSources {
                     return
                 }
             }
-        } catch { /* Fall through to loadRemoteCategories */ }
+        } catch {
+            /* Fall through to loadRemoteCategories */
+        }
 
         loadRemoteCategories(completion: completion)
     }
