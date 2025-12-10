@@ -5,32 +5,13 @@
 //  Created by Adlai Holler on 5/29/21.
 //
 
-import MobileCoreServices
 import PhotosUI
 import UIKit
 
 typealias PickVideoCompletion = (Bool) -> Void
 
-protocol VideoPickerController {
-    var pickedVideoName: String? { get }
-    // `completion` runs on main thread
-    func pickVideo(from sourceVC: UIViewController, completion: @escaping PickVideoCompletion)
-    // `completion` runs off main thread
-    func getVideoURL(completion: @escaping (Result<URL, Error>) -> Void)
-}
-
-func makeVideoPickerController() -> VideoPickerController {
-    if #available(iOS 14, *) {
-        return ModernVideoPickerController()
-    } else {
-        return LegacyVideoPickerController()
-    }
-}
-
-// MARK: Private
-
-private class BaseVideoPickerController<Payload>: NSObject {
-    var payload: Payload?
+class VideoPickerController: PHPickerViewControllerDelegate {
+    var itemProvider: NSItemProvider?
     var pickingCompletion: PickVideoCompletion?
     var viewController: UIViewController?
 
@@ -46,79 +27,19 @@ private class BaseVideoPickerController<Payload>: NSObject {
         sourceVC.present(vc, animated: true)
     }
 
-    func didFinishPicking(_ newPayload: Payload?) {
+    func didFinishPicking(_ itemProvider: NSItemProvider?) {
         assert(Thread.isMainThread)
-        if let newPayload = newPayload {
-            payload = newPayload
-        }
+        self.itemProvider = itemProvider
         viewController?.dismiss(animated: true)
         viewController = nil
-        pickingCompletion?(newPayload != nil)
+        pickingCompletion?(itemProvider != nil)
         pickingCompletion = nil
     }
-}
-
-// iOS<14 implementation based on UIImagePickerController
-
-@available(iOS, deprecated: 14)
-private final class LegacyVideoPickerController: BaseVideoPickerController<URL>,
-    VideoPickerController,
-    UIImagePickerControllerDelegate,
-    UINavigationControllerDelegate
-{
-    // MARK: VideoPickerController
 
     var pickedVideoName: String? {
-        return payload?.lastPathComponent
-    }
-
-    func pickVideo(from sourceVC: UIViewController, completion: @escaping PickVideoCompletion) {
-        let vc = UIImagePickerController()
-        vc.mediaTypes = [String(kUTTypeMovie)]
-        vc.delegate = self
-        startPicking(vc, sourceVC: sourceVC, completion: completion)
-    }
-
-    func getVideoURL(completion: @escaping (Result<URL, Error>) -> Void) {
-        let result = Result<URL, Error> {
-            guard let url = payload else {
-                throw GenericError("Please select a video")
-            }
-            return url
-        }
-
-        DispatchQueue.global(qos: .userInitiated).async {
-            completion(result)
-        }
-    }
-
-    // MARK: UIImagePickerControllerDelegate
-
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        didFinishPicking(nil)
-    }
-
-    func imagePickerController(
-        _ picker: UIImagePickerController,
-        didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
-    ) {
-        didFinishPicking(info[.mediaURL] as? URL)
-    }
-}
-
-// iOS 14 implementation based on PHPickerViewController
-
-@available(iOS 14, *)
-private final class ModernVideoPickerController: BaseVideoPickerController<NSItemProvider>,
-    VideoPickerController,
-    PHPickerViewControllerDelegate
-{
-    // MARK: VideoPickerController
-
-    var pickedVideoName: String? {
-        if let payload = payload {
-            assert(payload.suggestedName != nil)
-            return payload.suggestedName ?? "video"
+        if let itemProvider {
+            assert(itemProvider.suggestedName != nil)
+            return itemProvider.suggestedName ?? "video"
         } else {
             return nil
         }
@@ -133,12 +54,12 @@ private final class ModernVideoPickerController: BaseVideoPickerController<NSIte
     }
 
     func getVideoURL(completion: @escaping (Result<URL, Error>) -> Void) {
-        guard let itemProvider = payload else {
+        guard let itemProvider else {
             completion(.failure(GenericError("Please select a video")))
             return
         }
 
-        itemProvider.loadInPlaceFileRepresentation(forTypeIdentifier: String(kUTTypeMovie)) {
+        itemProvider.loadInPlaceFileRepresentation(forTypeIdentifier: UTType.movie.identifier) {
             url, _, error in
             let result = Result<URL, Error> {
                 if let error = error {

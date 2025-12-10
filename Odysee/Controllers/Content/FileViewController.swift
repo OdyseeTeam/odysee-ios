@@ -256,18 +256,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         if #available(iOS 16, *) {
         } else {
-            if #available(iOS 14, *) {
-                let rateActionHandler: UIActionHandler = { action in
-                    self.playerRateButton.setTitle(action.title, for: .normal)
-                    let rate = Float(action.title.dropLast()) ?? 1
-                    self.avpc.player?.rate = rate
-                    self.playerRate = rate
-                }
-                let rateActions = availableRates.map { title in UIAction(title: title, handler: rateActionHandler) }
-                playerRateButton.menu = UIMenu(title: "", children: rateActions)
-            } else {
-                playerRateButton.addTarget(self, action: #selector(playerRateTapped), for: .touchUpInside)
+            let rateActionHandler: UIActionHandler = { action in
+                self.playerRateButton.setTitle(action.title, for: .normal)
+                let rate = Float(action.title.dropLast()) ?? 1
+                self.avpc.player?.rate = rate
+                self.playerRate = rate
             }
+            let rateActions = availableRates.map { title in UIAction(title: title, handler: rateActionHandler) }
+            playerRateButton.menu = UIMenu(title: "", children: rateActions)
         }
 
         registerForKeyboardNotifications()
@@ -1098,9 +1094,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         {
             // Normally not needed,
             // but set this in case the state gets messed up and this FileViewController is new
-            if #available(iOS 14.2, *) {
-                avpc.canStartPictureInPictureAutomaticallyFromInline = true
-            }
+            avpc.canStartPictureInPictureAutomaticallyFromInline = true
 
             avpc.player = AppDelegate.shared.lazyPlayer
             playerConnected = true
@@ -1128,9 +1122,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             playerConnected = true
             playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
 
-            if #available(iOS 14.2, *) {
-                avpc.canStartPictureInPictureAutomaticallyFromInline = true
-            }
+            avpc.canStartPictureInPictureAutomaticallyFromInline = true
             if UserDefaults.standard.integer(forKey: "BackgroundPlaybackMode") != 0 {
                 avpc.allowsPictureInPicturePlayback = false
             }
@@ -2521,22 +2513,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), name)
-    }
-
-    @objc func playerRateTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
-            title: "Playback Speed",
-            origin: playerRateButton,
-            rows: availableRates,
-            initialSelection: selectedRateIndex,
-        ) { _, selectedRateIndex, _ in
-            self.selectedRateIndex = selectedRateIndex
-            let selectedRate = self.availableRates[self.selectedRateIndex]
-            self.playerRateButton.setTitle(selectedRate, for: .normal)
-            let rate = Float(selectedRate.dropLast()) ?? 1
-            self.avpc.player?.rate = rate
-            self.playerRate = rate
-        }
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
