@@ -316,9 +316,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             if let claim = currentFileViewController?.claim {
                 var nowPlayingInfo = [String: Any]()
                 nowPlayingInfo[MPMediaItemPropertyTitle] = claim.value?.title ?? ""
-                nowPlayingInfo[MPMediaItemPropertyArtist] = claim.signingChannel != nil ?
-                    (claim.signingChannel?.value?.title ?? claim.signingChannel?.name ?? "") :
+                nowPlayingInfo[MPMediaItemPropertyArtist] = if let text = claim.signingChannel?.titleOrName {
+                    text
+                } else {
                     String.localized("Anonymous")
+                }
                 nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = ""
 
                 if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init),
