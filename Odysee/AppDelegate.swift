@@ -7,7 +7,7 @@
 
 import AVFoundation
 import CoreData
-import Firebase
+import FirebaseCore
 import MediaPlayer
 import PINRemoteImage
 import UIKit

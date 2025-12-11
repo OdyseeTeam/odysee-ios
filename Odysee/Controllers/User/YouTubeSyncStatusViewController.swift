@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 22/02/2021.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class YouTubeSyncStatusViewController: UIViewController {

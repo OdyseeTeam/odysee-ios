@@ -8,7 +8,7 @@
 import AVFoundation
 import AVKit
 import CoreData
-import Firebase
+import FirebaseAnalytics
 import ImageScrollView
 import OrderedCollections
 import PerfectMarkdown

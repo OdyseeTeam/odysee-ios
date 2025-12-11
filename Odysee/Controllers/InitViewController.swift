@@ -7,7 +7,8 @@
 
 import AVKit
 import CoreData
-import Firebase
+import FirebaseAnalytics
+import FirebaseCrashlytics
 import UIKit
 
 class InitViewController: UIViewController {

@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 02/11/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import OrderedCollections
 import PINRemoteImage
 import UIKit
