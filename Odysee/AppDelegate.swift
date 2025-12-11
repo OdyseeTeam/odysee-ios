@@ -23,7 +23,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     weak var mainViewController: UIViewController?
     weak var mainTabViewController: UITabBarController?
     weak var mainNavigationController: UINavigationController?
-    weak var miniPlayerView: UIView?
 
     var player: AVPlayer?
     var currentClaim: Claim?
