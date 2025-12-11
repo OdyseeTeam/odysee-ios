@@ -81,7 +81,7 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         titleLabel.textColor = claim.featured ? UIColor.white : nil
         startTimeLabel.textColor = claim.featured ? UIColor.white : nil
 
-        titleLabel.text = claim.name
+        titleLabel.text = claim.value?.title
         publisherLabel.text = claim.signingChannel?.titleOrName
 
         // load thumbnail url
