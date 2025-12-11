@@ -1041,7 +1041,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func createLivestreamsView() {
         let activeLivestreamLabel = UILabel()
         activeLivestreamLabel.translatesAutoresizingMaskIntoConstraints = false
-        activeLivestreamLabel.text = String.localized("Live stream in progress")
+        activeLivestreamLabel.text = String.localized("Livestream in progress")
         activeLivestreamLabel.font = .systemFont(ofSize: 20)
 
         activeLivestreamClaimCell = (
