@@ -1130,9 +1130,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             AppDelegate.shared.setupRemoteTransportControls()
         }
 
-        if AppDelegate.shared.lazyPlayer == nil {
-            avpc.player?.play()
-        }
+        AppDelegate.shared.lazyPlayer?.pause()
+        avpc.player?.play()
 
         let task = DispatchWorkItem { [weak self] in
             self?.dismissFileView.isHidden = true
