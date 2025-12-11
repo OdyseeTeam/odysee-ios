@@ -9,7 +9,8 @@ import Base58Swift
 import Combine
 import CoreData
 import CryptoKit
-import Firebase
+import FirebaseAnalytics
+import FirebaseCrashlytics
 import Foundation
 import os
 import UIKit

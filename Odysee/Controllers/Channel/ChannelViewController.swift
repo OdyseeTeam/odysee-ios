@@ -6,7 +6,7 @@
 //
 
 import CoreData
-import Firebase
+import FirebaseAnalytics
 import OrderedCollections
 import SafariServices
 import UIKit

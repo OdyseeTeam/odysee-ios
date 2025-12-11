@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 26/02/2021.
 //
 
-import Firebase
+import FirebaseAnalytics
 import OrderedCollections
 import UIKit
 

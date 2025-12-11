@@ -6,7 +6,7 @@
 //
 
 import Base58Swift
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate,

@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 07/12/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource,

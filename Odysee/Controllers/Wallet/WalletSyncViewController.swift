@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 04/12/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 // initial wallet sync processing after sign in / sign up
