@@ -22,9 +22,9 @@ class ClaimTableViewCell: UITableViewCell {
     @IBOutlet var publishTimeLabel: UILabel!
     @IBOutlet var durationView: UIView!
     @IBOutlet var durationLabel: UILabel!
-    @IBOutlet var viewerCountStackView: UIStackView!
-    @IBOutlet var viewerCountLabel: UILabel!
-    @IBOutlet var viewerCountImageView: UIView!
+    @IBOutlet var countStackView: UIStackView!
+    @IBOutlet var countLabel: UILabel!
+    @IBOutlet var countImageView: UIImageView!
 
     var currentClaim: Claim?
     var reposterChannelClaim: Claim?
@@ -68,13 +68,14 @@ class ClaimTableViewCell: UITableViewCell {
             format: String.localized("Started %@"),
             Helper.fullRelativeDateFormatter.localizedString(for: startTime, relativeTo: Date())
         )
-        viewerCountStackView.isHidden = false
+        countStackView.isHidden = false
         durationView.isHidden = true
-        viewerCountImageView.isHidden = viewerCount == 0
+        countImageView.isHidden = viewerCount == 0
+        countImageView.image = UIImage(systemName: "eye.fill")
         if viewerCount > 0 {
-            viewerCountLabel.text = String(viewerCount)
+            countLabel.text = String(viewerCount)
         } else {
-            viewerCountLabel.text = "LIVE"
+            countLabel.text = "LIVE"
         }
     }
 
@@ -177,8 +178,9 @@ class ClaimTableViewCell: UITableViewCell {
             duration = streamInfo?.duration ?? 0
         }
 
-        let isLivestream = actualClaim.value?.source == nil && !isChannel
-        durationView.isHidden = duration <= 0 && !isLivestream
+        let isLivestream = actualClaim.value?.source == nil && actualClaim.value?.claims == nil && !isChannel
+        durationView.isHidden = duration <= 0
+        countStackView.isHidden = true
         if duration > 0 {
             if duration < 60 {
                 durationLabel.text = String(format: "0:%02d", duration)
@@ -186,7 +188,13 @@ class ClaimTableViewCell: UITableViewCell {
                 durationLabel.text = Helper.durationFormatter.string(from: TimeInterval(duration))
             }
         } else if isLivestream {
-            durationLabel.text = "LIVE"
+            countStackView.isHidden = false
+            countImageView.isHidden = true
+            countLabel.text = "LIVE"
+        } else if let playlistCount = actualClaim.value?.claims?.count {
+            countStackView.isHidden = false
+            countImageView.image = UIImage(systemName: "play.square.stack")
+            countLabel.text = "\(playlistCount)"
         }
 
         if actualClaim.value?.tags?.contains(Constants.MembersOnly) ?? false {
