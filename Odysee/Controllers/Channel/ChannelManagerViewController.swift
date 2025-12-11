@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 14/12/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITableViewDataSource,
