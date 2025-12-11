@@ -607,7 +607,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     func updateMiniPlayer() {
         if AppDelegate.shared.currentClaim != nil, AppDelegate.shared.lazyPlayer != nil {
             miniPlayerTitleLabel.text = AppDelegate.shared.currentClaim?.value?.title
-            miniPlayerPublisherLabel.text = AppDelegate.shared.currentClaim?.signingChannel?.value?.title
+            miniPlayerPublisherLabel.text = AppDelegate.shared.currentClaim?.signingChannel?.titleOrName
 
             let mediaViewLayer: CALayer = miniPlayerMediaView.layer
             let playerLayer = AVPlayerLayer(player: AppDelegate.shared.lazyPlayer)
