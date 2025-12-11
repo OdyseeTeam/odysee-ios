@@ -135,17 +135,17 @@
                             <constraint firstItem="Hf0-B9-1iQ" firstAttribute="top" secondItem="CUj-Lg-9sX" secondAttribute="bottom" constant="4" id="v44-Fp-ZOe"/>
                         </constraints>
                     </view>
-                    <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="tLo-Ey-cJD" userLabel="Viewer Count Stack View">
+                    <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="tLo-Ey-cJD">
                         <rect key="frame" x="122" y="67" width="50" height="27"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bjo-7d-dop" userLabel="Viewer Count Label">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bjo-7d-dop">
                                 <rect key="frame" x="4" y="4" width="11" height="19"/>
                                 <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cF3-Nr-JUt" userLabel="Viewer Count Image View">
-                                <rect key="frame" x="19" y="5.5" width="27" height="15.5"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cF3-Nr-JUt">
+                                <rect key="frame" x="19" y="5.5" width="26" height="15.5"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <imageReference key="image" image="eye.fill" catalog="system" symbolScale="default"/>
                             </imageView>
@@ -204,6 +204,9 @@
             </tableViewCellContentView>
             <connections>
                 <outlet property="channelImageView" destination="0vb-P0-JDM" id="Wv4-Rs-T1h"/>
+                <outlet property="countImageView" destination="cF3-Nr-JUt" id="s2E-kq-MXI"/>
+                <outlet property="countLabel" destination="bjo-7d-dop" id="BcE-FQ-3ke"/>
+                <outlet property="countStackView" destination="tLo-Ey-cJD" id="VSW-Rx-ywg"/>
                 <outlet property="durationLabel" destination="44h-Kk-Og4" id="Y5d-yL-bv9"/>
                 <outlet property="durationView" destination="kWD-HC-WRW" id="WfA-7S-Eze"/>
                 <outlet property="hasAccessView" destination="fS2-h1-1ZT" id="T4F-WZ-Bwa"/>
@@ -212,9 +215,6 @@
                 <outlet property="publisherLabel" destination="Hf0-B9-1iQ" id="tg7-n4-F4S"/>
                 <outlet property="thumbnailImageView" destination="0fu-ke-6es" id="Alj-3n-8j1"/>
                 <outlet property="titleLabel" destination="CUj-Lg-9sX" id="JBG-b1-Gfs"/>
-                <outlet property="viewerCountImageView" destination="cF3-Nr-JUt" id="tOx-am-aL0"/>
-                <outlet property="viewerCountLabel" destination="bjo-7d-dop" id="8jM-rV-gmU"/>
-                <outlet property="viewerCountStackView" destination="tLo-Ey-cJD" id="E1E-Nu-mew"/>
             </connections>
             <point key="canvasLocation" x="133" y="1"/>
         </tableViewCell>
