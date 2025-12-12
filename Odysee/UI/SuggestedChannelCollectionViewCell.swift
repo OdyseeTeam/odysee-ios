@@ -40,4 +40,16 @@ class SuggestedChannelCollectionViewCell: UICollectionViewCell {
             tagLabel.text = tags[0]
         }
     }
+
+    func setSelected(selected: Bool) {
+        if selected {
+            backgroundColor = Helper.lightPrimaryColor
+            tagLabel.textColor = UIColor.white
+            titleLabel.textColor = UIColor.white
+        } else {
+            backgroundColor = nil
+            tagLabel.textColor = .label
+            titleLabel.textColor = .label
+        }
+    }
 }
