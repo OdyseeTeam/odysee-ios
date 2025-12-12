@@ -418,6 +418,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 for: indexPath
             ) as! SuggestedChannelCollectionViewCell
             cell.setClaim(claim: claim)
+            if let claimId = claim.claimId {
+                cell.setSelected(selected: selectedSuggestedFollows[claimId] != nil)
+            }
             return cell
         } else {
             let claim = following[indexPath.row]
@@ -439,9 +442,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             subscribeOrUnsubscribe(claim: claim, notificationsDisabled: true, unsubscribing: false)
 
             let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
-            cell?.backgroundColor = Helper.lightPrimaryColor
-            cell?.tagLabel.textColor = UIColor.white
-            cell?.titleLabel.textColor = UIColor.white
+            cell?.setSelected(selected: true)
         } else {
             // TODO: Refresh claim search with selected channel ids
             let prevSelectedChannelIds = selectedChannelIds
@@ -478,9 +479,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             subscribeOrUnsubscribe(claim: claim, notificationsDisabled: true, unsubscribing: true)
 
             let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
-            cell?.backgroundColor = UIColor.clear
-            cell?.tagLabel.textColor = UIColor.label
-            cell?.titleLabel.textColor = UIColor.label
+            cell?.setSelected(selected: false)
         } else {
             let cell = collectionView.cellForItem(at: indexPath) as? ChannelCollectionViewCell
             cell?.backgroundColor = UIColor.clear
