@@ -367,7 +367,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
                 if let lazyPlayer, let playerItem = lazyPlayer.currentItem {
                     nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playerItem.currentTime().seconds
-                    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playerItem.asset.duration.seconds
+                    Task {
+                        if let duration = try? await playerItem.asset.load(.duration) {
+                            MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] =
+                                duration.seconds
+                        }
+                    }
                     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = lazyPlayer.rate
                 }
 
