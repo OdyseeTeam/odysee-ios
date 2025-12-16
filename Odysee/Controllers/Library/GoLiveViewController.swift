@@ -370,11 +370,10 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
 
-        if !checkCanStreamOnChannel(selectedChannel) {
+        guard let channel = selectedChannel, checkCanStreamOnChannel(channel) else {
             showError(message: String.localized("Please select a valid channel to continue"))
             return
         }
-        let channel = selectedChannel! // Confirmed non-nil by checkCanStreamOnChannel
 
         // check that there is a title
         let title = titleField.text

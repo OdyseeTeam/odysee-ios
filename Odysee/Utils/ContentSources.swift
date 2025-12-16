@@ -38,7 +38,7 @@ enum ContentSources {
 
         do {
             if let csCacheString = defaults.string(forKey: defaultsKey) {
-                let csCache = try JSONDecoder().decode(ContentSourceCache.self, from: csCacheString.data(using: .utf8)!)
+                let csCache = try JSONDecoder().decode(ContentSourceCache.self, from: csCacheString.data)
                 if let diff = Calendar.current.dateComponents([.hour], from: csCache.lastUpdated, to: Date()).hour,
                    diff < 24
                 {
@@ -80,7 +80,10 @@ enum ContentSources {
                 }
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
 
-                Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
+                if let string = String(data: data, encoding: .utf8) {
+                    Log.verboseJSON.logIfEnabled(.debug, string)
+                }
+
                 if respCode >= 200, respCode < 300 {
                     if respData?["data"] == nil {
                         completion(LbryioResponseError("Could not find data key in response returned", respCode))
@@ -146,8 +149,8 @@ enum ContentSources {
 
                 if respData?["error"] as? NSNull != nil {
                     completion(LbryioResponseError("no error message", respCode))
-                } else if respData?["error"] as? String != nil {
-                    completion(LbryioResponseError(respData?["error"] as! String, respCode))
+                } else if let error = respData?["error"] as? String {
+                    completion(LbryioResponseError(error, respCode))
                 } else {
                     completion(LbryioResponseError("Unknown api error signature", respCode))
                 }

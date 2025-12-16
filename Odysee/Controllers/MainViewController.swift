@@ -729,11 +729,11 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             connectionString: Lbry.lbrytvConnectionString,
             authToken: Lbryio.authToken,
             completion: { data, error in
-                guard let data = data, error == nil else {
+                guard error == nil,
+                      let result = data?["result"] as? [String: Any]
+                else {
                     return
                 }
-
-                let result = data["result"] as! [String: Any]
 
                 var balance = WalletBalance()
                 balance.available = Decimal(string: result["available"] as? String ?? "0")
@@ -762,7 +762,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func handleSpecialUrl(url: String) -> Bool {
         if url.starts(with: "lbry://?") {
-            let destination = String(url.suffix(from: url.index(url.firstIndex(of: "?")!, offsetBy: 1)))
+            let destination = url.split(separator: "?")[1]
 
             if destination == "subscriptions" || destination == "subscription" || destination == "following" {
                 AppDelegate.shared.mainTabViewController?.selectedIndex = 1

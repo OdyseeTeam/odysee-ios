@@ -85,8 +85,10 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         publisherLabel.text = claim.signingChannel?.titleOrName
 
         // load thumbnail url
-        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
-            thumbnailImageView.load(url: thumbnailUrl.makeImageURL(spec: Self.thumbImageSpec))
+        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init)?.makeImageURL(
+            spec: Self.thumbImageSpec
+        ) {
+            thumbnailImageView.load(url: thumbnailUrl)
             thumbnailImageView.backgroundColor = nil
         } else {
             thumbnailImageView.image = Self.spacemanImage
@@ -126,8 +128,10 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
     }
 
     static func imagePrefetchURLs(claim: Claim) -> [URL] {
-        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
-            return [thumbnailUrl.makeImageURL(spec: thumbImageSpec)]
+        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init)?.makeImageURL(
+            spec: thumbImageSpec
+        ) {
+            return [thumbnailUrl]
         }
         return []
     }

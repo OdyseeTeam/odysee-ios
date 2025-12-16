@@ -191,14 +191,14 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         if let name_ = name, !name_.starts(with: "@") {
             name = String(format: "@%@", name_)
         }
-
-        // Why are Swift substrings so complicated?! name[1:] / name.substring(1), maybe?
-        if name == nil || !LbryUri
-            .isNameValid(String(name!.suffix(from: name!.index(name!.firstIndex(of: "@")!, offsetBy: 1))))
-        {
+        // Name starts with @ from previous line
+        guard let name = name?.dropFirst(),
+              LbryUri.isNameValid(String(name))
+        else {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
+
         if Lbry.walletBalance == nil || deposit > Lbry.walletBalance?.available ?? 0 {
             showError(message: "Your channel cannot be created at this time. Please try again later.")
             return
