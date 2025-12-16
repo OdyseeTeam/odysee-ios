@@ -214,7 +214,7 @@
                                             <constraint firstAttribute="width" constant="160" id="yAB-jt-rUM"/>
                                         </constraints>
                                     </view>
-                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="ZMe-Cs-ZmQ">
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="ZMe-Cs-ZmQ">
                                         <rect key="frame" x="160" y="28" width="186" height="34.5"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="07y-sU-PS6">
@@ -261,8 +261,10 @@
                                     <constraint firstAttribute="bottom" secondItem="SYE-EE-h4a" secondAttribute="bottom" id="7tn-cA-Tv4"/>
                                     <constraint firstItem="SYE-EE-h4a" firstAttribute="top" secondItem="MkF-lQ-MQ4" secondAttribute="top" id="B7r-uP-vMw"/>
                                     <constraint firstItem="GdG-4w-vOQ" firstAttribute="leading" secondItem="MkF-lQ-MQ4" secondAttribute="leading" id="L01-p7-mFC"/>
+                                    <constraint firstItem="ZMe-Cs-ZmQ" firstAttribute="top" relation="greaterThanOrEqual" secondItem="MkF-lQ-MQ4" secondAttribute="top" id="OfU-K0-cyQ"/>
                                     <constraint firstItem="5Fw-oG-SwQ" firstAttribute="top" secondItem="MkF-lQ-MQ4" secondAttribute="top" id="VQY-eH-aCQ"/>
                                     <constraint firstItem="SYE-EE-h4a" firstAttribute="trailing" secondItem="5Fw-oG-SwQ" secondAttribute="leading" constant="-16" id="Wb1-l6-gZb"/>
+                                    <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="ZMe-Cs-ZmQ" secondAttribute="bottom" id="Xh1-J9-QOT"/>
                                     <constraint firstItem="ZMe-Cs-ZmQ" firstAttribute="centerY" secondItem="MkF-lQ-MQ4" secondAttribute="centerY" id="dZs-Hm-V6u"/>
                                     <constraint firstAttribute="bottom" secondItem="GdG-4w-vOQ" secondAttribute="bottom" id="eXu-md-1QR"/>
                                     <constraint firstItem="GdG-4w-vOQ" firstAttribute="top" secondItem="MkF-lQ-MQ4" secondAttribute="top" id="hVg-K4-WGd"/>
