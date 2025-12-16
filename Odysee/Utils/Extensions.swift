@@ -16,6 +16,10 @@ extension String {
         return !contains { !$0.isWhitespace && !$0.isNewline }
     }
 
+    var data: Data {
+        return Data(utf8)
+    }
+
     subscript(bounds: CountableClosedRange<Int>) -> String {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         let end = index(startIndex, offsetBy: bounds.upperBound)

@@ -101,7 +101,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             "By continuing, you accept the Odysee Terms of Service and community guidelines."
         )
         let attributed = try? NSMutableAttributedString(
-            data: guidelinesString.data(using: .utf8)!,
+            data: guidelinesString.data,
             options: [.documentType: NSAttributedString.DocumentType.html],
             documentAttributes: nil
         )
@@ -884,7 +884,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         let channel = channels[index]
-        commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), channel.name!)
+        if let name = channel.name {
+            commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), name)
+        }
 
         if let thumbnailUrlValue = channel.value?.thumbnail?.url,
            let thumbnailUrl = URL(string: thumbnailUrlValue)?.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)

@@ -23,18 +23,18 @@ class MultistreamTests: XCTestCase, StreamDelegate {
 
     @objc func testBasic() {
         let str1 = "Hello, world: "
-        let stream1 = InputStream(data: str1.data(using: .utf8)!)
+        let stream1 = InputStream(data: str1.data)
         stream1.open()
 
         let str2 = "my name is Odysee! "
-        let stream2 = InputStream(data: str2.data(using: .utf8)!)
+        let stream2 = InputStream(data: str2.data)
         stream2.open()
 
         let fm = FileManager.default
         let filePath = fm.temporaryDirectory.appendingPathComponent("ms_test.dat").path
         if !fm.fileExists(atPath: filePath) {
             let str3 = "This is file data."
-            fm.createFile(atPath: filePath, contents: str3.data(using: .utf8), attributes: nil)
+            fm.createFile(atPath: filePath, contents: str3.data, attributes: nil)
         }
         let stream3 = InputStream(fileAtPath: filePath)!
         stream3.open()

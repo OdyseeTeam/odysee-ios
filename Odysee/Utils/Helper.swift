@@ -7,6 +7,7 @@
 
 import Base58Swift
 import CoreActionSheetPicker
+import FirebaseCrashlytics
 import Foundation
 import UIKit
 
@@ -23,6 +24,10 @@ enum Helper {
     static let reactionTypeLike = "like"
     static let reactionTypeDislike = "dislike"
     static let tagDisableComments = "disable-comments"
+
+    // swift-format-ignore
+    // Initialized once with static value
+    static let thumbUploadURL = URL(string: "https://thumbs.odycdn.com/upload")!
 
     static let primaryColor = UIColor(red: 229.0 / 255.0, green: 0, blue: 84.0 / 255.0, alpha: 1)
     static let lightPrimaryColor = UIColor(red: 250.0 / 255.0, green: 97.0 / 255.0, blue: 101.0 / 255.0, alpha: 1)
@@ -165,6 +170,14 @@ enum Helper {
         initialSelection: Int,
         handler: @escaping (ActionSheetStringPicker?, Int, Any?) -> Void
     ) -> ActionSheetStringPicker {
+        Crashlytics.crashlytics().setCustomKeysAndValues([
+            "showPickerActionSheet_title": title,
+            "showPickerActionSheet_origin": origin,
+            "showPickerActionSheet_rows": rows,
+            "showPickerActionSheet_initialSelection": initialSelection,
+        ])
+        // swift-format-ignore
+        // Init never returns nil, is only due to objc
         let picker = ActionSheetStringPicker(
             title: title,
             rows: rows,
@@ -226,6 +239,8 @@ enum Helper {
 
     static func makeid() -> String {
         let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        // swift-format-ignore
+        // randomElement from a static collection which is never empty
         return String((0 ..< 24).map { _ in chars.randomElement()! })
     }
 
@@ -253,22 +268,22 @@ enum Helper {
         fieldData.append("Content-Disposition: form-data; name=\"upload\"\r\n\r\n\(name)\r\n")
 
         let data = NSMutableData()
-        data.append("--\(boundary)\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append("--\(boundary)\r\n".data)
         data
             .append(
                 "Content-Disposition: form-data; name=\"file-input\"; filename=\"\(filename)\"\r\n"
-                    .data(using: .utf8, allowLossyConversion: false)!
+                    .data
             )
-        data.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append("Content-Type: \(mimeType)\r\n\r\n".data)
         data.append(imageData)
-        data.append("\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append("\r\n".data)
 
         let reqBody = NSMutableData()
-        reqBody.append(fieldData.data(using: .utf8, allowLossyConversion: false)!)
+        reqBody.append(fieldData.data)
         reqBody.append(data as Data)
-        reqBody.append("--\(boundary)--\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        reqBody.append("--\(boundary)--\r\n".data)
 
-        var req = URLRequest(url: URL(string: "https://thumbs.odycdn.com/upload")!)
+        var req = URLRequest(url: thumbUploadURL)
         req.httpMethod = "POST"
         req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         req.setValue(String(reqBody.count), forHTTPHeaderField: "Content-Length")

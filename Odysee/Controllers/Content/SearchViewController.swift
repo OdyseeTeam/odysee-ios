@@ -225,10 +225,16 @@ class SearchViewController: UIViewController,
                 }
 
                 self.lighthouseUrls = results.compactMap { item in
-                    LbryUri.tryParse(
-                        url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String),
-                        requireProto: false
-                    )?.description
+                    if let name = item["name"] as? String,
+                       let claimId = item["claimId"] as? String
+                    {
+                        LbryUri.tryParse(
+                            url: String(format: "%@#%@", name, claimId),
+                            requireProto: false
+                        )?.description
+                    } else {
+                        nil
+                    }
                 }
                 Lbry.apiCall(
                     method: Lbry.Methods.resolve,

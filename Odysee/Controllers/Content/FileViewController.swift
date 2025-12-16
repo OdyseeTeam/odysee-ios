@@ -717,9 +717,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         } else if isImageContent {
             var thumbnailDisplayUrl = contentUrl
             if let thumbnail = singleClaim.value?.thumbnail?.url, !thumbnail.isBlank,
-               let thumbnailUrl = URL(string: thumbnail)
+               let thumbnailUrl = URL(string: thumbnail)?.makeImageURL(spec: bigThumbSpec)
             {
-                thumbnailDisplayUrl = thumbnailUrl.makeImageURL(spec: bigThumbSpec)
+                thumbnailDisplayUrl = thumbnailUrl
             }
             contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
             let manager = PINRemoteImageManager.shared()
@@ -798,10 +798,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
                     if let result = data["result"] as? [String: Any] {
                         if let streamingUrl = result["streaming_url"] as? String,
-                           let contentUrl = URL(
-                               string: streamingUrl
-                                   .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
-                           )
+                           let encodedUrl = streamingUrl.addingPercentEncoding(
+                               withAllowedCharacters: .urlFragmentAllowed
+                           ),
+                           let contentUrl = URL(string: encodedUrl)
                         {
                             DispatchQueue.main.async {
                                 self.displayClaimContentFromUrl(
@@ -888,8 +888,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             publisherActionsArea.isHidden = true
         }
 
-        if let thumbnailUrl {
-            let optimisedThumbUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+        if let optimisedThumbUrl = thumbnailUrl?.makeImageURL(spec: ClaimTableViewCell.channelImageSpec) {
             if !isLivestream {
                 publisherImageView.load(url: optimisedThumbUrl)
             } else {
@@ -1276,7 +1275,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 action: "view_count",
                 options: ["claim_id": claimId],
                 completion: { data, error in
-                    guard let data = data, error == nil else {
+                    guard error == nil,
+                          let data = data as? NSArray,
+                          data.count > 0,
+                          let viewCount = data[0] as? Int
+                    else {
                         // couldn't load the view count for display
                         DispatchQueue.main.async {
                             self.viewCountLabel.isHidden = true
@@ -1285,7 +1288,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     }
                     DispatchQueue.main.async {
                         let formatter = Helper.interactionCountFormatter
-                        let viewCount = (data as! NSArray)[0] as! Int
                         self.viewCountLabel.isHidden = false
                         self.viewCountLabel.text = String(
                             format: viewCount == 1 ? String.localized("%@ view") : String.localized("%@ views"),
@@ -1320,8 +1322,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     self.numLikes = 0
                     self.numDislikes = 0
                     if let reactions = data as? [String: Any] {
-                        if let myReactions = reactions["my_reactions"] as? [String: Any] {
-                            let values = myReactions[claimId] as! [String: Any]
+                        if let myReactions = reactions["my_reactions"] as? [String: Any],
+                           let values = myReactions[claimId] as? [String: Any]
+                        {
                             let likeCount = values["like"] as? Int
                             let dislikeCount = values["dislike"] as? Int
                             if (likeCount ?? 0) > 0 {
@@ -1333,8 +1336,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                                 self.numDislikes += 1
                             }
                         }
-                        if let othersReactions = reactions["others_reactions"] as? [String: Any] {
-                            let values = othersReactions[claimId] as! [String: Any]
+                        if let othersReactions = reactions["others_reactions"] as? [String: Any],
+                           let values = othersReactions[claimId] as? [String: Any]
+                        {
                             let likeCount = values["like"] as? Int
                             let dislikeCount = values["dislike"] as? Int
                             self.numLikes += likeCount ?? 0
@@ -1588,10 +1592,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
                 if let result = data["result"] as? [String: Any] {
                     if let streamingUrl = result["streaming_url"] as? String,
-                       let sourceUrl = URL(
-                           string: streamingUrl
-                               .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
-                       )
+                       let encodedUrl = streamingUrl.addingPercentEncoding(
+                           withAllowedCharacters: .urlFragmentAllowed
+                       ),
+                       let sourceUrl = URL(string: encodedUrl)
                     {
                         self.getTranscodedUrlAndInitializePlayer(claim: singleClaim, sourceUrl: sourceUrl)
                     }
@@ -1677,10 +1681,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     location = "\(scheme)://\(host)\(location)"
                 }
 
-                if let mediaUrl = URL(
-                    string: location
-                        .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
-                ) {
+                if let encodedUrl = location.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
+                   let mediaUrl = URL(string: encodedUrl)
+                {
                     DispatchQueue.main.async {
                         let headers: [String: String] = [
                             "Referer": "https://ios.odysee.com/",
@@ -1719,10 +1722,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
 
             let urls = results.compactMap { item in
-                LbryUri.tryParse(
-                    url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String),
-                    requireProto: false
-                )?.description
+                if let name = item["name"] as? String,
+                   let claimId = item["claimId"] as? String
+                {
+                    LbryUri.tryParse(
+                        url: String(format: "%@#%@", name, claimId),
+                        requireProto: false
+                    )?.description
+                } else {
+                    nil
+                }
             }
             Lbry.apiCall(
                 method: Lbry.Methods.resolve,
@@ -2490,16 +2499,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             chatConnected = false
         case let .text(string):
             do {
-                if let jsonData = string.data(using: .utf8, allowLossyConversion: false) {
-                    if let response = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
-                        if response["type"] as? String == "delta" {
-                            if let data = response["data"] as? [String: Any] {
-                                if let commentData = data["comment"] as? [String: Any] {
-                                    handleChatMessageReceived(data: commentData)
-                                }
-                            }
-                        }
-                    }
+                let jsonData = string.data
+                if let response = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
+                   response["type"] as? String == "delta",
+                   let data = response["data"] as? [String: Any],
+                   let commentData = data["comment"] as? [String: Any]
+                {
+                    handleChatMessageReceived(data: commentData)
                 }
             } catch {
                 // pass
@@ -2531,7 +2537,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         webView.evaluateJavaScript("document.readyState", completionHandler: { complete, _ in
             if complete != nil {
                 webView.evaluateJavaScript("document.body.scrollHeight", completionHandler: { height, _ in
-                    self.webViewHeightConstraint.constant = height as! CGFloat
+                    if let height = height as? CGFloat {
+                        self.webViewHeightConstraint.constant = height
+                    }
                     webView.scrollView.isScrollEnabled = false
 
                     self.mediaView.isHidden = true

@@ -17,9 +17,15 @@ import UIKit
 
 enum Lbry {
     static let ttlCLaimSearchValue = 120_000
-    static let lbrytvURL = URL(string: "https://api.na-backend.odysee.com/api/v1/proxy")!
-    static let uploadURL = URL(string: "https://publish.na-backend.odysee.com/v1")!
-    static let commentronURL = URL(string: "https://comments.odysee.tv/api/v2")!
+    // swift-format-ignore
+    // Initialized once with static value
+    static var lbrytvURL = URL(string: "https://api.na-backend.odysee.com/api/v1/proxy")!
+    // swift-format-ignore
+    // Initialized once with static value
+    static var uploadURL = URL(string: "https://publish.na-backend.odysee.com/v1")!
+    // swift-format-ignore
+    // Initialized once with static value
+    static var commentronURL = URL(string: "https://comments.odysee.tv/api/v2")!
     static let lbrytvConnectionString = lbrytvURL.absoluteString
     static let keyShared = "shared"
     static let sharedPreferenceVersion = "0.1"
@@ -243,8 +249,8 @@ enum Lbry {
                 url: URL(string: connectionString)!,
                 authToken: authToken
             )
-        } catch let e {
-            completion(nil, e)
+        } catch {
+            completion(nil, error)
             return
         }
         let task = URLSession.shared.dataTask(with: req, completionHandler: { data, _, error in
@@ -254,7 +260,10 @@ enum Lbry {
                 return
             }
             do {
-                Log.verboseJSON.logIfEnabled(.debug, "Response to `\(method)`: \(String(data: data, encoding: .utf8)!)")
+                Log.verboseJSON.logIfEnabled(
+                    .debug,
+                    "Response to `\(method)`: \(String(data: data, encoding: .utf8) ?? "Couldn't parse data")"
+                )
 
                 let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                 if response?["result"] != nil {
@@ -262,10 +271,12 @@ enum Lbry {
                 } else {
                     if response?["error"] == nil, response?["result"] == nil {
                         completion(nil, nil)
-                    } else if response?["error"] as? String != nil {
-                        completion(nil, LbryApiResponseError(response?["error"] as! String))
-                    } else if let errorJson = response?["error"] as? [String: Any] {
-                        completion(nil, LbryApiResponseError(errorJson["message"] as! String))
+                    } else if let error = response?["error"] as? String {
+                        completion(nil, LbryApiResponseError(error))
+                    } else if let errorJson = response?["error"] as? [String: Any],
+                              let errorMessage = errorJson["message"] as? String
+                    {
+                        completion(nil, LbryApiResponseError(errorMessage))
                     } else {
                         completion(nil, LbryApiResponseError("unknown api error"))
                     }
@@ -313,6 +324,8 @@ enum Lbry {
     static func generateId(numBytes: Int) -> String? {
         var data = Data(count: numBytes)
         let result = data.withUnsafeMutableBytes {
+            // swift-format-ignore
+            // All of this is unsafe
             SecRandomCopyBytes(kSecRandomDefault, numBytes, $0.baseAddress!)
         }
         if result == errSecSuccess {
@@ -479,10 +492,10 @@ enum Lbry {
             if let dataToSave = try? JSONSerialization.data(
                 withJSONObject: shared as Any,
                 options: [.prettyPrinted, .sortedKeys]
-            ) {
+            ), let value = String(data: dataToSave, encoding: String.Encoding.utf8) {
                 var params = [String: Any]()
                 params["key"] = keyShared
-                params["value"] = String(data: dataToSave, encoding: String.Encoding.utf8)!
+                params["value"] = value
                 apiCall(
                     method: methodPreferenceSet,
                     params: params,
@@ -591,7 +604,9 @@ enum Lbry {
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    Crashlytics.crashlytics().recordImmediate(error: error!)
+                    if let error {
+                        Crashlytics.crashlytics().recordImmediate(error: error)
+                    }
                     walletSyncInProgress = false
                     return
                 }
@@ -619,23 +634,23 @@ enum Lbry {
                                 authToken: Lbryio.authToken,
                                 completion: { saData, saError in
                                     guard let saData = saData, saError == nil else {
-                                        Crashlytics.crashlytics().recordImmediate(error: saError!)
-                                        if let completion {
-                                            completion(true)
+                                        if let saError {
+                                            Crashlytics.crashlytics().recordImmediate(error: saError)
                                         }
+                                        completion?(false)
                                         walletSyncInProgress = false
                                         return
                                     }
 
-                                    let result = saData["result"] as! [String: Any]
-                                    let saHash = result["hash"] as! String
-                                    localWalletHash = saHash
+                                    if let result = saData["result"] as? [String: Any],
+                                       let saHash = result["hash"] as? String
+                                    {
+                                        localWalletHash = saHash
+                                    }
 
                                     walletSyncInProgress = false
                                     loadSharedUserState(completion: { _, _ in
-                                        if let completion {
-                                            completion(true)
-                                        }
+                                        completion?(true)
                                     })
 
                                     checkPushSyncQueue()
@@ -646,9 +661,7 @@ enum Lbry {
                             walletSyncInProgress = false
                             loadSharedUserState(completion: { _, _ in
                                 // reload all the same
-                                if let completion {
-                                    completion(true)
-                                }
+                                completion?(true)
                             })
                         }
                     })
@@ -694,14 +707,16 @@ enum Lbry {
                     if let hash = result["hash"] as? String, let walletData = result["data"] as? String {
                         Lbry.localWalletHash = hash
                         Lbryio.syncSet(
-                            oldHash: remoteWalletHash!,
+                            oldHash: remoteWalletHash ?? "",
                             newHash: hash,
                             data: walletData,
                             completion: { remoteHash, error in
                                 guard let remoteHash = remoteHash, error == nil else {
                                     walletSyncInProgress = false
                                     checkPushSyncQueue()
-                                    Crashlytics.crashlytics().recordImmediate(error: error!)
+                                    if let error {
+                                        Crashlytics.crashlytics().recordImmediate(error: error)
+                                    }
                                     return
                                 }
 

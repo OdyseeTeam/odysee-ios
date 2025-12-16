@@ -7,6 +7,9 @@
 //  Copyright © 2016 CubInCup. All rights reserved.
 //
 
+// swift-format-ignore
+// Third party code
+
 import UIKit
 
 enum SBAnimationLength {
