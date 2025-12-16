@@ -1100,6 +1100,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if !forceInit, AppDelegate.shared.lazyPlayer != nil, AppDelegate.shared.currentClaim != nil,
            AppDelegate.shared.currentClaim?.claimId == singleClaim.claimId
         {
+            mediaLoadingIndicator.isHidden = true
+
             // Normally not needed,
             // but set this in case the state gets messed up and this FileViewController is new
             avpc.canStartPictureInPictureAutomaticallyFromInline = true
@@ -1142,6 +1144,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
 
             AppDelegate.shared.setupRemoteTransportControls()
+        }
+
+        Task {
+            _ = try? await asset.load(.duration)
+            mediaLoadingIndicator.isHidden = true
         }
 
         AppDelegate.shared.lazyPlayer?.pause()
@@ -1556,6 +1563,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        mediaLoadingIndicator.superview?.bringSubviewToFront(mediaLoadingIndicator)
+        mediaLoadingIndicator.isHidden = false
+
         var params = [String: Any]()
         params["uri"] = uri
         if let baseStreamingUrl = baseStreamingUrl {
@@ -1569,6 +1579,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
+                    self.mediaLoadingIndicator.isHidden = true
                     self.showError(error: error)
                     return
                 }
@@ -1620,6 +1631,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         self.showClaimAndCheckFollowing()
                     }
                 } else {
+                    self.mediaLoadingIndicator.isHidden = true
                     self.showError(message: String.localized("Failed to get transcoded media location"))
                 }
                 return
@@ -1649,6 +1661,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             self.showClaimAndCheckFollowing()
                         }
                     } else {
+                        self.mediaLoadingIndicator.isHidden = true
                         self.showError(message: String.localized("Failed to get transcoded media location"))
                     }
                     return
@@ -1797,7 +1810,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
 
             if isPlaylist {
-                // play the itema nd set the current index
+                // play the item and set the current index
                 let index = indexPath.row
                 currentPlaylistIndex = index
                 loadPlaylistItemClaim(claim)
