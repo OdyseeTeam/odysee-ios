@@ -38,6 +38,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet var mediaView: UIView!
     @IBOutlet var reloadStreamView: UIView!
 
+    @IBOutlet var mediaLoadingIndicator: UIActivityIndicatorView!
+
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var viewCountLabel: UILabel!
     @IBOutlet var timeAgoLabel: UILabel!

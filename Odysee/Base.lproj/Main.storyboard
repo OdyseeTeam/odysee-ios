@@ -5721,6 +5721,10 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hZs-fq-qQ6">
                                 <rect key="frame" x="0.0" y="96" width="414" height="240"/>
                                 <subviews>
+                                    <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="rOF-R8-Qq2">
+                                        <rect key="frame" x="188.5" y="101.5" width="37" height="37"/>
+                                        <color key="color" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                    </activityIndicatorView>
                                     <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="streaming_odysee" translatesAutoresizingMaskIntoConstraints="NO" id="b5M-lr-1ir">
                                         <rect key="frame" x="0.0" y="0.0" width="414" height="240"/>
                                     </imageView>
@@ -5805,6 +5809,7 @@
                                     <constraint firstAttribute="height" constant="240" id="UmT-3v-Pm5">
                                         <variation key="heightClass=regular-widthClass=regular" constant="480"/>
                                     </constraint>
+                                    <constraint firstItem="rOF-R8-Qq2" firstAttribute="centerX" secondItem="hZs-fq-qQ6" secondAttribute="centerX" id="aQG-E9-lxM"/>
                                     <constraint firstItem="FZX-xm-zP4" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="top" id="awR-6G-mHy"/>
                                     <constraint firstAttribute="trailing" secondItem="FZX-xm-zP4" secondAttribute="trailing" id="dVh-9a-2cy"/>
                                     <constraint firstItem="DED-pq-EGI" firstAttribute="leading" secondItem="hZs-fq-qQ6" secondAttribute="leading" constant="4" id="gcr-ZF-nlb"/>
@@ -5812,6 +5817,7 @@
                                     <constraint firstItem="b5M-lr-1ir" firstAttribute="leading" secondItem="hZs-fq-qQ6" secondAttribute="leading" id="kY6-bO-YRj"/>
                                     <constraint firstAttribute="trailing" secondItem="DED-pq-EGI" secondAttribute="trailing" constant="4" id="l3K-bN-L5v"/>
                                     <constraint firstAttribute="bottom" secondItem="DED-pq-EGI" secondAttribute="bottom" constant="4" id="li7-Qa-GjR"/>
+                                    <constraint firstItem="rOF-R8-Qq2" firstAttribute="centerY" secondItem="hZs-fq-qQ6" secondAttribute="centerY" id="pFg-gK-L7j"/>
                                     <constraint firstItem="b5M-lr-1ir" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="top" id="qHw-zN-XLw"/>
                                     <constraint firstAttribute="bottom" secondItem="FZX-xm-zP4" secondAttribute="bottom" id="vIk-NB-Lqu"/>
                                 </constraints>
@@ -6888,6 +6894,7 @@
                         <outlet property="livestreamerNameLabel" destination="qy0-IS-SWO" id="hHe-Ii-I5x"/>
                         <outlet property="livestreamerTitleLabel" destination="KPs-x6-FW7" id="p9K-Ut-ven"/>
                         <outlet property="loadingRelatedView" destination="uYW-Dh-Xa4" id="Rxi-0I-jUf"/>
+                        <outlet property="mediaLoadingIndicator" destination="rOF-R8-Qq2" id="wHn-Vp-oUs"/>
                         <outlet property="mediaView" destination="hZs-fq-qQ6" id="4Jr-E5-zZv"/>
                         <outlet property="mediaViewHeightConstraint" destination="UmT-3v-Pm5" id="26L-pE-X3q"/>
                         <outlet property="noCommentsLabel" destination="BaS-K8-e0h" id="jcs-oX-mMc"/>
