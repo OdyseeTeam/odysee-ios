@@ -1532,6 +1532,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func loadPlaylistItemClaim(_ singleClaim: Claim) {
+        detailsScrollView.setContentOffset(.zero, animated: true)
+
         comments.removeAll()
 
         displaySingleClaim(singleClaim)
