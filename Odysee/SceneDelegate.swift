@@ -56,9 +56,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneWillEnterForeground(_ scene: UIScene) {
         // Called as the scene transitions from the background to the foreground.
         // Use this method to undo the changes made on entering the background.
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.currentFileViewController != nil {
-            appDelegate.currentFileViewController?.connectPlayer()
+        if AppDelegate.shared.currentFileViewController != nil {
+            AppDelegate.shared.currentFileViewController?.connectPlayer()
         }
     }
 
@@ -75,27 +74,26 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func handleLaunchUrl(url: URL) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if appDelegate.mainViewController != nil, appDelegate.mainNavigationController != nil {
-            if appDelegate.mainController.handleSpecialUrl(url: url.absoluteString) {
+        if AppDelegate.shared.mainViewController != nil, AppDelegate.shared.mainNavigationController != nil {
+            if AppDelegate.shared.mainController.handleSpecialUrl(url: url.absoluteString) {
                 return
             }
 
             if let lbryUrl = LbryUri.tryParse(url: url.absoluteString, requireProto: false) {
                 if lbryUrl.isChannel {
-                    let vc = appDelegate.mainViewController?.storyboard?
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
-                    let vc = appDelegate.mainViewController?.storyboard?
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
-                    appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 }
             }
         } else {
-            appDelegate.pendingOpenUrl = url.absoluteString
+            AppDelegate.shared.pendingOpenUrl = url.absoluteString
         }
     }
 

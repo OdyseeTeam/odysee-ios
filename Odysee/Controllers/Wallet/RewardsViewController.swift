@@ -38,9 +38,8 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     var rewards: [Reward] = []
 
     override func viewWillAppear(_ animated: Bool) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
 
         if Lbryio.isSignedIn() {
             if !(Lbryio.currentUser?.isRewardApproved ?? false) {
@@ -106,8 +105,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     func showVerification() {
         DispatchQueue.main.async {
             if !self.firstRunFlow {
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+                AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
             }
 
             self.rewardVerification.view.isHidden = false
@@ -124,8 +122,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     func showRewardEligibleView() {
         DispatchQueue.main.async {
             if !self.firstRunFlow {
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+                AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
             }
 
             self.rewardVerification.view.isHidden = true
@@ -136,8 +133,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     func showRewardsList() {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.toggleHeaderVisibility(hidden: true)
+            AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
 
             self.rewardVerification.view.isHidden = true
             self.closeVerificationButton.isHidden = true
@@ -234,22 +230,19 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 
@@ -278,8 +271,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
             // open the transaction view
             if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, transactionId)) {
                 let vc = SFSafariViewController(url: url)
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.present(vc, animated: true, completion: nil)
+                AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
             }
         } else if !reward.claimed {
             // attemptRewardClaim(reward: reward)

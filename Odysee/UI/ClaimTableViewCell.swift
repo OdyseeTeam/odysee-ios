@@ -98,7 +98,7 @@ class ClaimTableViewCell: UITableViewCell {
     }
 
     func setClaim(claim: Claim, showRepostOverlay: Bool) {
-        guard let _ = claim.claimId else {
+        guard claim.claimId != nil else {
             return
         }
 
@@ -263,38 +263,39 @@ class ClaimTableViewCell: UITableViewCell {
 
     @objc func publisherTapped(_ sender: Any) {
         if let channelClaim = currentClaim?.signingChannel {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
             let currentVc = UIApplication.currentViewController()
             if let channelVc = currentVc as? ChannelViewController {
                 if channelVc.channelClaim?.claimId == channelClaim.claimId {
                     // if we already have the channel page open, don't do anything
                     return
                 }
+            } else if currentVc as? FileViewController != nil {
+                AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
 
-            let vc = appDelegate.mainController.storyboard?
+            let vc = AppDelegate.shared.mainController.storyboard?
                 .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 
     @objc func reposterTapped(_ sender: Any) {
         if let channelClaim = reposterChannelClaim {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
-            if let currentVc = UIApplication.currentViewController() as? ChannelViewController {
-                if currentVc.channelClaim?.claimId == channelClaim.claimId {
+            let currentVc = UIApplication.currentViewController()
+            if let channelVc = currentVc as? ChannelViewController {
+                if channelVc.channelClaim?.claimId == channelClaim.claimId {
                     // if we already have the channel page open, don't do anything
                     return
                 }
+            } else if currentVc as? FileViewController != nil {
+                AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
 
-            let vc = appDelegate.mainController.storyboard?
+            let vc = AppDelegate.shared.mainController.storyboard?
                 .instantiateViewController(withIdentifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
     }
 }

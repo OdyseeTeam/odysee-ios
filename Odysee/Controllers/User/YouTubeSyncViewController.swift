@@ -23,9 +23,8 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -161,22 +160,19 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
 
@@ -204,8 +200,7 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
         Lbryio.Defaults.isYouTubeSyncDone = true
         Lbryio.Defaults.isYouTubeSyncConnected = ytSyncConnected
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainNavigationController?.popViewController(animated: true)
+        AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
         if ytSyncConnected {
             // TODO: redirect to YouTube Sync Status page
         }

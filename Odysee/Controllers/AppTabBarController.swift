@@ -11,10 +11,16 @@ class AppTabBarController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        // https://www.hackingwithswift.com/forums/ios/tab-bar-transparent/10549/10552
+        if #available(iOS 15.0, *) {
+            let tabBarAppearance = UITabBarAppearance()
+            tabBarAppearance.configureWithOpaqueBackground()
+            tabBar.scrollEdgeAppearance = tabBarAppearance
+        }
+
         // Do any additional setup after loading the view.
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainTabViewController = self
-        delegate = appDelegate
+        AppDelegate.shared.mainTabViewController = self
+        delegate = AppDelegate.shared
 
         let defaults = UserDefaults.standard
         if let lastIndex = defaults.value(forKey: AppDelegate.keyLastTabIndex) as? Int {

@@ -162,7 +162,7 @@ enum Lbryio {
     static let authTokenParam = "auth_token"
     static var authToken: String? {
         didSet {
-            guard let _ = authToken else {
+            guard authToken != nil else {
                 deleteAuthToken()
                 return
             }
@@ -354,6 +354,12 @@ enum Lbryio {
                 }
                 let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
 
+                Crashlytics.crashlytics().setCustomValue(
+                    String(data: data, encoding: .utf8),
+                    forKey: "Lbryio.call_data"
+                )
+                Crashlytics.crashlytics().setCustomValue(respCode, forKey: "Lbryio.call_respCode")
+
                 Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
 
                 if respCode >= 200, respCode < 300 {
@@ -446,6 +452,7 @@ enum Lbryio {
 
             if data != nil {
                 do {
+                    Crashlytics.crashlytics().setCustomValue(data as Any, forKey: "fetchCurrentUser_data")
                     let jsonData = try JSONSerialization.data(
                         withJSONObject: data as Any,
                         options: [.prettyPrinted, .sortedKeys]
@@ -641,7 +648,7 @@ enum Lbryio {
                 options["channel_claim_id"] = claimId
             }
             try Lbryio.post(resource: "event", action: "publish", options: options, completion: { data, error in
-                guard let _ = data, error == nil else {
+                guard data != nil, error == nil else {
                     // ignore errors, can always retry at a later time
                     return
                 }

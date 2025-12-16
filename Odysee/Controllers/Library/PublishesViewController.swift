@@ -38,8 +38,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -52,8 +51,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             ]
         )
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
         loadUploads()
     }
 
@@ -150,17 +148,15 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         tableView.deselectRow(at: indexPath, animated: true)
         let claim: Claim = uploads[indexPath.row]
         if claim.claimId == "new" {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
             return
         }
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let vc = appDelegate.mainController.storyboard?
+        let vc = AppDelegate.shared.mainController.storyboard?
             .instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     @objc func handleUploadCellLongPress(sender: UILongPressGestureRecognizer) {
@@ -170,8 +166,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
                 let claim: Claim = uploads[indexPath.row]
                 let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
                 vc.currentClaim = claim
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
             }
         }
     }
@@ -205,18 +200,15 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     }
 
     func showError(message: String?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(message: message)
+        AppDelegate.shared.mainController.showError(message: message)
     }
 
     func showError(error: Error?) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.showError(error: error)
+        AppDelegate.shared.mainController.showError(error: error)
     }
 
     @IBAction func newUploadTapped(_ sender: UIButton) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 }

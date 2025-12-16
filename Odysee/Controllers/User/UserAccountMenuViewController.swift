@@ -77,39 +77,34 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @IBAction func signUpLoginTapped(_ sender: UIButton) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
 
     @IBAction func goLiveTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "go_live_vc") as! GoLiveViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
 
     @IBAction func channelsTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?
             .instantiateViewController(identifier: "channel_manager_vc") as! ChannelManagerViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
 
     @IBAction func rewardsTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "rewards_vc") as! RewardsViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
 
     @IBAction func signOutTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         presentingViewController?.dismiss(animated: false, completion: nil)
-        appDelegate.mainController.stopAllTimers()
-        appDelegate.mainController.resetUserAndViews()
+        AppDelegate.shared.mainController.stopAllTimers()
+        AppDelegate.shared.mainController.resetUserAndViews()
 
         let initVc = storyboard?.instantiateViewController(identifier: "init_vc") as! InitViewController
         if let window = view.window {
@@ -124,8 +119,6 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @IBAction func youTubeSyncTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-
         var vc: UIViewController!
         if Lbryio.Defaults.isYouTubeSyncConnected {
             vc = storyboard?
@@ -133,30 +126,28 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         } else {
             vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
         }
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }
 
     @IBAction func communityGuidelinesTapped(_ sender: Any) {
         if let url = URL(string: "https://help.odysee.tv/communityguidelines/") {
             let vc = SFSafariViewController(url: url)
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             presentingViewController?.dismiss(animated: false, completion: nil)
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
         }
     }
 
     @IBAction func helpAndSupportTapped(_ sender: Any) {
         if let url = URL(string: "https://help.odysee.tv/") {
             let vc = SFSafariViewController(url: url)
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             presentingViewController?.dismiss(animated: false, completion: nil)
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
         }
     }
 
     @IBAction func deleteAccountTapped(_ sender: Any) {
-        if let _ = Lbryio.currentUser {
+        if Lbryio.currentUser != nil {
             if !Lbry.ownChannels.isEmpty {
                 let alert = UIAlertController(
                     title: String.localized("Delete Account: Delete your Channels"),
@@ -236,7 +227,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                 connectionString: Lbry.lbrytvConnectionString,
                 authToken: Lbryio.authToken,
                 completion: { data, error in
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         DispatchQueue.main.async {
                             self.showError(error: error)
                             self.deleteAccountTapped(UIButton())
@@ -408,15 +399,13 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 

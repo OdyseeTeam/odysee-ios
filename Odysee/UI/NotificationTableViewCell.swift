@@ -51,7 +51,7 @@ class NotificationTableViewCell: UITableViewCell {
         currentNotification = notification
         unreadIndicatorView.layer.cornerRadius = 6
         unreadIndicatorView.isHidden = notification.isRead ?? true
-        if let _ = currentNotification?.notificationParameters?.dynamic?.commentAuthorThumbnail {
+        if currentNotification?.notificationParameters?.dynamic?.commentAuthorThumbnail != nil {
             iconView.isHidden = true
             avatarView.isHidden = false
 

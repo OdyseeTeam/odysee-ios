@@ -96,9 +96,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: true)
-        appDelegate.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
 
         if channelClaim != nil {
             checkFollowing()
@@ -144,8 +143,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         // Do any additional setup after loading the view
         thumbnailImageView.rounded()
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let mainVc = appDelegate.mainViewController as? MainViewController {
+        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
             mainVc.addBlockChannelObserver(name: "channel", observer: self)
         }
 
@@ -171,8 +169,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let mainVc = appDelegate.mainViewController as? MainViewController {
+        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
             mainVc.removeBlockChannelObserver(name: "channel")
         }
     }
@@ -621,15 +618,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         if tableView == contentListView {
             let claim: Claim = claims[indexPath.row]
 
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = claim
 
-            appDelegate.mainNavigationController?.view.layer.add(
+            AppDelegate.shared.mainNavigationController?.view.layer.add(
                 Helper.buildFileViewTransition(),
                 forKey: kCATransition
             )
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }
 
@@ -664,12 +660,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         collectionView.deselectItem(at: indexPath, animated: true)
 
         let claim = futureStreams[indexPath.row]
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(withIdentifier: "file_view_vc") as! FileViewController
         vc.claim = claim
 
-        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        AppDelegate.shared.mainNavigationController?.view.layer.add(
+            Helper.buildFileViewTransition(),
+            forKey: kCATransition
+        )
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
     }
 
     @IBAction func sortByLabelTapped(_ sender: Any) {
@@ -734,8 +732,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
             if let url = URL(string: websiteUrl) {
                 let vc = SFSafariViewController(url: url)
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                appDelegate.mainController.present(vc, animated: true, completion: nil)
+                AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
             }
         }
     }
@@ -748,15 +745,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 claim
             }
 
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = actualClaim
 
-            appDelegate.mainNavigationController?.view.layer.add(
+            AppDelegate.shared.mainNavigationController?.view.layer.add(
                 Helper.buildFileViewTransition(),
                 forKey: kCATransition
             )
-            appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
         }
     }
 
@@ -830,9 +826,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         if let claimId = channelClaim?.claimId,
            let name = channelClaim?.name
         {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
             let isBlocked = Helper.isChannelBlocked(claimId: claimId)
-            if let mainVc = appDelegate.mainViewController as? MainViewController {
+            if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
                 if isBlocked {
                     mainVc.removeBlockedChannel(claimId: claimId)
                 } else {
@@ -867,15 +862,13 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
            URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", claimId))
         {
             let vc = SFSafariViewController(url: url)
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
         }
     }
 
     func showUAView() {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     @IBAction func followUnfollowActionTapped(_ sender: Any) {
@@ -900,8 +893,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 )
 
                 // check if the following tab is open to prevent a crash
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                if let vc = appDelegate.mainTabViewController?.selectedViewController as? FollowingViewController {
+                if let vc = AppDelegate.shared.mainTabViewController?
+                    .selectedViewController as? FollowingViewController
+                {
                     vc.removeFollowing(claim: channelClaim)
                 }
             })
@@ -958,7 +952,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 options: options,
                 completion: { data, error in
                     self.subscribeUnsubscribeInProgress = false
-                    guard let _ = data, error == nil else {
+                    guard data != nil, error == nil else {
                         // print(error)
                         self.showError(error: error)
                         self.checkFollowing()
@@ -1013,8 +1007,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
         // persist the subscription to CoreData
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
+            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
             context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
 
             let subToSave = Subscription(context: context)
@@ -1022,7 +1015,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             subToSave.channelName = channelName
             subToSave.isNotificationsDisabled = isNotificationsDisabled
 
-            appDelegate.saveContext()
+            AppDelegate.shared.saveContext()
         }
     }
 
@@ -1030,8 +1023,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         // remove the subscription from CoreData
         DispatchQueue.main.async {
             do {
-                let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                let context: NSManagedObjectContext = appDelegate.persistentContainer.viewContext
+                let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
                 let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
                 fetchRequest.predicate = NSPredicate(format: "url == %@", url)
                 let subs = try context.fetch(fetchRequest)
@@ -1137,22 +1129,19 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(error: error)
+            AppDelegate.shared.mainController.showError(error: error)
         }
     }
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showError(message: message)
+            AppDelegate.shared.mainController.showError(message: message)
         }
     }
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            let appDelegate = UIApplication.shared.delegate as! AppDelegate
-            appDelegate.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController.showMessage(message: message)
         }
     }
 

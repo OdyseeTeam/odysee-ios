@@ -67,10 +67,9 @@ class HomeViewController: UIViewController,
             parameters: [AnalyticsParameterScreenName: "Home", AnalyticsParameterScreenClass: "HomeViewController"]
         )
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        appDelegate.mainController.toggleHeaderVisibility(hidden: false)
-        appDelegate.mainController.adjustMiniPlayerBottom(
-            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: appDelegate))
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController.adjustMiniPlayerBottom(
+            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
     override func viewDidLoad() {
@@ -100,8 +99,7 @@ class HomeViewController: UIViewController,
         }
         selectCategoryButton(button: categoryButtons[0])
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        if let mainVc = appDelegate.mainViewController as? MainViewController {
+        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
             mainVc.addBlockChannelObserver(name: "home", observer: self)
         }
 
@@ -217,8 +215,7 @@ class HomeViewController: UIViewController,
                 self.claimSearchLivestreams()
             } else if case let .failure(error) = result {
                 DispatchQueue.main.async {
-                    let appDelegate = UIApplication.shared.delegate as! AppDelegate
-                    appDelegate.mainController.showError(message: error.localizedDescription)
+                    AppDelegate.shared.mainController.showError(message: error.localizedDescription)
                 }
             }
         }
@@ -332,12 +329,14 @@ class HomeViewController: UIViewController,
             claim
         }
 
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = actualClaim
 
-        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        AppDelegate.shared.mainNavigationController?.view.layer.add(
+            Helper.buildFileViewTransition(),
+            forKey: kCATransition
+        )
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -375,12 +374,14 @@ class HomeViewController: UIViewController,
         collectionView.deselectItem(at: indexPath, animated: true)
 
         let claim = livestreams[indexPath.row].claim
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         let vc = storyboard?.instantiateViewController(withIdentifier: "file_view_vc") as! FileViewController
         vc.claim = claim
 
-        appDelegate.mainNavigationController?.view.layer.add(Helper.buildFileViewTransition(), forKey: kCATransition)
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: false)
+        AppDelegate.shared.mainNavigationController?.view.layer.add(
+            Helper.buildFileViewTransition(),
+            forKey: kCATransition
+        )
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
