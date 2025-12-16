@@ -10,7 +10,6 @@ import UIKit
 import WebKit
 
 class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
-    @IBOutlet var ytSyncScrollView: UIScrollView!
     @IBOutlet var claimNowButton: UIButton!
     @IBOutlet var skipButton: UIButton!
     @IBOutlet var youTubeSyncSwitch: UISwitch!
@@ -42,40 +41,9 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        registerForKeyboardNotifications()
         webView.customUserAgent = "Version/8.0.2 Safari/600.2.5"
         webView.navigationDelegate = self
         claimNowButton.setTitleColor(UIColor.systemGray5, for: .disabled)
-    }
-
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-            ytSyncScrollView.contentInset = contentInsets
-            ytSyncScrollView.scrollIndicatorInsets = contentInsets
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInsets = UIEdgeInsets.zero
-        ytSyncScrollView.contentInset = contentInsets
-        ytSyncScrollView.scrollIndicatorInsets = contentInsets
     }
 
     @IBAction func claimNowPressed(_ sender: UIButton) {

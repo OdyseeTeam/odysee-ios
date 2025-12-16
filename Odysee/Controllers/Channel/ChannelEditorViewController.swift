@@ -23,7 +23,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
     @IBOutlet var websiteField: UITextField!
     @IBOutlet var emailField: UITextField!
 
-    @IBOutlet var scrollView: UIScrollView!
     @IBOutlet var optionalFieldsContainer: UIView!
     @IBOutlet var toggleOptionalFieldsButton: UIButton!
 
@@ -66,7 +65,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        registerForKeyboardNotifications()
         thumbnailImageView.rounded()
         coverEditContainer.layer.cornerRadius = 18
         thumbnailEditContainer.layer.cornerRadius = 18
@@ -81,36 +79,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
-    }
-
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-            scrollView.contentInset = contentInsets
-            scrollView.scrollIndicatorInsets = contentInsets
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInsets = UIEdgeInsets.zero
-        scrollView.contentInset = contentInsets
-        scrollView.scrollIndicatorInsets = contentInsets
     }
 
     func populateFieldsForEdit() {

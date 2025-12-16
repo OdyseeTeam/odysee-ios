@@ -89,7 +89,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     @IBOutlet var commentExpandView: UIImageView!
     @IBOutlet var commentsContainerView: UIView!
-    @IBOutlet var bottomLayoutConstraint: NSLayoutConstraint!
     @IBOutlet var streamerAreaHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet var fireReactionCountLabel: UILabel!
@@ -341,16 +340,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            bottomLayoutConstraint.constant = kbSize.height
-            streamerAreaHeightConstraint.constant = 0
-            livestreamerArea.isHidden = true
-        }
+        streamerAreaHeightConstraint.constant = 0
+        livestreamerArea.isHidden = true
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        bottomLayoutConstraint.constant = 0
         streamerAreaHeightConstraint.constant = 56
         livestreamerArea.isHidden = false
     }
