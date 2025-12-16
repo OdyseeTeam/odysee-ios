@@ -18,7 +18,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var recentTransactions: [Transaction] = []
 
     @IBOutlet var recentTxListHeightConstraint: NSLayoutConstraint!
-    @IBOutlet var walletScrollView: UIScrollView!
     @IBOutlet var balanceLabel: UILabel!
     @IBOutlet var usdBalanceLabel: UILabel!
 
@@ -87,37 +86,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         displayBalance(balance: Lbry.walletBalance)
 
         recentTransactionsListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
-        registerForKeyboardNotifications()
-    }
-
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-            walletScrollView.contentInset = contentInsets
-            walletScrollView.scrollIndicatorInsets = contentInsets
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInsets = UIEdgeInsets.zero
-        walletScrollView.contentInset = contentInsets
-        walletScrollView.scrollIndicatorInsets = contentInsets
     }
 
     func checkReceiveAddress() {

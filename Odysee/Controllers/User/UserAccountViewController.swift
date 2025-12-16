@@ -89,16 +89,11 @@ class UserAccountViewController: UIViewController {
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-
-            let height = UIScreen.main.bounds.height
-            let width = UIScreen.main.bounds.width
-            uaScrollView.contentSize = CGSize(width: width, height: height)
-            haveAccountLabel.isHidden = true
-            switchModeButton.isHidden = true
-        }
+        let height = UIScreen.main.bounds.height
+        let width = UIScreen.main.bounds.width
+        uaScrollView.contentSize = CGSize(width: width, height: height)
+        haveAccountLabel.isHidden = true
+        switchModeButton.isHidden = true
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {

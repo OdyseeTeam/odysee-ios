@@ -19,7 +19,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 {
     var saveInProgress: Bool = false
 
-    @IBOutlet var scrollView: UIScrollView!
     @IBOutlet var titleField: UITextField!
     @IBOutlet var descriptionField: UITextView!
     @IBOutlet var nameField: UITextField!
@@ -83,7 +82,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        registerForKeyboardNotifications()
         descriptionField.layer.borderColor = UIColor.systemGray5.cgColor
         descriptionField.layer.borderWidth = 1
         descriptionField.layer.cornerRadius = 4
@@ -109,36 +107,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
-    }
-
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-            scrollView.contentInset = contentInsets
-            scrollView.scrollIndicatorInsets = contentInsets
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInsets = UIEdgeInsets.zero
-        scrollView.contentInset = contentInsets
-        scrollView.scrollIndicatorInsets = contentInsets
     }
 
     func addAnonymousPlaceholder() {
