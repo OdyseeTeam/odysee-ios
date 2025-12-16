@@ -12,7 +12,6 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     @IBOutlet var skipButton: UIButton!
     @IBOutlet var continueButton: UIButton!
     @IBOutlet var pageControl: UIPageControl!
-    @IBOutlet var bottomConstraint: NSLayoutConstraint!
 
     var currentVc: UIViewController!
     var firstChannelVc: CreateChannelViewController!
@@ -71,20 +70,15 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            bottomConstraint.constant = -kbSize.height
-            currentVc.view.frame = CGRect(
-                x: 0,
-                y: 0,
-                width: viewContainer.bounds.width,
-                height: viewContainer.bounds.height
-            )
-        }
+        currentVc.view.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: viewContainer.bounds.width,
+            height: viewContainer.bounds.height
+        )
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        bottomConstraint.constant = 0
         currentVc.view.frame = CGRect(
             x: 0,
             y: 0,

@@ -78,8 +78,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         super.viewDidLoad()
 
         // Do any additional setup after loading the view
-        registerForKeyboardNotifications()
-
         commentAsThumbnailView.rounded()
 
         commentInput.layer.borderColor = UIColor.systemGray5.cgColor
@@ -136,36 +134,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
             mainVc.removeBlockChannelObserver(name: "comments")
         }
-    }
-
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-            commentList.contentInset = contentInsets
-            commentList.scrollIndicatorInsets = contentInsets
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInsets = UIEdgeInsets.zero
-        commentList.contentInset = contentInsets
-        commentList.scrollIndicatorInsets = contentInsets
     }
 
     /*
