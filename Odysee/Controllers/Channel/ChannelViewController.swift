@@ -350,9 +350,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             )
 
             if let thumbnailUrlValue = value.thumbnail?.url,
-               let thumbnailUrl = URL(string: thumbnailUrlValue)
+               let optimisedThumbUrl = URL(string: thumbnailUrlValue)?.makeImageURL(
+                   spec: ClaimTableViewCell.channelImageSpec
+               )
             {
-                let optimisedThumbUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
                 thumbnailImageView.load(url: optimisedThumbUrl)
             } else {
                 thumbnailImageView.image = UIImage(named: "spaceman")
@@ -360,9 +361,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
 
             if let coverUrlValue = value.cover?.url,
-               let coverUrl = URL(string: coverUrlValue)
+               let optimisedCoverUrl = URL(string: coverUrlValue)?.makeImageURL(
+                   spec: coverImageSpec
+               )
             {
-                let optimisedCoverUrl = coverUrl.makeImageURL(spec: coverImageSpec)
                 coverImageView.load(url: optimisedCoverUrl)
             } else {
                 coverImageView.image = UIImage(named: "spaceman_cover")
@@ -406,12 +408,15 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         options["claim_id"] = channelClaim?.claimId
         do {
             try Lbryio.get(resource: "subscription", action: "sub_count", options: options, completion: { data, error in
-                guard let data = data, error == nil else {
+                guard error == nil,
+                      let data = data as? NSArray,
+                      data.count > 0,
+                      let followerCount = data[0] as? Int
+                else {
                     return
                 }
                 DispatchQueue.main.async {
                     let formatter = Helper.interactionCountFormatter
-                    let followerCount = (data as! NSArray)[0] as! Int
                     self.followerCountLabel.isHidden = false
                     self.followerCountLabel.text = String(
                         format: followerCount == 1 ? String.localized("%@ follower") : String.localized("%@ followers"),
@@ -581,7 +586,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func checkUpdatedSortBy() {
         let itemName = Helper.sortByItemNames[currentSortByIndex]
-        sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
+        sortByLabel.text = "\(itemName.split(separator: " ")[0]) ▾"
         contentFromLabel.isHidden = currentSortByIndex != 2
     }
 

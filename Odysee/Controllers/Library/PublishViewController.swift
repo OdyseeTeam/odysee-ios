@@ -6,6 +6,7 @@
 //
 
 import FirebaseAnalytics
+import FirebaseCrashlytics
 import OrderedCollections
 import os
 import Photos
@@ -93,7 +94,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             "By continuing, you accept the Odysee Terms of Service and community guidelines."
         )
         let attributed = try? NSMutableAttributedString(
-            data: guidelinesString.data(using: .utf8)!,
+            data: guidelinesString.data,
             options: [.documentType: NSAttributedString.DocumentType.html],
             documentAttributes: nil
         )
@@ -560,7 +561,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
             do {
                 let jsonData = try JSONSerialization.data(withJSONObject: jsonPayload, options: .prettyPrinted)
-                let jsonString = String(data: jsonData, encoding: String.Encoding.utf8)!
+                guard let jsonString = String(data: jsonData, encoding: String.Encoding.utf8) else {
+                    completion(nil, GenericError("Couldn't encode payload"))
+                    return
+                }
                 Log.verboseJSON.logIfEnabled(.debug, jsonString)
 
                 var mimeType = "application/octet-stream"
@@ -584,29 +588,39 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 \r
 
                 """
-                let headerData = header.data(using: .utf8)!
+                let headerData = header.data
                 let headerStream = InputStream(data: headerData)
                 headerStream.open()
 
                 var fileError: NSError?
-                var fileStream: InputStream!
-                NSFileCoordinator()
-                    .coordinate(readingItemAt: videoUrl, options: .forUploading, error: &fileError) { fileURL in
-                        // Per the docs, with the .forUploading option, you can use the file outside of this
-                        // accessor block, but you need to open a file-descriptor to it inside. So that's what we do.
-                        fileStream = InputStream(fileAtPath: fileURL.path)!
-                        fileStream.open()
-                    }
+                var fileStream: InputStream?
+                NSFileCoordinator().coordinate(
+                    readingItemAt: videoUrl, options: .forUploading, error: &fileError
+                ) { fileURL in
+                    // Per the docs, with the .forUploading option, you can use the file outside of this
+                    // accessor block, but you need to open a file-descriptor to it inside. So that's what we do.
+                    fileStream = InputStream(fileAtPath: fileURL.path)
+                    fileStream?.open()
+                }
                 if let fe = fileError {
                     assertionFailure()
                     throw fe
                 }
+                guard let fileStream else {
+                    completion(nil, GenericError("Couldn't open file for uploading"))
+                    return
+                }
 
                 let footer = "\r\n--\(boundary)--\r\n"
-                let footerData = footer.data(using: .utf8)!
+                let footerData = footer.data
                 let footerStream = InputStream(data: footerData)
                 footerStream.open()
-                let videoSize = try FileManager.default.attributesOfItem(atPath: videoUrl.path)[.size] as! Int
+                guard let videoSize = try FileManager.default.attributesOfItem(
+                    atPath: videoUrl.path
+                )[.size] as? Int else {
+                    completion(nil, GenericError("Couldn't get videoSize"))
+                    return
+                }
                 let contentLength = headerData.count + videoSize + footerData.count
 
                 var req = URLRequest(url: Lbry.uploadURL)
@@ -625,7 +639,9 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                     }
 
                     do {
-                        Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
+                        if let string = String(data: data, encoding: .utf8) {
+                            Log.verboseJSON.logIfEnabled(.debug, string)
+                        }
 
                         let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
                         if response?["result"] != nil {
@@ -633,10 +649,12 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                         } else {
                             if response?["error"] == nil, response?["result"] == nil {
                                 completion(nil, nil)
-                            } else if response?["error"] as? String != nil {
-                                completion(nil, LbryApiResponseError(response?["error"] as! String))
-                            } else if let errorJson = response?["error"] as? [String: Any] {
-                                completion(nil, LbryApiResponseError(errorJson["message"] as! String))
+                            } else if let error = response?["error"] as? String {
+                                completion(nil, LbryApiResponseError(error))
+                            } else if let errorJson = response?["error"] as? [String: Any],
+                                      let errorMessage = errorJson["message"] as? String
+                            {
+                                completion(nil, LbryApiResponseError(errorMessage))
                             } else {
                                 completion(nil, LbryApiResponseError("unknown api error"))
                             }
@@ -649,7 +667,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                 progress.addChild(task.progress, withPendingUnitCount: 1)
                 task.resume()
             } catch {
-                print(error)
+                Crashlytics.crashlytics().recordImmediate(error: error)
                 completion(nil, GenericError("An error occurred trying to upload the video. Please try again."))
             }
         }

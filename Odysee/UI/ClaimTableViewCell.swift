@@ -53,10 +53,10 @@ class ClaimTableViewCell: UITableViewCell {
         }
 
         var result = [URL]()
-        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init) {
-            let isChannel = actualClaim.name?.starts(with: "@") ?? false
-            let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
-            result.append(thumbnailUrl.makeImageURL(spec: spec))
+        let isChannel = actualClaim.name?.starts(with: "@") ?? false
+        let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
+        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init)?.makeImageURL(spec: spec) {
+            result.append(thumbnailUrl)
         }
         return result
     }
@@ -142,11 +142,12 @@ class ClaimTableViewCell: UITableViewCell {
         publisherLabel.text = isChannel ? actualClaim.name : actualClaim.signingChannel?.titleOrName
 
         // load thumbnail url
-        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init) {
+        let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
+        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init)?.makeImageURL(spec: spec) {
             if isChannel {
-                channelImageView.load(url: thumbnailUrl.makeImageURL(spec: Self.channelImageSpec))
+                channelImageView.load(url: thumbnailUrl)
             } else {
-                thumbnailImageView.load(url: thumbnailUrl.makeImageURL(spec: Self.thumbImageSpec))
+                thumbnailImageView.load(url: thumbnailUrl)
             }
         } else {
             if isChannel {
@@ -231,7 +232,7 @@ class ClaimTableViewCell: UITableViewCell {
         reposterOverlay.isHidden = true
 
         // TODO: arrow.triangle.2.circlepath on iOS 14+
-        let imageView = UIImageView(image: UIImage(systemName: "arrow.2.circlepath")!)
+        let imageView = UIImageView(image: UIImage(systemName: "arrow.2.circlepath"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.tintColor = .white
         reposterOverlay.addArrangedSubview(imageView)

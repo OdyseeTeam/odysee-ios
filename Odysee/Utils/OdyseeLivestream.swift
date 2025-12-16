@@ -8,6 +8,8 @@
 import Foundation
 
 enum OdyseeLivestream {
+    // swift-format-ignore
+    // Initialized once with static value
     static let allEndpoint = URL(string: "https://api.odysee.live/livestream/all")!
     static let isLiveEndpoint = "https://api.odysee.live/livestream/is_live?channel_claim_id=%@"
 

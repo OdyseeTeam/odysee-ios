@@ -88,15 +88,12 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
         if !channelName.starts(with: "@") {
             channelName = String(format: "@%@", channelName)
         }
-        if !LbryUri
-            .isNameValid(String(
-                channelName
-                    .suffix(from: channelName.index(channelName.firstIndex(of: "@")!, offsetBy: 1))
-            ))
-        {
+        // Name starts with @ from previous line
+        if !LbryUri.isNameValid(String(channelName.dropFirst())) {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
+
         if Lbry.ownChannels.filter({ $0.name?.lowercased() == channelName.lowercased() }).first != nil {
             showError(message: String.localized("A channel with the specified name already exists"))
             return

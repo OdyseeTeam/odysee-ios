@@ -178,18 +178,14 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         if let name_ = name, !name_.starts(with: "@") {
             name = String(format: "@%@", name_)
         }
-
-        // Why are Swift substrings so complicated?! name[1:] / name.substring(1), maybe?
-        if name == nil || !LbryUri
-            .isNameValid(String(name!.suffix(from: name!.index(name!.firstIndex(of: "@")!, offsetBy: 1))))
-        {
+        // Name starts with @ from previous line
+        guard let name = name?.dropFirst(),
+              LbryUri.isNameValid(String(name))
+        else {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
-        guard let name else {
-            showError(message: "name is nil and fell through")
-            return
-        }
+
         if !editMode && Lbry.ownChannels.filter({ $0.name?.lowercased() == name.lowercased() }).first != nil {
             showError(message: String.localized("A channel with the specified name already exists"))
             return

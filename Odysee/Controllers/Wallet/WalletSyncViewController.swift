@@ -57,9 +57,10 @@ class WalletSyncViewController: UIViewController {
                     return
                 }
 
-                let result = data["result"] as! [String: Any]
-                let walletIsLocked = result["is_locked"] as! Bool
-                if walletIsLocked {
+                if let result = data["result"] as? [String: Any],
+                   let walletIsLocked = result["is_locked"] as? Bool,
+                   walletIsLocked
+                {
                     self.unlockWalletForSync()
                 } else {
                     self.obtainHashForSync()
@@ -82,8 +83,7 @@ class WalletSyncViewController: UIViewController {
                     return
                 }
 
-                let unlocked = data["result"] as! Bool
-                if unlocked {
+                if let unlocked = data["result"] as? Bool, unlocked {
                     self.obtainHashForSync()
                 } else {
                     // error
@@ -105,9 +105,10 @@ class WalletSyncViewController: UIViewController {
                     return
                 }
 
-                let hash = data["result"] as! String
-                Lbry.localWalletHash = hash
-                self.startSync(hash: hash)
+                if let hash = data["result"] as? String {
+                    Lbry.localWalletHash = hash
+                    self.startSync(hash: hash)
+                }
             }
         )
     }

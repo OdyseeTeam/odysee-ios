@@ -17,6 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     static let keyLastTabIndex = "lastTabIndex"
 
     static var shared: AppDelegate {
+        // swift-format-ignore
+        // Always exists as AppDelegate
         UIApplication.shared.delegate as! AppDelegate
     }
 
@@ -456,24 +458,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     func handleNotification(userInfo: [AnyHashable: Any]) {
-        let finalTarget = userInfo["target"] as! String
+        guard let finalTarget = userInfo["target"] as? String else {
+            return
+        }
 
-        if mainViewController != nil, mainNavigationController != nil {
+        if let mainController = mainViewController as? MainViewController, let mainNavigationController {
             if mainController.handleSpecialUrl(url: finalTarget) {
                 return
             }
 
             if let lbryUrl = LbryUri.tryParse(url: finalTarget, requireProto: false) {
                 if lbryUrl.isChannel {
-                    let vc = mainViewController?.storyboard?
+                    let vc = mainController.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
-                    mainNavigationController?.pushViewController(vc, animated: true)
+                    mainNavigationController.pushViewController(vc, animated: true)
                 } else {
-                    let vc = mainViewController?.storyboard?
+                    let vc = mainController.storyboard?
                         .instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
-                    mainNavigationController?.pushViewController(vc, animated: true)
+                    mainNavigationController.pushViewController(vc, animated: true)
                 }
             }
         } else {

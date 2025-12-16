@@ -473,7 +473,7 @@ class HomeViewController: UIViewController,
 
     func checkUpdatedSortBy() {
         let itemName = Helper.sortByItemNames[currentSortByIndex]
-        sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
+        sortByLabel.text = "\(itemName.split(separator: " ")[0]) ▾"
         contentFromLabel.isHidden = currentSortByIndex != 2
     }
 

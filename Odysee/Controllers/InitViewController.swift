@@ -101,7 +101,7 @@ class InitViewController: UIViewController {
             // successful authentication and install registration
             // open the main application interface
             DispatchQueue.main.async {
-                let main = self.storyboard!.instantiateViewController(identifier: "main_vc")
+                let main = self.storyboard?.instantiateViewController(identifier: "main_vc")
                 if let window = self.view.window {
                     window.rootViewController = main
                     UIView.transition(

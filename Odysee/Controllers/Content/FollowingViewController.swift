@@ -200,12 +200,13 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 var hasSubs = false
                 if let subs = data as? [[String: Any]] {
                     for sub in subs {
-                        let channelName = sub["channel_name"] as! String
-                        let subUrl = LbryUri.tryParse(
-                            url: String(format: "%@#%@", channelName, sub["claim_id"] as! String),
-                            requireProto: false
-                        )
-                        if let urlString = subUrl?.description {
+                        if let channelName = sub["channel_name"] as? String,
+                           let claimId = sub["claim_id"] as? String,
+                           let urlString = LbryUri.tryParse(
+                               url: String(format: "%@#%@", channelName, claimId),
+                               requireProto: false
+                           )?.description
+                        {
                             do {
                                 let jsonData = try JSONSerialization.data(
                                     withJSONObject: sub,
@@ -223,7 +224,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                             self.addSubscription(
                                 url: urlString,
                                 channelName: channelName,
-                                isNotificationsDisabled: sub["is_notifications_disabled"] as! Bool,
+                                isNotificationsDisabled: sub["is_notifications_disabled"] as? Bool ?? true,
                                 reloadAfter: false
                             )
                         }
@@ -702,7 +703,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     func checkUpdatedSortBy() {
         let itemName = Helper.sortByItemNames[currentSortByIndex]
-        sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
+        sortByLabel.text = "\(itemName.split(separator: " ")[0]) ▾"
         contentFromLabel.isHidden = currentSortByIndex != 2
     }
 

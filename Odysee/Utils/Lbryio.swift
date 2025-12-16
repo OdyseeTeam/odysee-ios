@@ -99,7 +99,7 @@ enum Lbryio {
     }
 
     static func persistAuthToken() {
-        let tokenData = Lbryio.authToken?.data(using: .utf8)!
+        let tokenData = Lbryio.authToken?.data
         let query: [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrServer as String: connectionString,
@@ -339,8 +339,7 @@ enum Lbryio {
         var req = URLRequest(url: requestUrl)
         req.httpMethod = method
         if Method.POST.isEqual(toString: method) {
-            req.httpBody = buildQueryString(authToken: authTokenOverride ?? authToken, options: options)
-                .data(using: .utf8)
+            req.httpBody = buildQueryString(authToken: authTokenOverride ?? authToken, options: options).data
         }
 
         let task = session.dataTask(with: req, completionHandler: { data, response, error in
@@ -362,7 +361,9 @@ enum Lbryio {
                 )
                 Crashlytics.crashlytics().setCustomValue(respCode, forKey: "Lbryio.call_respCode")
 
-                Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
+                if let string = String(data: data, encoding: .utf8) {
+                    Log.verboseJSON.logIfEnabled(.debug, string)
+                }
 
                 if respCode >= 200, respCode < 300 {
                     if respData?["data"] == nil {
@@ -375,8 +376,8 @@ enum Lbryio {
 
                 if respData?["error"] as? NSNull != nil {
                     completion(nil, LbryioResponseError("no error message", respCode))
-                } else if respData?["error"] as? String != nil {
-                    completion(nil, LbryioResponseError(respData?["error"] as! String, respCode))
+                } else if let error = respData?["error"] as? String {
+                    completion(nil, LbryioResponseError(error, respCode))
                 } else {
                     completion(nil, LbryioResponseError("Unknown api error signature", respCode))
                 }
@@ -400,16 +401,18 @@ enum Lbryio {
         }
         if let options {
             for (name, value) in options {
-                qs.append(delim)
-                qs.append(name)
-                qs.append("=")
-                qs
-                    .append(
-                        value.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
-                            .replacingOccurrences(of: "+", with: "%2B").replacingOccurrences(of: "&", with: "%26")
+                if let value = value.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
+                    qs.append(delim)
+                    qs.append(name)
+                    qs.append("=")
+                    qs.append(
+                        value
+                            .replacingOccurrences(of: "+", with: "%2B")
+                            .replacingOccurrences(of: "&", with: "%26")
                             .replacingOccurrences(of: "?", with: "%3F")
                     )
-                delim = "&"
+                    delim = "&"
+                }
             }
         }
 
@@ -429,15 +432,14 @@ enum Lbryio {
 
         try post(resource: "user", action: "new", options: options, completion: { data, _ in
             generatingAuthToken = false
-            if data != nil {
-                let tokenData = data as! [String: Any]?
-                let token: String? = tokenData?["auth_token"] as? String
-                if token.isBlank {
-                    completion(nil, LbryioResponseError("auth_token was not set in the response", 0))
-                    return
-                }
-                completion(token, nil)
+            guard let tokenData = data as? [String: Any],
+                  let token = tokenData["auth_token"] as? String,
+                  !token.isBlank
+            else {
+                completion(nil, LbryioResponseError("auth_token was not set in the response", 0))
+                return
             }
+            completion(token, nil)
         })
     }
 
@@ -507,7 +509,9 @@ enum Lbryio {
             }
 
             var options = [String: String]()
-            options["app_version"] = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String)
+            if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                options["app_version"] = version
+            }
             options["app_id"] = Lbry.installationId
             options["daemon_version"] = ""
             options["node_id"] = ""
@@ -588,8 +592,8 @@ enum Lbryio {
                     return
                 }
 
-                let response = data as! [String: Any]
-                let remoteHash = response["hash"] as! String
+                let response = data as? [String: Any]
+                let remoteHash = response?["hash"] as? String
                 completion(remoteHash, nil)
             })
         } catch {
@@ -606,7 +610,7 @@ enum Lbryio {
         options["hash"] = hash
         do {
             try post(resource: "sync", action: "get", options: options, completion: { data, error in
-                guard let data = data, error == nil else {
+                guard let response = data as? [String: Any], error == nil else {
                     if let responseError = error as? LbryioResponseError {
                         if responseError.code == 404 {
                             // no wallet found for the user, so it's a new sync
@@ -618,7 +622,6 @@ enum Lbryio {
                     return
                 }
 
-                let response = data as! [String: Any]
                 var walletSync = WalletSync()
                 walletSync.hash = response["hash"] as? String
                 walletSync.data = response["data"] as? String

@@ -14,6 +14,9 @@ struct LbryUri: CustomStringConvertible {
     static let odyseeBaseUrl = "https://odysee.com/"
     static let highSurrogate: [unichar] = [0xD800]
     static let lowSurrogate: [unichar] = [0xDFFF]
+    // swift-format-ignore
+    // Initialized once with static value
+    // FIXME(iOS 16): RegexBuilder
     static let regexInvalidUri = try! NSRegularExpression(
         pattern: NSString(
             format: "[ =&#:$@%?;/\\\\\"<>%\\{\\}|^~\\[\\]`\u{0000}-\u{0008}\u{000b}-\u{000c}\u{000e}-\u{001F}%@-%@\u{FFFE}-\u{FFFF}]",
@@ -25,35 +28,50 @@ struct LbryUri: CustomStringConvertible {
         ) as String,
         options: .caseInsensitive
     )
+
+    // swift-format-ignore
+    // Initialized once with static value
+    // FIXME(iOS 16): RegexBuilder
     static let regexAddress = try! NSRegularExpression(
         pattern: "^(b)(?=[^0OIl]{32,33})[0-9A-Za-z]{32,33}$",
         options: .caseInsensitive
     )
+
     static let channelNameMinLength = 1
     static let claimIdMaxLength = 40
 
-    static let rePartProtocol = "^((?:lbry://|https://)?)"
-    static let rePartHost = "((?:open.lbry.com/|odysee.com/|lbry.tv/)?)"
-    static let rePartStreamOrChannelName = "([^:$#/]*)"
-    static let rePartModifierSeparator = "([:$#]?)([^/]*)"
-    static let regexUri = try! NSRegularExpression(
-        pattern: String(
-            format: "%@%@%@%@(/?)%@%@",
-            rePartProtocol,
-            rePartHost,
-            rePartStreamOrChannelName,
-            rePartModifierSeparator,
-            rePartStreamOrChannelName,
-            rePartModifierSeparator
-        ),
-        options: [.caseInsensitive]
-    )
+    static let regexUri = {
+        let rePartProtocol = "^((?:lbry://|https://)?)"
+        let rePartHost = "((?:open.lbry.com/|odysee.com/|lbry.tv/)?)"
+        let rePartStreamOrChannelName = "([^:$#/]*)"
+        let rePartModifierSeparator = "([:$#]?)([^/]*)"
+        // swift-format-ignore
+        // Initialized once with static value
+        // FIXME(iOS 16): RegexBuilder
+        return try! NSRegularExpression(
+            pattern: String(
+                format: "%@%@%@%@(/?)%@%@",
+                rePartProtocol,
+                rePartHost,
+                rePartStreamOrChannelName,
+                rePartModifierSeparator,
+                rePartStreamOrChannelName,
+                rePartModifierSeparator
+            ),
+            options: [.caseInsensitive]
+        )
+    }()
 
-    static let queryStringBreaker = "^([\\S]+)([?][\\S]*)"
-    static let regexSeparateQueryString = try! NSRegularExpression(
-        pattern: queryStringBreaker,
-        options: .caseInsensitive
-    )
+    static let regexSeparateQueryString = {
+        let queryStringBreaker = "^([\\S]+)([?][\\S]*)"
+        // swift-format-ignore
+        // Initialized once with static value
+        // FIXME(iOS 16): RegexBuilder
+        return try! NSRegularExpression(
+            pattern: queryStringBreaker,
+            options: .caseInsensitive
+        )
+    }()
 
     var path: String?
     var isChannel: Bool = false
@@ -255,12 +273,9 @@ struct LbryUri: CustomStringConvertible {
         }
 
         let isChannel = includesChannel && possibleStreamName.isEmpty
-        let channelName: String? = includesChannel && streamOrChannelName
-            .count > 1 ?
-            String(
-                streamOrChannelName
-                    .suffix(from: streamOrChannelName.index(after: streamOrChannelName.firstIndex(of: "@")!))
-            ) : nil
+        let channelName: String? = includesChannel && streamOrChannelName.count > 1 ?
+            String(streamOrChannelName.dropFirst()) /* Starts with @ based on includesChannel */ :
+            nil
 
         if includesChannel {
             if channelName.isBlank {
@@ -382,7 +397,11 @@ struct LbryUri: CustomStringConvertible {
     }
 
     struct UriModifier {
+        // swift-format-ignore
+        // Initialized once with static value
+        // FIXME(iOS 16): RegexBuilder
         static let regexClaimId = try! NSRegularExpression(pattern: "^[0-9a-f]+$", options: .caseInsensitive)
+
         let claimId: String?
         let claimSequence: Int
         let bidPosition: Int
