@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     weak var mainNavigationController: UINavigationController?
 
     var player: AVPlayer?
+    var currentPlaylistClaim: Claim?
     var currentClaim: Claim?
     var pictureInPicturePlayingClaim: Claim?
     var pendingOpenUrl: String?
