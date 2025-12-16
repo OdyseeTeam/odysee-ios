@@ -277,7 +277,7 @@ enum Lbryio {
         authTokenOverride: String? = nil,
         completion: @escaping (Any?, Error?) -> Void
     ) throws {
-        let url = String(format: "%@/%@/%@", connectionString, resource, action)
+        let url = "\(connectionString)/\(resource)/\(action)"
         if authToken.isBlank, !generatingAuthToken {
             // generate the auth token before calling this resource
             try getAuthToken(completion: { token, error in
@@ -647,7 +647,7 @@ enum Lbryio {
             var options: [String: String] = [
                 "uri": permanentUrl,
                 "claim_id": claimId,
-                "outpoint": String(format: "%@:%d", txid, nout),
+                "outpoint": "\(txid):\(nout)",
             ]
             if let claimId = claimResult.signingChannel?.claimId {
                 options["channel_claim_id"] = claimId

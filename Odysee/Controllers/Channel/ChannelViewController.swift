@@ -591,7 +591,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     func checkUpdatedContentFrom() {
-        contentFromLabel.text = String(format: "%@ ▾", String(Helper.contentFromItemNames[currentContentFromIndex]))
+        let itemName = Helper.contentFromItemNames[currentContentFromIndex]
+        contentFromLabel.text = "\(itemName) ▾"
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -733,7 +734,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBAction func websiteTapped(_ sender: Any) {
         if var websiteUrl = websiteLabel.text, !websiteUrl.isBlank {
             if !websiteUrl.starts(with: "http://"), !websiteUrl.starts(with: "https://") {
-                websiteUrl = String(format: "http://%@", websiteUrl)
+                websiteUrl = "http://\(websiteUrl)"
             }
             if let url = URL(string: websiteUrl) {
                 let vc = SFSafariViewController(url: url)
@@ -863,8 +864,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     @IBAction func reportActionTapped(_ sender: Any) {
         if let claimId = channelClaim?.claimId,
-           let url =
-           URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", claimId))
+           let url = URL(string: "https://odysee.com/$/report_content?claimId=\(claimId)")
         {
             let vc = SFSafariViewController(url: url)
             AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)

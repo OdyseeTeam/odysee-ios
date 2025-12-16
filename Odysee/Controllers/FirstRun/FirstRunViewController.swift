@@ -183,7 +183,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         let deposit = Helper.minimumDeposit
 
         if let name_ = name, !name_.starts(with: "@") {
-            name = String(format: "@%@", name_)
+            name = "@\(name_)"
         }
         // Name starts with @ from previous line
         guard let name = name?.dropFirst(),

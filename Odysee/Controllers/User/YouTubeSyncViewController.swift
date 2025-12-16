@@ -54,7 +54,7 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
         }
 
         if !channelName.starts(with: "@") {
-            channelName = String(format: "@%@", channelName)
+            channelName = "@\(channelName)"
         }
         // Name starts with @ from previous line
         if !LbryUri.isNameValid(String(channelName.dropFirst())) {

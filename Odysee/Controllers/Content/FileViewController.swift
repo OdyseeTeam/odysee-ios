@@ -1213,7 +1213,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         var options = [String: String]()
         options["uri"] = url
         options["claim_id"] = claimId
-        options["outpoint"] = String(format: "%@:%d", txid, nout)
+        options["outpoint"] = "\(txid):\(nout)"
         if timeToStart > 0 {
             options["time_to_start"] = String(timeToStart)
         }
@@ -1720,7 +1720,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                    let claimId = item["claimId"] as? String
                 {
                     LbryUri.tryParse(
-                        url: String(format: "%@#%@", name, claimId),
+                        url: "\(name)#\(claimId)",
                         requireProto: false
                     )?.description
                 } else {
@@ -2267,7 +2267,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     @IBAction func reportActionTapped(_ sender: Any) {
         if let claimId = claim?.claimId,
-           let url = URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", claimId))
+           let url = URL(string: "https://odysee.com/$/report_content?claimId=\(claimId)")
         {
             let vc = SFSafariViewController(url: url)
             AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
@@ -2420,7 +2420,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func connectChatSocket() {
         if isLivestream,
            let claimId = claim?.claimId,
-           let url = URL(string: String(format: "%@%@", Lbryio.wsCommmentBaseUrl, claimId))
+           let url = URL(string: "\(Lbryio.wsCommmentBaseUrl)\(claimId)")
         {
             chatWebsocket = WebSocket(request: URLRequest(url: url))
             chatWebsocket?.delegate = self

@@ -474,7 +474,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             "title": title,
             "description": "",
             "thumbnail_url": currentThumbnailUrl ?? (channel.value?.thumbnail?.url ?? ""),
-            "name": String(format: "livestream-%@", suffix),
+            "name": "livestream-\(suffix)",
             "channel_id": channelId,
             "release_time": Int(Date().timeIntervalSince1970),
         ]

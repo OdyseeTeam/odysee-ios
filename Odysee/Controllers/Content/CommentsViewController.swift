@@ -460,7 +460,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     func textViewDidChange(_ textView: UITextView) {
         if textView == commentInput {
             let length = commentInput.text.count
-            commentLimitLabel.text = String(format: "%d / %d", length, Helper.commentMaxLength)
+            commentLimitLabel.text = "\(length) / \(Helper.commentMaxLength)"
         }
     }
 
