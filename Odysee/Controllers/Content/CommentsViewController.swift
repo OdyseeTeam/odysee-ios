@@ -472,13 +472,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @IBAction func channelDriverTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if UIApplication.currentViewController() as? FileViewController != nil {
-            appDelegate.mainNavigationController?.popViewController(animated: false)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
         let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
         vc.commentsVc = self
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
