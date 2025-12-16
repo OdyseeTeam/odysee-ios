@@ -263,6 +263,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
         miniPlayerTitleLabel.text = ""
         miniPlayerPublisherLabel.text = ""
+        AppDelegate.shared.currentPlaylistClaim = nil
         AppDelegate.shared.currentClaim = nil
 
         toggleMiniPlayer(hidden: true)
@@ -324,7 +325,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         {
             AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         } else if let fileVc = AppDelegate.shared.currentFileViewController,
-                  fileVc.claim == AppDelegate.shared.currentClaim
+                  fileVc.claim == AppDelegate.shared.currentClaim ||
+                  fileVc.currentPlaylistClaim() == AppDelegate.shared.currentClaim
         {
             AppDelegate.shared.mainNavigationController?.view.layer.add(
                 Helper.buildFileViewTransition(),
@@ -336,6 +338,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
         if AppDelegate.shared.currentClaim != nil {
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+            vc.playlistClaim = AppDelegate.shared.currentPlaylistClaim
             vc.claim = AppDelegate.shared.currentClaim
 
             AppDelegate.shared.mainNavigationController?.view.layer.add(
@@ -863,6 +866,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         }
 
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+        vc.playlistClaim = AppDelegate.shared.currentPlaylistClaim
         vc.claim = AppDelegate.shared.pictureInPicturePlayingClaim
 
         AppDelegate.shared.mainNavigationController?.view.layer.add(

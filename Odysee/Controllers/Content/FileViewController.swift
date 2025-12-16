@@ -126,6 +126,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var commentsDisabled = false
     var commentsViewPresented = false
     var selectedRateIndex: Int = 3 /* 1x */
+    var playlistClaim: Claim?
     var claim: Claim?
     var claimUrl: LbryUri?
     var subscribeUnsubscribeInProgress = false
@@ -178,10 +179,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var initialChatLoaded = false
     var chatWebsocket: Starscream.WebSocket?
 
-    var currentPlaylistPage = 1
-    var playlistLastPageReached = false
-    let playlistPageSize = 50
-
     let checkLivestreamTranscodeInterval: Double = 30 // 30 seconds
     var checkLivestreamTranscodeTimer = Timer()
     var checkLivestreamTranscodeScheduled = false
@@ -193,7 +190,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         super.viewWillAppear(animated)
 
         AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
-        if AppDelegate.shared.currentClaim != nil, AppDelegate.shared.currentClaim?.claimId == claim?.claimId {
+        if AppDelegate.shared.currentClaim == claim ||
+            (playlistItems.count > currentPlaylistIndex &&
+                AppDelegate.shared.currentClaim == playlistItems[currentPlaylistIndex])
+        {
             AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
         }
         AppDelegate.shared.currentFileViewController = self
@@ -1041,12 +1041,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        isPlaylist = claim.valueType == .collection
+        isPlaylist = if let playlist = playlistClaim {
+            playlist.valueType == .collection
+        } else {
+            claim.valueType == .collection
+        }
         isLivestream = !isPlaylist && claim.value?.source == nil
         detailsScrollView.isHidden = isLivestream
         livestreamChatView.isHidden = !isLivestream
         reloadStreamView.isHidden = !isLivestream
-        relatedOrPlaylistTitle.text = isPlaylist ? claim.value?.title : String.localized("Related Content")
+        relatedOrPlaylistTitle.text = isPlaylist ?
+            (playlistClaim?.value?.title ?? claim.value?.title) :
+            String.localized("Related Content")
 
         displayRelatedPlaceholders()
 
@@ -1105,13 +1111,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let playerItem = AVPlayerItem(asset: asset)
         currentPlayer = AVPlayer(playerItem: playerItem)
 
+        AppDelegate.shared.currentClaim = singleClaim
+
         avpc.player = currentPlayer
 
         playerStartedObserver = currentPlayer?.observe(\.rate, options: .new) { [self] _, _ in
             playerStartedObserver = nil
-            (AppDelegate.shared.mainViewController as? MainViewController)?.closeMiniPlayerTapped(self)
 
-            AppDelegate.shared.currentClaim = singleClaim
+            let saveCurrent = AppDelegate.shared.currentClaim
+            let saveCurrentPlaylist = AppDelegate.shared.currentPlaylistClaim
+            (AppDelegate.shared.mainViewController as? MainViewController)?.closeMiniPlayerTapped(self)
+            AppDelegate.shared.currentClaim = saveCurrent
+            AppDelegate.shared.currentPlaylistClaim = saveCurrentPlaylist
+
             AppDelegate.shared.lazyPlayer?.pause()
 
             AppDelegate.shared.lazyPlayer = currentPlayer
@@ -1431,20 +1443,31 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        if currentPlaylistPage == 1, playlistItems.count == 0 {
+        var playlistClaims: [String]?
+        if let playlist = playlistClaim {
+            playlistClaims = playlist.value?.claims
+            if let claimId = claim?.claimId {
+                currentPlaylistIndex = playlistClaims?.firstIndex(of: claimId) ?? 0
+            }
+        } else {
+            AppDelegate.shared.currentPlaylistClaim = claim
+            playlistClaims = claim?.value?.claims
+        }
+
+        if playlistItems.count == 0 {
             displayResolving()
         }
 
         loadingRelated = true
         loadingRelatedView.isHidden = false
 
-        if let playlistClaims = claim?.value?.claims {
+        if let playlistClaims {
             Lbry.apiCall(
                 method: Lbry.Methods.claimSearch,
                 params: .init(
                     claimType: [.stream],
-                    page: currentPlaylistPage,
-                    pageSize: playlistPageSize,
+                    page: 1,
+                    pageSize: 999, // FIXME: pagination
                     releaseTime: [Helper.releaseTimeBeforeFuture],
                     notTags: Constants.NotTags + [Constants.MembersOnly],
                     claimIds: playlistClaims,
@@ -1459,21 +1482,22 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
         if case let .success(payload) = result {
-            let oldCount = playlistItems.count
-            playlistItems.append(contentsOf: payload.items.filter { !playlistItems.contains($0) })
-            if playlistItems.count != oldCount {
-                relatedContentListView.reloadData()
+            let playlistClaims = if let playlist = playlistClaim {
+                playlist.value?.claims
+            } else {
+                claim?.value?.claims
             }
-            playlistLastPageReached = payload.isLastPage
+
+            if let playlistClaims {
+                playlistItems = payload.items.sorted(like: playlistClaims, keyPath: \.claimId, transform: \.self)
+            }
+            relatedContentListView.reloadData()
         }
         loadingRelatedView.isHidden = true
         loadingRelated = false
 
-        if currentPlaylistPage == 1 {
-            // first set of results, display the first claim
-            let singleClaim = playlistItems[0]
-            loadPlaylistItemClaim(singleClaim)
-        }
+        let singleClaim = playlistItems[currentPlaylistIndex]
+        loadPlaylistItemClaim(singleClaim)
     }
 
     func playPreviousPlaylistItem() {
