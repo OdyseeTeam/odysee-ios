@@ -323,7 +323,7 @@ struct LbryUri: CustomStringConvertible {
     func build(includeProto: Bool, protoDefault: String, vanity: Bool) -> String {
         var formattedChannelName: String?
         if let channelName {
-            formattedChannelName = channelName.starts(with: "@") ? channelName : String(format: "@%@", channelName)
+            formattedChannelName = channelName.starts(with: "@") ? channelName : "@\(channelName)"
         }
 
         let primaryClaimName = !claimName.isBlank ? claimName

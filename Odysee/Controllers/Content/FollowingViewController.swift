@@ -203,7 +203,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         if let channelName = sub["channel_name"] as? String,
                            let claimId = sub["claim_id"] as? String,
                            let urlString = LbryUri.tryParse(
-                               url: String(format: "%@#%@", channelName, claimId),
+                               url: "\(channelName)#\(claimId)",
                                requireProto: false
                            )?.description
                         {
@@ -708,7 +708,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     func checkUpdatedContentFrom() {
-        contentFromLabel.text = String(format: "%@ ▾", String(Helper.contentFromItemNames[currentContentFromIndex]))
+        let itemName = Helper.contentFromItemNames[currentContentFromIndex]
+        contentFromLabel.text = "\(itemName) ▾"
     }
 
     @IBAction func sortByLabelTapped(_ sender: Any) {

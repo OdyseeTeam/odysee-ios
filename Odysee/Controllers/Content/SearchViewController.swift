@@ -111,10 +111,10 @@ class SearchViewController: UIViewController,
             withTemplate: ""
         )
 
-        var possibleUrls = [String(format: "lbry://%@", sanitisedQuery)]
+        var possibleUrls = ["lbry://\(sanitisedQuery)"]
         if !sanitisedQuery.starts(with: "@") {
             // if it's not a channel url, add the channel url as a possible url
-            possibleUrls.append(String(format: "lbry://@%@", sanitisedQuery))
+            possibleUrls.append("lbry://@\(sanitisedQuery)")
         }
 
         Lbry.apiCall(
@@ -229,7 +229,7 @@ class SearchViewController: UIViewController,
                        let claimId = item["claimId"] as? String
                     {
                         LbryUri.tryParse(
-                            url: String(format: "%@#%@", name, claimId),
+                            url: "\(name)#\(claimId)",
                             requireProto: false
                         )?.description
                     } else {
@@ -356,7 +356,7 @@ class SearchViewController: UIViewController,
 
     @IBAction func noResultsViewTapped(_ sender: Any) {
         if let currentQuery, Lighthouse.containsFilteredKeyword(currentQuery),
-           let url = URL(string: String(format: "https://odysee.com/$/search?q=%@", currentQuery))
+           let url = URL(string: "https://odysee.com/$/search?q=\(currentQuery)")
         {
             let vc = SFSafariViewController(url: url)
             AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)

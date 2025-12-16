@@ -58,7 +58,7 @@ class TransactionTableViewCell: UITableViewCell {
 
     @objc func claimInfoTapped(_ sender: Any) {
         if let name = tx?.claim?.name, let claimId = tx?.claim?.claimId {
-            if let url = LbryUri.tryParse(url: String(format: "%@#%@", name, claimId), requireProto: false) {
+            if let url = LbryUri.tryParse(url: "\(name)#\(claimId)", requireProto: false) {
                 if name.starts(with: "@") {
                     let vc = AppDelegate.shared.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
@@ -81,7 +81,7 @@ class TransactionTableViewCell: UITableViewCell {
 
     @objc func txidTapped(_ sender: Any) {
         if let txid = tx?.txid {
-            if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, txid)) {
+            if let url = URL(string: "\(Helper.txLinkPrefix)/\(txid)") {
                 let vc = SFSafariViewController(url: url)
                 AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
             }

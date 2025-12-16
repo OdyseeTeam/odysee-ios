@@ -411,7 +411,7 @@ enum Lbry {
             for sub in subs {
                 if let channelName = sub.channelName, let claimId = sub.claimId,
                    let lbryUrl = LbryUri.tryParse(
-                       url: String(format: "%@:%@", normalizeChannelName(channelName), claimId),
+                       url: "\(normalizeChannelName(channelName)):\(claimId)",
                        requireProto: false
                    )
                 {
@@ -432,11 +432,10 @@ enum Lbry {
     }
 
     static func normalizeChannelName(_ channelName: String) -> String {
-        var name = channelName
-        if !name.starts(with: "@") {
-            name = String(format: "@%@", name)
+        if !channelName.starts(with: "@") {
+            return "@\(channelName)"
         }
-        return name
+        return channelName
     }
 
     static func isNotificationsDisabledForSubUrl(_ url: String, following: [[String: Any]]?) -> Bool {
@@ -537,7 +536,7 @@ enum Lbry {
             if let channelName = value.channelName,
                let claimId = value.claimId,
                let url = LbryUri.tryParse(
-                   url: String(format: "%@:%@", normalizeChannelName(channelName), claimId),
+                   url: "\(normalizeChannelName(channelName)):\(claimId)",
                    requireProto: false
                )
             {
@@ -555,7 +554,7 @@ enum Lbry {
             if let name = blockedChannel.name,
                let claimId = blockedChannel.claimId,
                let lbryUrl = LbryUri.tryParse(
-                   url: String(format: "%@:%@", normalizeChannelName(name), claimId),
+                   url: "\(normalizeChannelName(name)):\(claimId)",
                    requireProto: false
                )
             {

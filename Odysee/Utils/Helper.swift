@@ -137,7 +137,7 @@ enum Helper {
     static func releaseTime6Months() -> String {
         var time = Int64(Date().timeIntervalSince1970)
         time = time - (60 * 60 * 24 * 180)
-        return String(format: ">%d", time)
+        return ">\(time)"
     }
 
     static var releaseTimeBeforeFuture: String {
@@ -160,7 +160,7 @@ enum Helper {
             time = time - (60 * 60 * 24 * 365)
         }
 
-        return String(format: ">%d", time)
+        return ">\(time)"
     }
 
     static func showPickerActionSheet(
@@ -204,13 +204,13 @@ enum Helper {
         formatter.maximumFractionDigits = 2
 
         if value > 1_000_000_000 {
-            return String(format: "%@B", formatter.string(for: (value / 1_000_000_000) as NSDecimalNumber) ?? "")
+            return "\(formatter.string(for: (value / 1_000_000_000) as NSDecimalNumber) ?? "")B"
         }
         if value > 1_000_000 {
-            return String(format: "%@M", formatter.string(for: (value / 1_000_000) as NSDecimalNumber) ?? "")
+            return "\(formatter.string(for: (value / 1_000_000) as NSDecimalNumber) ?? "")M"
         }
         if value > 1000 {
-            return String(format: "%@K", formatter.string(for: (value / 1000) as NSDecimalNumber) ?? "")
+            return "\(formatter.string(for: (value / 1000) as NSDecimalNumber) ?? "")K"
         }
 
         return formatter.string(for: value as NSDecimalNumber) ?? ""
