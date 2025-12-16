@@ -89,7 +89,7 @@ class YouTubeSyncStatusViewController: UIViewController {
         Lbry.apiCall(
             method: "address_list",
             params: [:],
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
@@ -156,7 +156,7 @@ class YouTubeSyncStatusViewController: UIViewController {
         Lbry.apiCall(
             method: "channel_import",
             params: ["channel_data": channelCert],
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard data != nil, error == nil else {
