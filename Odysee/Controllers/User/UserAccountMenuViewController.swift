@@ -224,7 +224,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
             Lbry.apiCall(
                 method: Lbry.methodWalletSend,
                 params: params,
-                connectionString: Lbry.lbrytvConnectionString,
+                url: Lbry.lbrytvURL,
                 authToken: Lbryio.authToken,
                 completion: { data, error in
                     guard data != nil, error == nil else {

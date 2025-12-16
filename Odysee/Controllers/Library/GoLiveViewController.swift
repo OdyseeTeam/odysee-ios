@@ -482,7 +482,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         Lbry.apiCall(
             method: Lbry.methodPublish,
             params: options,
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
