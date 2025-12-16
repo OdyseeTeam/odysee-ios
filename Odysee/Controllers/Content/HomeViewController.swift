@@ -478,7 +478,8 @@ class HomeViewController: UIViewController,
     }
 
     func checkUpdatedContentFrom() {
-        contentFromLabel.text = String(format: "%@ ▾", String(Helper.contentFromItemNames[currentContentFromIndex]))
+        let itemName = Helper.contentFromItemNames[currentContentFromIndex]
+        contentFromLabel.text = "\(itemName) ▾"
     }
 
     @IBAction func sortByLabelTapped(_ sender: Any) {

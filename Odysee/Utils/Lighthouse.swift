@@ -29,7 +29,7 @@ enum Lighthouse {
 
     static func containsFilteredKeyword(_ query: String) -> Bool {
         for keyword in keywordsForEmptyResults {
-            let pattern = String(format: "\\b%@\\b", NSRegularExpression.escapedPattern(for: keyword))
+            let pattern = "\\b\(NSRegularExpression.escapedPattern(for: keyword))\\b"
             let trimmedQuery = query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedQuery
                 .range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil || trimmedQuery == keyword
@@ -52,14 +52,14 @@ enum Lighthouse {
         completion: @escaping ([[String: Any]]?, Error?) -> Void
     ) {
         if let relatedTo, !relatedTo.isBlank {
-            if let respData = relatedContentCache[String(format: "%@:%@", relatedTo, rawQuery)] {
+            if let respData = relatedContentCache["\(relatedTo):\(rawQuery)"] {
                 completion(respData as? [[String: Any]], nil)
                 return
             }
         }
 
         for keyword in keywordsForEmptyResults {
-            let pattern = String(format: "\\b%@\\b", NSRegularExpression.escapedPattern(for: keyword))
+            let pattern = "\\b\(NSRegularExpression.escapedPattern(for: keyword))\\b"
             let trimmedQuery = rawQuery.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
             if trimmedQuery
                 .range(of: pattern, options: [.regularExpression, .caseInsensitive]) != nil || trimmedQuery == keyword
@@ -100,7 +100,7 @@ enum Lighthouse {
             queryItems.append(URLQueryItem(name: "sort_by", value: sortBy.rawValue))
         }
 
-        var urlComponents = URLComponents(string: String(format: "%@/search", connectionString))
+        var urlComponents = URLComponents(string: "\(connectionString)/search")
         urlComponents?.queryItems = queryItems
 
         let session = URLSession.shared
@@ -123,7 +123,7 @@ enum Lighthouse {
                     let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]]
                     if respCode == 200 {
                         if let relatedTo, !relatedTo.isBlank {
-                            relatedContentCache[String(format: "%@:%@", relatedTo, rawQuery)] = respData
+                            relatedContentCache["\(relatedTo):\(rawQuery)"] = respData
                         }
                         completion(respData, nil)
                     } else {

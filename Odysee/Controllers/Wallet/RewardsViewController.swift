@@ -269,7 +269,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
 
         if reward.claimed, let transactionId = reward.transactionId, !transactionId.isBlank {
             // open the transaction view
-            if let url = URL(string: String(format: "%@/%@", Helper.txLinkPrefix, transactionId)) {
+            if let url = URL(string: "\(Helper.txLinkPrefix)/\(transactionId)") {
                 let vc = SFSafariViewController(url: url)
                 AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
             }
