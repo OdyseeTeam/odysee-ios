@@ -26,7 +26,6 @@ enum Lbry {
     // swift-format-ignore
     // Initialized once with static value
     static var commentronURL = URL(string: "https://comments.odysee.tv/api/v2")!
-    static let lbrytvConnectionString = lbrytvURL.absoluteString
     static let keyShared = "shared"
     static let sharedPreferenceVersion = "0.1"
 
@@ -237,7 +236,7 @@ enum Lbry {
     static func apiCall(
         method: String,
         params: [String: Any],
-        connectionString: String,
+        url: URL,
         authToken: String? = nil,
         completion: @escaping ([String: Any]?, Error?) -> Void
     ) {
@@ -246,7 +245,7 @@ enum Lbry {
             req = try apiRequest(
                 method: method,
                 params: params as NSDictionary,
-                url: URL(string: connectionString)!,
+                url: url,
                 authToken: authToken
             )
         } catch {
@@ -499,7 +498,7 @@ enum Lbry {
                 apiCall(
                     method: methodPreferenceSet,
                     params: params,
-                    connectionString: lbrytvConnectionString,
+                    url: lbrytvURL,
                     authToken: Lbryio.authToken,
                     completion: { data, error in
                         guard data != nil, error == nil else {
@@ -573,7 +572,7 @@ enum Lbry {
         apiCall(
             method: methodPreferenceGet,
             params: params,
-            connectionString: lbrytvConnectionString,
+            url: lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard error == nil else {
@@ -600,7 +599,7 @@ enum Lbry {
         apiCall(
             method: Lbry.methodSyncHash,
             params: [String: Any](),
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
@@ -630,7 +629,7 @@ enum Lbry {
                             apiCall(
                                 method: methodSyncApply,
                                 params: params,
-                                connectionString: Lbry.lbrytvConnectionString,
+                                url: Lbry.lbrytvURL,
                                 authToken: Lbryio.authToken,
                                 completion: { saData, saError in
                                     guard let saData = saData, saError == nil else {
@@ -694,7 +693,7 @@ enum Lbry {
         Lbry.apiCall(
             method: Lbry.methodSyncApply,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {

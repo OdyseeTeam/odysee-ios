@@ -49,7 +49,7 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodWalletStatus,
             params: [String: Any](),
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
@@ -75,7 +75,7 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodWalletUnlock,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
@@ -97,7 +97,7 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodSyncHash,
             params: [String: Any](),
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
@@ -143,7 +143,7 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodSyncApply,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard data != nil, error == nil else {
@@ -204,7 +204,7 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodSyncApply,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {

@@ -220,7 +220,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         Lbry.apiCall(
             method: method,
             params: options,
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {

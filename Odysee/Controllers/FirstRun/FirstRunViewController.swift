@@ -212,7 +212,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         Lbry.apiCall(
             method: Lbry.methodChannelCreate,
             params: options,
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {

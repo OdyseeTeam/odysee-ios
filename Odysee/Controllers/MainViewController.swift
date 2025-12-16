@@ -726,7 +726,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         Lbry.apiCall(
             method: Lbry.methodWalletBalance,
             params: [String: Any](),
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard error == nil,

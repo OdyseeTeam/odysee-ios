@@ -782,7 +782,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             Lbry.apiCall(
                 method: Lbry.methodGet,
                 params: params,
-                connectionString: Lbry.lbrytvConnectionString,
+                url: Lbry.lbrytvURL,
                 authToken: Lbryio.authToken,
                 completion: { data, error in
                     guard let data = data, error == nil else {
@@ -1575,7 +1575,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         Lbry.apiCall(
             method: Lbry.methodGet,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
+            url: Lbry.lbrytvURL,
             authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
