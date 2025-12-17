@@ -11,7 +11,7 @@
 		"AlwaysUseLiteralForEmptyCollectionInit": false,
 		"AlwaysUseLowerCamelCase": false,
 		"AmbiguousTrailingClosureOverload": true,
-		"AvoidRetroactiveConformances": true,
+		"AvoidRetroactiveConformances": false,
 		"BeginDocumentationCommentWithOneLineSummary": false,
 		"DoNotUseSemicolons": true,
 		"DontRepeatTypeInStaticProperties": true,

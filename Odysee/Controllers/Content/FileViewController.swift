@@ -923,45 +923,37 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func loadTextContent(url: URL, contentType: String?) {
         DispatchQueue.global().async {
-            do {
-                var request = URLRequest(url: url)
-                request.setValue("https://ios.odysee.com/", forHTTPHeaderField: "Referer")
-                URLSession.shared.dataTask(with: request) { result in
-                    guard case let .success(data) = result,
-                          let contents = String(data: data.data, encoding: .utf8)
-                    else {
-                        self.handleContentLoadError(String(
-                            format: String.localized("Could not load URL %@"),
-                            url.absoluteString
-                        ))
-                        return
-                    }
-
-                    if contentType == "text/md" || contentType == "text/markdown" || contentType == "text/x-markdown" {
-                        guard let html = contents.markdownToHTML else {
-                            self
-                                .handleContentLoadError(String(
-                                    format: String.localized("Could not load URL %@"),
-                                    url.absoluteString
-                                ))
-                            return
-                        }
-
-                        let mdHtml = self.buildMarkdownHTML(html)
-                        self.loadWebViewContent(mdHtml)
-                    } else if contentType == "text/html" {
-                        self.loadWebViewContent(contents)
-                    } else {
-                        self.loadWebViewContent(self.buildPlainTextHTML(contents))
-                    }
-                }.resume()
-            } catch {
-                self
-                    .handleContentLoadError(String(
+            var request = URLRequest(url: url)
+            request.setValue("https://ios.odysee.com/", forHTTPHeaderField: "Referer")
+            URLSession.shared.dataTask(with: request) { result in
+                guard case let .success(data) = result,
+                      let contents = String(data: data.data, encoding: .utf8)
+                else {
+                    self.handleContentLoadError(String(
                         format: String.localized("Could not load URL %@"),
                         url.absoluteString
                     ))
-            }
+                    return
+                }
+
+                if contentType == "text/md" || contentType == "text/markdown" || contentType == "text/x-markdown" {
+                    guard let html = contents.markdownToHTML else {
+                        self
+                            .handleContentLoadError(String(
+                                format: String.localized("Could not load URL %@"),
+                                url.absoluteString
+                            ))
+                        return
+                    }
+
+                    let mdHtml = self.buildMarkdownHTML(html)
+                    self.loadWebViewContent(mdHtml)
+                } else if contentType == "text/html" {
+                    self.loadWebViewContent(contents)
+                } else {
+                    self.loadWebViewContent(self.buildPlainTextHTML(contents))
+                }
+            }.resume()
         }
     }
 
