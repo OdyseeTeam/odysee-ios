@@ -1472,13 +1472,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             Lbry.apiCall(
                 method: Lbry.Methods.claimSearch,
                 params: .init(
-                    claimType: [.stream],
                     page: 1,
                     pageSize: 999, // FIXME: pagination
-                    releaseTime: [Helper.releaseTimeBeforeFuture],
-                    notTags: Constants.NotTags + [Constants.MembersOnly],
                     claimIds: playlistClaims,
-                    orderBy: Helper.sortByItemValues[1]
                 )
             )
             .subscribeResult(didLoadPlaylistClaims)
