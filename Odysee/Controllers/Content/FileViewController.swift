@@ -2285,7 +2285,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBAction func commentAsTapped(_ sender: Any) {
         chatInputField.resignFirstResponder()
 
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Comment as"),
             origin: commentAsChannelLabel,
             rows: channels.map { $0.name ?? "" },
