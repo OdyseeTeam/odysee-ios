@@ -713,7 +713,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     @IBAction func sortByLabelTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Sort content by"),
             origin: sortByLabel,
             rows: Helper.sortByItemNames,
@@ -730,7 +730,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     @IBAction func contentFromLabelTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Content from"),
             origin: contentFromLabel,
             rows: Helper.contentFromItemNames,

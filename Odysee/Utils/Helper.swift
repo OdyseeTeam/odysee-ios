@@ -163,6 +163,7 @@ enum Helper {
         return ">\(time)"
     }
 
+    @discardableResult
     static func showPickerActionSheet(
         title: String,
         origin: UIView,
