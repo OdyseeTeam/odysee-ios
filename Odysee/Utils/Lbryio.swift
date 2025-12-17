@@ -99,7 +99,14 @@ enum Lbryio {
     }
 
     static func persistAuthToken() {
-        let tokenData = Lbryio.authToken?.data
+        guard let tokenData = Lbryio.authToken?.data else {
+            Crashlytics.crashlytics().recordImmediate(
+                error: GenericError("persistAuthToken nil"),
+                userInfo: ["persistAuthToken_token": Lbryio.authToken as Any]
+            )
+            return
+        }
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrServer as String: connectionString,

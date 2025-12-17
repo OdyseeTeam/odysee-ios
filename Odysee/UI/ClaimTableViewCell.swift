@@ -231,8 +231,8 @@ class ClaimTableViewCell: UITableViewCell {
         contentView.addSubview(reposterOverlay)
         reposterOverlay.isHidden = true
 
-        // TODO: arrow.triangle.2.circlepath on iOS 14+
-        let imageView = UIImageView(image: UIImage(systemName: "arrow.2.circlepath"))
+        // TODO: arrow.trianglehead.2.clockwise.rotate.90 on iOS 18+
+        let imageView = UIImageView(image: UIImage(systemName: "arrow.triangle.2.circlepath"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.tintColor = .white
         reposterOverlay.addArrangedSubview(imageView)
