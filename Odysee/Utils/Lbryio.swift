@@ -692,16 +692,6 @@ enum Lbryio {
         }
     }
 
-    static func isFollowing(subscription: Subscription) -> Bool {
-        return if let subscriptionUrl = subscription.url,
-                  let url = LbryUri.tryParse(url: subscriptionUrl, requireProto: false)
-        {
-            cachedSubscriptions[url.description] != nil
-        } else {
-            false
-        }
-    }
-
     static func isNotificationsDisabledForSub(claim: Claim) -> Bool {
         return if let permanentUrl = claim.permanentUrl,
                   let url = LbryUri.tryParse(url: permanentUrl, requireProto: false),

@@ -13,6 +13,7 @@
 		534B71A2287BE08D00F01D42 /* CommentAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentAPIParams.swift */; };
 		534B71A4287BE0F200F01D42 /* ChannelSignResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */; };
 		53593F31287E5D75007FD08E /* CommentAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentAPIResult.swift */; };
+		536A54FA2EE904C70016CDE5 /* LbryBlockedChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536A54F92EE904C70016CDE5 /* LbryBlockedChannel.swift */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
 		538C8CC62ED74B8C00E20949 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 538C8CC52ED74B8C00E20949 /* AppIcon.icon */; };
@@ -97,7 +98,6 @@
 		64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE79E25502A290082AF2E /* SceneDelegate.swift */; };
 		64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7A025502A290082AF2E /* HomeViewController.swift */; };
 		64FBE7A425502A290082AF2E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7A225502A290082AF2E /* Main.storyboard */; };
-		64FBE7A725502A290082AF2E /* Odysee.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */; };
 		64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7A825502A2C0082AF2E /* Assets.xcassets */; };
 		64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */; };
 		64FBE7C225502A2D0082AF2E /* OdyseeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7C125502A2D0082AF2E /* OdyseeUITests.swift */; };
@@ -145,6 +145,7 @@
 		534B71A1287BE08D00F01D42 /* CommentAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentAPIParams.swift; sourceTree = "<group>"; };
 		534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelSignResult.swift; sourceTree = "<group>"; };
 		53593F30287E5D75007FD08E /* CommentAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentAPIResult.swift; sourceTree = "<group>"; };
+		536A54F92EE904C70016CDE5 /* LbryBlockedChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryBlockedChannel.swift; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
 		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
@@ -238,7 +239,6 @@
 		64FBE79E25502A290082AF2E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		64FBE7A025502A290082AF2E /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		64FBE7A325502A290082AF2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		64FBE7A625502A290082AF2E /* Odysee.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Odysee.xcdatamodel; sourceTree = "<group>"; };
 		64FBE7A825502A2C0082AF2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		64FBE7AB25502A2C0082AF2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		64FBE7AD25502A2C0082AF2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -442,6 +442,7 @@
 			children = (
 				641108EB255AA4CF00F0FB8A /* User.swift */,
 				642B6B06257A635300F17355 /* WalletSync.swift */,
+				536A54F92EE904C70016CDE5 /* LbryBlockedChannel.swift */,
 				646E54E1257E276400BEBFBE /* LbrySubscription.swift */,
 				640BEF2E2587A8FA0019B840 /* LbryNotification.swift */,
 				64D72BB9258C952A00F5C4E3 /* RewardVerified.swift */,
@@ -516,7 +517,6 @@
 				538C8CC52ED74B8C00E20949 /* AppIcon.icon */,
 				64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */,
 				64FBE7AD25502A2C0082AF2E /* Info.plist */,
-				64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */,
 				532650E3286EAB1B00F0FF0B /* Settings.bundle */,
 				53FAD3FB288504C60000F980 /* Localizable.strings */,
 			);
@@ -748,7 +748,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64FBE7A725502A290082AF2E /* Odysee.xcdatamodeld in Sources */,
 				64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */,
 				642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */,
 				6484E1AD2582238900221658 /* NotificationsViewController.swift in Sources */,
@@ -794,6 +793,7 @@
 				641B3E2727E0EFCC0089E816 /* CustomBlockRule.swift in Sources */,
 				642B6B07257A635300F17355 /* WalletSync.swift in Sources */,
 				646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */,
+				536A54FA2EE904C70016CDE5 /* LbryBlockedChannel.swift in Sources */,
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
 				641108F1255AF6CE00F0FB8A /* Helper.swift in Sources */,
 				641E7EC62608BE5800A79CD3 /* License.swift in Sources */,
@@ -1342,19 +1342,6 @@
 			productName = OrderedCollections;
 		};
 /* End XCSwiftPackageProductDependency section */
-
-/* Begin XCVersionGroup section */
-		64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				64FBE7A625502A290082AF2E /* Odysee.xcdatamodel */,
-			);
-			currentVersion = 64FBE7A625502A290082AF2E /* Odysee.xcdatamodel */;
-			path = Odysee.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 64FBE79125502A290082AF2E /* Project object */;
 }

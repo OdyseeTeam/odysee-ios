@@ -6,7 +6,6 @@
 //
 
 import AVKit
-import CoreData
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import UIKit
@@ -118,10 +117,6 @@ class InitViewController: UIViewController {
     // we only want to cache the URLs for followed channels (both local and remote) here
     func loadAndCacheSubscriptions() {
         do {
-            // load local subscriptions
-            loadLocalSubscriptions()
-
-            // check if there are remote subscriptions and load them too
             try Lbryio.get(resource: "subscription", action: "list", completion: { data, error in
                 guard let data = data, error == nil else {
                     self.authenticateAndRegisterInstall()
@@ -163,27 +158,6 @@ class InitViewController: UIViewController {
         } catch {
             // simply continue if it fails
             authenticateAndRegisterInstall()
-        }
-    }
-
-    func loadLocalSubscriptions() {
-        let fetchRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
-        fetchRequest.returnsObjectsAsFaults = false
-
-        DispatchQueue.main.async {
-            AppDelegate.shared.persistentContainer.performBackgroundTask { context in
-                do {
-                    let subs = try context.fetch(fetchRequest)
-                    for sub in subs {
-                        let cacheSub = LbrySubscription.fromLocalSubscription(subscription: sub)
-                        if !cacheSub.claimId.isBlank {
-                            Lbryio.addSubscription(sub: cacheSub, url: sub.url)
-                        }
-                    }
-                } catch {
-                    // pass
-                }
-            }
         }
     }
 

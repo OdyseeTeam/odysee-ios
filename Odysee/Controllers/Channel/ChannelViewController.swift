@@ -5,7 +5,6 @@
 //  Created by Akinwale Ariwodola on 06/12/2020.
 //
 
-import CoreData
 import FirebaseAnalytics
 import OrderedCollections
 import SafariServices
@@ -973,19 +972,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                             ),
                             url: subUrl.description
                         )
-                        if let channelName = subUrl.channelName {
-                            self.addSubscription(
-                                url: subUrl.description,
-                                channelName: channelName,
-                                isNotificationsDisabled: notificationsDisabled,
-                                reloadAfter: true
-                            )
-                        }
                     } else {
                         Lbryio.removeSubscription(subUrl: subUrl.description)
-                        if let channelName = subUrl.channelName {
-                            self.removeSubscription(url: subUrl.description, channelName: channelName)
-                        }
                     }
 
                     self.checkFollowing()
@@ -1006,40 +994,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             )
         } catch {
             showError(error: error)
-        }
-    }
-
-    func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
-        // persist the subscription to CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
-            let subToSave = Subscription(context: context)
-            subToSave.url = url
-            subToSave.channelName = channelName
-            subToSave.isNotificationsDisabled = isNotificationsDisabled
-
-            AppDelegate.shared.saveContext()
-        }
-    }
-
-    func removeSubscription(url: String, channelName: String) {
-        // remove the subscription from CoreData
-        DispatchQueue.main.async {
-            do {
-                let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-                let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-                let subs = try context.fetch(fetchRequest)
-                for sub in subs {
-                    context.delete(sub)
-                }
-
-                try context.save()
-            } catch {
-                self.showError(error: error)
-            }
         }
     }
 

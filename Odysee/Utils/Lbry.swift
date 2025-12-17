@@ -7,7 +7,6 @@
 
 import Base58Swift
 import Combine
-import CoreData
 import CryptoKit
 import FirebaseAnalytics
 import FirebaseCrashlytics
@@ -126,7 +125,7 @@ enum Lbry {
     private static var claimCacheByUrl = NSCache<NSString, Claim>()
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
-    static var blockedChannels: [BlockedChannel] = []
+    static var blockedChannels: [LbryBlockedChannel] = []
     static var defaultChannelId: String?
 
     private struct APIBody<CallParams: Encodable>: Encodable {
@@ -378,16 +377,6 @@ enum Lbry {
     // move to main thread due to the appdelegate reference
     static func processBlockedUrls(_ blockedUrls: [String]) {
         DispatchQueue.main.async {
-            let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "BlockedChannel")
-            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-            do {
-                let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-                try context.execute(deleteRequest)
-            } catch {
-                // pass
-                return
-            }
-
             if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
                 for aUrl in blockedUrls {
                     let lbryUrl = LbryUri.tryParse(url: aUrl, requireProto: false)
