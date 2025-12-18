@@ -22,6 +22,7 @@
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
 		53D59FFE2EF3B3150081D800 /* QueryItemsEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFD2EF3B3150081D800 /* QueryItemsEncoder.swift */; };
+		53D5A0002EF3BB580081D800 /* QueryItemsEncoderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFF2EF3BB580081D800 /* QueryItemsEncoderTest.swift */; };
 		53F64E382ECCEC2A001A7D8F /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */; };
 		53FAD3FD288504C60000F980 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53FAD3FB288504C60000F980 /* Localizable.strings */; };
 		64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = 64019A0D269C101D00E16A51 /* ImageScrollView */; };
@@ -154,6 +155,7 @@
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
 		53D59FFD2EF3B3150081D800 /* QueryItemsEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryItemsEncoder.swift; sourceTree = "<group>"; };
+		53D59FFF2EF3BB580081D800 /* QueryItemsEncoderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryItemsEncoderTest.swift; sourceTree = "<group>"; };
 		53FAD3FC288504C60000F980 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Odysee/Base.lproj/Localizable.strings; sourceTree = "<group>"; };
 		6402A30227E14C8800113E26 /* OdyseeLocale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLocale.swift; sourceTree = "<group>"; };
 		640BEF2E2587A8FA0019B840 /* LbryNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryNotification.swift; sourceTree = "<group>"; };
@@ -531,6 +533,7 @@
 			children = (
 				CCDDA9222658529C0006035F /* MultistreamTests.swift */,
 				536E27C22EB1B55700A02197 /* LbryUriTest.swift */,
+				53D59FFF2EF3BB580081D800 /* QueryItemsEncoderTest.swift */,
 				64FBE7B825502A2D0082AF2E /* Info.plist */,
 			);
 			path = OdyseeTests;
@@ -846,6 +849,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				53D5A0002EF3BB580081D800 /* QueryItemsEncoderTest.swift in Sources */,
 				536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */,
 				CCDDA9232658529C0006035F /* MultistreamTests.swift in Sources */,
 			);
