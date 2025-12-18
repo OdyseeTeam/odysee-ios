@@ -220,7 +220,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         precheckLoadingView.isHidden = false
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -401,7 +401,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
         Lbry.apiCall(
-            method: Lbry.Methods.channelSign,
+            method: LbryMethods.channelSign,
             params: .init(channelId: claimId, hexdata: Helper.strToHex(name))
         )
         .subscribeResult { result in
@@ -449,7 +449,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
             self.waitForConfirmationTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
                 Lbry.apiCall(
-                    method: Lbry.Methods.txoList,
+                    method: LbryMethods.txoList,
                     params: .init(
                         type: [.stream],
                         txid: txid

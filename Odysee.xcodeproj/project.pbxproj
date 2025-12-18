@@ -16,11 +16,15 @@
 		536A54FA2EE904C70016CDE5 /* LbryBlockedChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536A54F92EE904C70016CDE5 /* LbryBlockedChannel.swift */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
+		538C274D2EFB8BC200305361 /* LbryioAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C274C2EFB8BC200305361 /* LbryioAPIResult.swift */; };
+		538C274F2EFB8BE900305361 /* LbryioAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C274E2EFB8BE900305361 /* LbryioAPIParams.swift */; };
 		538C8CC62ED74B8C00E20949 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 538C8CC52ED74B8C00E20949 /* AppIcon.icon */; };
 		5390C80D2ECE13A3005A104B /* ActionSheetPicker-3.0 in Frameworks */ = {isa = PBXBuildFile; productRef = 5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
+		53D59FFA2EF3AAEA0081D800 /* LbryAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FF92EF3AAEA0081D800 /* LbryAPIResult.swift */; };
+		53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFB2EF3AE530081D800 /* Methods.swift */; };
 		53D59FFE2EF3B3150081D800 /* QueryItemsEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFD2EF3B3150081D800 /* QueryItemsEncoder.swift */; };
 		53D5A0002EF3BB580081D800 /* QueryItemsEncoderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFF2EF3BB580081D800 /* QueryItemsEncoderTest.swift */; };
 		53F64E382ECCEC2A001A7D8F /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */; };
@@ -49,7 +53,6 @@
 		641E7EC62608BE5800A79CD3 /* License.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E7EC52608BE5700A79CD3 /* License.swift */; };
 		642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6AFC257A382900F17355 /* WalletViewController.swift */; };
 		642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */; };
-		642B6B07257A635300F17355 /* WalletSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B06257A635300F17355 /* WalletSync.swift */; };
 		642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B0B257AB9F200F17355 /* WalletBalance.swift */; };
 		642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B10257B4CBC00F17355 /* Transaction.swift */; };
 		642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B15257B528300F17355 /* TransactionTableViewCell.swift */; };
@@ -111,7 +114,7 @@
 		CC015766267A9C1100F96EFE /* ImageURLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC015765267A9C1100F96EFE /* ImageURLs.swift */; };
 		CC015768267C1A0B00F96EFE /* ResolveResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC015767267C1A0B00F96EFE /* ResolveResult.swift */; };
 		CC0B2B0D266D0E72002490BB /* Lock.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC0B2B0C266D0E72002490BB /* Lock.swift */; };
-		CC3A1E7826853D7E00683E28 /* APIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3A1E7726853D7E00683E28 /* APIParams.swift */; };
+		CC3A1E7826853D7E00683E28 /* LbryAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC3A1E7726853D7E00683E28 /* LbryAPIParams.swift */; };
 		CC48F4FC2662B2020018D958 /* VideoPickerController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC48F4FB2662B2020018D958 /* VideoPickerController.swift */; };
 		CC49954526692037001BB2DC /* ImagePrefetchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC49954426692037001BB2DC /* ImagePrefetchController.swift */; };
 		CC80EC0F2672A80700CA07DA /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC80EC0E2672A80700CA07DA /* Page.swift */; };
@@ -150,10 +153,14 @@
 		536A54F92EE904C70016CDE5 /* LbryBlockedChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryBlockedChannel.swift; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
+		538C274C2EFB8BC200305361 /* LbryioAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryioAPIResult.swift; sourceTree = "<group>"; };
+		538C274E2EFB8BE900305361 /* LbryioAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryioAPIParams.swift; sourceTree = "<group>"; };
 		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
+		53D59FF92EF3AAEA0081D800 /* LbryAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryAPIResult.swift; sourceTree = "<group>"; };
+		53D59FFB2EF3AE530081D800 /* Methods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Methods.swift; sourceTree = "<group>"; };
 		53D59FFD2EF3B3150081D800 /* QueryItemsEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryItemsEncoder.swift; sourceTree = "<group>"; };
 		53D59FFF2EF3BB580081D800 /* QueryItemsEncoderTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryItemsEncoderTest.swift; sourceTree = "<group>"; };
 		53FAD3FC288504C60000F980 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Base; path = Odysee/Base.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -195,7 +202,6 @@
 		641F07EE26A83FC9008CD7C5 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		642B6AFC257A382900F17355 /* WalletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletViewController.swift; sourceTree = "<group>"; };
 		642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSyncViewController.swift; sourceTree = "<group>"; };
-		642B6B06257A635300F17355 /* WalletSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSync.swift; sourceTree = "<group>"; };
 		642B6B0B257AB9F200F17355 /* WalletBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalance.swift; sourceTree = "<group>"; };
 		642B6B10257B4CBC00F17355 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		642B6B15257B528300F17355 /* TransactionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTableViewCell.swift; sourceTree = "<group>"; };
@@ -259,7 +265,7 @@
 		CC015765267A9C1100F96EFE /* ImageURLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageURLs.swift; sourceTree = "<group>"; };
 		CC015767267C1A0B00F96EFE /* ResolveResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolveResult.swift; sourceTree = "<group>"; };
 		CC0B2B0C266D0E72002490BB /* Lock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lock.swift; sourceTree = "<group>"; };
-		CC3A1E7726853D7E00683E28 /* APIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIParams.swift; sourceTree = "<group>"; };
+		CC3A1E7726853D7E00683E28 /* LbryAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryAPIParams.swift; sourceTree = "<group>"; };
 		CC48F4FB2662B2020018D958 /* VideoPickerController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPickerController.swift; sourceTree = "<group>"; };
 		CC49954426692037001BB2DC /* ImagePrefetchController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePrefetchController.swift; sourceTree = "<group>"; };
 		CC80EC0E2672A80700CA07DA /* Page.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Page.swift; sourceTree = "<group>"; };
@@ -324,9 +330,12 @@
 				530525AA28125CCE00D92A2E /* Txo.swift */,
 				646E4A5E259CF13A0008C9C8 /* Comment.swift */,
 				CC015767267C1A0B00F96EFE /* ResolveResult.swift */,
-				CC3A1E7726853D7E00683E28 /* APIParams.swift */,
+				CC3A1E7726853D7E00683E28 /* LbryAPIParams.swift */,
+				53D59FF92EF3AAEA0081D800 /* LbryAPIResult.swift */,
 				534B71A1287BE08D00F01D42 /* CommentAPIParams.swift */,
 				53593F30287E5D75007FD08E /* CommentAPIResult.swift */,
+				538C274E2EFB8BE900305361 /* LbryioAPIParams.swift */,
+				538C274C2EFB8BC200305361 /* LbryioAPIResult.swift */,
 				641E7EC02608BE0C00A79CD3 /* Language.swift */,
 				CC80EC0E2672A80700CA07DA /* Page.swift */,
 				641E7EC52608BE5700A79CD3 /* License.swift */,
@@ -356,6 +365,7 @@
 				53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */,
 				647AFE8D2886FEF500704944 /* BlockChannelStatusObserver.swift */,
 				5385091F28E13D28009A7AAB /* MembershipPerk.swift */,
+				53D59FFB2EF3AE530081D800 /* Methods.swift */,
 				53D59FFD2EF3B3150081D800 /* QueryItemsEncoder.swift */,
 			);
 			path = Utils;
@@ -446,7 +456,6 @@
 			isa = PBXGroup;
 			children = (
 				641108EB255AA4CF00F0FB8A /* User.swift */,
-				642B6B06257A635300F17355 /* WalletSync.swift */,
 				536A54F92EE904C70016CDE5 /* LbryBlockedChannel.swift */,
 				646E54E1257E276400BEBFBE /* LbrySubscription.swift */,
 				640BEF2E2587A8FA0019B840 /* LbryNotification.swift */,
@@ -795,9 +804,9 @@
 				642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */,
 				CC80EC0F2672A80700CA07DA /* Page.swift in Sources */,
 				64666B032587378400DF4608 /* ChannelEditorViewController.swift in Sources */,
+				538C274F2EFB8BE900305361 /* LbryioAPIParams.swift in Sources */,
 				649F023C2717F918009A5698 /* Constants.swift in Sources */,
 				641B3E2727E0EFCC0089E816 /* CustomBlockRule.swift in Sources */,
-				642B6B07257A635300F17355 /* WalletSync.swift in Sources */,
 				646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */,
 				536A54FA2EE904C70016CDE5 /* LbryBlockedChannel.swift in Sources */,
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
@@ -829,14 +838,17 @@
 				646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */,
 				64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */,
 				640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */,
-				CC3A1E7826853D7E00683E28 /* APIParams.swift in Sources */,
+				CC3A1E7826853D7E00683E28 /* LbryAPIParams.swift in Sources */,
 				641AFAE925B606E000218BD9 /* UAButton.swift in Sources */,
 				641E7EC12608BE0C00A79CD3 /* Language.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				CC97807926549867009F580E /* Log.swift in Sources */,
+				53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
+				53D59FFA2EF3AAEA0081D800 /* LbryAPIResult.swift in Sources */,
 				5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */,
 				53593F31287E5D75007FD08E /* CommentAPIResult.swift in Sources */,
+				538C274D2EFB8BC200305361 /* LbryioAPIResult.swift in Sources */,
 				6413273E2556E86000CBB6B8 /* Claim.swift in Sources */,
 				642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */,
 				646E54EA257E565000BEBFBE /* SupportViewController.swift in Sources */,

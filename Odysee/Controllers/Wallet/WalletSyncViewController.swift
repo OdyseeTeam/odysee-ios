@@ -11,7 +11,7 @@ import UIKit
 // initial wallet sync processing after sign in / sign up
 class WalletSyncViewController: UIViewController {
     var firstRunFlow = false
-    var currentWalletSync: WalletSync?
+    var currentWalletSync: SyncGetResult? // FIXME:
     var frDelegate: FirstRunDelegate?
 
     override func viewWillAppear(_ animated: Bool) {
@@ -132,7 +132,7 @@ class WalletSyncViewController: UIViewController {
         })
     }
 
-    func processExistingWallet(password: String, walletSync: WalletSync?) {
+    func processExistingWallet(password: String, walletSync: SyncGetResult?) {
         // first attempt at sync_apply to check if a password is required
         var params = [String: Any]()
         params["password"] = password

@@ -225,7 +225,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -258,7 +258,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(urls: [url])
         )
         .subscribeResult(didResolveClaim)
@@ -467,7 +467,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         let releaseTimeValue = currentSortByIndex == 2 ? Helper
             .buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
         Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
+            method: LbryMethods.claimSearch,
             params: .init(
                 claimType: [.stream, .repost],
                 page: currentPage,
@@ -525,7 +525,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
 
             Lbry.apiCall(
-                method: Lbry.Methods.resolve,
+                method: LbryMethods.resolve,
                 params: .init(urls: urlsToResolve)
             )
             .subscribeResult { [self] result in

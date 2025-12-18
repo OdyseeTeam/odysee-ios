@@ -322,7 +322,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
     func loadChannels() {
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(claimType: [.channel], page: 1, pageSize: 999)
         )
         .subscribeResult(didLoadChannels)

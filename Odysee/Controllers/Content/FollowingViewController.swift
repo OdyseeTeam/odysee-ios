@@ -227,7 +227,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
+            method: LbryMethods.claimSearch,
             params: .init(
                 claimType: [.channel],
                 page: currentSuggestedPage,
@@ -282,7 +282,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             let releaseTimeValue = currentSortByIndex == 2 ? Helper
                 .buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
             Lbry.apiCall(
-                method: Lbry.Methods.claimSearch,
+                method: LbryMethods.claimSearch,
                 params: .init(
                     claimType: [.stream],
                     page: currentPage,
@@ -557,7 +557,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     func resolveChannelList() {
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(
                 urls: subscriptions.compactMap {
                     if let channelName = $0.channelName,

@@ -78,7 +78,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         options["page_size"] = 999
         options["resolve"] = true
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,

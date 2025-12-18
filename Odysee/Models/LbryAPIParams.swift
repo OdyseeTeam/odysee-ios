@@ -1,5 +1,5 @@
 //
-//  APIParams.swift
+//  LbryAPIParams.swift
 //  Odysee
 //
 //  Created by Adlai Holler on 6/24/21.
@@ -43,8 +43,6 @@ struct ClaimSearchParams: Encodable {
     var claimIds: [String]?
     var orderBy: [String]?
 }
-
-struct AddressUnusedParams: Encodable {}
 
 struct ChannelAbandonParams: Encodable {
     var claimId: String

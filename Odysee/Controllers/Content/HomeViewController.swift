@@ -162,7 +162,7 @@ class HomeViewController: UIViewController,
             .releaseTime6Months()
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
+            method: LbryMethods.claimSearch,
             params: .init(
                 claimType: [.stream, .repost],
                 streamTypes: [.audio, .video],
@@ -269,7 +269,7 @@ class HomeViewController: UIViewController,
         ])
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
+            method: LbryMethods.claimSearch,
             params: .init(
                 claimType: [.stream],
                 releaseTime: [Helper.releaseTimeBeforeFuture],
