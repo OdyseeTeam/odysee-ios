@@ -19,13 +19,13 @@ enum Lbry {
     static let ttlCLaimSearchValue = 120_000
     // swift-format-ignore
     // Initialized once with static value
-    static var lbrytvURL = URL(string: "https://api.na-backend.odysee.com/api/v1/proxy")!
+    static let lbrytvURL = URL(string: "https://api.na-backend.odysee.com/api/v1/proxy")!
     // swift-format-ignore
     // Initialized once with static value
-    static var uploadURL = URL(string: "https://publish.na-backend.odysee.com/v1")!
+    static let uploadURL = URL(string: "https://publish.na-backend.odysee.com/v1")!
     // swift-format-ignore
     // Initialized once with static value
-    static var commentronURL = URL(string: "https://comments.odysee.tv/api/v2")!
+    static let commentronURL = URL(string: "https://comments.odysee.tv/api/v2")!
     static let keyShared = "shared"
     static let sharedPreferenceVersion = "0.1"
 
