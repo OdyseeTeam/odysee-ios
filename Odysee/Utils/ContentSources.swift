@@ -95,7 +95,7 @@ enum ContentSources {
                         var languageKey = Locale.current.languageCode ?? languageCodeEN
                         let regionCode = Locale.current.regionCode ?? regionCodeUS
                         if languageKey != languageCodeEN, regionCode == regionCodeBR {
-                            languageKey = "\(languageKey)0\(regionCode)"
+                            languageKey = "\(languageKey)-\(regionCode)"
                         }
 
                         if let langData = data[languageKey] as? [String: Any] ?? data[languageCodeEN] as? [String: Any],
