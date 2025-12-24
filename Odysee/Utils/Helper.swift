@@ -393,6 +393,21 @@ enum Helper {
         }
         return Lbry.blockedChannels.map(\.claimId).contains(claimId)
     }
+
+    @MainActor
+    static func showMessage(message: String?) {
+        (AppDelegate.shared.mainViewController as? MainViewController)?.showMessage(message: message)
+    }
+
+    @MainActor
+    static func showError(message: String?) {
+        (AppDelegate.shared.mainViewController as? MainViewController)?.showError(message: message)
+    }
+
+    @MainActor
+    static func showError(error: Error) {
+        (AppDelegate.shared.mainViewController as? MainViewController)?.showError(error: error)
+    }
 }
 
 struct GenericError: Error {
