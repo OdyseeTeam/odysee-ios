@@ -508,6 +508,7 @@ class UserAccountViewController: UIViewController {
         Lbryio.authToken = nil
 
         Lbryio.Defaults.reset()
+        Task { await AuthToken.reset() }
 
         UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
 
