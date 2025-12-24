@@ -127,8 +127,12 @@ class WalletSyncViewController: UIViewController {
 
             Lbry.remoteWalletHash = walletSync?.hash
             self.currentWalletSync = walletSync
-            self.processExistingWallet(password: "", walletSync: walletSync)
-            return
+
+            if walletSync?.data != nil, (walletSync?.changed ?? true) || Lbry.localWalletHash != Lbry.remoteWalletHash {
+                self.processExistingWallet(password: "", walletSync: walletSync)
+            } else {
+                self.closeWalletSync()
+            }
         })
     }
 
