@@ -21,7 +21,7 @@ class InitViewController: UIViewController {
     // 1. loadExchangeRate
     // 2. loadAndCacheRemoteSubscriptions
     // 3. authenticateAndRegisterInstall
-    func runInit() {
+    func runInit() async {
         let defaults = UserDefaults.standard
         Lbry.installationId = defaults.string(forKey: Lbry.keyInstallationId)
         if Lbry.installationId.isBlank {
@@ -29,7 +29,8 @@ class InitViewController: UIViewController {
             defaults.set(Lbry.installationId, forKey: Lbry.keyInstallationId)
         }
 
-        Lbryio.loadAuthToken()
+        // Run singleton init side effects
+        _ = await AuthToken.token
 
         Lbryio.loadExchangeRate(completion: { _, _ in
             // don't bother with error checks here, simply proceed to authenticate
@@ -52,7 +53,7 @@ class InitViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        runInit()
+        Task { await runInit() }
 
         errorView.layer.cornerRadius = 16
     }
@@ -66,6 +67,7 @@ class InitViewController: UIViewController {
                             // invalidated auth token, get a new one
                             Lbryio.authToken = nil
                             Lbryio.Defaults.reset()
+                            Task { await AuthToken.reset() }
                             self.authenticateAndRegisterInstall()
                             return
                         }
