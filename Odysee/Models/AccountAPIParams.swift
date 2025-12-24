@@ -6,3 +6,13 @@
 //
 
 import Foundation
+
+struct UserNewParams: Encodable, AccountMethodParams {
+    let language = "en"
+    var appId: String
+
+    enum CodingKeys: String, CodingKey {
+        case language
+        case appId = "app_id"
+    }
+}

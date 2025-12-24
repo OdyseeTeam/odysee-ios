@@ -46,9 +46,11 @@ extension Method where ParamType: BackendMethodParams {
     func call(
         params: ParamType,
         url: URL = Lbry.lbrytvURL,
-        authToken: String? = Lbryio.authToken,
+        authToken: String? = nil,
         transform: ((inout ResultType) throws -> Void)? = nil
     ) async throws -> ResultType {
+        let authToken = authToken != nil ? authToken : await AuthToken.token
+
         let task = Task.detached(priority: .userInitiated) {
             let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: authToken)
 
@@ -78,9 +80,11 @@ extension Method where ParamType: CommentsMethodParams {
     func call(
         params: ParamType,
         url: URL = Lbry.commentronURL,
-        authToken: String? = Lbryio.authToken,
+        authToken: String? = nil,
         transform: ((inout ResultType) throws -> Void)? = nil
     ) async throws -> ResultType {
+        let authToken = authToken != nil ? authToken : await AuthToken.token
+
         let task = Task.detached(priority: .userInitiated) {
             let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: authToken)
 
@@ -108,12 +112,10 @@ extension Method where ParamType: CommentsMethodParams {
 extension Method where ParamType: AccountMethodParams {
     func call(
         params: ParamType,
-        authTokenOverride: String? = Lbryio.authToken,
+        authTokenOverride: String? = nil,
     ) async throws -> ResultType {
-        guard let authToken = authTokenOverride ?? Lbryio.authToken, !authToken.isBlank else {
-            // FIXME: getAuthToken in case it was set to nil
-            fatalError()
-        }
+        // Intentionally allow blank for calls that need it
+        let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
 
         let url = "\(Lbryio.connectionString)/\(name)"
         guard var requestUrl = URL(string: url) else {
@@ -121,7 +123,7 @@ extension Method where ParamType: AccountMethodParams {
         }
 
         var queryItems = try QueryItemsEncoder().encode(params)
-        queryItems.append(URLQueryItem(name: Lbryio.authTokenParam, value: authTokenOverride ?? authToken))
+        queryItems.append(URLQueryItem(name: Lbryio.authTokenParam, value: authToken))
 
         if method == .GET {
             guard var components = URLComponents(string: url) else {
@@ -225,4 +227,6 @@ protocol AccountMethodParams {}
 
 enum AccountMethods {
     struct NilType: Codable, AccountMethodParams {}
+
+    static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
 }
