@@ -89,6 +89,7 @@ enum Lbryio {
     }
 
     // - MARK: Keychain
+    // FIXME: Remove (Is in AuthToken.swift)
 
     // Report errors but don't throw/crash, because user can just log in again
 

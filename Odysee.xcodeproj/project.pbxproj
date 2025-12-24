@@ -18,6 +18,7 @@
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
 		538C274D2EFB8BC200305361 /* LbryioAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C274C2EFB8BC200305361 /* LbryioAPIResult.swift */; };
 		538C274F2EFB8BE900305361 /* LbryioAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C274E2EFB8BE900305361 /* LbryioAPIParams.swift */; };
+		538C27562EFB8DA300305361 /* AuthToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C27552EFB8DA300305361 /* AuthToken.swift */; };
 		538C8CC62ED74B8C00E20949 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 538C8CC52ED74B8C00E20949 /* AppIcon.icon */; };
 		5390C80D2ECE13A3005A104B /* ActionSheetPicker-3.0 in Frameworks */ = {isa = PBXBuildFile; productRef = 5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
@@ -155,6 +156,7 @@
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
 		538C274C2EFB8BC200305361 /* LbryioAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryioAPIResult.swift; sourceTree = "<group>"; };
 		538C274E2EFB8BE900305361 /* LbryioAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryioAPIParams.swift; sourceTree = "<group>"; };
+		538C27552EFB8DA300305361 /* AuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthToken.swift; sourceTree = "<group>"; };
 		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -342,6 +344,7 @@
 				641B3E2627E0EFCC0089E816 /* CustomBlockRule.swift */,
 				6402A30227E14C8800113E26 /* OdyseeLocale.swift */,
 				534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */,
+				538C27552EFB8DA300305361 /* AuthToken.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -764,6 +767,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */,
+				538C27562EFB8DA300305361 /* AuthToken.swift in Sources */,
 				642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */,
 				6484E1AD2582238900221658 /* NotificationsViewController.swift in Sources */,
 				641614D2258077EF003A2194 /* UserAccountMenuViewController.swift in Sources */,

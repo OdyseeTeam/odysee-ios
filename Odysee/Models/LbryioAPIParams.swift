@@ -7,6 +7,16 @@
 
 import Foundation
 
+struct UserNewParams: Encodable, LbryioMethodParams {
+    let language = "en"
+    var appId: String
+
+    enum CodingKeys: String, CodingKey {
+        case language
+        case appId = "app_id"
+    }
+}
+
 struct SyncGetParams: Encodable, LbryioMethodParams {
     var hash: String
 }

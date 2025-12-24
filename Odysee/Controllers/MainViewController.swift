@@ -199,6 +199,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         // remove the auth token so that a new one will be generated upon the next init
         Lbryio.authToken = nil
         Lbryio.Defaults.reset()
+        Task { await AuthToken.reset() }
 
         // clear the wallet address if it exists
         UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
@@ -206,7 +207,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         AppDelegate.shared.mainNavigationController?.popToRootViewController(animated: false)
         if let initvc = presentingViewController as? InitViewController {
             initvc.dismiss(animated: true, completion: {
-                initvc.runInit()
+                Task { await initvc.runInit() }
             })
         }
     }
