@@ -49,7 +49,7 @@ actor AuthToken {
                 return try await generate()
             } catch {
                 Crashlytics.crashlytics().recordImmediate(error: error)
-                await (AppDelegate.shared.mainViewController as? MainViewController)?.showError(error: error)
+                await Helper.showError(error: error)
             }
 
             try? await Task.sleep(nanoseconds: 1_000_000_000)
