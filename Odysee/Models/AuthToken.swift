@@ -17,7 +17,17 @@ actor AuthToken {
         }
     }
 
+    /// userSignOut call will load auth token, if not already loaded
+    /// Loaded token is only used to sign out, then will be reset
     static func reset() async {
+        if await shared.loadAuthToken() != nil {
+            do {
+                _ = try await AccountMethods.userSignOut.call(params: .init())
+            } catch {
+                await Helper.showError(error: error)
+            }
+        }
+
         await shared.reset()
     }
 

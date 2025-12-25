@@ -189,7 +189,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func checkAndShowFirstRun() {
         if !AppDelegate.hasCompletedFirstRun() {
-            Lbryio.deleteAuthToken()
             let vc = storyboard?.instantiateViewController(identifier: "fr_vc") as! FirstRunViewController
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
