@@ -13,7 +13,7 @@ struct Method<ParamType: Encodable, ResultType: Decodable> {
     var defaultTransform: ((inout ResultType) throws -> Void)?
 
     // For Lbryio
-    var method: Method = .GET
+    var method: Method = .POST
 
     enum Method: String {
         case GET
@@ -225,6 +225,6 @@ protocol LbryioMethodParams {}
 enum LbryioMethods {
     struct NilType: Codable, LbryioMethodParams {}
 
-    static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new", method: .POST)
-    static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get", method: .POST)
+    static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
+    static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
 }
