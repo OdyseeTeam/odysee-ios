@@ -19,6 +19,8 @@ enum Helper {
     static let commentMaxLength: Int = 2000
     static let txLinkPrefix = "https://explorer.lbry.com/tx"
     static let keyReceiveAddress = "walletReceiveAddress"
+    /// Can be a reinstall after uninstall, in which case UserDefaults is cleared but not Keychain
+    static let keyHasRunAfterInstall = "hasRunAfterInstall"
     static let keyFirstRunCompleted = "firstRunCompleted"
     static let keyPostedCommentHideTos = "postedCommentHideTos"
     static let reactionTypeLike = "like"
