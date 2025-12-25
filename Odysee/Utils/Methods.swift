@@ -226,5 +226,6 @@ enum LbryioMethods {
     struct NilType: Codable, LbryioMethodParams {}
 
     static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
+    static let userSignOut = Method<NilType, NilType>(name: "user/signout")
     static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
 }

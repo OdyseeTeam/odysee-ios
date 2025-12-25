@@ -22,6 +22,12 @@ class InitViewController: UIViewController {
     // 3. authenticateAndRegisterInstall
     func runInit() async {
         let defaults = UserDefaults.standard
+
+        if defaults.object(forKey: Helper.keyHasRunAfterInstall) == nil {
+            await AuthToken.reset()
+            defaults.set(true, forKey: Helper.keyHasRunAfterInstall)
+        }
+
         Lbry.installationId = defaults.string(forKey: Lbry.keyInstallationId)
         if Lbry.installationId.isBlank {
             Lbry.installationId = Lbry.generateId()

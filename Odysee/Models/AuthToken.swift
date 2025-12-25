@@ -17,7 +17,19 @@ actor AuthToken {
         }
     }
 
+    /// userSignOut call will load auth token, if not already loaded
+    /// Loaded token is only used to sign out, then will be reset
     static func reset() async {
+        // TODO: Test start over while waiting for verification email
+        // TODO: Make sure this is fine with signed out auth token
+        if await shared.loadAuthToken() != nil {
+            do {
+                _ = try await LbryioMethods.userSignOut.call(params: .init())
+            } catch {
+                await Helper.showError(error: error)
+            }
+        }
+
         await shared.reset()
     }
 
