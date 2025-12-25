@@ -229,4 +229,5 @@ enum AccountMethods {
     struct NilType: Codable, AccountMethodParams {}
 
     static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
+    static let userSignOut = Method<NilType, NilType>(name: "user/signout")
 }
