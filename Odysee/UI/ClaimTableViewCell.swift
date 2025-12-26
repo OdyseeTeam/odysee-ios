@@ -199,9 +199,9 @@ class ClaimTableViewCell: UITableViewCell {
         }
 
         if actualClaim.value?.tags?.contains(Constants.MembersOnly) ?? false {
-            DispatchQueue.global().async {
+            Task.detached {
                 MembershipPerk.perkCheck(
-                    authToken: Lbryio.authToken,
+                    authToken: await AuthToken.token,
                     claimId: actualClaim.claimId,
                     type: isLivestream ? .livestream : .content
                 ) { result in

@@ -163,7 +163,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             method: Lbry.methodWalletSend,
             params: params,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard data != nil, error == nil else {
                     self.showError(error: error)

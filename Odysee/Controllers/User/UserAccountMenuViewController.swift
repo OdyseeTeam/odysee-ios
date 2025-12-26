@@ -225,7 +225,6 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                 method: Lbry.methodWalletSend,
                 params: params,
                 url: Lbry.lbrytvURL,
-                authToken: Lbryio.authToken,
                 completion: { data, error in
                     guard data != nil, error == nil else {
                         DispatchQueue.main.async {

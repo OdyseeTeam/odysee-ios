@@ -213,7 +213,6 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
             method: Lbry.methodChannelCreate,
             params: options,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
