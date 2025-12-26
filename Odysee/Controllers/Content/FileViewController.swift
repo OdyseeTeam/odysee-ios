@@ -351,10 +351,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func checkHasAccess() {
         let isLivestream = !isPlaylist && claim?.value?.source == nil
-        DispatchQueue.global().async {
+        Task.detached {
             MembershipPerk.perkCheck(
-                authToken: Lbryio.authToken,
-                claimId: self.claim?.claimId,
+                authToken: await AuthToken.token,
+                claimId: await self.claim?.claimId,
                 type: isLivestream ? .livestream : .content
             ) { result in
                 if case let .success(hasAccess) = result {
@@ -783,7 +783,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 method: Lbry.methodGet,
                 params: params,
                 url: Lbry.lbrytvURL,
-                authToken: Lbryio.authToken,
                 completion: { data, error in
                     guard let data = data, error == nil else {
                         self.showError(error: error)
@@ -1564,7 +1563,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             method: Lbry.methodGet,
             params: params,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.mediaLoadingIndicator.isHidden = true

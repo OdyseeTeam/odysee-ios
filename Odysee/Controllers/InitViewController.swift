@@ -71,7 +71,6 @@ class InitViewController: UIViewController {
                     if let responseError = error as? LbryioResponseError {
                         if responseError.code == 403 {
                             // invalidated auth token, get a new one
-                            Lbryio.authToken = nil
                             Lbryio.Defaults.reset()
                             Task { await AuthToken.reset() }
                             self.authenticateAndRegisterInstall()
