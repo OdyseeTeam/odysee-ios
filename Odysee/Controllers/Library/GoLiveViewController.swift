@@ -483,7 +483,6 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             method: Lbry.methodPublish,
             params: options,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     DispatchQueue.main.async {

@@ -162,15 +162,27 @@ enum Lbry {
         method: Method<Params, ResultType>,
         params: Params,
         url: URL = lbrytvURL,
-        authToken: String? = Lbryio.authToken,
+        authTokenOverride: String? = nil,
         transform: ((inout ResultType) throws -> Void)? = nil
     )
         -> AnyPublisher<ResultType, Error>
     {
         // Note: We subscribe on global queue to do encoding etc. off the main thread.
-        return Just(()).subscribe(on: DispatchQueue.global()).tryMap {
-            // Create URLRequest.
-            try apiRequest(method: method.name, params: params, url: url, authToken: authToken)
+        return Just(()).subscribe(on: DispatchQueue.global()).flatMap {
+            Future { promise in
+                Task {
+                    let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
+
+                    do {
+                        // Create URLRequest.
+                        try promise(.success(
+                            apiRequest(method: method.name, params: params, url: url, authToken: authToken)
+                        ))
+                    } catch {
+                        promise(.failure(error))
+                    }
+                }
+            }
         }
         .flatMap { request in
             // Run data task.
@@ -201,54 +213,59 @@ enum Lbry {
         method: String,
         params: [String: Any],
         url: URL,
-        authToken: String? = nil,
+        authTokenOverride: String? = nil,
         completion: @escaping ([String: Any]?, Error?) -> Void
     ) {
-        let req: URLRequest
-        do {
-            req = try apiRequest(
-                method: method,
-                params: params as NSDictionary,
-                url: url,
-                authToken: authToken
-            )
-        } catch {
-            completion(nil, error)
-            return
-        }
-        let task = URLSession.shared.dataTask(with: req, completionHandler: { data, _, error in
-            guard let data = data, error == nil else {
-                // handle error
+        Task {
+            // Intentionally allow blank for calls that need it
+            let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
+
+            let req: URLRequest
+            do {
+                req = try apiRequest(
+                    method: method,
+                    params: params as NSDictionary,
+                    url: url,
+                    authToken: authToken
+                )
+            } catch {
                 completion(nil, error)
                 return
             }
-            do {
-                Log.verboseJSON.logIfEnabled(
-                    .debug,
-                    "Response to `\(method)`: \(String(data: data, encoding: .utf8) ?? "Couldn't parse data")"
-                )
-
-                let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                if response?["result"] != nil {
-                    completion(response, nil)
-                } else {
-                    if response?["error"] == nil, response?["result"] == nil {
-                        completion(nil, nil)
-                    } else if let error = response?["error"] as? String {
-                        completion(nil, LbryApiResponseError(error))
-                    } else if let errorJson = response?["error"] as? [String: Any],
-                              let errorMessage = errorJson["message"] as? String
-                    {
-                        completion(nil, LbryApiResponseError(errorMessage))
-                    } else {
-                        completion(nil, LbryApiResponseError("unknown api error"))
-                    }
+            let task = URLSession.shared.dataTask(with: req, completionHandler: { data, _, error in
+                guard let data = data, error == nil else {
+                    // handle error
+                    completion(nil, error)
+                    return
                 }
-            } catch {
-                completion(nil, error)
-            }
-        })
-        task.resume()
+                do {
+                    Log.verboseJSON.logIfEnabled(
+                        .debug,
+                        "Response to `\(method)`: \(String(data: data, encoding: .utf8) ?? "Couldn't parse data")"
+                    )
+
+                    let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                    if response?["result"] != nil {
+                        completion(response, nil)
+                    } else {
+                        if response?["error"] == nil, response?["result"] == nil {
+                            completion(nil, nil)
+                        } else if let error = response?["error"] as? String {
+                            completion(nil, LbryApiResponseError(error))
+                        } else if let errorJson = response?["error"] as? [String: Any],
+                                  let errorMessage = errorJson["message"] as? String
+                        {
+                            completion(nil, LbryApiResponseError(errorMessage))
+                        } else {
+                            completion(nil, LbryApiResponseError("unknown api error"))
+                        }
+                    }
+                } catch {
+                    completion(nil, error)
+                }
+            })
+            task.resume()
+        }
     }
 
     static func cachedClaim(url: String) -> Claim? {
@@ -462,7 +479,6 @@ enum Lbry {
                     method: methodPreferenceSet,
                     params: params,
                     url: lbrytvURL,
-                    authToken: Lbryio.authToken,
                     completion: { data, error in
                         guard data != nil, error == nil else {
                             completion(false, error)
@@ -536,7 +552,6 @@ enum Lbry {
             method: methodPreferenceGet,
             params: params,
             url: lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard error == nil else {
                     completion(nil, false, error)
@@ -563,7 +578,6 @@ enum Lbry {
             method: Lbry.methodSyncHash,
             params: [String: Any](),
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     if let error {
@@ -593,7 +607,6 @@ enum Lbry {
                                 method: methodSyncApply,
                                 params: params,
                                 url: Lbry.lbrytvURL,
-                                authToken: Lbryio.authToken,
                                 completion: { saData, saError in
                                     guard let saData = saData, saError == nil else {
                                         if let saError {
@@ -657,7 +670,6 @@ enum Lbry {
             method: Lbry.methodSyncApply,
             params: params,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     walletSyncInProgress = false

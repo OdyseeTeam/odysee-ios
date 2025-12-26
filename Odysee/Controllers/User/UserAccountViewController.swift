@@ -505,7 +505,6 @@ class UserAccountViewController: UIViewController {
 
         emailField.text = ""
         passwordField.text = ""
-        Lbryio.authToken = nil
 
         Lbryio.Defaults.reset()
         Task { await AuthToken.reset() }

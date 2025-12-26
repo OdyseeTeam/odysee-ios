@@ -96,9 +96,9 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         }
 
         if claim.value?.tags?.contains(Constants.MembersOnly) ?? false {
-            DispatchQueue.global().async {
+            Task.detached {
                 MembershipPerk.perkCheck(
-                    authToken: Lbryio.authToken,
+                    authToken: await AuthToken.token,
                     claimId: claim.claimId,
                     type: .livestream
                 ) { result in
