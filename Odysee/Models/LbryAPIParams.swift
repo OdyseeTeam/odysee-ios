@@ -63,3 +63,20 @@ struct ChannelSignParams: Encodable {
     var channelId: String
     var hexdata: String
 }
+
+struct SyncApplyParams: Encodable, LbryMethodParams {
+    let password: String = ""
+    var data: String?
+    var blocking: Bool = false
+}
+
+let PreferenceKeyShared = "shared"
+
+struct SharedPreferenceGetParams: Encodable, LbryMethodParams {
+    let key: String = PreferenceKeyShared
+}
+
+struct SharedPreferenceSetParams: Encodable, LbryMethodParams {
+    let key: String = PreferenceKeyShared
+    var value: SharedPreference
+}

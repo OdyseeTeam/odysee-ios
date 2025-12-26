@@ -1,5 +1,5 @@
 {
-  "originHash" : "d12a22e712068227e09ac20ed417d49de8928d0d64f672ff4f8f28017094219f",
+  "originHash" : "f4b2decb4a2510d27445322724f268a44e62d5a129084530747e6cb74a45abe3",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -240,6 +240,15 @@
       "state" : {
         "revision" : "c169a5744230951031770e27e475ff6eefe51f9d",
         "version" : "1.33.3"
+      }
+    },
+    {
+      "identity" : "valuecodable",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/finestructure/ValueCodable",
+      "state" : {
+        "revision" : "92192335f5da982bfd04a5e957bb0729ef171f7b",
+        "version" : "0.2.0"
       }
     }
   ],

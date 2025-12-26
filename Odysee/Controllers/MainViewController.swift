@@ -7,6 +7,7 @@
 
 import AVFoundation
 import AVKit
+import Combine
 import FirebaseCrashlytics
 import MediaPlayer
 import MessageUI
@@ -84,6 +85,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         }
     }
 
+    private var cancellables = Set<AnyCancellable>()
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -101,11 +104,21 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         // Do any additional setup after loading the view
         startWalletBalanceTimer()
         startWalletSyncTimer()
+        _ = Wallet.shared
         loadNotifications()
         loadAppleFilteredClaimIds()
         loadBlockedOutpoints()
         loadFilteredOutpoints()
         loadLocaleAndCustomBlockedRules()
+
+        Task {
+            await Wallet.shared.$following
+                .receive(on: DispatchQueue.main)
+                .sink {
+                    print("MYLOG", $0)
+                }
+                .store(in: &cancellables)
+        }
 
         if Lbryio.isSignedIn() {
             // check if the user is pending_delete
@@ -184,6 +197,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     func stopAllTimers() {
         walletBalanceTimer.invalidate()
         walletSyncTimer.invalidate()
+        Task { await Wallet.shared.stopSync() }
     }
 
     func resetUserAndViews() {

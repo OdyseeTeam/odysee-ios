@@ -7,6 +7,7 @@
 
 import Foundation
 
+// FIXME: Remove (now in Models/Following)
 struct LbrySubscription: Decodable, Equatable {
     var claimId: String?
     var channelName: String?

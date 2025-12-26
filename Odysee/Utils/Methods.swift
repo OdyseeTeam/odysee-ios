@@ -208,6 +208,10 @@ enum LbryMethods {
     static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
     static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
     static let syncHash = Method<NilType, SyncHashResult>(name: "sync_hash")
+    static let syncApply = Method<SyncApplyParams, SyncApplyResult>(name: "sync_apply")
+
+    static let sharedPreferenceGet = Method<SharedPreferenceGetParams, SharedPreference>(name: "preference_get")
+    static let sharedPreferenceSet = Method<SharedPreferenceSetParams, NilType>(name: "preference_set")
 }
 
 protocol CommentMethodParams {}
