@@ -205,6 +205,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     func stopAllTimers() {
         walletBalanceTimer.invalidate()
         walletSyncTimer.invalidate()
+        Task { await Wallet.shared.stopSync() }
     }
 
     func resetUserAndViews() {
