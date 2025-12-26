@@ -228,7 +228,6 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             method: Lbry.methodSupportCreate,
             params: params,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard data != nil, error == nil else {
                     self.showError(error: error)

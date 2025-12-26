@@ -50,7 +50,6 @@ class WalletSyncViewController: UIViewController {
             method: Lbry.methodWalletStatus,
             params: [String: Any](),
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
@@ -76,7 +75,6 @@ class WalletSyncViewController: UIViewController {
             method: Lbry.methodWalletUnlock,
             params: params,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
@@ -98,7 +96,6 @@ class WalletSyncViewController: UIViewController {
             method: Lbry.methodSyncHash,
             params: [String: Any](),
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
@@ -148,7 +145,6 @@ class WalletSyncViewController: UIViewController {
             method: Lbry.methodSyncApply,
             params: params,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard data != nil, error == nil else {
                     // sync apply wasn't successful, ask the user to enter a password to unlock
@@ -209,7 +205,6 @@ class WalletSyncViewController: UIViewController {
             method: Lbry.methodSyncApply,
             params: params,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)

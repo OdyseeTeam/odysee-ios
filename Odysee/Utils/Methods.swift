@@ -46,10 +46,11 @@ extension Method where ParamType: BackendMethodParams {
     func call(
         params: ParamType,
         url: URL = Lbry.lbrytvURL,
-        authToken: String? = nil,
+        authTokenOverride: String? = nil,
         transform: ((inout ResultType) throws -> Void)? = nil
     ) async throws -> ResultType {
-        let authToken = authToken != nil ? authToken : await AuthToken.token
+        // Intentionally allow blank for calls that need it
+        let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
 
         let task = Task.detached(priority: .userInitiated) {
             let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: authToken)
@@ -80,10 +81,11 @@ extension Method where ParamType: CommentsMethodParams {
     func call(
         params: ParamType,
         url: URL = Lbry.commentronURL,
-        authToken: String? = nil,
+        authTokenOverride: String? = nil,
         transform: ((inout ResultType) throws -> Void)? = nil
     ) async throws -> ResultType {
-        let authToken = authToken != nil ? authToken : await AuthToken.token
+        // Intentionally allow blank for calls that need it
+        let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
 
         let task = Task.detached(priority: .userInitiated) {
             let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: authToken)
@@ -123,7 +125,7 @@ extension Method where ParamType: AccountMethodParams {
         }
 
         var queryItems = try QueryItemsEncoder().encode(params)
-        queryItems.append(URLQueryItem(name: Lbryio.authTokenParam, value: authToken))
+        queryItems.append(URLQueryItem(name: AccountMethods.authTokenParam, value: authToken))
 
         if method == .GET {
             guard var components = URLComponents(string: url) else {
@@ -226,6 +228,8 @@ enum CommentsMethods {
 protocol AccountMethodParams {}
 
 enum AccountMethods {
+    static let authTokenParam = "auth_token"
+
     struct NilType: Codable, AccountMethodParams {}
 
     static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")

@@ -217,7 +217,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         notificationBadgeCountLabel.text = ""
 
         // remove the auth token so that a new one will be generated upon the next init
-        Lbryio.authToken = nil
         Lbryio.Defaults.reset()
         Task { await AuthToken.reset() }
 
@@ -727,7 +726,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             method: Lbry.methodWalletBalance,
             params: [String: Any](),
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard error == nil,
                       let result = data?["result"] as? [String: Any]
