@@ -8,3 +8,8 @@
 import Foundation
 
 typealias SyncHashResult = String
+
+struct SyncApplyResult: Decodable {
+    var hash: String
+    var data: String
+}

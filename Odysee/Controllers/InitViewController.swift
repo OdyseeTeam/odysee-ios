@@ -84,6 +84,9 @@ class InitViewController: UIViewController {
                     return
                 }
 
+                // Run singleton init side effects
+                _ = Wallet.shared
+
                 if user != nil {
                     self.registerInstall()
                 }

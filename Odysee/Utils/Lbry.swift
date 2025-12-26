@@ -117,7 +117,11 @@ enum Lbry {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         do {
-            req.httpBody = try bodyEncoder.encode(body)
+            req.httpBody = if method == BackendMethods.sharedPreferenceSet.name {
+                try JSONEncoder().encode(body)
+            } else {
+                try bodyEncoder.encode(body)
+            }
         } catch {
             assertionFailure("API encoding error: \(error)")
             throw error
