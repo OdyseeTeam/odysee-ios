@@ -730,92 +730,93 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                             self.commentList.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
                         }
                     }
-                    self.loadThread(thread: ancestors.reversed())
+//                    self.loadThread(thread: ancestors.reversed())
                 }
             }
         }
     }
 
-    func loadThread(thread: [Comment]) {
-        thread.publisher.subscribe(on: DispatchQueue.global()).tryMap { comment -> (Comment, URLRequest) in
-            guard let claimId = self.claimId, let parentId = comment.commentId else {
-                throw GenericError("couldn't get claimId and/or parent commentId")
-            }
-            return try (comment, Lbry.apiRequest(
-                method: CommentMethods.list.name,
-                params: .init(
-                    claimId: claimId,
-                    parentId: parentId,
-                    page: 1,
-                    pageSize: 999,
-                    skipValidation: true,
-                    topLevel: false
-                ) as CommentListParams,
-                url: Lbry.commentronURL,
-                authToken: Lbryio.authToken
-            ))
-        }
-        .flatMap(maxPublishers: .max(1)) { comment, request in
-            // Run data task.
-            URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }.map { (comment, $0) }
-        }
-        .tryMap { comment, dataTaskOutput -> (Comment, Page<Comment>) in
-            let (data, _) = dataTaskOutput
-
-            // Decode and validate result.
-            let response = try JSONDecoder().decode(Lbry.APIResponse<Page<Comment>>.self, from: data)
-            if response.jsonrpc != "2.0" {
-                assertionFailure()
-                throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
-            }
-
-            guard let result = response.result else {
-                throw LbryApiResponseError(response.error?.message ?? "unknown api error")
-            }
-            return (comment, result)
-        }
-        .receive(on: DispatchQueue.main)
-        .eraseToAnyPublisher()
-        .subscribeResultFinally { result in
-            self.loadingContainer.isHidden = true
-            switch result {
-            case let .failure(error):
-                self.showError(error: error)
-            case let .success(output):
-                if let (parent, page) = output {
-                    let loadedComments = page.items.filter {
-                        comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
-                    }.map { comment in
-                        var comment = comment
-                        var currentComment: Comment? = comment
-                        while let currentComment_ = currentComment {
-                            comment.replyDepth += 1
-                            currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
-                        }
-                        return comment
-                    }
-
-                    if let parentIndex = self.comments.firstIndex(where: {
-                        $0.commentId == parent.commentId
-                    }), loadedComments.count > 0 {
-                        self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
-                        self.commentList.insertRows(
-                            at: Array(parentIndex + 1 ... parentIndex + loadedComments.count).map {
-                                IndexPath(row: $0, section: 0)
-                            },
-                            with: .automatic
-                        )
-                        self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
-                        self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
-                    }
-
-                    self.setCommentRepliesLoaded(parent)
-                } else {
-                    self.scrollToCurrentComment()
-                }
-            }
-        }
-    }
+    // FIXME: async/await
+//    func loadThread(thread: [Comment]) {
+//        thread.publisher.subscribe(on: DispatchQueue.global()).tryMap { comment -> (Comment, URLRequest) in
+//            guard let claimId = self.claimId, let parentId = comment.commentId else {
+//                throw GenericError("couldn't get claimId and/or parent commentId")
+//            }
+//            return try (comment, Lbry.apiRequest(
+//                method: CommentMethods.list.name,
+//                params: .init(
+//                    claimId: claimId,
+//                    parentId: parentId,
+//                    page: 1,
+//                    pageSize: 999,
+//                    skipValidation: true,
+//                    topLevel: false
+//                ) as CommentListParams,
+//                url: Lbry.commentronURL,
+//                authToken: Lbryio.authToken
+//            ))
+//        }
+//        .flatMap(maxPublishers: .max(1)) { comment, request in
+//            // Run data task.
+//            URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }.map { (comment, $0) }
+//        }
+//        .tryMap { comment, dataTaskOutput -> (Comment, Page<Comment>) in
+//            let (data, _) = dataTaskOutput
+//
+//            // Decode and validate result.
+//            let response = try JSONDecoder().decode(Lbry.APIResponse<Page<Comment>>.self, from: data)
+//            if response.jsonrpc != "2.0" {
+//                assertionFailure()
+//                throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
+//            }
+//
+//            guard let result = response.result else {
+//                throw LbryApiResponseError(response.error?.message ?? "unknown api error")
+//            }
+//            return (comment, result)
+//        }
+//        .receive(on: DispatchQueue.main)
+//        .eraseToAnyPublisher()
+//        .subscribeResultFinally { result in
+//            self.loadingContainer.isHidden = true
+//            switch result {
+//            case let .failure(error):
+//                self.showError(error: error)
+//            case let .success(output):
+//                if let (parent, page) = output {
+//                    let loadedComments = page.items.filter {
+//                        comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
+//                    }.map { comment in
+//                        var comment = comment
+//                        var currentComment: Comment? = comment
+//                        while let currentComment_ = currentComment {
+//                            comment.replyDepth += 1
+//                            currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
+//                        }
+//                        return comment
+//                    }
+//
+//                    if let parentIndex = self.comments.firstIndex(where: {
+//                        $0.commentId == parent.commentId
+//                    }), loadedComments.count > 0 {
+//                        self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
+//                        self.commentList.insertRows(
+//                            at: Array(parentIndex + 1 ... parentIndex + loadedComments.count).map {
+//                                IndexPath(row: $0, section: 0)
+//                            },
+//                            with: .automatic
+//                        )
+//                        self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+//                        self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
+//                    }
+//
+//                    self.setCommentRepliesLoaded(parent)
+//                } else {
+//                    self.scrollToCurrentComment()
+//                }
+//            }
+//        }
+//    }
 
     func setCommentRepliesLoaded(_ comment: Comment) {
         for i in comments.indices {

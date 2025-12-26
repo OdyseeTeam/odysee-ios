@@ -90,7 +90,6 @@ class YouTubeSyncStatusViewController: UIViewController {
             method: "address_list",
             params: [:],
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
@@ -157,7 +156,6 @@ class YouTubeSyncStatusViewController: UIViewController {
             method: "channel_import",
             params: ["channel_data": channelCert],
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard data != nil, error == nil else {
                     self.showError(error: error)
