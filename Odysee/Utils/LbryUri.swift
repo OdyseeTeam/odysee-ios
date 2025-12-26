@@ -443,6 +443,32 @@ struct LbryUri: CustomStringConvertible {
     }
 }
 
+extension LbryUri: Codable {
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let url = try container.decode(String.self)
+
+        self = try LbryUri.parse(url: url, requireProto: true)
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(description)
+    }
+}
+
+extension LbryUri: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.description == rhs.description
+    }
+}
+
+extension LbryUri: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(description)
+    }
+}
+
 enum LbryUriError: Error {
     case runtimeError(String)
 }

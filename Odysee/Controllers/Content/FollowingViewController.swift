@@ -11,10 +11,9 @@ import OrderedCollections
 import UIKit
 
 class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,
-    UITableViewDelegate, UITableViewDataSource, WalletSyncObserver
+    UITableViewDelegate, UITableViewDataSource
 {
     static let suggestedFollowCount = 5
-    let keySyncObserver = "following_vc"
 
     @IBOutlet var suggestedView: UIView!
     @IBOutlet var mainView: UIView! // the view to display when the user is following at least one person
@@ -54,7 +53,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        AppDelegate.shared.mainController.addWalletSyncObserver(key: keySyncObserver, observer: self)
         view.isHidden = !Lbryio.isSignedIn()
 
         // check if current user is signed in
@@ -63,11 +61,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         }
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        AppDelegate.shared.mainController.removeWalletSyncObserver(key: keySyncObserver)
     }
 
     override func viewDidAppear(_ animated: Bool) {

@@ -16,3 +16,19 @@ struct UserNewParams: Encodable, AccountMethodParams {
         case appId = "app_id"
     }
 }
+
+struct SyncGetParams: Encodable, AccountMethodParams {
+    var hash: String
+}
+
+struct SyncSetParams: Encodable, AccountMethodParams {
+    var oldHash: String
+    var newHash: String
+    var data: String
+
+    enum CodingKeys: String, CodingKey {
+        case oldHash = "old_hash"
+        case newHash = "new_hash"
+        case data
+    }
+}
