@@ -5,8 +5,7 @@
 //  Created by Akinwale Ariwodola on 06/12/2020.
 //
 
-import CoreData
-import Firebase
+import FirebaseAnalytics
 import OrderedCollections
 import SafariServices
 import UIKit
@@ -226,7 +225,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -259,7 +258,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(urls: [url])
         )
         .subscribeResult(didResolveClaim)
@@ -350,9 +349,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             )
 
             if let thumbnailUrlValue = value.thumbnail?.url,
-               let thumbnailUrl = URL(string: thumbnailUrlValue)
+               let optimisedThumbUrl = URL(string: thumbnailUrlValue)?.makeImageURL(
+                   spec: ClaimTableViewCell.channelImageSpec
+               )
             {
-                let optimisedThumbUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
                 thumbnailImageView.load(url: optimisedThumbUrl)
             } else {
                 thumbnailImageView.image = UIImage(named: "spaceman")
@@ -360,9 +360,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
 
             if let coverUrlValue = value.cover?.url,
-               let coverUrl = URL(string: coverUrlValue)
+               let optimisedCoverUrl = URL(string: coverUrlValue)?.makeImageURL(
+                   spec: coverImageSpec
+               )
             {
-                let optimisedCoverUrl = coverUrl.makeImageURL(spec: coverImageSpec)
                 coverImageView.load(url: optimisedCoverUrl)
             } else {
                 coverImageView.image = UIImage(named: "spaceman_cover")
@@ -406,12 +407,15 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         options["claim_id"] = channelClaim?.claimId
         do {
             try Lbryio.get(resource: "subscription", action: "sub_count", options: options, completion: { data, error in
-                guard let data = data, error == nil else {
+                guard error == nil,
+                      let data = data as? NSArray,
+                      data.count > 0,
+                      let followerCount = data[0] as? Int
+                else {
                     return
                 }
                 DispatchQueue.main.async {
                     let formatter = Helper.interactionCountFormatter
-                    let followerCount = (data as! NSArray)[0] as! Int
                     self.followerCountLabel.isHidden = false
                     self.followerCountLabel.text = String(
                         format: followerCount == 1 ? String.localized("%@ follower") : String.localized("%@ followers"),
@@ -463,7 +467,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         let releaseTimeValue = currentSortByIndex == 2 ? Helper
             .buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
         Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
+            method: LbryMethods.claimSearch,
             params: .init(
                 claimType: [.stream, .repost],
                 page: currentPage,
@@ -521,7 +525,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
 
             Lbry.apiCall(
-                method: Lbry.Methods.resolve,
+                method: LbryMethods.resolve,
                 params: .init(urls: urlsToResolve)
             )
             .subscribeResult { [self] result in
@@ -581,12 +585,13 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func checkUpdatedSortBy() {
         let itemName = Helper.sortByItemNames[currentSortByIndex]
-        sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
+        sortByLabel.text = "\(itemName.split(separator: " ")[0]) ▾"
         contentFromLabel.isHidden = currentSortByIndex != 2
     }
 
     func checkUpdatedContentFrom() {
-        contentFromLabel.text = String(format: "%@ ▾", String(Helper.contentFromItemNames[currentContentFromIndex]))
+        let itemName = Helper.contentFromItemNames[currentContentFromIndex]
+        contentFromLabel.text = "\(itemName) ▾"
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -671,7 +676,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func sortByLabelTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Sort content by"),
             origin: sortByLabel,
             rows: Helper.sortByItemNames,
@@ -688,7 +693,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func contentFromLabelTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Content from"),
             origin: contentFromLabel,
             rows: Helper.contentFromItemNames,
@@ -728,7 +733,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     @IBAction func websiteTapped(_ sender: Any) {
         if var websiteUrl = websiteLabel.text, !websiteUrl.isBlank {
             if !websiteUrl.starts(with: "http://"), !websiteUrl.starts(with: "https://") {
-                websiteUrl = String(format: "http://%@", websiteUrl)
+                websiteUrl = "http://\(websiteUrl)"
             }
             if let url = URL(string: websiteUrl) {
                 let vc = SFSafariViewController(url: url)
@@ -858,8 +863,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     @IBAction func reportActionTapped(_ sender: Any) {
         if let claimId = channelClaim?.claimId,
-           let url =
-           URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", claimId))
+           let url = URL(string: "https://odysee.com/$/report_content?claimId=\(claimId)")
         {
             let vc = SFSafariViewController(url: url)
             AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
@@ -968,19 +972,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                             ),
                             url: subUrl.description
                         )
-                        if let channelName = subUrl.channelName {
-                            self.addSubscription(
-                                url: subUrl.description,
-                                channelName: channelName,
-                                isNotificationsDisabled: notificationsDisabled,
-                                reloadAfter: true
-                            )
-                        }
                     } else {
                         Lbryio.removeSubscription(subUrl: subUrl.description)
-                        if let channelName = subUrl.channelName {
-                            self.removeSubscription(url: subUrl.description, channelName: channelName)
-                        }
                     }
 
                     self.checkFollowing()
@@ -1004,44 +997,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
     }
 
-    func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
-        // persist the subscription to CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
-            let subToSave = Subscription(context: context)
-            subToSave.url = url
-            subToSave.channelName = channelName
-            subToSave.isNotificationsDisabled = isNotificationsDisabled
-
-            AppDelegate.shared.saveContext()
-        }
-    }
-
-    func removeSubscription(url: String, channelName: String) {
-        // remove the subscription from CoreData
-        DispatchQueue.main.async {
-            do {
-                let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-                let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-                let subs = try context.fetch(fetchRequest)
-                for sub in subs {
-                    context.delete(sub)
-                }
-
-                try context.save()
-            } catch {
-                self.showError(error: error)
-            }
-        }
-    }
-
     func createLivestreamsView() {
         let activeLivestreamLabel = UILabel()
         activeLivestreamLabel.translatesAutoresizingMaskIntoConstraints = false
-        activeLivestreamLabel.text = String.localized("Live stream in progress")
+        activeLivestreamLabel.text = String.localized("Livestream in progress")
         activeLivestreamLabel.font = .systemFont(ofSize: 20)
 
         activeLivestreamClaimCell = (

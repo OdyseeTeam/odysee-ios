@@ -7,7 +7,8 @@
 
 import Foundation
 
-struct LbrySubscription: Decodable {
+// FIXME: Remove (now in Models/Following)
+struct LbrySubscription: Decodable, Equatable {
     var claimId: String?
     var channelName: String?
     var notificationsDisabled: Bool?
@@ -23,19 +24,6 @@ struct LbrySubscription: Decodable {
         sub.claimId = claim.claimId
         sub.channelName = claim.name
         sub.notificationsDisabled = notificationsDisabled
-
-        return sub
-    }
-
-    static func fromLocalSubscription(subscription: Subscription) -> LbrySubscription {
-        var sub = LbrySubscription()
-        if let subUrl = subscription.url,
-           let url = LbryUri.tryParse(url: subUrl, requireProto: false)
-        {
-            sub.claimId = url.channelClaimId
-            sub.channelName = url.channelName
-        }
-        sub.notificationsDisabled = subscription.isNotificationsDisabled
 
         return sub
     }

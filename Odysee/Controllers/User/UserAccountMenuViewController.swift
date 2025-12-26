@@ -224,8 +224,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
             Lbry.apiCall(
                 method: Lbry.methodWalletSend,
                 params: params,
-                connectionString: Lbry.lbrytvConnectionString,
-                authToken: Lbryio.authToken,
+                url: Lbry.lbrytvURL,
                 completion: { data, error in
                     guard data != nil, error == nil else {
                         DispatchQueue.main.async {
@@ -322,7 +321,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
     func loadChannels() {
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(claimType: [.channel], page: 1, pageSize: 999)
         )
         .subscribeResult(didLoadChannels)
@@ -336,55 +335,8 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
         channels = page.items
 
-        if #available(iOS 14.0, *) {
-            let channelActionHandler: UIActionHandler = { selected in
-                Lbry.defaultChannelId = selected.identifier.rawValue
-                Lbry.saveSharedUserState { success, error in
-                    guard error == nil else {
-                        self.showError(error: error)
-                        return
-                    }
-                    if success {
-                        Lbry.pushSyncWallet()
-                    }
-                }
-                if let menu = self.changeDefaultChannelButton.menu {
-                    for action in menu.children {
-                        (action as? UIAction)?.state = action == selected ? .on : .off
-                    }
-                }
-            }
-            let channelActions = channels.compactMap { claim -> UIAction? in
-                if let name = claim.name, let claimId = claim.claimId {
-                    let action = UIAction(
-                        title: name,
-                        identifier: .init(claimId),
-                        handler: channelActionHandler
-                    )
-                    if claim.claimId == Lbry.defaultChannelId {
-                        action.state = .on
-                    }
-                    return action
-                }
-                return nil
-            }
-            changeDefaultChannelButton.menu = UIMenu(title: "", children: channelActions)
-            changeDefaultChannelButton.showsMenuAsPrimaryAction = true
-        } else {
-            changeDefaultChannelButton.addTarget(
-                self, action: #selector(changeDefaultChannelTapped), for: .touchUpInside
-            )
-        }
-    }
-
-    @objc func changeDefaultChannelTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
-            title: "Change default channel",
-            origin: changeDefaultChannelButton,
-            rows: channels.map { $0.name ?? "" },
-            initialSelection: channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0,
-        ) { _, index, _ in
-            Lbry.defaultChannelId = self.channels[index].claimId
+        let channelActionHandler: UIActionHandler = { selected in
+            Lbry.defaultChannelId = selected.identifier.rawValue
             Lbry.saveSharedUserState { success, error in
                 guard error == nil else {
                     self.showError(error: error)
@@ -394,7 +346,28 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                     Lbry.pushSyncWallet()
                 }
             }
+            if let menu = self.changeDefaultChannelButton.menu {
+                for action in menu.children {
+                    (action as? UIAction)?.state = action == selected ? .on : .off
+                }
+            }
         }
+        let channelActions = channels.compactMap { claim -> UIAction? in
+            if let name = claim.name, let claimId = claim.claimId {
+                let action = UIAction(
+                    title: name,
+                    identifier: .init(claimId),
+                    handler: channelActionHandler
+                )
+                if claim.claimId == Lbry.defaultChannelId {
+                    action.state = .on
+                }
+                return action
+            }
+            return nil
+        }
+        changeDefaultChannelButton.menu = UIMenu(title: "", children: channelActions)
+        changeDefaultChannelButton.showsMenuAsPrimaryAction = true
     }
 
     func showError(message: String) {

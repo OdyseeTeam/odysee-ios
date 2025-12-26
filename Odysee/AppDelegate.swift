@@ -6,8 +6,7 @@
 //
 
 import AVFoundation
-import CoreData
-import Firebase
+import FirebaseCore
 import MediaPlayer
 import PINRemoteImage
 import UIKit
@@ -17,15 +16,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     static let keyLastTabIndex = "lastTabIndex"
 
     static var shared: AppDelegate {
+        // swift-format-ignore
+        // Always exists as AppDelegate
         UIApplication.shared.delegate as! AppDelegate
     }
 
     weak var mainViewController: UIViewController?
     weak var mainTabViewController: UITabBarController?
     weak var mainNavigationController: UINavigationController?
-    weak var miniPlayerView: UIView?
 
     var player: AVPlayer?
+    var currentPlaylistClaim: Claim?
     var currentClaim: Claim?
     var pictureInPicturePlayingClaim: Claim?
     var pendingOpenUrl: String?
@@ -316,9 +317,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             if let claim = currentFileViewController?.claim {
                 var nowPlayingInfo = [String: Any]()
                 nowPlayingInfo[MPMediaItemPropertyTitle] = claim.value?.title ?? ""
-                nowPlayingInfo[MPMediaItemPropertyArtist] = claim.signingChannel != nil ?
-                    (claim.signingChannel?.value?.title ?? claim.signingChannel?.name ?? "") :
+                nowPlayingInfo[MPMediaItemPropertyArtist] = if let text = claim.signingChannel?.titleOrName {
+                    text
+                } else {
                     String.localized("Anonymous")
+                }
                 nowPlayingInfo[MPMediaItemPropertyAlbumTitle] = ""
 
                 if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init),
@@ -366,7 +369,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
                 if let lazyPlayer, let playerItem = lazyPlayer.currentItem {
                     nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = playerItem.currentTime().seconds
-                    nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = playerItem.asset.duration.seconds
+                    Task {
+                        if let duration = try? await playerItem.asset.load(.duration) {
+                            MPNowPlayingInfoCenter.default().nowPlayingInfo?[MPMediaItemPropertyPlaybackDuration] =
+                                duration.seconds
+                        }
+                    }
                     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = lazyPlayer.rate
                 }
 
@@ -376,61 +384,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         }
     }
 
-    // MARK: - Core Data stack
-
-    lazy var persistentContainer: NSPersistentContainer = {
-        /*
-          The persistent container for the application. This implementation
-          creates and returns a container, having loaded the store for the
-          application to it. This property is optional since there are legitimate
-          error conditions that could cause the creation of the store to fail.
-         */
-        let container = NSPersistentContainer(name: "Odysee")
-        container.loadPersistentStores(completionHandler: { _, error in
-            if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
-                fatalError("Unresolved error \(error), \(error.userInfo)")
-            }
-        })
-        return container
-    }()
-
-    // MARK: - Core Data Saving support
-
-    func saveContext() {
-        let context = persistentContainer.viewContext
-        if context.hasChanges {
-            do {
-                try context.save()
-            } catch {
-                // Replace this implementation with code to handle the error appropriately.
-                // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
-                let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-            }
-        }
-    }
-
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
     ) {
-        if #available(iOS 14, *) {
-            completionHandler([[.banner, .sound]])
-        } else {
-            completionHandler([[.alert, .sound]])
-        }
+        completionHandler([[.banner, .sound]])
     }
 
     func userNotificationCenter(
@@ -453,24 +412,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     func handleNotification(userInfo: [AnyHashable: Any]) {
-        let finalTarget = userInfo["target"] as! String
+        guard let finalTarget = userInfo["target"] as? String else {
+            return
+        }
 
-        if mainViewController != nil, mainNavigationController != nil {
+        if let mainController = mainViewController as? MainViewController, let mainNavigationController {
             if mainController.handleSpecialUrl(url: finalTarget) {
                 return
             }
 
             if let lbryUrl = LbryUri.tryParse(url: finalTarget, requireProto: false) {
                 if lbryUrl.isChannel {
-                    let vc = mainViewController?.storyboard?
+                    let vc = mainController.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                     vc.claimUrl = lbryUrl
-                    mainNavigationController?.pushViewController(vc, animated: true)
+                    mainNavigationController.pushViewController(vc, animated: true)
                 } else {
-                    let vc = mainViewController?.storyboard?
+                    let vc = mainController.storyboard?
                         .instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
-                    mainNavigationController?.pushViewController(vc, animated: true)
+                    mainNavigationController.pushViewController(vc, animated: true)
                 }
             }
         } else {

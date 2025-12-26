@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 14/12/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizerDelegate,
@@ -23,7 +23,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
     @IBOutlet var websiteField: UITextField!
     @IBOutlet var emailField: UITextField!
 
-    @IBOutlet var scrollView: UIScrollView!
     @IBOutlet var optionalFieldsContainer: UIView!
     @IBOutlet var toggleOptionalFieldsButton: UIButton!
 
@@ -66,7 +65,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
-        registerForKeyboardNotifications()
         thumbnailImageView.rounded()
         coverEditContainer.layer.cornerRadius = 18
         thumbnailEditContainer.layer.cornerRadius = 18
@@ -81,36 +79,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
-    }
-
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-            scrollView.contentInset = contentInsets
-            scrollView.scrollIndicatorInsets = contentInsets
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInsets = UIEdgeInsets.zero
-        scrollView.contentInset = contentInsets
-        scrollView.scrollIndicatorInsets = contentInsets
     }
 
     func populateFieldsForEdit() {
@@ -176,20 +144,16 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         let editMode = currentClaim != nil
 
         if let name_ = name, !name_.starts(with: "@") {
-            name = String(format: "@%@", name_)
+            name = "@\(name_)"
         }
-
-        // Why are Swift substrings so complicated?! name[1:] / name.substring(1), maybe?
-        if name == nil || !LbryUri
-            .isNameValid(String(name!.suffix(from: name!.index(name!.firstIndex(of: "@")!, offsetBy: 1))))
-        {
+        // Name starts with @ from previous line
+        guard let name = name?.dropFirst(),
+              LbryUri.isNameValid(String(name))
+        else {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
-        guard let name else {
-            showError(message: "name is nil and fell through")
-            return
-        }
+
         if !editMode && Lbry.ownChannels.filter({ $0.name?.lowercased() == name.lowercased() }).first != nil {
             showError(message: String.localized("A channel with the specified name already exists"))
             return
@@ -256,8 +220,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         Lbry.apiCall(
             method: method,
             params: options,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)

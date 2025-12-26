@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 22/02/2021.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class YouTubeSyncStatusViewController: UIViewController {
@@ -89,8 +89,7 @@ class YouTubeSyncStatusViewController: UIViewController {
         Lbry.apiCall(
             method: "address_list",
             params: [:],
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
@@ -100,9 +99,10 @@ class YouTubeSyncStatusViewController: UIViewController {
 
                 if let result = data["result"] as? [String: Any] {
                     if let items = result["items"] as? [[String: Any]] {
-                        if items.count > 0 {
-                            let address = items[0]["address"] as! String
-                            let publicKey = items[0]["pubkey"] as! String
+                        if items.count > 0,
+                           let address = items[0]["address"] as? String,
+                           let publicKey = items[0]["pubkey"] as? String
+                        {
                             self.transferChannel(address: address, publicKey: publicKey)
                             return
                         }
@@ -155,8 +155,7 @@ class YouTubeSyncStatusViewController: UIViewController {
         Lbry.apiCall(
             method: "channel_import",
             params: ["channel_data": channelCert],
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard data != nil, error == nil else {
                     self.showError(error: error)

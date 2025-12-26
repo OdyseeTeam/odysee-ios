@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 07/12/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource,
@@ -21,7 +21,6 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     @IBOutlet var tipValueSegment: UISegmentedControl!
     @IBOutlet var tipValueField: UITextField!
     @IBOutlet var tipButton: UIButton!
-    @IBOutlet var contentViewBottomConstraint: NSLayoutConstraint!
     @IBOutlet var channelPickerView: UIPickerView!
     @IBOutlet var loadingSendSupportView: UIActivityIndicatorView!
 
@@ -51,7 +50,6 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        registerForKeyboardNotifications()
         checkCreditAmount()
 
         if let balance = Lbry.walletBalance {
@@ -80,7 +78,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         options["page_size"] = 999
         options["resolve"] = true
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -107,32 +105,6 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         if channels.count > index {
             channelPickerView.selectRow(index, inComponent: 0, animated: true)
         }
-    }
-
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            contentViewBottomConstraint.constant = kbSize.height - 36
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        contentViewBottomConstraint.constant = 0
     }
 
     func checkCreditAmount() {
@@ -255,8 +227,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         Lbry.apiCall(
             method: Lbry.methodSupportCreate,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard data != nil, error == nil else {
                     self.showError(error: error)

@@ -34,7 +34,6 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     @IBOutlet var toggleStreamingButton: UIButton!
     @IBOutlet var spacemanImage: UIImageView!
 
-    @IBOutlet var livestreamOptionsScrollView: UIScrollView!
     @IBOutlet var livestreamOptionsView: UIView!
     @IBOutlet var titleField: UITextField!
 
@@ -57,7 +56,6 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         // Do any additional setup after loading the view.
         precheckLoadingView.layer.cornerRadius = 16
 
-        registerForKeyboardNotifications()
         loadChannels()
         activateAudioSession()
 
@@ -70,40 +68,10 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         initStream()
     }
 
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-            livestreamOptionsScrollView.contentInset = contentInsets
-            livestreamOptionsScrollView.scrollIndicatorInsets = contentInsets
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInsets = UIEdgeInsets.zero
-        livestreamOptionsScrollView.contentInset = contentInsets
-        livestreamOptionsScrollView.scrollIndicatorInsets = contentInsets
-    }
-
     func activateAudioSession() {
         let session = AVAudioSession.sharedInstance()
         do {
-            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth])
+            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothHFP])
             try session.setActive(true)
         } catch {
             print(error)
@@ -252,7 +220,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         precheckLoadingView.isHidden = false
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -370,11 +338,10 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
 
-        if !checkCanStreamOnChannel(selectedChannel) {
+        guard let channel = selectedChannel, checkCanStreamOnChannel(channel) else {
             showError(message: String.localized("Please select a valid channel to continue"))
             return
         }
-        let channel = selectedChannel! // Confirmed non-nil by checkCanStreamOnChannel
 
         // check that there is a title
         let title = titleField.text
@@ -434,7 +401,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
         Lbry.apiCall(
-            method: Lbry.Methods.channelSign,
+            method: LbryMethods.channelSign,
             params: .init(channelId: claimId, hexdata: Helper.strToHex(name))
         )
         .subscribeResult { result in
@@ -482,7 +449,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
             self.waitForConfirmationTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
                 Lbry.apiCall(
-                    method: Lbry.Methods.txoList,
+                    method: LbryMethods.txoList,
                     params: .init(
                         type: [.stream],
                         txid: txid
@@ -507,7 +474,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             "title": title,
             "description": "",
             "thumbnail_url": currentThumbnailUrl ?? (channel.value?.thumbnail?.url ?? ""),
-            "name": String(format: "livestream-%@", suffix),
+            "name": "livestream-\(suffix)",
             "channel_id": channelId,
             "release_time": Int(Date().timeIntervalSince1970),
         ]
@@ -515,8 +482,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         Lbry.apiCall(
             method: Lbry.methodPublish,
             params: options,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     DispatchQueue.main.async {

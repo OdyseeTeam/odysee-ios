@@ -12,7 +12,6 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     @IBOutlet var skipButton: UIButton!
     @IBOutlet var continueButton: UIButton!
     @IBOutlet var pageControl: UIPageControl!
-    @IBOutlet var bottomConstraint: NSLayoutConstraint!
 
     var currentVc: UIViewController!
     var firstChannelVc: CreateChannelViewController!
@@ -71,20 +70,15 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            bottomConstraint.constant = -kbSize.height
-            currentVc.view.frame = CGRect(
-                x: 0,
-                y: 0,
-                width: viewContainer.bounds.width,
-                height: viewContainer.bounds.height
-            )
-        }
+        currentVc.view.frame = CGRect(
+            x: 0,
+            y: 0,
+            width: viewContainer.bounds.width,
+            height: viewContainer.bounds.height
+        )
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        bottomConstraint.constant = 0
         currentVc.view.frame = CGRect(
             x: 0,
             y: 0,
@@ -189,16 +183,16 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         let deposit = Helper.minimumDeposit
 
         if let name_ = name, !name_.starts(with: "@") {
-            name = String(format: "@%@", name_)
+            name = "@\(name_)"
         }
-
-        // Why are Swift substrings so complicated?! name[1:] / name.substring(1), maybe?
-        if name == nil || !LbryUri
-            .isNameValid(String(name!.suffix(from: name!.index(name!.firstIndex(of: "@")!, offsetBy: 1))))
-        {
+        // Name starts with @ from previous line
+        guard let name = name?.dropFirst(),
+              LbryUri.isNameValid(String(name))
+        else {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
+
         if Lbry.walletBalance == nil || deposit > Lbry.walletBalance?.available ?? 0 {
             showError(message: "Your channel cannot be created at this time. Please try again later.")
             return
@@ -218,8 +212,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
         Lbry.apiCall(
             method: Lbry.methodChannelCreate,
             params: options,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)

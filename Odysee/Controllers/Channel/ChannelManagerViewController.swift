@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 14/12/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITableViewDataSource,
@@ -79,7 +79,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         noChannelsView.isHidden = true
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -113,7 +113,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             return
         }
         Lbry.apiCall(
-            method: Lbry.Methods.channelAbandon,
+            method: LbryMethods.channelAbandon,
             params: .init(
                 claimId: claimId,
                 blocking: true

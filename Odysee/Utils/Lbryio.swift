@@ -5,12 +5,14 @@
 //  Created by Akinwale Ariwodola on 10/11/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
+import FirebaseCrashlytics
+import FirebaseMessaging
 import Foundation
 import os
 
 enum Lbryio {
-    enum Method: String {
+    enum Method_: String {
         case GET
         case POST
         func isEqual(toString str: String) -> Bool {
@@ -86,88 +88,11 @@ enum Lbryio {
         }
     }
 
-    // - MARK: Keychain
-
-    // Report errors but don't throw/crash, because user can just log in again
-
-    enum KeychainError: Error {
-        case noPassword
-        case unexpectedPasswordData
-        case unhandledError(status: OSStatus)
-    }
-
-    static func persistAuthToken() {
-        let tokenData = Lbryio.authToken?.data(using: .utf8)!
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassInternetPassword,
-            kSecAttrServer as String: connectionString,
-            kSecValueData as String: tokenData,
-        ]
-
-        let status = SecItemAdd(query as CFDictionary, nil)
-        guard status == errSecSuccess else {
-            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unhandledError(status: status))
-            return
-        }
-    }
-
-    static func loadAuthToken() {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassInternetPassword,
-            kSecAttrServer as String: connectionString,
-            kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecReturnData as String: true,
-        ]
-
-        var item: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &item)
-        guard status != errSecItemNotFound else {
-            // No need to log this when it's expected first-run behavior
-            // Crashlytics.crashlytics().recordImmediate(error: KeychainError.noPassword)
-            return
-        }
-        guard status == errSecSuccess else {
-            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unhandledError(status: status))
-            return
-        }
-
-        guard let tokenData = item as? Data,
-              let token = String(data: tokenData, encoding: .utf8)
-        else {
-            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unexpectedPasswordData)
-            return
-        }
-
-        Lbryio.authToken = token
-    }
-
-    static func deleteAuthToken() {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassInternetPassword,
-            kSecAttrServer as String: connectionString,
-        ]
-        let status = SecItemDelete(query as CFDictionary)
-        guard status == errSecSuccess || status == errSecItemNotFound else {
-            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unhandledError(status: status))
-            return
-        }
-    }
-
     // - MARK: Lbryio
 
-    static var generatingAuthToken: Bool = false
     static let connectionString = "https://api.odysee.com"
     static let wsConnectionBaseUrl = "wss://api.lbry.com/subscribe?auth_token="
     static let wsCommmentBaseUrl = "wss://comments.lbry.com/api/v2/live-chat/subscribe?subscription_id="
-    static let authTokenParam = "auth_token"
-    static var authToken: String? {
-        didSet {
-            guard authToken != nil else {
-                deleteAuthToken()
-                return
-            }
-        }
-    }
 
     static var currentUser: User?
 
@@ -253,7 +178,7 @@ enum Lbryio {
         resource: String,
         action: String,
         options: [String: String]? = nil,
-        method: Method,
+        method: Method_,
         authTokenOverride: String? = nil,
         completion: @escaping (Any?, Error?) -> Void
     ) throws {
@@ -275,114 +200,97 @@ enum Lbryio {
         authTokenOverride: String? = nil,
         completion: @escaping (Any?, Error?) -> Void
     ) throws {
-        let url = String(format: "%@/%@/%@", connectionString, resource, action)
-        if authToken.isBlank, !generatingAuthToken {
-            // generate the auth token before calling this resource
-            try getAuthToken(completion: { token, error in
-                if !token.isBlank {
-                    Lbryio.authToken = token
-                    persistAuthToken()
-                }
+        Task {
+            // Intentionally allow blank for calls that need it
+            let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
 
-                // send the call after the auth token has been retrieved
+            let url = "\(connectionString)/\(resource)/\(action)"
+
+            var requestUrl = URL(string: url)
+            var queryItems: [URLQueryItem] = []
+            if !authToken.isBlank {
+                queryItems.append(URLQueryItem(name: LbryioMethods.authTokenParam, value: authToken))
+            }
+            if let options {
+                for (name, value) in options {
+                    queryItems.append(URLQueryItem(name: name, value: value))
+                }
+            }
+            guard var urlComponents = URLComponents(string: url) else {
+                completion(nil, GenericError("urlComponents"))
+                return
+            }
+            urlComponents.queryItems = queryItems
+            urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?.replacingOccurrences(
+                of: "+",
+                with: "%2B"
+            )
+
+            if Method_.GET.isEqual(toString: method) {
+                requestUrl = urlComponents.url
+            }
+
+            guard let requestUrl else {
+                completion(nil, GenericError("requestUrl"))
+                return
+            }
+
+            let config = URLSessionConfiguration.default
+            config.requestCachePolicy = .reloadIgnoringLocalCacheData
+            config.urlCache = nil
+
+            let session = URLSession(configuration: config)
+            var req = URLRequest(url: requestUrl)
+            req.httpMethod = method
+            if Method_.POST.isEqual(toString: method) {
+                req.httpBody = buildQueryString(authToken: authTokenOverride ?? authToken, options: options).data
+            }
+
+            let task = session.dataTask(with: req, completionHandler: { data, response, error in
+                guard let data = data, error == nil else {
+                    // handle error
+                    completion(nil, error)
+                    return
+                }
                 do {
-                    try call(
-                        resource: resource,
-                        action: action,
-                        options: options,
-                        method: method,
-                        completion: completion
+                    var respCode = 0
+                    if let httpResponse = response as? HTTPURLResponse {
+                        respCode = httpResponse.statusCode
+                    }
+                    let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+
+                    Crashlytics.crashlytics().setCustomValue(
+                        String(data: data, encoding: .utf8),
+                        forKey: "Lbryio.call_data"
                     )
+                    Crashlytics.crashlytics().setCustomValue(respCode, forKey: "Lbryio.call_respCode")
+
+                    if let string = String(data: data, encoding: .utf8) {
+                        Log.verboseJSON.logIfEnabled(.debug, string)
+                    }
+
+                    if respCode >= 200, respCode < 300 {
+                        if respData?["data"] == nil {
+                            completion(true, nil)
+                            return
+                        }
+                        completion(respData?["data"], nil)
+                        return
+                    }
+
+                    if respData?["error"] as? NSNull != nil {
+                        completion(nil, LbryioResponseError("no error message", respCode))
+                    } else if let error = respData?["error"] as? String {
+                        completion(nil, LbryioResponseError(error, respCode))
+                    } else {
+                        completion(nil, LbryioResponseError("Unknown api error signature", respCode))
+                    }
                 } catch {
                     completion(nil, error)
                 }
             })
-            return
+            task.resume()
         }
-
-        var requestUrl = URL(string: url)
-        var queryItems: [URLQueryItem] = []
-        if !authToken.isBlank {
-            queryItems.append(URLQueryItem(name: authTokenParam, value: authTokenOverride ?? authToken))
-        }
-        if let options {
-            for (name, value) in options {
-                queryItems.append(URLQueryItem(name: name, value: value))
-            }
-        }
-        guard var urlComponents = URLComponents(string: url) else {
-            completion(nil, GenericError("urlComponents"))
-            return
-        }
-        urlComponents.queryItems = queryItems
-        urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?.replacingOccurrences(
-            of: "+",
-            with: "%2B"
-        )
-
-        if Method.GET.isEqual(toString: method) {
-            requestUrl = urlComponents.url
-        }
-
-        guard let requestUrl else {
-            completion(nil, GenericError("requestUrl"))
-            return
-        }
-
-        let config = URLSessionConfiguration.default
-        config.requestCachePolicy = .reloadIgnoringLocalCacheData
-        config.urlCache = nil
-
-        let session = URLSession(configuration: config)
-        var req = URLRequest(url: requestUrl)
-        req.httpMethod = method
-        if Method.POST.isEqual(toString: method) {
-            req.httpBody = buildQueryString(authToken: authTokenOverride ?? authToken, options: options)
-                .data(using: .utf8)
-        }
-
-        let task = session.dataTask(with: req, completionHandler: { data, response, error in
-            guard let data = data, error == nil else {
-                // handle error
-                completion(nil, error)
-                return
-            }
-            do {
-                var respCode = 0
-                if let httpResponse = response as? HTTPURLResponse {
-                    respCode = httpResponse.statusCode
-                }
-                let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-
-                Crashlytics.crashlytics().setCustomValue(
-                    String(data: data, encoding: .utf8),
-                    forKey: "Lbryio.call_data"
-                )
-                Crashlytics.crashlytics().setCustomValue(respCode, forKey: "Lbryio.call_respCode")
-
-                Log.verboseJSON.logIfEnabled(.debug, String(data: data, encoding: .utf8)!)
-
-                if respCode >= 200, respCode < 300 {
-                    if respData?["data"] == nil {
-                        completion(true, nil)
-                        return
-                    }
-                    completion(respData?["data"], nil)
-                    return
-                }
-
-                if respData?["error"] as? NSNull != nil {
-                    completion(nil, LbryioResponseError("no error message", respCode))
-                } else if respData?["error"] as? String != nil {
-                    completion(nil, LbryioResponseError(respData?["error"] as! String, respCode))
-                } else {
-                    completion(nil, LbryioResponseError("Unknown api error signature", respCode))
-                }
-            } catch {
-                completion(nil, error)
-            }
-        })
-        task.resume()
     }
 
     static func buildQueryString(authToken: String?, options: [String: String]?) -> String {
@@ -391,52 +299,29 @@ enum Lbryio {
         if !authToken.isBlank,
            let authToken = authToken?.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
         {
-            qs.append(authTokenParam)
+            qs.append(LbryioMethods.authTokenParam)
             qs.append("=")
             qs.append(authToken)
             delim = "&"
         }
         if let options {
             for (name, value) in options {
-                qs.append(delim)
-                qs.append(name)
-                qs.append("=")
-                qs
-                    .append(
-                        value.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
-                            .replacingOccurrences(of: "+", with: "%2B").replacingOccurrences(of: "&", with: "%26")
+                if let value = value.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) {
+                    qs.append(delim)
+                    qs.append(name)
+                    qs.append("=")
+                    qs.append(
+                        value
+                            .replacingOccurrences(of: "+", with: "%2B")
+                            .replacingOccurrences(of: "&", with: "%26")
                             .replacingOccurrences(of: "?", with: "%3F")
                     )
-                delim = "&"
+                    delim = "&"
+                }
             }
         }
 
         return qs
-    }
-
-    static func getAuthToken(completion: @escaping (String?, Error?) -> Void) throws {
-        guard let installationId = Lbry.installationId, !installationId.isBlank else {
-            throw LbryioRequestError.runtimeError("The installation ID is not set")
-        }
-
-        generatingAuthToken = true
-        var options = [String: String]()
-        options[authTokenParam] = ""
-        options["language"] = "en"
-        options["app_id"] = installationId
-
-        try post(resource: "user", action: "new", options: options, completion: { data, _ in
-            generatingAuthToken = false
-            if data != nil {
-                let tokenData = data as! [String: Any]?
-                let token: String? = tokenData?["auth_token"] as? String
-                if token.isBlank {
-                    completion(nil, LbryioResponseError("auth_token was not set in the response", 0))
-                    return
-                }
-                completion(token, nil)
-            }
-        })
     }
 
     static func isSignedIn() -> Bool {
@@ -478,7 +363,7 @@ enum Lbryio {
 
     static func areCommentsEnabled(channelId: String, channelName: String, completion: @escaping (Bool) -> Void) {
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentMethods.list,
             params: .init(
                 claimId: channelId,
                 channelId: channelId,
@@ -505,7 +390,9 @@ enum Lbryio {
             }
 
             var options = [String: String]()
-            options["app_version"] = (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as! String)
+            if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                options["app_version"] = version
+            }
             options["app_id"] = Lbry.installationId
             options["daemon_version"] = ""
             options["node_id"] = ""
@@ -586,8 +473,8 @@ enum Lbryio {
                     return
                 }
 
-                let response = data as! [String: Any]
-                let remoteHash = response["hash"] as! String
+                let response = data as? [String: Any]
+                let remoteHash = response?["hash"] as? String
                 completion(remoteHash, nil)
             })
         } catch {
@@ -598,13 +485,13 @@ enum Lbryio {
     static func syncGet(
         hash: String,
         applySyncChanges: Bool = false,
-        completion: @escaping (WalletSync?, Bool?, Error?) -> Void
+        completion: @escaping (SyncGetResult?, Bool?, Error?) -> Void
     ) {
         var options = [String: String]()
         options["hash"] = hash
         do {
             try post(resource: "sync", action: "get", options: options, completion: { data, error in
-                guard let data = data, error == nil else {
+                guard let response = data as? [String: Any], error == nil else {
                     if let responseError = error as? LbryioResponseError {
                         if responseError.code == 404 {
                             // no wallet found for the user, so it's a new sync
@@ -616,11 +503,12 @@ enum Lbryio {
                     return
                 }
 
-                let response = data as! [String: Any]
-                var walletSync = WalletSync()
-                walletSync.hash = response["hash"] as? String
-                walletSync.data = response["data"] as? String
-                walletSync.changed = response["changed"] as? Bool
+                // FIXME:
+                let walletSync = SyncGetResult(
+                    changed: response["changed"] as! Bool,
+                    hash: response["hash"] as! String,
+                    data: response["data"] as? String ?? "",
+                )
                 completion(walletSync, false, nil)
             })
         } catch {
@@ -642,7 +530,7 @@ enum Lbryio {
             var options: [String: String] = [
                 "uri": permanentUrl,
                 "claim_id": claimId,
-                "outpoint": String(format: "%@:%d", txid, nout),
+                "outpoint": "\(txid):\(nout)",
             ]
             if let claimId = claimResult.signingChannel?.claimId {
                 options["channel_claim_id"] = claimId
@@ -673,16 +561,6 @@ enum Lbryio {
     static func isFollowing(claim: Claim) -> Bool {
         return if let permanentUrl = claim.permanentUrl,
                   let url = LbryUri.tryParse(url: permanentUrl, requireProto: false)
-        {
-            cachedSubscriptions[url.description] != nil
-        } else {
-            false
-        }
-    }
-
-    static func isFollowing(subscription: Subscription) -> Bool {
-        return if let subscriptionUrl = subscription.url,
-                  let url = LbryUri.tryParse(url: subscriptionUrl, requireProto: false)
         {
             cachedSubscriptions[url.description] != nil
         } else {
@@ -723,6 +601,9 @@ enum Lbryio {
 
 enum LbryioRequestError: Error {
     case runtimeError(String)
+    case invalidUrl(_ url: String)
+    case invalidUrl(components: URLComponents)
+    case invalidResponse(_ response: URLResponse)
 }
 
 struct LbryioResponseError: Error {

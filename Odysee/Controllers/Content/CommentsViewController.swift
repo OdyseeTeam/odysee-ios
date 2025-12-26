@@ -78,8 +78,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         super.viewDidLoad()
 
         // Do any additional setup after loading the view
-        registerForKeyboardNotifications()
-
         commentAsThumbnailView.rounded()
 
         commentInput.layer.borderColor = UIColor.systemGray5.cgColor
@@ -101,7 +99,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             "By continuing, you accept the Odysee Terms of Service and community guidelines."
         )
         let attributed = try? NSMutableAttributedString(
-            data: guidelinesString.data(using: .utf8)!,
+            data: guidelinesString.data,
             options: [.documentType: NSAttributedString.DocumentType.html],
             documentAttributes: nil
         )
@@ -136,36 +134,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
             mainVc.removeBlockChannelObserver(name: "comments")
         }
-    }
-
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-            commentList.contentInset = contentInsets
-            commentList.scrollIndicatorInsets = contentInsets
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInsets = UIEdgeInsets.zero
-        commentList.contentInset = contentInsets
-        commentList.scrollIndicatorInsets = contentInsets
     }
 
     /*
@@ -222,7 +190,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
         commentsLoading = true
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentMethods.list,
             params: .init(
                 claimId: claimId,
                 page: commentsCurrentPage,
@@ -281,7 +249,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     func resolveCommentAuthors(urls: [String]) {
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(urls: urls)
         )
         .subscribeResult(didResolveCommentAuthors)
@@ -301,7 +269,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -397,7 +365,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
         Lbry.apiCall(
-            method: Lbry.Methods.channelSign,
+            method: LbryMethods.channelSign,
             params: .init(
                 channelId: channelId,
                 hexdata: Helper.strToHex(commentText)
@@ -405,7 +373,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         )
         .flatMap { channelSignResult in
             Lbry.commentApiCall(
-                method: Lbry.CommentMethods.create,
+                method: CommentMethods.create,
                 params: .init(
                     claimId: claimId,
                     channelId: channelId,
@@ -472,13 +440,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @IBAction func channelDriverTapped(_ sender: Any) {
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         if UIApplication.currentViewController() as? FileViewController != nil {
-            appDelegate.mainNavigationController?.popViewController(animated: false)
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
         let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
         vc.commentsVc = self
-        appDelegate.mainNavigationController?.pushViewController(vc, animated: true)
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
@@ -493,7 +460,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     func textViewDidChange(_ textView: UITextView) {
         if textView == commentInput {
             let length = commentInput.text.count
-            commentLimitLabel.text = String(format: "%d / %d", length, Helper.commentMaxLength)
+            commentLimitLabel.text = "\(length) / \(Helper.commentMaxLength)"
         }
     }
 
@@ -532,7 +499,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         if currentCommentAsIndex == -1 || channels.count == 0 {
             Lbry.commentApiCall(
-                method: Lbry.CommentMethods.reactList,
+                method: CommentMethods.reactList,
                 params: .init(commentIds: commentIds.joined(separator: ","))
             )
             .subscribeResult(handler)
@@ -543,7 +510,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 return
             }
             Lbry.apiCall(
-                method: Lbry.Methods.channelSign,
+                method: LbryMethods.channelSign,
                 params: .init(
                     channelId: claimId,
                     hexdata: Helper.strToHex(name)
@@ -551,7 +518,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             )
             .flatMap { channelSignResult in
                 Lbry.commentApiCall(
-                    method: Lbry.CommentMethods.reactList,
+                    method: CommentMethods.reactList,
                     params: .init(
                         commentIds: commentIds.joined(separator: ","),
                         channelName: name,
@@ -629,12 +596,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         updateSingleCommentReactions(updatedComment)
 
         Lbry.apiCall(
-            method: Lbry.Methods.channelSign,
+            method: LbryMethods.channelSign,
             params: .init(channelId: claimId, hexdata: Helper.strToHex(name))
         )
         .flatMap { channelSignResult in
             Lbry.commentApiCall(
-                method: Lbry.CommentMethods.react,
+                method: CommentMethods.react,
                 params: .init(
                     commentIds: commentId,
                     signature: channelSignResult.signature,
@@ -690,7 +657,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         commentsLoading = true
         loadingContainer.isHidden = false
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentMethods.list,
             params: .init(
                 claimId: claimId,
                 parentId: parentId,
@@ -745,7 +712,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
         loadingContainer.isHidden = false
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.byId,
+            method: CommentMethods.byId,
             params: .init(
                 commentId: currentCommentId,
                 withAncestors: true
@@ -763,92 +730,93 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                             self.commentList.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
                         }
                     }
-                    self.loadThread(thread: ancestors.reversed())
+//                    self.loadThread(thread: ancestors.reversed())
                 }
             }
         }
     }
 
-    func loadThread(thread: [Comment]) {
-        thread.publisher.subscribe(on: DispatchQueue.global()).tryMap { comment -> (Comment, URLRequest) in
-            guard let claimId = self.claimId, let parentId = comment.commentId else {
-                throw GenericError("couldn't get claimId and/or parent commentId")
-            }
-            return try (comment, Lbry.apiRequest(
-                method: Lbry.CommentMethods.list.name,
-                params: .init(
-                    claimId: claimId,
-                    parentId: parentId,
-                    page: 1,
-                    pageSize: 999,
-                    skipValidation: true,
-                    topLevel: false
-                ) as CommentListParams,
-                url: Lbry.commentronURL,
-                authToken: Lbryio.authToken
-            ))
-        }
-        .flatMap(maxPublishers: .max(1)) { comment, request in
-            // Run data task.
-            URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }.map { (comment, $0) }
-        }
-        .tryMap { comment, dataTaskOutput -> (Comment, Page<Comment>) in
-            let (data, _) = dataTaskOutput
-
-            // Decode and validate result.
-            let response = try JSONDecoder().decode(Lbry.APIResponse<Page<Comment>>.self, from: data)
-            if response.jsonrpc != "2.0" {
-                assertionFailure()
-                throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
-            }
-
-            guard let result = response.result else {
-                throw LbryApiResponseError(response.error?.message ?? "unknown api error")
-            }
-            return (comment, result)
-        }
-        .receive(on: DispatchQueue.main)
-        .eraseToAnyPublisher()
-        .subscribeResultFinally { result in
-            self.loadingContainer.isHidden = true
-            switch result {
-            case let .failure(error):
-                self.showError(error: error)
-            case let .success(output):
-                if let (parent, page) = output {
-                    let loadedComments = page.items.filter {
-                        comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
-                    }.map { comment in
-                        var comment = comment
-                        var currentComment: Comment? = comment
-                        while let currentComment_ = currentComment {
-                            comment.replyDepth += 1
-                            currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
-                        }
-                        return comment
-                    }
-
-                    if let parentIndex = self.comments.firstIndex(where: {
-                        $0.commentId == parent.commentId
-                    }), loadedComments.count > 0 {
-                        self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
-                        self.commentList.insertRows(
-                            at: Array(parentIndex + 1 ... parentIndex + loadedComments.count).map {
-                                IndexPath(row: $0, section: 0)
-                            },
-                            with: .automatic
-                        )
-                        self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
-                        self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
-                    }
-
-                    self.setCommentRepliesLoaded(parent)
-                } else {
-                    self.scrollToCurrentComment()
-                }
-            }
-        }
-    }
+    // FIXME: async/await
+//    func loadThread(thread: [Comment]) {
+//        thread.publisher.subscribe(on: DispatchQueue.global()).tryMap { comment -> (Comment, URLRequest) in
+//            guard let claimId = self.claimId, let parentId = comment.commentId else {
+//                throw GenericError("couldn't get claimId and/or parent commentId")
+//            }
+//            return try (comment, Lbry.apiRequest(
+//                method: CommentMethods.list.name,
+//                params: .init(
+//                    claimId: claimId,
+//                    parentId: parentId,
+//                    page: 1,
+//                    pageSize: 999,
+//                    skipValidation: true,
+//                    topLevel: false
+//                ) as CommentListParams,
+//                url: Lbry.commentronURL,
+//                authToken: Lbryio.authToken
+//            ))
+//        }
+//        .flatMap(maxPublishers: .max(1)) { comment, request in
+//            // Run data task.
+//            URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }.map { (comment, $0) }
+//        }
+//        .tryMap { comment, dataTaskOutput -> (Comment, Page<Comment>) in
+//            let (data, _) = dataTaskOutput
+//
+//            // Decode and validate result.
+//            let response = try JSONDecoder().decode(Lbry.APIResponse<Page<Comment>>.self, from: data)
+//            if response.jsonrpc != "2.0" {
+//                assertionFailure()
+//                throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
+//            }
+//
+//            guard let result = response.result else {
+//                throw LbryApiResponseError(response.error?.message ?? "unknown api error")
+//            }
+//            return (comment, result)
+//        }
+//        .receive(on: DispatchQueue.main)
+//        .eraseToAnyPublisher()
+//        .subscribeResultFinally { result in
+//            self.loadingContainer.isHidden = true
+//            switch result {
+//            case let .failure(error):
+//                self.showError(error: error)
+//            case let .success(output):
+//                if let (parent, page) = output {
+//                    let loadedComments = page.items.filter {
+//                        comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
+//                    }.map { comment in
+//                        var comment = comment
+//                        var currentComment: Comment? = comment
+//                        while let currentComment_ = currentComment {
+//                            comment.replyDepth += 1
+//                            currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
+//                        }
+//                        return comment
+//                    }
+//
+//                    if let parentIndex = self.comments.firstIndex(where: {
+//                        $0.commentId == parent.commentId
+//                    }), loadedComments.count > 0 {
+//                        self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
+//                        self.commentList.insertRows(
+//                            at: Array(parentIndex + 1 ... parentIndex + loadedComments.count).map {
+//                                IndexPath(row: $0, section: 0)
+//                            },
+//                            with: .automatic
+//                        )
+//                        self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+//                        self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
+//                    }
+//
+//                    self.setCommentRepliesLoaded(parent)
+//                } else {
+//                    self.scrollToCurrentComment()
+//                }
+//            }
+//        }
+//    }
 
     func setCommentRepliesLoaded(_ comment: Comment) {
         for i in comments.indices {
@@ -885,7 +853,9 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         let channel = channels[index]
-        commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), channel.name!)
+        if let name = channel.name {
+            commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), name)
+        }
 
         if let thumbnailUrlValue = channel.value?.thumbnail?.url,
            let thumbnailUrl = URL(string: thumbnailUrlValue)?.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)

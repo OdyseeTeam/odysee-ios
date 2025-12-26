@@ -16,6 +16,10 @@ extension String {
         return !contains { !$0.isWhitespace && !$0.isNewline }
     }
 
+    var data: Data {
+        return Data(utf8)
+    }
+
     subscript(bounds: CountableClosedRange<Int>) -> String {
         let start = index(startIndex, offsetBy: bounds.lowerBound)
         let end = index(startIndex, offsetBy: bounds.upperBound)
@@ -128,20 +132,20 @@ extension Optional {
 
 // These extensions are useful for Lbry.swift – so that we can support old methods that haven't
 // migrated to their own Params type yet and still use dictionaries.
-extension NSString: Encodable {
+extension NSString: @retroactive Encodable {
     public func encode(to encoder: Encoder) throws {
         try (self as String).encode(to: encoder)
     }
 }
 
-extension NSNull: Encodable {
+extension NSNull: @retroactive Encodable {
     public func encode(to encoder: Encoder) throws {
         var c = encoder.singleValueContainer()
         try c.encodeNil()
     }
 }
 
-extension NSDictionary: Encodable {
+extension NSDictionary: @retroactive Encodable {
     public func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
         for (k, v) in self {
@@ -171,7 +175,7 @@ extension NSDictionary: Encodable {
     }
 }
 
-extension NSArray: Encodable {
+extension NSArray: @retroactive Encodable {
     public func encode(to encoder: Encoder) throws {
         var c = encoder.unkeyedContainer()
         for v in self {
@@ -187,7 +191,7 @@ extension NSArray: Encodable {
     }
 }
 
-extension NSNumber: Encodable {
+extension NSNumber: @retroactive Encodable {
     public func encode(to encoder: Encoder) throws {
         var c = encoder.singleValueContainer()
         // NSNumber in swift is weird. You have to use value(of:) to find bools, but you can't use

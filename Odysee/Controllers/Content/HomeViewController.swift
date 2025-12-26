@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 02/11/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import OrderedCollections
 import PINRemoteImage
 import UIKit
@@ -162,7 +162,7 @@ class HomeViewController: UIViewController,
             .releaseTime6Months()
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
+            method: LbryMethods.claimSearch,
             params: .init(
                 claimType: [.stream, .repost],
                 streamTypes: [.audio, .video],
@@ -269,7 +269,7 @@ class HomeViewController: UIViewController,
         ])
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
+            method: LbryMethods.claimSearch,
             params: .init(
                 claimType: [.stream],
                 releaseTime: [Helper.releaseTimeBeforeFuture],
@@ -473,16 +473,17 @@ class HomeViewController: UIViewController,
 
     func checkUpdatedSortBy() {
         let itemName = Helper.sortByItemNames[currentSortByIndex]
-        sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
+        sortByLabel.text = "\(itemName.split(separator: " ")[0]) ▾"
         contentFromLabel.isHidden = currentSortByIndex != 2
     }
 
     func checkUpdatedContentFrom() {
-        contentFromLabel.text = String(format: "%@ ▾", String(Helper.contentFromItemNames[currentContentFromIndex]))
+        let itemName = Helper.contentFromItemNames[currentContentFromIndex]
+        contentFromLabel.text = "\(itemName) ▾"
     }
 
     @IBAction func sortByLabelTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Sort content by"),
             origin: sortByLabel,
             rows: Helper.sortByItemNames,
@@ -499,7 +500,7 @@ class HomeViewController: UIViewController,
     }
 
     @IBAction func contentFromLabelTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Content from"),
             origin: contentFromLabel,
             rows: Helper.contentFromItemNames,

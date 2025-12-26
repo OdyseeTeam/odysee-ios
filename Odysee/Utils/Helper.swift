@@ -7,6 +7,7 @@
 
 import Base58Swift
 import CoreActionSheetPicker
+import FirebaseCrashlytics
 import Foundation
 import UIKit
 
@@ -18,11 +19,17 @@ enum Helper {
     static let commentMaxLength: Int = 2000
     static let txLinkPrefix = "https://explorer.lbry.com/tx"
     static let keyReceiveAddress = "walletReceiveAddress"
+    /// Can be a reinstall after uninstall, in which case UserDefaults is cleared but not Keychain
+    static let keyHasRunAfterInstall = "hasRunAfterInstall"
     static let keyFirstRunCompleted = "firstRunCompleted"
     static let keyPostedCommentHideTos = "postedCommentHideTos"
     static let reactionTypeLike = "like"
     static let reactionTypeDislike = "dislike"
     static let tagDisableComments = "disable-comments"
+
+    // swift-format-ignore
+    // Initialized once with static value
+    static let thumbUploadURL = URL(string: "https://thumbs.odycdn.com/upload")!
 
     static let primaryColor = UIColor(red: 229.0 / 255.0, green: 0, blue: 84.0 / 255.0, alpha: 1)
     static let lightPrimaryColor = UIColor(red: 250.0 / 255.0, green: 97.0 / 255.0, blue: 101.0 / 255.0, alpha: 1)
@@ -132,7 +139,7 @@ enum Helper {
     static func releaseTime6Months() -> String {
         var time = Int64(Date().timeIntervalSince1970)
         time = time - (60 * 60 * 24 * 180)
-        return String(format: ">%d", time)
+        return ">\(time)"
     }
 
     static var releaseTimeBeforeFuture: String {
@@ -155,9 +162,10 @@ enum Helper {
             time = time - (60 * 60 * 24 * 365)
         }
 
-        return String(format: ">%d", time)
+        return ">\(time)"
     }
 
+    @discardableResult
     static func showPickerActionSheet(
         title: String,
         origin: UIView,
@@ -165,6 +173,14 @@ enum Helper {
         initialSelection: Int,
         handler: @escaping (ActionSheetStringPicker?, Int, Any?) -> Void
     ) -> ActionSheetStringPicker {
+        Crashlytics.crashlytics().setCustomKeysAndValues([
+            "showPickerActionSheet_title": title,
+            "showPickerActionSheet_origin": origin,
+            "showPickerActionSheet_rows": rows,
+            "showPickerActionSheet_initialSelection": initialSelection,
+        ])
+        // swift-format-ignore
+        // Init never returns nil, is only due to objc
         let picker = ActionSheetStringPicker(
             title: title,
             rows: rows,
@@ -191,13 +207,13 @@ enum Helper {
         formatter.maximumFractionDigits = 2
 
         if value > 1_000_000_000 {
-            return String(format: "%@B", formatter.string(for: (value / 1_000_000_000) as NSDecimalNumber) ?? "")
+            return "\(formatter.string(for: (value / 1_000_000_000) as NSDecimalNumber) ?? "")B"
         }
         if value > 1_000_000 {
-            return String(format: "%@M", formatter.string(for: (value / 1_000_000) as NSDecimalNumber) ?? "")
+            return "\(formatter.string(for: (value / 1_000_000) as NSDecimalNumber) ?? "")M"
         }
         if value > 1000 {
-            return String(format: "%@K", formatter.string(for: (value / 1000) as NSDecimalNumber) ?? "")
+            return "\(formatter.string(for: (value / 1000) as NSDecimalNumber) ?? "")K"
         }
 
         return formatter.string(for: value as NSDecimalNumber) ?? ""
@@ -226,6 +242,8 @@ enum Helper {
 
     static func makeid() -> String {
         let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+        // swift-format-ignore
+        // randomElement from a static collection which is never empty
         return String((0 ..< 24).map { _ in chars.randomElement()! })
     }
 
@@ -253,22 +271,22 @@ enum Helper {
         fieldData.append("Content-Disposition: form-data; name=\"upload\"\r\n\r\n\(name)\r\n")
 
         let data = NSMutableData()
-        data.append("--\(boundary)\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append("--\(boundary)\r\n".data)
         data
             .append(
                 "Content-Disposition: form-data; name=\"file-input\"; filename=\"\(filename)\"\r\n"
-                    .data(using: .utf8, allowLossyConversion: false)!
+                    .data
             )
-        data.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append("Content-Type: \(mimeType)\r\n\r\n".data)
         data.append(imageData)
-        data.append("\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        data.append("\r\n".data)
 
         let reqBody = NSMutableData()
-        reqBody.append(fieldData.data(using: .utf8, allowLossyConversion: false)!)
+        reqBody.append(fieldData.data)
         reqBody.append(data as Data)
-        reqBody.append("--\(boundary)--\r\n".data(using: .utf8, allowLossyConversion: false)!)
+        reqBody.append("--\(boundary)--\r\n".data)
 
-        var req = URLRequest(url: URL(string: "https://thumbs.odycdn.com/upload")!)
+        var req = URLRequest(url: thumbUploadURL)
         req.httpMethod = "POST"
         req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
         req.setValue(String(reqBody.count), forHTTPHeaderField: "Content-Length")
@@ -376,6 +394,21 @@ enum Helper {
             return false
         }
         return Lbry.blockedChannels.map(\.claimId).contains(claimId)
+    }
+
+    @MainActor
+    static func showMessage(message: String?) {
+        (AppDelegate.shared.mainViewController as? MainViewController)?.showMessage(message: message)
+    }
+
+    @MainActor
+    static func showError(message: String?) {
+        (AppDelegate.shared.mainViewController as? MainViewController)?.showError(message: message)
+    }
+
+    @MainActor
+    static func showError(error: Error) {
+        (AppDelegate.shared.mainViewController as? MainViewController)?.showError(error: error)
     }
 }
 

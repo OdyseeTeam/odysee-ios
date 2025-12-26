@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 12/11/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import OrderedCollections
 import SafariServices
 import UIKit
@@ -111,14 +111,14 @@ class SearchViewController: UIViewController,
             withTemplate: ""
         )
 
-        var possibleUrls = [String(format: "lbry://%@", sanitisedQuery)]
+        var possibleUrls = ["lbry://\(sanitisedQuery)"]
         if !sanitisedQuery.starts(with: "@") {
             // if it's not a channel url, add the channel url as a possible url
-            possibleUrls.append(String(format: "lbry://@%@", sanitisedQuery))
+            possibleUrls.append("lbry://@\(sanitisedQuery)")
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(urls: possibleUrls)
         )
         .subscribeResult(didResolveWinning)
@@ -225,13 +225,19 @@ class SearchViewController: UIViewController,
                 }
 
                 self.lighthouseUrls = results.compactMap { item in
-                    LbryUri.tryParse(
-                        url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String),
-                        requireProto: false
-                    )?.description
+                    if let name = item["name"] as? String,
+                       let claimId = item["claimId"] as? String
+                    {
+                        LbryUri.tryParse(
+                            url: "\(name)#\(claimId)",
+                            requireProto: false
+                        )?.description
+                    } else {
+                        nil
+                    }
                 }
                 Lbry.apiCall(
-                    method: Lbry.Methods.resolve,
+                    method: LbryMethods.resolve,
                     params: .init(urls: self.lighthouseUrls)
                 )
                 .subscribeResult(self.didResolveResults)
@@ -350,7 +356,7 @@ class SearchViewController: UIViewController,
 
     @IBAction func noResultsViewTapped(_ sender: Any) {
         if let currentQuery, Lighthouse.containsFilteredKeyword(currentQuery),
-           let url = URL(string: String(format: "https://odysee.com/$/search?q=%@", currentQuery))
+           let url = URL(string: "https://odysee.com/$/search?q=\(currentQuery)")
         {
             let vc = SFSafariViewController(url: url)
             AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)

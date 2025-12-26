@@ -80,7 +80,11 @@ class Multistream: InputStream, StreamDelegate {
         var read: Unmanaged<CFReadStream>?
         var write: Unmanaged<CFWriteStream>?
         CFStreamCreateBoundPair(nil, &read, &write, kBufferSize)
+        // swift-format-ignore
+        // All of this is unsafe
         input = read!.takeRetainedValue()
+        // swift-format-ignore
+        // All of this is unsafe
         output = write!.takeRetainedValue()
         super.init(data: Data())
         output.delegate = self
@@ -103,6 +107,8 @@ class Multistream: InputStream, StreamDelegate {
 
     @discardableResult private func refillBuffer() -> Bool {
         let bytesRead: Int = buffer.withUnsafeMutableBytes { ptr in
+            // swift-format-ignore
+            // All of this is unsafe
             let y = ptr.bindMemory(to: UInt8.self).baseAddress!
             return internalRead(y + bufferLength, maxLength: kBufferSize - bufferLength)
         }
@@ -116,6 +122,8 @@ class Multistream: InputStream, StreamDelegate {
     private func writeToOutput() -> Bool {
         assert(bufferLength > 0)
         let bytesWritten: Int = buffer.withUnsafeBytes {
+            // swift-format-ignore
+            // All of this is unsafe
             let ptr = $0.bindMemory(to: UInt8.self).baseAddress!
             return output.write(ptr, maxLength: bufferLength)
         }
@@ -127,6 +135,8 @@ class Multistream: InputStream, StreamDelegate {
         bufferLength -= bytesWritten
         // Shift unwritten data to the beginning of buffer
         buffer.withUnsafeMutableBytes {
+            // swift-format-ignore
+            // All of this is unsafe
             let ptr = $0.baseAddress!
             memmove(ptr, ptr + bytesWritten, bufferLength)
         }

@@ -5,8 +5,7 @@
 //  Created by Akinwale Ariwodola on 28/11/2020.´
 //
 
-import CoreData
-import Firebase
+import FirebaseAnalytics
 import OrderedCollections
 import UIKit
 
@@ -32,7 +31,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var selectedChannelClaim: Claim?
     var suggestedFollows = OrderedSet<Claim>()
     var following = OrderedSet<Claim>()
-    var subscriptions: [Subscription] = []
+    var subscriptions: [LbrySubscription] = []
     var selectedChannelIds: [String] = []
     var selectedSuggestedFollows = [String: Claim]()
 
@@ -81,11 +80,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         )
 
         if Lbryio.isSignedIn() {
-            if Lbryio.subscriptionsDirty {
-                loadLocalSubscriptions(true)
-            } else {
-                loadRemoteSubscriptions()
-            }
+            loadRemoteSubscriptions()
         }
 
         AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
@@ -150,36 +145,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         loadSubscriptionContent()
     }
 
-    func loadLocalSubscriptions(_ refresh: Bool = false) {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Subscription")
-        fetchRequest.returnsObjectsAsFaults = false
-        let asyncFetchRequest = NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { asyncFetchResult in
-            guard let subscriptions = asyncFetchResult.finalResult as? [Subscription] else { return }
-            self.subscriptions = subscriptions
-            if self.subscriptions.count == 0 {
-                // load remote
-                self.loadRemoteSubscriptions()
-            } else {
-                self.resolveChannelList(refresh)
-                if !self.showingSuggested {
-                    DispatchQueue.main.async {
-                        self.suggestedView.isHidden = true
-                        self.mainView.isHidden = false
-                    }
-                }
-            }
-        }
-
-        DispatchQueue.main.async {
-            let context = AppDelegate.shared.persistentContainer.newBackgroundContext()
-            do {
-                try context.execute(asyncFetchRequest)
-            } catch {
-                print("NSAsynchronousFetchRequest error: \(error)")
-            }
-        }
-    }
-
     func loadRemoteSubscriptions() {
         DispatchQueue.main.async {
             self.loadingContainer.isHidden = false
@@ -203,12 +168,13 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 var hasSubs = false
                 if let subs = data as? [[String: Any]] {
                     for sub in subs {
-                        let channelName = sub["channel_name"] as! String
-                        let subUrl = LbryUri.tryParse(
-                            url: String(format: "%@#%@", channelName, sub["claim_id"] as! String),
-                            requireProto: false
-                        )
-                        if let urlString = subUrl?.description {
+                        if let channelName = sub["channel_name"] as? String,
+                           let claimId = sub["claim_id"] as? String,
+                           let urlString = LbryUri.tryParse(
+                               url: "\(channelName)#\(claimId)",
+                               requireProto: false
+                           )?.description
+                        {
                             do {
                                 let jsonData = try JSONSerialization.data(
                                     withJSONObject: sub,
@@ -218,22 +184,24 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                                     .decode(LbrySubscription.self, from: jsonData)
                                 if let subscription {
                                     Lbryio.addSubscription(sub: subscription, url: urlString)
+                                    if !self.subscriptions.contains(subscription) {
+                                        self.subscriptions.append(subscription)
+                                    }
                                 }
                             } catch {
                                 // skip if an error occurred
                             }
-
-                            self.addSubscription(
-                                url: urlString,
-                                channelName: channelName,
-                                isNotificationsDisabled: sub["is_notifications_disabled"] as! Bool,
-                                reloadAfter: false
-                            )
                         }
                     }
                     if subs.count > 0 {
                         hasSubs = true
-                        self.loadLocalSubscriptions()
+                        self.resolveChannelList()
+                        if !self.showingSuggested {
+                            DispatchQueue.main.async {
+                                self.suggestedView.isHidden = true
+                                self.mainView.isHidden = false
+                            }
+                        }
                     }
                 }
 
@@ -259,7 +227,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
+            method: LbryMethods.claimSearch,
             params: .init(
                 claimType: [.channel],
                 page: currentSuggestedPage,
@@ -309,11 +277,12 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             selectedChannelIds :
             following.compactMap(\.claimId)
 
+        // FIXME: Doesn't remove loading indicator when empty
         if channelIds.count > 0 {
             let releaseTimeValue = currentSortByIndex == 2 ? Helper
                 .buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
             Lbry.apiCall(
-                method: Lbry.Methods.claimSearch,
+                method: LbryMethods.claimSearch,
                 params: .init(
                     claimType: [.stream],
                     page: currentPage,
@@ -421,6 +390,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 for: indexPath
             ) as! SuggestedChannelCollectionViewCell
             cell.setClaim(claim: claim)
+            if let claimId = claim.claimId {
+                cell.setSelected(selected: selectedSuggestedFollows[claimId] != nil)
+            }
             return cell
         } else {
             let claim = following[indexPath.row]
@@ -442,9 +414,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             subscribeOrUnsubscribe(claim: claim, notificationsDisabled: true, unsubscribing: false)
 
             let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
-            cell?.backgroundColor = Helper.lightPrimaryColor
-            cell?.tagLabel.textColor = UIColor.white
-            cell?.titleLabel.textColor = UIColor.white
+            cell?.setSelected(selected: true)
         } else {
             // TODO: Refresh claim search with selected channel ids
             let prevSelectedChannelIds = selectedChannelIds
@@ -481,9 +451,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             subscribeOrUnsubscribe(claim: claim, notificationsDisabled: true, unsubscribing: true)
 
             let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
-            cell?.backgroundColor = UIColor.clear
-            cell?.tagLabel.textColor = UIColor.label
-            cell?.titleLabel.textColor = UIColor.label
+            cell?.setSelected(selected: false)
         } else {
             let cell = collectionView.cellForItem(at: indexPath) as? ChannelCollectionViewCell
             cell?.backgroundColor = UIColor.clear
@@ -544,25 +512,16 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         return
                     }
 
-                    if let channelName = subUrl.channelName {
-                        if !unsubscribing {
-                            Lbryio.addSubscription(
-                                sub: LbrySubscription.fromClaim(
-                                    claim: claim,
-                                    notificationsDisabled: notificationsDisabled
-                                ),
-                                url: subUrl.description
-                            )
-                            self.addSubscription(
-                                url: subUrl.description,
-                                channelName: channelName,
-                                isNotificationsDisabled: notificationsDisabled,
-                                reloadAfter: true
-                            )
-                        } else {
-                            Lbryio.removeSubscription(subUrl: subUrl.description)
-                            self.removeSubscription(url: subUrl.description, channelName: channelName)
-                        }
+                    if !unsubscribing {
+                        Lbryio.addSubscription(
+                            sub: LbrySubscription.fromClaim(
+                                claim: claim,
+                                notificationsDisabled: notificationsDisabled
+                            ),
+                            url: subUrl.description
+                        )
+                    } else {
+                        Lbryio.removeSubscription(subUrl: subUrl.description)
                     }
 
                     Lbryio.subscriptionsDirty = true
@@ -596,76 +555,37 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
     }
 
-    func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
-        // persist the subscription to CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
-            let subToSave = Subscription(context: context)
-            subToSave.url = url
-            subToSave.channelName = channelName
-            subToSave.isNotificationsDisabled = isNotificationsDisabled
-
-            if !self.subscriptions.contains(subToSave) {
-                self.subscriptions.append(subToSave)
-            }
-
-            AppDelegate.shared.saveContext()
-        }
-
-        // TODO: wallet sync
-        if reloadAfter {
-            loadLocalSubscriptions()
-        }
-    }
-
-    func removeSubscription(url: String, channelName: String) {
-        // remove the subscription from CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-
-            do {
-                let subs = try context.fetch(fetchRequest)
-
-                if subs.count > 0 {
-                    let subToDelete = subs[0]
-                    context.delete(subToDelete)
-                    self.subscriptions = self.subscriptions.filter { $0 != subToDelete }
-                }
-
-                try context.save()
-            } catch {
-                self.showError(error: error)
-            }
-        }
-
-        loadLocalSubscriptions()
-    }
-
-    func resolveChannelList(_ refresh: Bool = false) {
+    func resolveChannelList() {
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(
-                urls: subscriptions.compactMap(\.url)
+                urls: subscriptions.compactMap {
+                    if let channelName = $0.channelName,
+                       let claimId = $0.claimId,
+                       let url = LbryUri.tryParse(
+                           url: "\(Lbry.normalizeChannelName(channelName)):\(claimId)",
+                           requireProto: false
+                       )
+                    {
+                        url.description
+                    } else {
+                        nil
+                    }
+                }
             )
         )
         .subscribeResult { result in
-            self.didResolveChannelList(result, refresh: refresh)
+            self.didResolveChannelList(result)
         }
     }
 
-    func didResolveChannelList(_ result: Result<ResolveResult, Error>, refresh: Bool) {
+    func didResolveChannelList(_ result: Result<ResolveResult, Error>) {
         guard case let .success(resolve) = result else {
             result.showErrorIfPresent()
             return
         }
 
-        if refresh {
-            following.removeAll(keepingCapacity: true)
-        }
+        following.removeAll(keepingCapacity: true)
         following.append(contentsOf: resolve.claims.values)
 
         checkSelectedChannel()
@@ -706,16 +626,17 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     func checkUpdatedSortBy() {
         let itemName = Helper.sortByItemNames[currentSortByIndex]
-        sortByLabel.text = String(format: "%@ ▾", String(itemName.prefix(upTo: itemName.firstIndex(of: " ")!)))
+        sortByLabel.text = "\(itemName.split(separator: " ")[0]) ▾"
         contentFromLabel.isHidden = currentSortByIndex != 2
     }
 
     func checkUpdatedContentFrom() {
-        contentFromLabel.text = String(format: "%@ ▾", String(Helper.contentFromItemNames[currentContentFromIndex]))
+        let itemName = Helper.contentFromItemNames[currentContentFromIndex]
+        contentFromLabel.text = "\(itemName) ▾"
     }
 
     @IBAction func sortByLabelTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Sort content by"),
             origin: sortByLabel,
             rows: Helper.sortByItemNames,
@@ -732,7 +653,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     @IBAction func contentFromLabelTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Content from"),
             origin: contentFromLabel,
             rows: Helper.contentFromItemNames,
@@ -749,31 +670,22 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     func syncCompleted() {
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Subscription")
-        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-        do {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            try context.execute(deleteRequest)
-        } catch {
-            showError(error: error)
-            return
-        }
-
-        // save cached subscriptions
-        subscriptions.removeAll()
-        for (url, sub) in Lbryio.cachedSubscriptions {
-            let uri: LbryUri? = LbryUri.tryParse(url: url, requireProto: false)
-            if let url = uri?.description, let channelName = uri?.channelName {
-                addSubscription(
-                    url: url,
-                    channelName: channelName,
-                    isNotificationsDisabled: sub.notificationsDisabled ?? true,
-                    reloadAfter: false
-                )
-            }
-        }
-
-        loadLocalSubscriptions(true)
+        // FIXME: All syncCompleted to refresh where local would have
+//        // save cached subscriptions
+//        subscriptions.removeAll()
+//        for (url, sub) in Lbryio.cachedSubscriptions {
+//            let uri: LbryUri? = LbryUri.tryParse(url: url, requireProto: false)
+//            if let url = uri?.description, let channelName = uri?.channelName {
+//                addSubscription(
+//                    url: url,
+//                    channelName: channelName,
+//                    isNotificationsDisabled: sub.notificationsDisabled ?? true,
+//                    reloadAfter: false
+//                )
+//            }
+//        }
+//
+//        loadLocalSubscriptions(true)
     }
 
     func showError(error: Error?) {

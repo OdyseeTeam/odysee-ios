@@ -31,22 +31,6 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         let publisherTapGesture = UITapGestureRecognizer(target: self, action: #selector(publisherTapped(_:)))
         publisherLabel.addGestureRecognizer(publisherTapGesture)
         thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
-
-        if #available(iOS 14, *) {
-        } else {
-            let viewerCountBackground = UIView()
-            self.viewerCountBackground = viewerCountBackground
-            viewerCountBackground.backgroundColor = Helper.primaryColor
-            viewerCountBackground.layer.cornerRadius = 6
-            viewerCountBackground.translatesAutoresizingMaskIntoConstraints = false
-            viewerCountStackView.insertSubview(viewerCountBackground, at: 0)
-            NSLayoutConstraint.activate([
-                viewerCountBackground.leadingAnchor.constraint(equalTo: viewerCountStackView.leadingAnchor),
-                viewerCountBackground.trailingAnchor.constraint(equalTo: viewerCountStackView.trailingAnchor),
-                viewerCountBackground.topAnchor.constraint(equalTo: viewerCountStackView.topAnchor),
-                viewerCountBackground.bottomAnchor.constraint(equalTo: viewerCountStackView.bottomAnchor)
-            ])
-        }
     }
 
     func setLivestreamInfo(claim: Claim, startTime: Date, viewerCount: Int) {
@@ -97,12 +81,14 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         titleLabel.textColor = claim.featured ? UIColor.white : nil
         startTimeLabel.textColor = claim.featured ? UIColor.white : nil
 
-        titleLabel.text = claim.name
+        titleLabel.text = claim.value?.title
         publisherLabel.text = claim.signingChannel?.titleOrName
 
         // load thumbnail url
-        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
-            thumbnailImageView.load(url: thumbnailUrl.makeImageURL(spec: Self.thumbImageSpec))
+        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init)?.makeImageURL(
+            spec: Self.thumbImageSpec
+        ) {
+            thumbnailImageView.load(url: thumbnailUrl)
             thumbnailImageView.backgroundColor = nil
         } else {
             thumbnailImageView.image = Self.spacemanImage
@@ -110,9 +96,9 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
         }
 
         if claim.value?.tags?.contains(Constants.MembersOnly) ?? false {
-            DispatchQueue.global().async {
+            Task.detached {
                 MembershipPerk.perkCheck(
-                    authToken: Lbryio.authToken,
+                    authToken: await AuthToken.token,
                     claimId: claim.claimId,
                     type: .livestream
                 ) { result in
@@ -142,8 +128,10 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
     }
 
     static func imagePrefetchURLs(claim: Claim) -> [URL] {
-        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init) {
-            return [thumbnailUrl.makeImageURL(spec: thumbImageSpec)]
+        if let thumbnailUrl = claim.value?.thumbnail?.url.flatMap(URL.init)?.makeImageURL(
+            spec: thumbImageSpec
+        ) {
+            return [thumbnailUrl]
         }
         return []
     }

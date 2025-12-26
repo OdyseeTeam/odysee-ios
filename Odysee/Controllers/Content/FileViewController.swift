@@ -7,8 +7,7 @@
 
 import AVFoundation
 import AVKit
-import CoreData
-import Firebase
+import FirebaseAnalytics
 import ImageScrollView
 import OrderedCollections
 import PerfectMarkdown
@@ -37,6 +36,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     @IBOutlet var mediaView: UIView!
     @IBOutlet var reloadStreamView: UIView!
+
+    @IBOutlet var mediaLoadingIndicator: UIActivityIndicatorView!
 
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var viewCountLabel: UILabel!
@@ -87,7 +88,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     @IBOutlet var commentExpandView: UIImageView!
     @IBOutlet var commentsContainerView: UIView!
-    @IBOutlet var bottomLayoutConstraint: NSLayoutConstraint!
     @IBOutlet var streamerAreaHeightConstraint: NSLayoutConstraint!
 
     @IBOutlet var fireReactionCountLabel: UILabel!
@@ -126,6 +126,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var commentsDisabled = false
     var commentsViewPresented = false
     var selectedRateIndex: Int = 3 /* 1x */
+    var playlistClaim: Claim?
     var claim: Claim?
     var claimUrl: LbryUri?
     var subscribeUnsubscribeInProgress = false
@@ -178,10 +179,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var initialChatLoaded = false
     var chatWebsocket: Starscream.WebSocket?
 
-    var currentPlaylistPage = 1
-    var playlistLastPageReached = false
-    let playlistPageSize = 50
-
     let checkLivestreamTranscodeInterval: Double = 30 // 30 seconds
     var checkLivestreamTranscodeTimer = Timer()
     var checkLivestreamTranscodeScheduled = false
@@ -193,7 +190,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         super.viewWillAppear(animated)
 
         AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
-        if AppDelegate.shared.currentClaim != nil, AppDelegate.shared.currentClaim?.claimId == claim?.claimId {
+        if AppDelegate.shared.currentClaim == claim ||
+            (playlistItems.count > currentPlaylistIndex &&
+                AppDelegate.shared.currentClaim == playlistItems[currentPlaylistIndex])
+        {
             AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
         }
         AppDelegate.shared.currentFileViewController = self
@@ -256,18 +256,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         if #available(iOS 16, *) {
         } else {
-            if #available(iOS 14, *) {
-                let rateActionHandler: UIActionHandler = { action in
-                    self.playerRateButton.setTitle(action.title, for: .normal)
-                    let rate = Float(action.title.dropLast()) ?? 1
-                    self.avpc.player?.rate = rate
-                    self.playerRate = rate
-                }
-                let rateActions = availableRates.map { title in UIAction(title: title, handler: rateActionHandler) }
-                playerRateButton.menu = UIMenu(title: "", children: rateActions)
-            } else {
-                playerRateButton.addTarget(self, action: #selector(playerRateTapped), for: .touchUpInside)
+            let rateActionHandler: UIActionHandler = { action in
+                self.playerRateButton.setTitle(action.title, for: .normal)
+                let rate = Float(action.title.dropLast()) ?? 1
+                self.avpc.player?.rate = rate
+                self.playerRate = rate
             }
+            let rateActions = availableRates.map { title in UIAction(title: title, handler: rateActionHandler) }
+            playerRateButton.menu = UIMenu(title: "", children: rateActions)
         }
 
         registerForKeyboardNotifications()
@@ -343,26 +339,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            bottomLayoutConstraint.constant = kbSize.height
-            streamerAreaHeightConstraint.constant = 0
-            livestreamerArea.isHidden = true
-        }
+        streamerAreaHeightConstraint.constant = 0
+        livestreamerArea.isHidden = true
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
-        bottomLayoutConstraint.constant = 0
         streamerAreaHeightConstraint.constant = 56
         livestreamerArea.isHidden = false
     }
 
     func checkHasAccess() {
         let isLivestream = !isPlaylist && claim?.value?.source == nil
-        DispatchQueue.global().async {
+        Task.detached {
             MembershipPerk.perkCheck(
-                authToken: Lbryio.authToken,
-                claimId: self.claim?.claimId,
+                authToken: await AuthToken.token,
+                claimId: await self.claim?.claimId,
                 type: isLivestream ? .livestream : .content
             ) { result in
                 if case let .success(hasAccess) = result {
@@ -439,7 +430,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(urls: [url])
         )
         .subscribeResult(didResolveClaim)
@@ -719,9 +710,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         } else if isImageContent {
             var thumbnailDisplayUrl = contentUrl
             if let thumbnail = singleClaim.value?.thumbnail?.url, !thumbnail.isBlank,
-               let thumbnailUrl = URL(string: thumbnail)
+               let thumbnailUrl = URL(string: thumbnail)?.makeImageURL(spec: bigThumbSpec)
             {
-                thumbnailDisplayUrl = thumbnailUrl.makeImageURL(spec: bigThumbSpec)
+                thumbnailDisplayUrl = thumbnailUrl
             }
             contentInfoImage.pin_setImage(from: thumbnailDisplayUrl)
             let manager = PINRemoteImageManager.shared()
@@ -790,8 +781,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             Lbry.apiCall(
                 method: Lbry.methodGet,
                 params: params,
-                connectionString: Lbry.lbrytvConnectionString,
-                authToken: Lbryio.authToken,
+                url: Lbry.lbrytvURL,
                 completion: { data, error in
                     guard let data = data, error == nil else {
                         self.showError(error: error)
@@ -800,10 +790,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
                     if let result = data["result"] as? [String: Any] {
                         if let streamingUrl = result["streaming_url"] as? String,
-                           let contentUrl = URL(
-                               string: streamingUrl
-                                   .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
-                           )
+                           let encodedUrl = streamingUrl.addingPercentEncoding(
+                               withAllowedCharacters: .urlFragmentAllowed
+                           ),
+                           let contentUrl = URL(string: encodedUrl)
                         {
                             DispatchQueue.main.async {
                                 self.displayClaimContentFromUrl(
@@ -890,8 +880,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             publisherActionsArea.isHidden = true
         }
 
-        if let thumbnailUrl {
-            let optimisedThumbUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+        if let optimisedThumbUrl = thumbnailUrl?.makeImageURL(spec: ClaimTableViewCell.channelImageSpec) {
             if !isLivestream {
                 publisherImageView.load(url: optimisedThumbUrl)
             } else {
@@ -932,45 +921,37 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func loadTextContent(url: URL, contentType: String?) {
         DispatchQueue.global().async {
-            do {
-                var request = URLRequest(url: url)
-                request.setValue("https://ios.odysee.com/", forHTTPHeaderField: "Referer")
-                URLSession.shared.dataTask(with: request) { result in
-                    guard case let .success(data) = result,
-                          let contents = String(data: data.data, encoding: .utf8)
-                    else {
-                        self.handleContentLoadError(String(
-                            format: String.localized("Could not load URL %@"),
-                            url.absoluteString
-                        ))
-                        return
-                    }
-
-                    if contentType == "text/md" || contentType == "text/markdown" || contentType == "text/x-markdown" {
-                        guard let html = contents.markdownToHTML else {
-                            self
-                                .handleContentLoadError(String(
-                                    format: String.localized("Could not load URL %@"),
-                                    url.absoluteString
-                                ))
-                            return
-                        }
-
-                        let mdHtml = self.buildMarkdownHTML(html)
-                        self.loadWebViewContent(mdHtml)
-                    } else if contentType == "text/html" {
-                        self.loadWebViewContent(contents)
-                    } else {
-                        self.loadWebViewContent(self.buildPlainTextHTML(contents))
-                    }
-                }.resume()
-            } catch {
-                self
-                    .handleContentLoadError(String(
+            var request = URLRequest(url: url)
+            request.setValue("https://ios.odysee.com/", forHTTPHeaderField: "Referer")
+            URLSession.shared.dataTask(with: request) { result in
+                guard case let .success(data) = result,
+                      let contents = String(data: data.data, encoding: .utf8)
+                else {
+                    self.handleContentLoadError(String(
                         format: String.localized("Could not load URL %@"),
                         url.absoluteString
                     ))
-            }
+                    return
+                }
+
+                if contentType == "text/md" || contentType == "text/markdown" || contentType == "text/x-markdown" {
+                    guard let html = contents.markdownToHTML else {
+                        self
+                            .handleContentLoadError(String(
+                                format: String.localized("Could not load URL %@"),
+                                url.absoluteString
+                            ))
+                        return
+                    }
+
+                    let mdHtml = self.buildMarkdownHTML(html)
+                    self.loadWebViewContent(mdHtml)
+                } else if contentType == "text/html" {
+                    self.loadWebViewContent(contents)
+                } else {
+                    self.loadWebViewContent(self.buildPlainTextHTML(contents))
+                }
+            }.resume()
         }
     }
 
@@ -1045,12 +1026,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        isPlaylist = claim.valueType == .collection
+        isPlaylist = if let playlist = playlistClaim {
+            playlist.valueType == .collection
+        } else {
+            claim.valueType == .collection
+        }
         isLivestream = !isPlaylist && claim.value?.source == nil
         detailsScrollView.isHidden = isLivestream
         livestreamChatView.isHidden = !isLivestream
         reloadStreamView.isHidden = !isLivestream
-        relatedOrPlaylistTitle.text = isPlaylist ? claim.value?.title : String.localized("Related Content")
+        relatedOrPlaylistTitle.text = isPlaylist ?
+            (playlistClaim?.value?.title ?? claim.value?.title) :
+            String.localized("Related Content")
 
         displayRelatedPlaceholders()
 
@@ -1096,11 +1083,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if !forceInit, AppDelegate.shared.lazyPlayer != nil, AppDelegate.shared.currentClaim != nil,
            AppDelegate.shared.currentClaim?.claimId == singleClaim.claimId
         {
+            mediaLoadingIndicator.isHidden = true
+
             // Normally not needed,
             // but set this in case the state gets messed up and this FileViewController is new
-            if #available(iOS 14.2, *) {
-                avpc.canStartPictureInPictureAutomaticallyFromInline = true
-            }
+            avpc.canStartPictureInPictureAutomaticallyFromInline = true
 
             avpc.player = AppDelegate.shared.lazyPlayer
             playerConnected = true
@@ -1111,13 +1098,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let playerItem = AVPlayerItem(asset: asset)
         currentPlayer = AVPlayer(playerItem: playerItem)
 
+        AppDelegate.shared.currentClaim = singleClaim
+
         avpc.player = currentPlayer
 
         playerStartedObserver = currentPlayer?.observe(\.rate, options: .new) { [self] _, _ in
             playerStartedObserver = nil
-            (AppDelegate.shared.mainViewController as? MainViewController)?.closeMiniPlayerTapped(self)
 
-            AppDelegate.shared.currentClaim = singleClaim
+            let saveCurrent = AppDelegate.shared.currentClaim
+            let saveCurrentPlaylist = AppDelegate.shared.currentPlaylistClaim
+            (AppDelegate.shared.mainViewController as? MainViewController)?.closeMiniPlayerTapped(self)
+            AppDelegate.shared.currentClaim = saveCurrent
+            AppDelegate.shared.currentPlaylistClaim = saveCurrentPlaylist
+
             AppDelegate.shared.lazyPlayer?.pause()
 
             AppDelegate.shared.lazyPlayer = currentPlayer
@@ -1128,9 +1121,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             playerConnected = true
             playRequestTime = Int64(Date().timeIntervalSince1970 * 1000.0)
 
-            if #available(iOS 14.2, *) {
-                avpc.canStartPictureInPictureAutomaticallyFromInline = true
-            }
+            avpc.canStartPictureInPictureAutomaticallyFromInline = true
             if UserDefaults.standard.integer(forKey: "BackgroundPlaybackMode") != 0 {
                 avpc.allowsPictureInPicturePlayback = false
             }
@@ -1138,9 +1129,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             AppDelegate.shared.setupRemoteTransportControls()
         }
 
-        if AppDelegate.shared.lazyPlayer == nil {
-            avpc.player?.play()
+        Task {
+            _ = try? await asset.load(.duration)
+            mediaLoadingIndicator.isHidden = true
         }
+
+        AppDelegate.shared.lazyPlayer?.pause()
+        avpc.player?.play()
 
         let task = DispatchWorkItem { [weak self] in
             self?.dismissFileView.isHidden = true
@@ -1208,7 +1203,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         var options = [String: String]()
         options["uri"] = url
         options["claim_id"] = claimId
-        options["outpoint"] = String(format: "%@:%d", txid, nout)
+        options["outpoint"] = "\(txid):\(nout)"
         if timeToStart > 0 {
             options["time_to_start"] = String(timeToStart)
         }
@@ -1234,7 +1229,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             })
         } else {
             Lbry.apiCall(
-                method: Lbry.Methods.addressUnused,
+                method: LbryMethods.addressUnused,
                 params: .init()
             )
             .subscribeResult { result in
@@ -1264,7 +1259,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 action: "view_count",
                 options: ["claim_id": claimId],
                 completion: { data, error in
-                    guard let data = data, error == nil else {
+                    guard error == nil,
+                          let data = data as? NSArray,
+                          data.count > 0,
+                          let viewCount = data[0] as? Int
+                    else {
                         // couldn't load the view count for display
                         DispatchQueue.main.async {
                             self.viewCountLabel.isHidden = true
@@ -1273,7 +1272,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     }
                     DispatchQueue.main.async {
                         let formatter = Helper.interactionCountFormatter
-                        let viewCount = (data as! NSArray)[0] as! Int
                         self.viewCountLabel.isHidden = false
                         self.viewCountLabel.text = String(
                             format: viewCount == 1 ? String.localized("%@ view") : String.localized("%@ views"),
@@ -1308,8 +1306,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     self.numLikes = 0
                     self.numDislikes = 0
                     if let reactions = data as? [String: Any] {
-                        if let myReactions = reactions["my_reactions"] as? [String: Any] {
-                            let values = myReactions[claimId] as! [String: Any]
+                        if let myReactions = reactions["my_reactions"] as? [String: Any],
+                           let values = myReactions[claimId] as? [String: Any]
+                        {
                             let likeCount = values["like"] as? Int
                             let dislikeCount = values["dislike"] as? Int
                             if (likeCount ?? 0) > 0 {
@@ -1321,8 +1320,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                                 self.numDislikes += 1
                             }
                         }
-                        if let othersReactions = reactions["others_reactions"] as? [String: Any] {
-                            let values = othersReactions[claimId] as! [String: Any]
+                        if let othersReactions = reactions["others_reactions"] as? [String: Any],
+                           let values = othersReactions[claimId] as? [String: Any]
+                        {
                             let likeCount = values["like"] as? Int
                             let dislikeCount = values["dislike"] as? Int
                             self.numLikes += likeCount ?? 0
@@ -1440,24 +1440,31 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        if currentPlaylistPage == 1, playlistItems.count == 0 {
+        var playlistClaims: [String]?
+        if let playlist = playlistClaim {
+            playlistClaims = playlist.value?.claims
+            if let claimId = claim?.claimId {
+                currentPlaylistIndex = playlistClaims?.firstIndex(of: claimId) ?? 0
+            }
+        } else {
+            AppDelegate.shared.currentPlaylistClaim = claim
+            playlistClaims = claim?.value?.claims
+        }
+
+        if playlistItems.count == 0 {
             displayResolving()
         }
 
         loadingRelated = true
         loadingRelatedView.isHidden = false
 
-        if let playlistClaims = claim?.value?.claims {
+        if let playlistClaims {
             Lbry.apiCall(
-                method: Lbry.Methods.claimSearch,
+                method: LbryMethods.claimSearch,
                 params: .init(
-                    claimType: [.stream],
-                    page: currentPlaylistPage,
-                    pageSize: playlistPageSize,
-                    releaseTime: [Helper.releaseTimeBeforeFuture],
-                    notTags: Constants.NotTags + [Constants.MembersOnly],
+                    page: 1,
+                    pageSize: 999, // FIXME: pagination
                     claimIds: playlistClaims,
-                    orderBy: Helper.sortByItemValues[1]
                 )
             )
             .subscribeResult(didLoadPlaylistClaims)
@@ -1468,21 +1475,22 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
         if case let .success(payload) = result {
-            let oldCount = playlistItems.count
-            playlistItems.append(contentsOf: payload.items.filter { !playlistItems.contains($0) })
-            if playlistItems.count != oldCount {
-                relatedContentListView.reloadData()
+            let playlistClaims = if let playlist = playlistClaim {
+                playlist.value?.claims
+            } else {
+                claim?.value?.claims
             }
-            playlistLastPageReached = payload.isLastPage
+
+            if let playlistClaims {
+                playlistItems = payload.items.sorted(like: playlistClaims, keyPath: \.claimId, transform: \.self)
+            }
+            relatedContentListView.reloadData()
         }
         loadingRelatedView.isHidden = true
         loadingRelated = false
 
-        if currentPlaylistPage == 1 {
-            // first set of results, display the first claim
-            let singleClaim = playlistItems[0]
-            loadPlaylistItemClaim(singleClaim)
-        }
+        let singleClaim = playlistItems[currentPlaylistIndex]
+        loadPlaylistItemClaim(singleClaim)
     }
 
     func playPreviousPlaylistItem() {
@@ -1508,6 +1516,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func loadPlaylistItemClaim(_ singleClaim: Claim) {
+        detailsScrollView.setContentOffset(.zero, animated: true)
+
         comments.removeAll()
 
         displaySingleClaim(singleClaim)
@@ -1539,6 +1549,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        mediaLoadingIndicator.superview?.bringSubviewToFront(mediaLoadingIndicator)
+        mediaLoadingIndicator.isHidden = false
+
         var params = [String: Any]()
         params["uri"] = uri
         if let baseStreamingUrl = baseStreamingUrl {
@@ -1548,20 +1561,20 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         Lbry.apiCall(
             method: Lbry.methodGet,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
+                    self.mediaLoadingIndicator.isHidden = true
                     self.showError(error: error)
                     return
                 }
 
                 if let result = data["result"] as? [String: Any] {
                     if let streamingUrl = result["streaming_url"] as? String,
-                       let sourceUrl = URL(
-                           string: streamingUrl
-                               .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
-                       )
+                       let encodedUrl = streamingUrl.addingPercentEncoding(
+                           withAllowedCharacters: .urlFragmentAllowed
+                       ),
+                       let sourceUrl = URL(string: encodedUrl)
                     {
                         self.getTranscodedUrlAndInitializePlayer(claim: singleClaim, sourceUrl: sourceUrl)
                     }
@@ -1603,6 +1616,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         self.showClaimAndCheckFollowing()
                     }
                 } else {
+                    self.mediaLoadingIndicator.isHidden = true
                     self.showError(message: String.localized("Failed to get transcoded media location"))
                 }
                 return
@@ -1632,6 +1646,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             self.showClaimAndCheckFollowing()
                         }
                     } else {
+                        self.mediaLoadingIndicator.isHidden = true
                         self.showError(message: String.localized("Failed to get transcoded media location"))
                     }
                     return
@@ -1645,10 +1660,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     location = "\(scheme)://\(host)\(location)"
                 }
 
-                if let mediaUrl = URL(
-                    string: location
-                        .addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed)!
-                ) {
+                if let encodedUrl = location.addingPercentEncoding(withAllowedCharacters: .urlFragmentAllowed),
+                   let mediaUrl = URL(string: encodedUrl)
+                {
                     DispatchQueue.main.async {
                         let headers: [String: String] = [
                             "Referer": "https://ios.odysee.com/",
@@ -1687,13 +1701,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
 
             let urls = results.compactMap { item in
-                LbryUri.tryParse(
-                    url: String(format: "%@#%@", item["name"] as! String, item["claimId"] as! String),
-                    requireProto: false
-                )?.description
+                if let name = item["name"] as? String,
+                   let claimId = item["claimId"] as? String
+                {
+                    LbryUri.tryParse(
+                        url: "\(name)#\(claimId)",
+                        requireProto: false
+                    )?.description
+                } else {
+                    nil
+                }
             }
             Lbry.apiCall(
-                method: Lbry.Methods.resolve,
+                method: LbryMethods.resolve,
                 params: .init(urls: urls)
             )
             .subscribeResult(self.handleRelatedContentResult)
@@ -1780,7 +1800,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
 
             if isPlaylist {
-                // play the itema nd set the current index
+                // play the item and set the current index
                 let index = indexPath.row
                 currentPlaylistIndex = index
                 loadPlaylistItemClaim(claim)
@@ -2044,19 +2064,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             ),
                             url: subUrl.description
                         )
-                        if let channelName = subUrl.channelName {
-                            self.addSubscription(
-                                url: subUrl.description,
-                                channelName: channelName,
-                                isNotificationsDisabled: notificationsDisabled,
-                                reloadAfter: true
-                            )
-                        }
                     } else {
                         Lbryio.removeSubscription(subUrl: subUrl.description)
-                        if let channelName = subUrl.channelName {
-                            self.removeSubscription(url: subUrl.description, channelName: channelName)
-                        }
                     }
 
                     self.checkFollowing(actualClaim)
@@ -2076,41 +2085,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             )
         } catch {
             showError(error: error)
-        }
-    }
-
-    func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
-        // persist the subscription to CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
-            let subToSave = Subscription(context: context)
-            subToSave.url = url
-            subToSave.channelName = channelName
-            subToSave.isNotificationsDisabled = isNotificationsDisabled
-
-            AppDelegate.shared.saveContext()
-        }
-    }
-
-    func removeSubscription(url: String, channelName: String) {
-        // remove the subscription from CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-
-            do {
-                let subs = try context.fetch(fetchRequest)
-                for sub in subs {
-                    context.delete(sub)
-                }
-
-                try context.save()
-            } catch {
-                // pass
-            }
         }
     }
 
@@ -2232,7 +2206,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     @IBAction func reportActionTapped(_ sender: Any) {
         if let claimId = claim?.claimId,
-           let url = URL(string: String(format: "https://odysee.com/$/report_content?claimId=%@", claimId))
+           let url = URL(string: "https://odysee.com/$/report_content?claimId=\(claimId)")
         {
             let vc = SFSafariViewController(url: url)
             AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
@@ -2254,7 +2228,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBAction func commentAsTapped(_ sender: Any) {
         chatInputField.resignFirstResponder()
 
-        _ = Helper.showPickerActionSheet(
+        Helper.showPickerActionSheet(
             title: String.localized("Comment as"),
             origin: commentAsChannelLabel,
             rows: channels.map { $0.name ?? "" },
@@ -2280,7 +2254,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         commentsLoading = true
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentMethods.list,
             params: .init(
                 claimId: claimId,
                 page: commentsCurrentPage,
@@ -2330,7 +2304,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func resolveCommentAuthors(urls: [String]) {
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(urls: urls)
         )
         .subscribeResult(didResolveCommentAuthors)
@@ -2356,7 +2330,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         loadingChannels = true
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -2385,7 +2359,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func connectChatSocket() {
         if isLivestream,
            let claimId = claim?.claimId,
-           let url = URL(string: String(format: "%@%@", Lbryio.wsCommmentBaseUrl, claimId))
+           let url = URL(string: "\(Lbryio.wsCommmentBaseUrl)\(claimId)")
         {
             chatWebsocket = WebSocket(request: URLRequest(url: url))
             chatWebsocket?.delegate = self
@@ -2404,7 +2378,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentMethods.list,
             params: .init(
                 claimId: claimId,
                 page: 1,
@@ -2458,16 +2432,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             chatConnected = false
         case let .text(string):
             do {
-                if let jsonData = string.data(using: .utf8, allowLossyConversion: false) {
-                    if let response = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any] {
-                        if response["type"] as? String == "delta" {
-                            if let data = response["data"] as? [String: Any] {
-                                if let commentData = data["comment"] as? [String: Any] {
-                                    handleChatMessageReceived(data: commentData)
-                                }
-                            }
-                        }
-                    }
+                let jsonData = string.data
+                if let response = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
+                   response["type"] as? String == "delta",
+                   let data = response["data"] as? [String: Any],
+                   let commentData = data["comment"] as? [String: Any]
+                {
+                    handleChatMessageReceived(data: commentData)
                 }
             } catch {
                 // pass
@@ -2499,7 +2470,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         webView.evaluateJavaScript("document.readyState", completionHandler: { complete, _ in
             if complete != nil {
                 webView.evaluateJavaScript("document.body.scrollHeight", completionHandler: { height, _ in
-                    self.webViewHeightConstraint.constant = height as! CGFloat
+                    if let height = height as? CGFloat {
+                        self.webViewHeightConstraint.constant = height
+                    }
                     webView.scrollView.isScrollEnabled = false
 
                     self.mediaView.isHidden = true
@@ -2521,22 +2494,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), name)
-    }
-
-    @objc func playerRateTapped(_ sender: Any) {
-        _ = Helper.showPickerActionSheet(
-            title: "Playback Speed",
-            origin: playerRateButton,
-            rows: availableRates,
-            initialSelection: selectedRateIndex,
-        ) { _, selectedRateIndex, _ in
-            self.selectedRateIndex = selectedRateIndex
-            let selectedRate = self.availableRates[self.selectedRateIndex]
-            self.playerRateButton.setTitle(selectedRate, for: .normal)
-            let rate = Float(selectedRate.dropLast()) ?? 1
-            self.avpc.player?.rate = rate
-            self.playerRate = rate
-        }
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -2579,7 +2536,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
 
             Lbry.apiCall(
-                method: Lbry.Methods.channelSign,
+                method: LbryMethods.channelSign,
                 params: .init(
                     channelId: channelId,
                     hexdata: Helper.strToHex(chatText)
@@ -2587,7 +2544,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             )
             .flatMap { channelSignResult in
                 Lbry.commentApiCall(
-                    method: Lbry.CommentMethods.create,
+                    method: CommentMethods.create,
                     params: .init(
                         claimId: claimId,
                         channelId: channelId,

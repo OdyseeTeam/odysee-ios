@@ -7,19 +7,24 @@
 
 import Base58Swift
 import Combine
-import CoreData
 import CryptoKit
-import Firebase
+import FirebaseAnalytics
+import FirebaseCrashlytics
 import Foundation
 import os
 import UIKit
 
 enum Lbry {
     static let ttlCLaimSearchValue = 120_000
+    // swift-format-ignore
+    // Initialized once with static value
     static let lbrytvURL = URL(string: "https://api.na-backend.odysee.com/api/v1/proxy")!
+    // swift-format-ignore
+    // Initialized once with static value
     static let uploadURL = URL(string: "https://publish.na-backend.odysee.com/v1")!
+    // swift-format-ignore
+    // Initialized once with static value
     static let commentronURL = URL(string: "https://comments.odysee.tv/api/v2")!
-    static let lbrytvConnectionString = lbrytvURL.absoluteString
     static let keyShared = "shared"
     static let sharedPreferenceVersion = "0.1"
 
@@ -57,42 +62,6 @@ enum Lbry {
         page.items.forEach(Lbry.addClaimToCache)
     }
 
-    struct Method<ParamType: Encodable, ResultType: Decodable> {
-        var name: String
-        var defaultTransform: ((inout ResultType) throws -> Void)?
-    }
-
-    enum Methods {
-        static let resolve = Method<ResolveParams, ResolveResult>(
-            name: "resolve",
-            defaultTransform: processResolvedClaims
-        )
-        static let claimSearch = Method<ClaimSearchParams, Page<Claim>>(
-            name: "claim_search",
-            defaultTransform: processPageOfClaims
-        )
-        static let claimList = Method<ClaimListParams, Page<Claim>>(
-            name: "claim_list",
-            defaultTransform: processPageOfClaims
-        )
-        static let streamAbandon = Method<StreamAbandonParams, Transaction>(name: "stream_abandon")
-        static let addressUnused = Method<AddressUnusedParams, String>(name: "address_unused")
-        static let channelAbandon = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
-        static let channelSign = Method<ChannelSignParams, ChannelSignResult>(name: "channel_sign")
-        static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
-        static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
-    }
-
-    enum CommentMethods {
-        static let byId = Method<CommentByIdParams, CommentByIdResult>(name: "comment.ByID")
-        static let list = Method<CommentListParams, Page<Comment>>(name: "comment.List")
-        static let create = Method<CommentCreateParams, Comment>(name: "comment.Create")
-        static let reactList = Method<CommentReactListParams, ReactListResult>(name: "reaction.List")
-        static let react = Method<CommentReactParams, NilType>(name: "reaction.React")
-    }
-
-    struct NilType: Decodable {}
-
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
     static let methodChannelCreate = "channel_create"
     static let methodChannelUpdate = "channel_update"
@@ -120,7 +89,7 @@ enum Lbry {
     private static var claimCacheByUrl = NSCache<NSString, Claim>()
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
-    static var blockedChannels: [BlockedChannel] = []
+    static var blockedChannels: [LbryBlockedChannel] = []
     static var defaultChannelId: String?
 
     private struct APIBody<CallParams: Encodable>: Encodable {
@@ -147,10 +116,14 @@ enum Lbry {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         do {
-            req.httpBody = try bodyEncoder.encode(body)
-        } catch let e {
-            assertionFailure("API encoding error: \(e)")
-            throw e
+            req.httpBody = if method == LbryMethods.sharedPreferenceSet.name {
+                try JSONEncoder().encode(body)
+            } else {
+                try bodyEncoder.encode(body)
+            }
+        } catch {
+            assertionFailure("API encoding error: \(error)")
+            throw error
         }
         req.addValue("application/json", forHTTPHeaderField: "Content-Type")
         req.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -173,42 +146,54 @@ enum Lbry {
 
     // `transform` is run off-main to do things like sorting/filtering. Be cafeful!
     // The returned publisher receives events on the main thread.
-    static func commentApiCall<Params: Encodable, ReturnType: Decodable>
+    static func commentApiCall<Params: Encodable, ResultType: Decodable>
     (
-        method: Method<Params, ReturnType>,
+        method: Method<Params, ResultType>,
         params: Params,
         url: URL = commentronURL,
-        transform: ((inout ReturnType) throws -> Void)? = nil
+        transform: ((inout ResultType) throws -> Void)? = nil
     )
-        -> AnyPublisher<ReturnType, Error>
+        -> AnyPublisher<ResultType, Error>
     {
         return apiCall(method: method, params: params, url: url, transform: transform)
     }
 
     // `transform` is run off-main to do things like sorting/filtering. Be cafeful!
     // The returned publisher receives events on the main thread.
-    static func apiCall<Params: Encodable, ReturnType: Decodable>
+    static func apiCall<Params: Encodable, ResultType: Decodable>
     (
-        method: Method<Params, ReturnType>,
+        method: Method<Params, ResultType>,
         params: Params,
         url: URL = lbrytvURL,
-        authToken: String? = Lbryio.authToken,
-        transform: ((inout ReturnType) throws -> Void)? = nil
+        authTokenOverride: String? = nil,
+        transform: ((inout ResultType) throws -> Void)? = nil
     )
-        -> AnyPublisher<ReturnType, Error>
+        -> AnyPublisher<ResultType, Error>
     {
         // Note: We subscribe on global queue to do encoding etc. off the main thread.
-        return Just(()).subscribe(on: DispatchQueue.global()).tryMap {
-            // Create URLRequest.
-            try apiRequest(method: method.name, params: params, url: url, authToken: authToken)
+        return Just(()).subscribe(on: DispatchQueue.global()).flatMap {
+            Future { promise in
+                Task {
+                    let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
+
+                    do {
+                        // Create URLRequest.
+                        try promise(.success(
+                            apiRequest(method: method.name, params: params, url: url, authToken: authToken)
+                        ))
+                    } catch {
+                        promise(.failure(error))
+                    }
+                }
+            }
         }
         .flatMap { request in
             // Run data task.
             URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }
         }
-        .tryMap { data, _ -> ReturnType in
+        .tryMap { data, _ -> ResultType in
             // Decode and validate result.
-            let response = try JSONDecoder().decode(APIResponse<ReturnType>.self, from: data)
+            let response = try JSONDecoder().decode(APIResponse<ResultType>.self, from: data)
             if response.jsonrpc != "2.0" {
                 assertionFailure()
                 throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
@@ -230,50 +215,60 @@ enum Lbry {
     static func apiCall(
         method: String,
         params: [String: Any],
-        connectionString: String,
-        authToken: String? = nil,
+        url: URL,
+        authTokenOverride: String? = nil,
         completion: @escaping ([String: Any]?, Error?) -> Void
     ) {
-        let req: URLRequest
-        do {
-            req = try apiRequest(
-                method: method,
-                params: params as NSDictionary,
-                url: URL(string: connectionString)!,
-                authToken: authToken
-            )
-        } catch let e {
-            completion(nil, e)
-            return
-        }
-        let task = URLSession.shared.dataTask(with: req, completionHandler: { data, _, error in
-            guard let data = data, error == nil else {
-                // handle error
+        Task {
+            // Intentionally allow blank for calls that need it
+            let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
+
+            let req: URLRequest
+            do {
+                req = try apiRequest(
+                    method: method,
+                    params: params as NSDictionary,
+                    url: url,
+                    authToken: authToken
+                )
+            } catch {
                 completion(nil, error)
                 return
             }
-            do {
-                Log.verboseJSON.logIfEnabled(.debug, "Response to `\(method)`: \(String(data: data, encoding: .utf8)!)")
-
-                let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                if response?["result"] != nil {
-                    completion(response, nil)
-                } else {
-                    if response?["error"] == nil, response?["result"] == nil {
-                        completion(nil, nil)
-                    } else if response?["error"] as? String != nil {
-                        completion(nil, LbryApiResponseError(response?["error"] as! String))
-                    } else if let errorJson = response?["error"] as? [String: Any] {
-                        completion(nil, LbryApiResponseError(errorJson["message"] as! String))
-                    } else {
-                        completion(nil, LbryApiResponseError("unknown api error"))
-                    }
+            let task = URLSession.shared.dataTask(with: req, completionHandler: { data, _, error in
+                guard let data = data, error == nil else {
+                    // handle error
+                    completion(nil, error)
+                    return
                 }
-            } catch {
-                completion(nil, error)
-            }
-        })
-        task.resume()
+                do {
+                    Log.verboseJSON.logIfEnabled(
+                        .debug,
+                        "Response to `\(method)`: \(String(data: data, encoding: .utf8) ?? "Couldn't parse data")"
+                    )
+
+                    let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                    if response?["result"] != nil {
+                        completion(response, nil)
+                    } else {
+                        if response?["error"] == nil, response?["result"] == nil {
+                            completion(nil, nil)
+                        } else if let error = response?["error"] as? String {
+                            completion(nil, LbryApiResponseError(error))
+                        } else if let errorJson = response?["error"] as? [String: Any],
+                                  let errorMessage = errorJson["message"] as? String
+                        {
+                            completion(nil, LbryApiResponseError(errorMessage))
+                        } else {
+                            completion(nil, LbryApiResponseError("unknown api error"))
+                        }
+                    }
+                } catch {
+                    completion(nil, error)
+                }
+            })
+            task.resume()
+        }
     }
 
     static func cachedClaim(url: String) -> Claim? {
@@ -312,6 +307,8 @@ enum Lbry {
     static func generateId(numBytes: Int) -> String? {
         var data = Data(count: numBytes)
         let result = data.withUnsafeMutableBytes {
+            // swift-format-ignore
+            // All of this is unsafe
             SecRandomCopyBytes(kSecRandomDefault, numBytes, $0.baseAddress!)
         }
         if result == errSecSuccess {
@@ -365,16 +362,6 @@ enum Lbry {
     // move to main thread due to the appdelegate reference
     static func processBlockedUrls(_ blockedUrls: [String]) {
         DispatchQueue.main.async {
-            let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "BlockedChannel")
-            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-            do {
-                let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-                try context.execute(deleteRequest)
-            } catch {
-                // pass
-                return
-            }
-
             if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
                 for aUrl in blockedUrls {
                     let lbryUrl = LbryUri.tryParse(url: aUrl, requireProto: false)
@@ -398,7 +385,7 @@ enum Lbry {
             for sub in subs {
                 if let channelName = sub.channelName, let claimId = sub.claimId,
                    let lbryUrl = LbryUri.tryParse(
-                       url: String(format: "%@:%@", normalizeChannelName(channelName), claimId),
+                       url: "\(normalizeChannelName(channelName)):\(claimId)",
                        requireProto: false
                    )
                 {
@@ -419,11 +406,10 @@ enum Lbry {
     }
 
     static func normalizeChannelName(_ channelName: String) -> String {
-        var name = channelName
-        if !name.starts(with: "@") {
-            name = String(format: "@%@", name)
+        if !channelName.starts(with: "@") {
+            return "@\(channelName)"
         }
-        return name
+        return channelName
     }
 
     static func isNotificationsDisabledForSubUrl(_ url: String, following: [[String: Any]]?) -> Bool {
@@ -478,15 +464,14 @@ enum Lbry {
             if let dataToSave = try? JSONSerialization.data(
                 withJSONObject: shared as Any,
                 options: [.prettyPrinted, .sortedKeys]
-            ) {
+            ), let value = String(data: dataToSave, encoding: String.Encoding.utf8) {
                 var params = [String: Any]()
                 params["key"] = keyShared
-                params["value"] = String(data: dataToSave, encoding: String.Encoding.utf8)!
+                params["value"] = value
                 apiCall(
                     method: methodPreferenceSet,
                     params: params,
-                    connectionString: lbrytvConnectionString,
-                    authToken: Lbryio.authToken,
+                    url: lbrytvURL,
                     completion: { data, error in
                         guard data != nil, error == nil else {
                             completion(false, error)
@@ -524,7 +509,7 @@ enum Lbry {
             if let channelName = value.channelName,
                let claimId = value.claimId,
                let url = LbryUri.tryParse(
-                   url: String(format: "%@:%@", normalizeChannelName(channelName), claimId),
+                   url: "\(normalizeChannelName(channelName)):\(claimId)",
                    requireProto: false
                )
             {
@@ -542,7 +527,7 @@ enum Lbry {
             if let name = blockedChannel.name,
                let claimId = blockedChannel.claimId,
                let lbryUrl = LbryUri.tryParse(
-                   url: String(format: "%@:%@", normalizeChannelName(name), claimId),
+                   url: "\(normalizeChannelName(name)):\(claimId)",
                    requireProto: false
                )
             {
@@ -559,8 +544,7 @@ enum Lbry {
         apiCall(
             method: methodPreferenceGet,
             params: params,
-            connectionString: lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: lbrytvURL,
             completion: { data, error in
                 guard error == nil else {
                     completion(nil, false, error)
@@ -586,11 +570,12 @@ enum Lbry {
         apiCall(
             method: Lbry.methodSyncHash,
             params: [String: Any](),
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    Crashlytics.crashlytics().recordImmediate(error: error!)
+                    if let error {
+                        Crashlytics.crashlytics().recordImmediate(error: error)
+                    }
                     walletSyncInProgress = false
                     return
                 }
@@ -605,7 +590,7 @@ enum Lbry {
                         }
 
                         remoteWalletHash = walletSync.hash
-                        if walletSync.data != nil, (walletSync.changed ?? true) || localWalletHash != remoteWalletHash {
+                        if walletSync.data != nil, walletSync.changed || localWalletHash != remoteWalletHash {
                             // sync apply changes
                             var params = [String: Any]()
                             params["password"] = ""
@@ -614,27 +599,26 @@ enum Lbry {
                             apiCall(
                                 method: methodSyncApply,
                                 params: params,
-                                connectionString: Lbry.lbrytvConnectionString,
-                                authToken: Lbryio.authToken,
+                                url: Lbry.lbrytvURL,
                                 completion: { saData, saError in
                                     guard let saData = saData, saError == nil else {
-                                        Crashlytics.crashlytics().recordImmediate(error: saError!)
-                                        if let completion {
-                                            completion(true)
+                                        if let saError {
+                                            Crashlytics.crashlytics().recordImmediate(error: saError)
                                         }
+                                        completion?(false)
                                         walletSyncInProgress = false
                                         return
                                     }
 
-                                    let result = saData["result"] as! [String: Any]
-                                    let saHash = result["hash"] as! String
-                                    localWalletHash = saHash
+                                    if let result = saData["result"] as? [String: Any],
+                                       let saHash = result["hash"] as? String
+                                    {
+                                        localWalletHash = saHash
+                                    }
 
                                     walletSyncInProgress = false
                                     loadSharedUserState(completion: { _, _ in
-                                        if let completion {
-                                            completion(true)
-                                        }
+                                        completion?(true)
                                     })
 
                                     checkPushSyncQueue()
@@ -645,9 +629,7 @@ enum Lbry {
                             walletSyncInProgress = false
                             loadSharedUserState(completion: { _, _ in
                                 // reload all the same
-                                if let completion {
-                                    completion(true)
-                                }
+                                completion?(true)
                             })
                         }
                     })
@@ -680,8 +662,7 @@ enum Lbry {
         Lbry.apiCall(
             method: Lbry.methodSyncApply,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     walletSyncInProgress = false
@@ -693,14 +674,16 @@ enum Lbry {
                     if let hash = result["hash"] as? String, let walletData = result["data"] as? String {
                         Lbry.localWalletHash = hash
                         Lbryio.syncSet(
-                            oldHash: remoteWalletHash!,
+                            oldHash: remoteWalletHash ?? "",
                             newHash: hash,
                             data: walletData,
                             completion: { remoteHash, error in
                                 guard let remoteHash = remoteHash, error == nil else {
                                     walletSyncInProgress = false
                                     checkPushSyncQueue()
-                                    Crashlytics.crashlytics().recordImmediate(error: error!)
+                                    if let error {
+                                        Crashlytics.crashlytics().recordImmediate(error: error)
+                                    }
                                     return
                                 }
 

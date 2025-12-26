@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 05/12/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import OrderedCollections
 import UIKit
 
@@ -66,7 +66,7 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
         transactionListView.isHidden = currentPage == 1
 
         Lbry.apiCall(
-            method: Lbry.Methods.transactionList,
+            method: LbryMethods.transactionList,
             params: .init(
                 page: currentPage,
                 pageSize: pageSize

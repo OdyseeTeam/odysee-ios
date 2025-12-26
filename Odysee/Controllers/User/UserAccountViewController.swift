@@ -5,7 +5,7 @@
 //  Created by Akinwale Ariwodola on 01/12/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class UserAccountViewController: UIViewController {
@@ -89,16 +89,11 @@ class UserAccountViewController: UIViewController {
     }
 
     @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-
-            let height = UIScreen.main.bounds.height
-            let width = UIScreen.main.bounds.width
-            uaScrollView.contentSize = CGSize(width: width, height: height)
-            haveAccountLabel.isHidden = true
-            switchModeButton.isHidden = true
-        }
+        let height = UIScreen.main.bounds.height
+        let width = UIScreen.main.bounds.width
+        uaScrollView.contentSize = CGSize(width: width, height: height)
+        haveAccountLabel.isHidden = true
+        switchModeButton.isHidden = true
     }
 
     @objc func keyboardWillHide(notification: NSNotification) {
@@ -189,7 +184,7 @@ class UserAccountViewController: UIViewController {
                 if let stringData = data as? String {
                     if stringData.lowercased() == "ok" {
                         self.currentEmail = email
-                        Analytics.logEvent("email_added", parameters: ["email": self.currentEmail])
+                        Analytics.logEvent("email_added", parameters: ["email": self.currentEmail as Any])
 
                         // display waiting for email verification view
                         self.waitForVerification()
@@ -279,7 +274,7 @@ class UserAccountViewController: UIViewController {
 
                     // close the view
                     DispatchQueue.main.async {
-                        Analytics.logEvent("email_verified", parameters: ["email": self.currentEmail])
+                        Analytics.logEvent("email_verified", parameters: ["email": self.currentEmail as Any])
 
                         AppDelegate.shared.mainController.checkUploadButton()
 
@@ -337,7 +332,7 @@ class UserAccountViewController: UIViewController {
                                 // old email verification flow
                                 self.currentEmail = email
                                 self.handleUserSignInWithoutPassword(email: email)
-                                Analytics.logEvent("email_added", parameters: ["email": self.currentEmail])
+                                Analytics.logEvent("email_added", parameters: ["email": self.currentEmail as Any])
                             } else {
                                 DispatchQueue.main.async {
                                     self.defaultActionButton.isEnabled = true
@@ -351,7 +346,7 @@ class UserAccountViewController: UIViewController {
                     }
 
                     self.currentEmail = email
-                    Analytics.logEvent("email_added", parameters: ["email": self.currentEmail])
+                    Analytics.logEvent("email_added", parameters: ["email": self.currentEmail as Any])
 
                     self.emailSignInChecked = true
                     guard let respData = data as? [String: Any],
@@ -510,9 +505,9 @@ class UserAccountViewController: UIViewController {
 
         emailField.text = ""
         passwordField.text = ""
-        Lbryio.authToken = nil
 
         Lbryio.Defaults.reset()
+        Task { await AuthToken.reset() }
 
         UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
 

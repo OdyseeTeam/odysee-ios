@@ -6,7 +6,7 @@
 //
 
 import Base58Swift
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate,
@@ -18,7 +18,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     var recentTransactions: [Transaction] = []
 
     @IBOutlet var recentTxListHeightConstraint: NSLayoutConstraint!
-    @IBOutlet var walletScrollView: UIScrollView!
     @IBOutlet var balanceLabel: UILabel!
     @IBOutlet var usdBalanceLabel: UILabel!
 
@@ -87,37 +86,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         displayBalance(balance: Lbry.walletBalance)
 
         recentTransactionsListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
-        registerForKeyboardNotifications()
-    }
-
-    func registerForKeyboardNotifications() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillShow),
-            name: UIResponder.keyboardWillShowNotification,
-            object: nil
-        )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(keyboardWillHide),
-            name: UIResponder.keyboardWillHideNotification,
-            object: nil
-        )
-    }
-
-    @objc func keyboardWillShow(notification: NSNotification) {
-        if let info = notification.userInfo {
-            let kbSize = (info[UIResponder.keyboardFrameEndUserInfoKey] as! NSValue).cgRectValue.size
-            let contentInsets = UIEdgeInsets(top: 0.0, left: 0.0, bottom: kbSize.height, right: 0.0)
-            walletScrollView.contentInset = contentInsets
-            walletScrollView.scrollIndicatorInsets = contentInsets
-        }
-    }
-
-    @objc func keyboardWillHide(notification: NSNotification) {
-        let contentInsets = UIEdgeInsets.zero
-        walletScrollView.contentInset = contentInsets
-        walletScrollView.scrollIndicatorInsets = contentInsets
     }
 
     func checkReceiveAddress() {
@@ -194,8 +162,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         Lbry.apiCall(
             method: Lbry.methodWalletSend,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard data != nil, error == nil else {
                     self.showError(error: error)
@@ -219,7 +186,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     func getNewReceiveAddress() {
         // getNewAddressButton.isEnabled = false
-        Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
+        Lbry.apiCall(method: LbryMethods.addressUnused, params: .init()).subscribeResult { result in
             guard case let .success(address) = result else {
                 result.showErrorIfPresent()
                 return
@@ -314,7 +281,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         noRecentTransactionsLabel.isHidden = true
 
         Lbry.apiCall(
-            method: Lbry.Methods.transactionList,
+            method: LbryMethods.transactionList,
             params: .init(
                 page: 1,
                 pageSize: 5

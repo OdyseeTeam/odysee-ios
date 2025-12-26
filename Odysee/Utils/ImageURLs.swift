@@ -34,12 +34,12 @@ struct ImageSpec {
 }
 
 extension URL {
-    func makeImageURL(spec: ImageSpec) -> URL {
+    func makeImageURL(spec: ImageSpec) -> URL? {
         var str = kImageServerBaseURL
         spec.appendPathSpecifier(to: &str)
         str += "plain/"
         str += absoluteString
         spec.appendFormatSpecifier(to: &str)
-        return URL(string: str)!
+        return URL(string: str)
     }
 }

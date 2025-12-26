@@ -5,13 +5,13 @@
 //  Created by Akinwale Ariwodola on 04/12/2020.
 //
 
-import Firebase
+import FirebaseAnalytics
 import UIKit
 
 // initial wallet sync processing after sign in / sign up
 class WalletSyncViewController: UIViewController {
     var firstRunFlow = false
-    var currentWalletSync: WalletSync?
+    var currentWalletSync: SyncGetResult? // FIXME:
     var frDelegate: FirstRunDelegate?
 
     override func viewWillAppear(_ animated: Bool) {
@@ -49,17 +49,17 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodWalletStatus,
             params: [String: Any](),
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
                     return
                 }
 
-                let result = data["result"] as! [String: Any]
-                let walletIsLocked = result["is_locked"] as! Bool
-                if walletIsLocked {
+                if let result = data["result"] as? [String: Any],
+                   let walletIsLocked = result["is_locked"] as? Bool,
+                   walletIsLocked
+                {
                     self.unlockWalletForSync()
                 } else {
                     self.obtainHashForSync()
@@ -74,16 +74,14 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodWalletUnlock,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
                     return
                 }
 
-                let unlocked = data["result"] as! Bool
-                if unlocked {
+                if let unlocked = data["result"] as? Bool, unlocked {
                     self.obtainHashForSync()
                 } else {
                     // error
@@ -97,17 +95,17 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodSyncHash,
             params: [String: Any](),
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
                     return
                 }
 
-                let hash = data["result"] as! String
-                Lbry.localWalletHash = hash
-                self.startSync(hash: hash)
+                if let hash = data["result"] as? String {
+                    Lbry.localWalletHash = hash
+                    self.startSync(hash: hash)
+                }
             }
         )
     }
@@ -126,12 +124,16 @@ class WalletSyncViewController: UIViewController {
 
             Lbry.remoteWalletHash = walletSync?.hash
             self.currentWalletSync = walletSync
-            self.processExistingWallet(password: "", walletSync: walletSync)
-            return
+
+            if walletSync?.data != nil, (walletSync?.changed ?? true) || Lbry.localWalletHash != Lbry.remoteWalletHash {
+                self.processExistingWallet(password: "", walletSync: walletSync)
+            } else {
+                self.closeWalletSync()
+            }
         })
     }
 
-    func processExistingWallet(password: String, walletSync: WalletSync?) {
+    func processExistingWallet(password: String, walletSync: SyncGetResult?) {
         // first attempt at sync_apply to check if a password is required
         var params = [String: Any]()
         params["password"] = password
@@ -142,8 +144,7 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodSyncApply,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard data != nil, error == nil else {
                     // sync apply wasn't successful, ask the user to enter a password to unlock
@@ -203,8 +204,7 @@ class WalletSyncViewController: UIViewController {
         Lbry.apiCall(
             method: Lbry.methodSyncApply,
             params: params,
-            connectionString: Lbry.lbrytvConnectionString,
-            authToken: Lbryio.authToken,
+            url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)

@@ -6,8 +6,8 @@
 //
 
 import AVKit
-import CoreData
-import Firebase
+import FirebaseAnalytics
+import FirebaseCrashlytics
 import UIKit
 
 class InitViewController: UIViewController {
@@ -20,15 +20,21 @@ class InitViewController: UIViewController {
     // 1. loadExchangeRate
     // 2. loadAndCacheRemoteSubscriptions
     // 3. authenticateAndRegisterInstall
-    func runInit() {
+    func runInit() async {
         let defaults = UserDefaults.standard
+
+        if defaults.object(forKey: Helper.keyHasRunAfterInstall) == nil {
+            await AuthToken.reset()
+            defaults.set(true, forKey: Helper.keyHasRunAfterInstall)
+        }
+
         Lbry.installationId = defaults.string(forKey: Lbry.keyInstallationId)
         if Lbry.installationId.isBlank {
             Lbry.installationId = Lbry.generateId()
             defaults.set(Lbry.installationId, forKey: Lbry.keyInstallationId)
         }
 
-        Lbryio.loadAuthToken()
+        _ = await AuthToken.token
 
         Lbryio.loadExchangeRate(completion: { _, _ in
             // don't bother with error checks here, simply proceed to authenticate
@@ -51,7 +57,7 @@ class InitViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        runInit()
+        Task { await runInit() }
 
         errorView.layer.cornerRadius = 16
     }
@@ -63,8 +69,8 @@ class InitViewController: UIViewController {
                     if let responseError = error as? LbryioResponseError {
                         if responseError.code == 403 {
                             // invalidated auth token, get a new one
-                            Lbryio.authToken = nil
                             Lbryio.Defaults.reset()
+                            Task { await AuthToken.reset() }
                             self.authenticateAndRegisterInstall()
                             return
                         }
@@ -100,7 +106,7 @@ class InitViewController: UIViewController {
             // successful authentication and install registration
             // open the main application interface
             DispatchQueue.main.async {
-                let main = self.storyboard!.instantiateViewController(identifier: "main_vc")
+                let main = self.storyboard?.instantiateViewController(identifier: "main_vc")
                 if let window = self.view.window {
                     window.rootViewController = main
                     UIView.transition(
@@ -117,10 +123,6 @@ class InitViewController: UIViewController {
     // we only want to cache the URLs for followed channels (both local and remote) here
     func loadAndCacheSubscriptions() {
         do {
-            // load local subscriptions
-            loadLocalSubscriptions()
-
-            // check if there are remote subscriptions and load them too
             try Lbryio.get(resource: "subscription", action: "list", completion: { data, error in
                 guard let data = data, error == nil else {
                     self.authenticateAndRegisterInstall()
@@ -162,29 +164,6 @@ class InitViewController: UIViewController {
         } catch {
             // simply continue if it fails
             authenticateAndRegisterInstall()
-        }
-    }
-
-    func loadLocalSubscriptions() {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "Subscription")
-        fetchRequest.returnsObjectsAsFaults = false
-        let asyncFetchRequest = NSAsynchronousFetchRequest(fetchRequest: fetchRequest) { asyncFetchResult in
-            guard let subscriptions = asyncFetchResult.finalResult as? [Subscription] else { return }
-            for sub in subscriptions {
-                let cacheSub = LbrySubscription.fromLocalSubscription(subscription: sub)
-                if !cacheSub.claimId.isBlank {
-                    Lbryio.addSubscription(sub: cacheSub, url: sub.url)
-                }
-            }
-        }
-
-        DispatchQueue.main.async {
-            let context = AppDelegate.shared.persistentContainer.newBackgroundContext()
-            do {
-                try context.execute(asyncFetchRequest)
-            } catch {
-                // pass
-            }
         }
     }
 

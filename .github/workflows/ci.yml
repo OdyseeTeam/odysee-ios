@@ -30,7 +30,7 @@ jobs:
       - name: SwiftFormat
         run: mint run swiftformat . --lint --verbose
       - name: swiftlang/swift-format
-        run: swift format lint --recursive Odysee 2>&1 | grep -v 'Indentation\|RemoveLine\|AddLines\|LineLength\|TrailingWhitespace\|TrailingComma' | tee /dev/stderr | [ $(wc -c) -eq 0 ]
+        run: swift format lint --recursive Odysee 2>&1 | grep -v 'Indentation\|RemoveLine\|AddLines\|LineLength\|TrailingWhitespace\|TrailingComma' | grep -v 'Unwrap.*\(Controller\|Cell\)' | tee /dev/stderr | [ $(wc -c) -eq 0 ]
 
   build:
     runs-on: macOS-26

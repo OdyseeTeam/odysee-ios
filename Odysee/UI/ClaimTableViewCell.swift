@@ -22,9 +22,9 @@ class ClaimTableViewCell: UITableViewCell {
     @IBOutlet var publishTimeLabel: UILabel!
     @IBOutlet var durationView: UIView!
     @IBOutlet var durationLabel: UILabel!
-    @IBOutlet var viewerCountStackView: UIStackView!
-    @IBOutlet var viewerCountLabel: UILabel!
-    @IBOutlet var viewerCountImageView: UIView!
+    @IBOutlet var countStackView: UIStackView!
+    @IBOutlet var countLabel: UILabel!
+    @IBOutlet var countImageView: UIImageView!
 
     var currentClaim: Claim?
     var reposterChannelClaim: Claim?
@@ -40,21 +40,6 @@ class ClaimTableViewCell: UITableViewCell {
         channelImageView.backgroundColor = Helper.lightPrimaryColor
         thumbnailImageView.backgroundColor = Helper.lightPrimaryColor
         createRepostOverlay()
-
-        if #available(iOS 14, *) {
-        } else {
-            let viewerCountBackground = UIView()
-            viewerCountBackground.backgroundColor = Helper.primaryColor
-            viewerCountBackground.layer.cornerRadius = 6
-            viewerCountBackground.translatesAutoresizingMaskIntoConstraints = false
-            viewerCountStackView.insertSubview(viewerCountBackground, at: 0)
-            NSLayoutConstraint.activate([
-                viewerCountBackground.leadingAnchor.constraint(equalTo: viewerCountStackView.leadingAnchor),
-                viewerCountBackground.trailingAnchor.constraint(equalTo: viewerCountStackView.trailingAnchor),
-                viewerCountBackground.topAnchor.constraint(equalTo: viewerCountStackView.topAnchor),
-                viewerCountBackground.bottomAnchor.constraint(equalTo: viewerCountStackView.bottomAnchor)
-            ])
-        }
     }
 
     static func imagePrefetchURLs(claim: Claim) -> [URL] {
@@ -68,10 +53,10 @@ class ClaimTableViewCell: UITableViewCell {
         }
 
         var result = [URL]()
-        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init) {
-            let isChannel = actualClaim.name?.starts(with: "@") ?? false
-            let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
-            result.append(thumbnailUrl.makeImageURL(spec: spec))
+        let isChannel = actualClaim.name?.starts(with: "@") ?? false
+        let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
+        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init)?.makeImageURL(spec: spec) {
+            result.append(thumbnailUrl)
         }
         return result
     }
@@ -83,13 +68,14 @@ class ClaimTableViewCell: UITableViewCell {
             format: String.localized("Started %@"),
             Helper.fullRelativeDateFormatter.localizedString(for: startTime, relativeTo: Date())
         )
-        viewerCountStackView.isHidden = false
+        countStackView.isHidden = false
         durationView.isHidden = true
-        viewerCountImageView.isHidden = viewerCount == 0
+        countImageView.isHidden = viewerCount == 0
+        countImageView.image = UIImage(systemName: "eye.fill")
         if viewerCount > 0 {
-            viewerCountLabel.text = String(viewerCount)
+            countLabel.text = String(viewerCount)
         } else {
-            viewerCountLabel.text = "LIVE"
+            countLabel.text = "LIVE"
         }
     }
 
@@ -156,11 +142,12 @@ class ClaimTableViewCell: UITableViewCell {
         publisherLabel.text = isChannel ? actualClaim.name : actualClaim.signingChannel?.titleOrName
 
         // load thumbnail url
-        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init) {
+        let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
+        if let thumbnailUrl = actualClaim.value?.thumbnail?.url.flatMap(URL.init)?.makeImageURL(spec: spec) {
             if isChannel {
-                channelImageView.load(url: thumbnailUrl.makeImageURL(spec: Self.channelImageSpec))
+                channelImageView.load(url: thumbnailUrl)
             } else {
-                thumbnailImageView.load(url: thumbnailUrl.makeImageURL(spec: Self.thumbImageSpec))
+                thumbnailImageView.load(url: thumbnailUrl)
             }
         } else {
             if isChannel {
@@ -192,8 +179,9 @@ class ClaimTableViewCell: UITableViewCell {
             duration = streamInfo?.duration ?? 0
         }
 
-        let isLivestream = actualClaim.value?.source == nil && !isChannel
-        durationView.isHidden = duration <= 0 && !isLivestream
+        let isLivestream = actualClaim.value?.source == nil && actualClaim.value?.claims == nil && !isChannel
+        durationView.isHidden = duration <= 0
+        countStackView.isHidden = true
         if duration > 0 {
             if duration < 60 {
                 durationLabel.text = String(format: "0:%02d", duration)
@@ -201,13 +189,19 @@ class ClaimTableViewCell: UITableViewCell {
                 durationLabel.text = Helper.durationFormatter.string(from: TimeInterval(duration))
             }
         } else if isLivestream {
-            durationLabel.text = "LIVE"
+            countStackView.isHidden = false
+            countImageView.isHidden = true
+            countLabel.text = "LIVE"
+        } else if let playlistCount = actualClaim.value?.claims?.count {
+            countStackView.isHidden = false
+            countImageView.image = UIImage(systemName: "play.square.stack")
+            countLabel.text = "\(playlistCount)"
         }
 
         if actualClaim.value?.tags?.contains(Constants.MembersOnly) ?? false {
-            DispatchQueue.global().async {
+            Task.detached {
                 MembershipPerk.perkCheck(
-                    authToken: Lbryio.authToken,
+                    authToken: await AuthToken.token,
                     claimId: actualClaim.claimId,
                     type: isLivestream ? .livestream : .content
                 ) { result in
@@ -237,8 +231,8 @@ class ClaimTableViewCell: UITableViewCell {
         contentView.addSubview(reposterOverlay)
         reposterOverlay.isHidden = true
 
-        // TODO: arrow.triangle.2.circlepath on iOS 14+
-        let imageView = UIImageView(image: UIImage(systemName: "arrow.2.circlepath")!)
+        // TODO: arrow.trianglehead.2.clockwise.rotate.90 on iOS 18+
+        let imageView = UIImageView(image: UIImage(systemName: "arrow.triangle.2.circlepath"))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.tintColor = .white
         reposterOverlay.addArrangedSubview(imageView)
