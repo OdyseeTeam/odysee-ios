@@ -64,6 +64,14 @@ extension Method where ParamType: BackendMethodParams {
             }
 
             guard var result = response.result else {
+                if name == BackendMethods.sharedPreferenceGet.name,
+                   var result = SharedPreferenceGetResult(shared: SharedPreference()) as? ResultType
+                {
+                    try defaultTransform?(&result)
+                    try transform?(&result)
+                    return result
+                }
+
                 throw LbryApiResponseError(response.error?.message ?? "unknown api error")
             }
 
@@ -211,6 +219,12 @@ enum BackendMethods {
     static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
     static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
     static let syncHash = Method<NilType, SyncHashResult>(name: "sync_hash")
+    static let syncApply = Method<SyncApplyParams, SyncApplyResult>(name: "sync_apply")
+
+    static let sharedPreferenceGet = Method<SharedPreferenceGetParams, SharedPreferenceGetResult>(
+        name: "preference_get"
+    )
+    static let sharedPreferenceSet = Method<SharedPreferenceSetParams, NilType>(name: "preference_set")
 }
 
 protocol CommentsMethodParams {}
@@ -234,4 +248,6 @@ enum AccountMethods {
 
     static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
     static let userSignOut = Method<NilType, NilType>(name: "user/signout")
+    static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
+    static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
 }

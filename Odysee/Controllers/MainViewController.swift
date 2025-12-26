@@ -40,16 +40,12 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     var mainNavigationController: UINavigationController!
     var walletObservers = [String: WalletBalanceObserver]()
-    var walletSyncObservers = [String: WalletSyncObserver]()
 
     var walletBalanceTimer = Timer()
-    var walletSyncTimer = Timer()
 
     var balanceTimerScheduled = false
-    var syncTimerScheduled = false
 
     let balanceTimerInterval: Double = 5 // 5 seconds
-    let syncTimerInterval: Double = 300 // 5 minutes
 
     let snackbar = Snackbar()
 
@@ -121,7 +117,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
         // Do any additional setup after loading the view
         startWalletBalanceTimer()
-        startWalletSyncTimer()
         loadNotifications()
         loadAppleFilteredClaimIds()
         loadBlockedOutpoints()
@@ -204,7 +199,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func stopAllTimers() {
         walletBalanceTimer.invalidate()
-        walletSyncTimer.invalidate()
+        Task { await Wallet.shared.stopSync() }
     }
 
     func resetUserAndViews() {
@@ -673,14 +668,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         walletObservers.removeValue(forKey: key)
     }
 
-    func addWalletSyncObserver(key: String, observer: WalletSyncObserver) {
-        walletSyncObservers[key] = observer
-    }
-
-    func removeWalletSyncObserver(key: String) {
-        walletSyncObservers.removeValue(forKey: key)
-    }
-
     func startWalletBalanceTimer() {
         if Lbryio.isSignedIn(), !balanceTimerScheduled {
             walletBalanceTimer = Timer.scheduledTimer(
@@ -692,33 +679,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             )
             balanceTimerScheduled = true
         }
-    }
-
-    func startWalletSyncTimer() {
-        if Lbryio.isSignedIn(), !syncTimerScheduled {
-            walletSync()
-            walletSyncTimer = Timer.scheduledTimer(
-                timeInterval: syncTimerInterval,
-                target: self,
-                selector: #selector(walletSync),
-                userInfo: nil,
-                repeats: true
-            )
-            syncTimerScheduled = true
-        }
-    }
-
-    @objc func walletSync() {
-        Lbry.pullSyncWallet(completion: { changesApplied in
-            if changesApplied {
-                // notify observers
-                DispatchQueue.main.async {
-                    for observer in self.walletSyncObservers.values {
-                        observer.syncCompleted()
-                    }
-                }
-            }
-        })
     }
 
     @objc func fetchWalletBalance() {
@@ -996,8 +956,4 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
 protocol WalletBalanceObserver {
     func balanceUpdated(balance: WalletBalance)
-}
-
-protocol WalletSyncObserver {
-    func syncCompleted()
 }

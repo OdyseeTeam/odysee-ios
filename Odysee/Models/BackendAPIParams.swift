@@ -63,3 +63,20 @@ struct ChannelSignParams: Encodable, BackendMethodParams {
     var channelId: String
     var hexdata: String
 }
+
+struct SyncApplyParams: Encodable, BackendMethodParams {
+    let password: String = ""
+    var data: String?
+    var blocking: Bool = false
+}
+
+let PreferenceKeyShared = "shared"
+
+struct SharedPreferenceGetParams: Encodable, BackendMethodParams {
+    let key: String = PreferenceKeyShared
+}
+
+struct SharedPreferenceSetParams: Encodable, BackendMethodParams {
+    let key: String = PreferenceKeyShared
+    var value: SharedPreference
+}
