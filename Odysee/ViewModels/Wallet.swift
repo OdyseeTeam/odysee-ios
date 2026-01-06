@@ -15,7 +15,11 @@ actor Wallet {
     static let syncInterval: UInt64 = 300_000_000_000 // 5 minutes
     static let syncRetryInterval: UInt64 = 10_000_000_000 // 10 seconds
 
-    @Published var following: Following = [:]
+    // MARK: Public shared preference properties
+
+    @Published private(set) var following: Following?
+
+    // MARK: Sync
 
     private var localWalletHash: String?
     private var remoteWalletHash: String?
@@ -98,9 +102,7 @@ actor Wallet {
                 else {
                     return
                 }
-                try $0[LbryUri.parse(
-                    url: "lbry://@\(channelName):\(claimId)", requireProto: true
-                )] = $1.notificationsDisabled
+                try $0[Self.buildFollow(channelName: channelName, claimId: claimId)] = $1.notificationsDisabled
             }
         }
 
@@ -124,13 +126,15 @@ actor Wallet {
     private func pushSync() async throws {
         var sharedPreference = try await pullSync(updateState: false)
 
-        sharedPreference.following = following.map {
-            SharedPreference.Following(
-                notificationsDisabled: $0.value,
-                uri: $0.key
-            )
+        if let following {
+            sharedPreference.following = following.map {
+                SharedPreference.Following(
+                    notificationsDisabled: $0.value,
+                    uri: $0.key
+                )
+            }
+            sharedPreference.subscriptions = Array(following.keys)
         }
-        sharedPreference.subscriptions = Array(following.keys)
 
         _ = try await LbryMethods.sharedPreferenceSet.call(params: .init(value: sharedPreference))
 
@@ -143,5 +147,70 @@ actor Wallet {
         if syncSet.changed {
             remoteWalletHash = syncSet.hash
         }
+    }
+}
+
+// MARK: Following
+
+extension Wallet {
+    static func buildFollow(channelName: String, claimId: String) throws -> Follow {
+        let channelName = channelName.starts(with: "@") ? channelName : "@\(channelName)"
+        return try LbryUri.parse(url: "lbry://\(channelName):\(claimId)", requireProto: true)
+    }
+
+    func addOrSetFollowing(claim: Claim, notificationsDisabled: NotificationsDisabled) {
+        guard let channelName = claim.name,
+              channelName.starts(with: "@"),
+              let claimId = claim.claimId
+        else {
+            return
+        }
+
+        addOrSetFollowing(channelName: channelName, claimId: claimId, notificationsDisabled: notificationsDisabled)
+    }
+
+    func addOrSetFollowing(channelName: String, claimId: String, notificationsDisabled: NotificationsDisabled) {
+        guard let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId) else {
+            return
+        }
+
+        following?[uri] = notificationsDisabled
+    }
+
+    func removeFollowing(claim: Claim) {
+        guard let channelName = claim.name,
+              channelName.starts(with: "@"),
+              let claimId = claim.claimId,
+              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+        else {
+            return
+        }
+
+        following?.removeValue(forKey: uri)
+    }
+
+    func isFollowing(claim: Claim) -> Bool {
+        guard let channelName = claim.name,
+              channelName.starts(with: "@"),
+              let claimId = claim.claimId,
+              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+        else {
+            return false
+        }
+
+        return following?[uri] != nil
+    }
+
+    /// Defaults to true (disabled) if requested following doesn't exist
+    func isNotificationsDisabled(claim: Claim) -> NotificationsDisabled {
+        guard let channelName = claim.name,
+              channelName.starts(with: "@"),
+              let claimId = claim.claimId,
+              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+        else {
+            return true
+        }
+
+        return following?[uri] ?? true
     }
 }

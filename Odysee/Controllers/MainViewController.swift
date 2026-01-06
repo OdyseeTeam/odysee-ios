@@ -203,7 +203,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     func resetUserAndViews() {
-        Lbryio.cachedSubscriptions = [:]
         Lbryio.cachedNotifications = []
         Lbry.walletBalance = WalletBalance()
 
