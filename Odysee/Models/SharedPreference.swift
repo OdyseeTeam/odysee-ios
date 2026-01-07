@@ -12,7 +12,7 @@ struct SharedPreference: Codable {
     var subscriptions: [LbryUri]
     var following: [Following]
     var blocked: [LbryUri]
-    var defaultChannelId: String
+    var defaultChannelId: String?
 
     var otherValues: [String: Value]
     var otherSettings: [String: Value]
@@ -116,7 +116,7 @@ struct SharedPreference: Codable {
         subscriptions = try value.decode([LbryUri].self, forKey: .subscriptions)
         following = try value.decode([Following].self, forKey: .following)
         blocked = try value.decode([LbryUri].self, forKey: .blocked)
-        defaultChannelId = try settings.decode(String.self, forKey: .defaultChannelId)
+        defaultChannelId = try? settings.decode(String.self, forKey: .defaultChannelId)
     }
 
     func encode(to encoder: Encoder) throws {

@@ -26,6 +26,8 @@ actor Wallet {
 
     @Published private(set) var following: Following?
 
+    private(set) var defaultChannelId: String?
+
     // MARK: Sync
 
     private var localWalletHash: String?
@@ -122,6 +124,8 @@ actor Wallet {
                 }
                 try $0[Self.buildFollow(channelName: channelName, claimId: claimId)] = $1.notificationsDisabled
             }
+
+            defaultChannelId = sharedPreference.defaultChannelId
         }
 
         return sharedPreference
@@ -153,6 +157,8 @@ actor Wallet {
             }
             sharedPreference.subscriptions = Array(following.keys)
         }
+
+        sharedPreference.defaultChannelId = defaultChannelId
 
         _ = try await BackendMethods.sharedPreferenceSet.call(params: .init(value: sharedPreference))
 
@@ -230,5 +236,13 @@ extension Wallet {
         }
 
         return following?[uri] ?? true
+    }
+}
+
+// MARK: Default Channel
+
+extension Wallet {
+    func setDefaultChannelId(channelId: String) {
+        defaultChannelId = channelId
     }
 }

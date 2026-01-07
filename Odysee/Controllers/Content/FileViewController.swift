@@ -2356,10 +2356,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
-        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
-        if channels.count > index, currentCommentAsIndex == -1 {
-            currentCommentAsIndex = index
-            updateCommentAsChannel(index)
+        Task {
+            let defaultChannelId = await Wallet.shared.defaultChannelId
+            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+            if channels.count > index, currentCommentAsIndex == -1 {
+                currentCommentAsIndex = index
+                updateCommentAsChannel(index)
+            }
         }
     }
 

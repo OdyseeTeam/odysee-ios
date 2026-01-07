@@ -110,10 +110,13 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             guidelinesTextView.heightAnchor.constraint(equalToConstant: 0).isActive = true
         }
 
-        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
-        if channels.count > index, currentCommentAsIndex == -1 {
-            currentCommentAsIndex = index
-            updateCommentAsChannel(index)
+        Task {
+            let defaultChannelId = await Wallet.shared.defaultChannelId
+            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+            if channels.count > index, currentCommentAsIndex == -1 {
+                currentCommentAsIndex = index
+                updateCommentAsChannel(index)
+            }
         }
 
         if comments.count > 0 {
