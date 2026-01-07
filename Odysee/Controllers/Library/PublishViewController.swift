@@ -161,16 +161,22 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             result.showErrorIfPresent()
             return
         }
+
         channels.removeAll(keepingCapacity: true)
         addAnonymousPlaceholder()
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
         channelPickerView.reloadAllComponents()
-        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
-        if channels.count > index {
-            channelPickerView.selectRow(index, inComponent: 0, animated: true)
-            namePrefixLabel.text = String(format: namePrefixFormat, (channels[index].name ?? "") + "/")
+
+        Task {
+            let defaultChannelId = await Wallet.shared.defaultChannelId
+            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+            if channels.count > index {
+                channelPickerView.selectRow(index, inComponent: 0, animated: true)
+                namePrefixLabel.text = String(format: namePrefixFormat, (channels[index].name ?? "") + "/")
+            }
         }
+
         populateFieldsForEdit()
     }
 
