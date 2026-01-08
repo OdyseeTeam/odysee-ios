@@ -5,7 +5,6 @@
 //  Created by Akinwale Ariwodola on 06/12/2020.
 //
 
-import CoreData
 import FirebaseAnalytics
 import OrderedCollections
 import SafariServices
@@ -763,39 +762,41 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     func checkFollowing() {
-        DispatchQueue.main.async {
-            if let channelClaim = self.channelClaim, Lbryio.isFollowing(claim: channelClaim) {
-                // show unfollow and bell icons
-                self.followLabel.isHidden = true
-                self.bellView.isHidden = false
-                self.followUnfollowIconView.image = UIImage(systemName: "heart.slash.fill")
-                self.followUnfollowIconView.tintColor = UIColor.label
+        Task {
+            if let channelClaim, await Wallet.shared.isFollowing(claim: channelClaim) {
+                await MainActor.run {
+                    // show unfollow and bell icons
+                    self.followLabel.isHidden = true
+                    self.bellView.isHidden = false
+                    self.followUnfollowIconView.image = UIImage(systemName: "heart.slash.fill")
+                    self.followUnfollowIconView.tintColor = UIColor.label
+                }
             } else {
-                self.followLabel.isHidden = false
-                self.bellView.isHidden = true
-                self.followUnfollowIconView.image = UIImage(systemName: "heart")
-                self.followUnfollowIconView.tintColor = UIColor.systemRed
+                await MainActor.run {
+                    self.followLabel.isHidden = false
+                    self.bellView.isHidden = true
+                    self.followUnfollowIconView.image = UIImage(systemName: "heart")
+                    self.followUnfollowIconView.tintColor = UIColor.systemRed
+                }
             }
         }
     }
 
     func checkNotificationsDisabled(showMessage: Bool = false) {
-        guard let channelClaim,
-              Lbryio.isFollowing(claim: channelClaim)
-        else {
+        guard let channelClaim else {
             return
         }
 
-        DispatchQueue.main.async {
-            if Lbryio.isNotificationsDisabledForSub(claim: channelClaim) {
-                self.bellIconView.image = UIImage(systemName: "bell.fill")
-                if showMessage {
-                    self.showMessage(message: String.localized("You will not receive notifications for this channel"))
-                }
+        Task {
+            let (image, message) = if await Wallet.shared.isNotificationsDisabled(claim: channelClaim) {
+                ("bell.fill", "You will not receive notifications for this channel")
             } else {
-                self.bellIconView.image = UIImage(systemName: "bell.slash.fill")
+                ("bell.slash.fill", "You will receive all notifications")
+            }
+            await MainActor.run {
+                self.bellIconView.image = UIImage(systemName: image)
                 if showMessage {
-                    self.showMessage(message: String.localized("You will receive all notifications"))
+                    self.showMessage(message: String.localized(message))
                 }
             }
         }
@@ -884,34 +885,30 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         guard let channelClaim else {
             return
         }
-        if Lbryio.isFollowing(claim: channelClaim) {
-            let alert = UIAlertController(
-                title: String.localized("Stop following channel?"),
-                message: String.localized("Are you sure you want to stop following this channel?"),
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
-                self.subscribeOrUnsubscribe(
-                    claim: channelClaim,
-                    notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
-                    unsubscribing: true
-                )
 
-                // check if the following tab is open to prevent a crash
-                if let vc = AppDelegate.shared.mainTabViewController?
-                    .selectedViewController as? FollowingViewController
-                {
-                    vc.removeFollowing(claim: channelClaim)
-                }
-            })
-            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
-            present(alert, animated: true, completion: nil)
-        } else {
-            subscribeOrUnsubscribe(
-                claim: channelClaim,
-                notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
-                unsubscribing: false
-            )
+        Task {
+            if await Wallet.shared.isFollowing(claim: channelClaim) {
+                let alert = UIAlertController(
+                    title: String.localized("Stop following channel?"),
+                    message: String.localized("Are you sure you want to stop following this channel?"),
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
+                    self.subscribeOrUnsubscribe(
+                        claim: channelClaim,
+                        notificationsDisabled: true, // Unused
+                        unsubscribing: true
+                    )
+                })
+                alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
+                present(alert, animated: true, completion: nil)
+            } else {
+                subscribeOrUnsubscribe(
+                    claim: channelClaim,
+                    notificationsDisabled: true, // New subscriptions have notifications disabled
+                    unsubscribing: false
+                )
+            }
         }
     }
 
@@ -923,11 +920,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         guard let channelClaim else {
             return
         }
-        subscribeOrUnsubscribe(
-            claim: channelClaim,
-            notificationsDisabled: !Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
-            unsubscribing: false
-        )
+
+        Task {
+            subscribeOrUnsubscribe(
+                claim: channelClaim,
+                notificationsDisabled: !(await Wallet.shared.isNotificationsDisabled(claim: channelClaim)),
+                unsubscribing: false
+            )
+        }
     }
 
     func subscribeOrUnsubscribe(claim: Claim, notificationsDisabled: Bool, unsubscribing: Bool) {
@@ -935,9 +935,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
-        guard let claimId = claim.claimId,
-              let permanentUrl = claim.permanentUrl
-        else {
+        guard let claimId = claim.claimId else {
             return
         }
 
@@ -950,7 +948,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 options["notifications_disabled"] = String(notificationsDisabled)
             }
 
-            let subUrl: LbryUri = try LbryUri.parse(url: permanentUrl, requireProto: false)
             try Lbryio.get(
                 resource: "subscription",
                 action: unsubscribing ? "delete" : "new",
@@ -965,81 +962,27 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                         return
                     }
 
-                    if !unsubscribing {
-                        Lbryio.addSubscription(
-                            sub: LbrySubscription.fromClaim(
+                    Task {
+                        if !unsubscribing {
+                            await Wallet.shared.addOrSetFollowing(
                                 claim: claim,
                                 notificationsDisabled: notificationsDisabled
-                            ),
-                            url: subUrl.description
-                        )
-                        if let channelName = subUrl.channelName {
-                            self.addSubscription(
-                                url: subUrl.description,
-                                channelName: channelName,
-                                isNotificationsDisabled: notificationsDisabled,
-                                reloadAfter: true
                             )
+                        } else {
+                            await Wallet.shared.removeFollowing(claim: claim)
                         }
-                    } else {
-                        Lbryio.removeSubscription(subUrl: subUrl.description)
-                        if let channelName = subUrl.channelName {
-                            self.removeSubscription(url: subUrl.description, channelName: channelName)
+
+                        await Wallet.shared.queuePushSync()
+
+                        self.checkFollowing()
+                        if !unsubscribing {
+                            self.checkNotificationsDisabled(showMessage: true)
                         }
                     }
-
-                    self.checkFollowing()
-                    self.checkNotificationsDisabled(showMessage: true)
-
-                    Lbryio.subscriptionsDirty = true
-                    Lbry.saveSharedUserState(completion: { success, err in
-                        guard err == nil else {
-                            // pass
-                            return
-                        }
-                        if success {
-                            // run wallet sync
-                            Lbry.pushSyncWallet()
-                        }
-                    })
                 }
             )
         } catch {
             showError(error: error)
-        }
-    }
-
-    func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
-        // persist the subscription to CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
-            let subToSave = Subscription(context: context)
-            subToSave.url = url
-            subToSave.channelName = channelName
-            subToSave.isNotificationsDisabled = isNotificationsDisabled
-
-            AppDelegate.shared.saveContext()
-        }
-    }
-
-    func removeSubscription(url: String, channelName: String) {
-        // remove the subscription from CoreData
-        DispatchQueue.main.async {
-            do {
-                let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-                let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-                let subs = try context.fetch(fetchRequest)
-                for sub in subs {
-                    context.delete(sub)
-                }
-
-                try context.save()
-            } catch {
-                self.showError(error: error)
-            }
         }
     }
 
