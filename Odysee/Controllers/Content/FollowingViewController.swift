@@ -5,7 +5,6 @@
 //  Created by Akinwale Ariwodola on 28/11/2020.´
 //
 
-import CoreData
 import FirebaseAnalytics
 import OrderedCollections
 import UIKit
@@ -31,8 +30,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var selectedChannelClaim: Claim?
     var suggestedFollows = OrderedSet<Claim>()
     var following = OrderedSet<Claim>()
-    var subscriptions: [Subscription] = []
-    var selectedChannelIds: [String] = []
     var selectedSuggestedFollows = [String: Claim]()
 
     let suggestedPageSize: Int = 42
@@ -73,43 +70,20 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             ]
         )
 
-        if Lbryio.isSignedIn() {
-            if Lbryio.subscriptionsDirty {
-                loadLocalSubscriptions(true)
-            } else {
-                loadRemoteSubscriptions()
-            }
-        }
-
         AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
         AppDelegate.shared.mainController.adjustMiniPlayerBottom(
             bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
     func checkSelectedChannel() {
-        DispatchQueue.main.async {
-            if self.selectedChannelClaim != nil {
-                for i in self.following.indices {
-                    if self.following[i].claimId == self.selectedChannelClaim?.claimId {
-                        self.following[i].selected = true
-                        self.channelListView.reloadItems(at: [IndexPath(item: i, section: 0)])
-                        break
-                    }
-                }
-            }
-        }
-    }
-
-    func indexForSelectedChannelClaim() -> Int {
         if selectedChannelClaim != nil {
             for i in following.indices {
                 if following[i].claimId == selectedChannelClaim?.claimId {
-                    return i
+                    following[i].selected = true
+                    break
                 }
             }
         }
-
-        return -1
     }
 
     override func viewDidLoad() {
@@ -123,6 +97,66 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         refreshControl.addTarget(self, action: #selector(refresh(_:)), for: .valueChanged)
         refreshControl.tintColor = Helper.primaryColor
         contentListView.addSubview(refreshControl)
+
+        Task {
+            if let newFollowing = await Wallet.shared.following {
+                await update(newFollowing)
+            }
+
+            for await newFollowing in await Wallet.shared.$following.values {
+                guard let newFollowing else {
+                    continue
+                }
+
+                // FIXME: Only if changed
+
+                await update(newFollowing)
+            }
+        }
+    }
+
+    func update(_ newFollowing: Wallet.Following) async {
+        do {
+            following.removeAll(keepingCapacity: true)
+
+            guard newFollowing.count > 0 else {
+                loadingContainer.isHidden = true
+                showingSuggested = true
+
+                loadSuggestedFollows()
+
+                return
+            }
+
+            loadingContainer.isHidden = false
+
+            let resolve = try await BackendMethods.resolve.call(params: .init(
+                urls: newFollowing.keys.map(\.description)
+            ))
+
+            following.append(
+                contentsOf: resolve.claims.values
+                    .sorted {
+                        $0.name ?? "" < $1.name ?? ""
+                    }
+            )
+
+            checkSelectedChannel()
+            channelListView.reloadData()
+            contentListView.reloadData()
+
+            resetSubscriptionContent()
+            loadSubscriptionContent()
+
+            // If updating following from other vc, allow dismissing suggested
+            if !(UIApplication.currentViewController() == self && showingSuggested) {
+                suggestedView.isHidden = true
+                mainView.isHidden = false
+            }
+        } catch {
+            loadingContainer.isHidden = true
+            Helper.showError(error: error)
+        }
     }
 
     @objc func refresh(_ sender: AnyObject) {
@@ -132,104 +166,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
         resetSubscriptionContent()
         loadSubscriptionContent()
-    }
-
-    func loadLocalSubscriptions(_ refresh: Bool = false) {
-        let fetchRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
-        fetchRequest.returnsObjectsAsFaults = false
-
-        DispatchQueue.main.async {
-            AppDelegate.shared.persistentContainer.performBackgroundTask { context in
-                do {
-                    self.subscriptions = try context.fetch(fetchRequest)
-                    if self.subscriptions.count == 0 {
-                        // load remote
-                        self.loadRemoteSubscriptions()
-                    } else {
-                        self.resolveChannelList()
-                        if !self.showingSuggested {
-                            DispatchQueue.main.async {
-                                self.suggestedView.isHidden = true
-                                self.mainView.isHidden = false
-                            }
-                        }
-                    }
-                } catch {
-                    print("NSAsynchronousFetchRequest error: \(error)")
-                }
-            }
-        }
-    }
-
-    func loadRemoteSubscriptions() {
-        DispatchQueue.main.async {
-            self.loadingContainer.isHidden = false
-        }
-
-        do {
-            try Lbryio.get(resource: "subscription", action: "list", completion: { data, error in
-                guard let data = data, error == nil else {
-                    self.showError(error: error)
-                    return
-                }
-
-                if (data as? NSNull) != nil {
-                    DispatchQueue.main.async {
-                        self.showingSuggested = true
-                        self.loadSuggestedFollows()
-                        return
-                    }
-                }
-
-                var hasSubs = false
-                if let subs = data as? [[String: Any]] {
-                    for sub in subs {
-                        if let channelName = sub["channel_name"] as? String,
-                           let claimId = sub["claim_id"] as? String,
-                           let urlString = LbryUri.tryParse(
-                               url: "\(channelName)#\(claimId)",
-                               requireProto: false
-                           )?.description
-                        {
-                            do {
-                                let jsonData = try JSONSerialization.data(
-                                    withJSONObject: sub,
-                                    options: [.prettyPrinted, .sortedKeys]
-                                )
-                                let subscription: LbrySubscription? = try JSONDecoder()
-                                    .decode(LbrySubscription.self, from: jsonData)
-                                if let subscription {
-                                    Lbryio.addSubscription(sub: subscription, url: urlString)
-                                }
-                            } catch {
-                                // skip if an error occurred
-                            }
-
-                            self.addSubscription(
-                                url: urlString,
-                                channelName: channelName,
-                                isNotificationsDisabled: sub["is_notifications_disabled"] as? Bool ?? true,
-                                reloadAfter: false
-                            )
-                        }
-                    }
-                    if subs.count > 0 {
-                        hasSubs = true
-                        self.loadLocalSubscriptions()
-                    }
-                }
-
-                if !hasSubs {
-                    DispatchQueue.main.async {
-                        self.loadingContainer.isHidden = true
-                        self.showingSuggested = true
-                        self.loadSuggestedFollows()
-                    }
-                }
-            })
-        } catch {
-            print(error)
-        }
     }
 
     func loadSuggestedFollows() {
@@ -266,16 +202,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         suggestedFollowsView.reloadData()
     }
 
-    /*
-     // MARK: - Navigation
-
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-         // Get the new view controller using segue.destination.
-         // Pass the selected object to the new view controller.
-     }
-     */
-
     func loadSubscriptionContent() {
         if loadingContent {
             return
@@ -287,9 +213,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
         loadingContent = true
 
-        let channelIds = !selectedChannelIds.isEmpty ?
-            selectedChannelIds :
+        let channelIds = if let selectedClaimId = selectedChannelClaim?.claimId {
+            [selectedClaimId]
+        } else {
             following.compactMap(\.claimId)
+        }
 
         if channelIds.count > 0 {
             let releaseTimeValue = currentSortByIndex == 2 ? Helper
@@ -338,10 +266,13 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             return
         }
 
+        selectedSuggestedFollows.removeAll()
+
         suggestedView.isHidden = true
         mainView.isHidden = false
         showingSuggested = false
 
+        resetSubscriptionContent()
         loadSubscriptionContent()
     }
 
@@ -349,6 +280,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         suggestedView.isHidden = false
         mainView.isHidden = true
         showingSuggested = true
+
+        suggestedFollows.removeAll(keepingCapacity: true)
+        suggestedFollowsView.reloadData()
 
         loadSuggestedFollows()
     }
@@ -361,7 +295,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
 
         if claims.count > indexPath.row {
-            let claim: Claim = claims[indexPath.row]
+            let claim = claims[indexPath.row]
             cell.setClaim(claim: claim)
         } else {
             cell.setClaim(claim: Claim())
@@ -372,16 +306,19 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let claim: Claim = claims[indexPath.row]
 
-        let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-        vc.claim = claim
+        if claims.count > indexPath.row {
+            let claim = claims[indexPath.row]
 
-        AppDelegate.shared.mainNavigationController?.view.layer.add(
-            Helper.buildFileViewTransition(),
-            forKey: kCATransition
-        )
-        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+            vc.claim = claim
+
+            AppDelegate.shared.mainNavigationController?.view.layer.add(
+                Helper.buildFileViewTransition(),
+                forKey: kCATransition
+            )
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+        }
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -397,79 +334,105 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
         if collectionView == suggestedFollowsView {
-            let claim: Claim = suggestedFollows[indexPath.row]
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "suggested_channel_cell",
                 for: indexPath
             ) as! SuggestedChannelCollectionViewCell
-            cell.setClaim(claim: claim)
-            if let claimId = claim.claimId {
-                cell.setSelected(selected: selectedSuggestedFollows[claimId] != nil)
+
+            if suggestedFollows.count > indexPath.row {
+                let claim = suggestedFollows[indexPath.row]
+                cell.setClaim(claim: claim)
+                if let claimId = claim.claimId {
+                    cell.setSelected(selected: selectedSuggestedFollows[claimId] != nil)
+                    if selectedSuggestedFollows[claimId] != nil {
+                        suggestedFollowsView.selectItem(
+                            at: indexPath,
+                            animated: false,
+                            scrollPosition: .centeredVertically
+                        )
+                    }
+                }
             }
+
             return cell
         } else {
-            let claim = following[indexPath.row]
             let cell = collectionView.dequeueReusableCell(
                 withReuseIdentifier: "followed_channel_cell",
                 for: indexPath
             ) as! ChannelCollectionViewCell
-            cell.setClaim(claim: claim)
+
+            if following.count > indexPath.row {
+                let claim = following[indexPath.row]
+                cell.setClaim(claim: claim)
+            }
+
             return cell
         }
     }
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == suggestedFollowsView {
-            let claim = suggestedFollows[indexPath.row]
-            if let claimId = claim.claimId {
-                selectedSuggestedFollows[claimId] = claim
-            }
-            subscribeOrUnsubscribe(claim: claim, notificationsDisabled: true, unsubscribing: false)
-
-            let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
-            cell?.setSelected(selected: true)
-        } else {
-            // TODO: Refresh claim search with selected channel ids
-            let prevSelectedChannelIds = selectedChannelIds
-            selectedChannelIds.removeAll()
-
-            let claim = following[indexPath.row]
-            deselectChannels(except: claim)
-            if claim.selected {
-                claim.selected = false
-                selectedChannelClaim = nil
-            } else {
-                claim.selected = true
-                if let claimId = claim.claimId, !selectedChannelIds.contains(claimId) {
-                    selectedChannelIds.append(claimId)
+            if suggestedFollows.count > indexPath.row {
+                let claim = suggestedFollows[indexPath.row]
+                if let claimId = claim.claimId {
+                    selectedSuggestedFollows[claimId] = claim
                 }
-                selectedChannelClaim = claim
-            }
+                subscribeOrUnsubscribe(
+                    claim: claim,
+                    notificationsDisabled: true, // New subscriptions have notifications disabled
+                    unsubscribing: false
+                )
 
-            if prevSelectedChannelIds != selectedChannelIds {
-                resetSubscriptionContent()
-                loadSubscriptionContent()
+                let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
+                cell?.setSelected(selected: true)
             }
+        } else {
+            if following.count > indexPath.row {
+                let prevSelectedClaimId = selectedChannelClaim?.claimId
 
-            collectionView.reloadItems(at: [indexPath])
+                let claim = following[indexPath.row]
+                let selected = claim.selected
+
+                for i in following.indices {
+                    following[i].selected = false
+                }
+
+                if selected {
+                    claim.selected = false
+                    selectedChannelClaim = nil
+                } else {
+                    claim.selected = true
+                    selectedChannelClaim = claim
+                }
+
+                if prevSelectedClaimId != selectedChannelClaim?.claimId {
+                    resetSubscriptionContent()
+                    loadSubscriptionContent()
+                }
+
+                collectionView.reloadData()
+            }
         }
     }
 
     func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
         if collectionView == suggestedFollowsView {
-            let claim = suggestedFollows[indexPath.row]
-            if let claimId = claim.claimId {
-                selectedSuggestedFollows.removeValue(forKey: claimId)
-            }
-            subscribeOrUnsubscribe(claim: claim, notificationsDisabled: true, unsubscribing: true)
+            if suggestedFollows.count > indexPath.row {
+                let claim = suggestedFollows[indexPath.row]
+                if let claimId = claim.claimId {
+                    selectedSuggestedFollows.removeValue(forKey: claimId)
+                }
+                subscribeOrUnsubscribe(
+                    claim: claim,
+                    notificationsDisabled: true, // Unused
+                    unsubscribing: true
+                )
 
-            let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
-            cell?.setSelected(selected: false)
-        } else {
-            let cell = collectionView.cellForItem(at: indexPath) as? ChannelCollectionViewCell
-            cell?.backgroundColor = UIColor.clear
-            cell?.titleLabel.textColor = UIColor.label
+                let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
+                cell?.setSelected(selected: false)
+            }
         }
+        // Treat channelListView as a row of buttons, didSelect is a click event, handle toggle there
     }
 
     func collectionView(
@@ -502,7 +465,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     func subscribeOrUnsubscribe(claim: Claim?, notificationsDisabled: Bool, unsubscribing: Bool) {
         do {
-            guard let claim, let claimId = claim.claimId, let url = claim.permanentUrl else {
+            guard let claim, let claimId = claim.claimId else {
                 showError(message: "couldn't get claim info")
                 return
             }
@@ -514,7 +477,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 options["notifications_disabled"] = String(notificationsDisabled)
             }
 
-            let subUrl: LbryUri = try LbryUri.parse(url: url, requireProto: false)
             try Lbryio.get(
                 resource: "subscription",
                 action: unsubscribing ? "delete" : "new",
@@ -525,38 +487,18 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         return
                     }
 
-                    if let channelName = subUrl.channelName {
+                    Task {
                         if !unsubscribing {
-                            Lbryio.addSubscription(
-                                sub: LbrySubscription.fromClaim(
-                                    claim: claim,
-                                    notificationsDisabled: notificationsDisabled
-                                ),
-                                url: subUrl.description
-                            )
-                            self.addSubscription(
-                                url: subUrl.description,
-                                channelName: channelName,
-                                isNotificationsDisabled: notificationsDisabled,
-                                reloadAfter: true
+                            await Wallet.shared.addOrSetFollowing(
+                                claim: claim,
+                                notificationsDisabled: notificationsDisabled
                             )
                         } else {
-                            Lbryio.removeSubscription(subUrl: subUrl.description)
-                            self.removeSubscription(url: subUrl.description, channelName: channelName)
+                            await Wallet.shared.removeFollowing(claim: claim)
                         }
-                    }
 
-                    Lbryio.subscriptionsDirty = true
-                    Lbry.saveSharedUserState(completion: { success, err in
-                        guard err == nil else {
-                            // pass
-                            return
-                        }
-                        if success {
-                            // run wallet sync
-                            Lbry.pushSyncWallet()
-                        }
-                    })
+                        await Wallet.shared.queuePushSync()
+                    }
                 }
             )
         } catch {
@@ -574,103 +516,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                     loadSubscriptionContent()
                 }
             }
-        }
-    }
-
-    func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
-        // persist the subscription to CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
-            let subToSave = Subscription(context: context)
-            subToSave.url = url
-            subToSave.channelName = channelName
-            subToSave.isNotificationsDisabled = isNotificationsDisabled
-
-            if !self.subscriptions.contains(subToSave) {
-                self.subscriptions.append(subToSave)
-            }
-
-            AppDelegate.shared.saveContext()
-        }
-
-        // TODO: wallet sync
-        if reloadAfter {
-            loadLocalSubscriptions()
-        }
-    }
-
-    func removeSubscription(url: String, channelName: String) {
-        // remove the subscription from CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-
-            do {
-                let subs = try context.fetch(fetchRequest)
-
-                if subs.count > 0 {
-                    let subToDelete = subs[0]
-                    context.delete(subToDelete)
-                    self.subscriptions = self.subscriptions.filter { $0 != subToDelete }
-                }
-
-                try context.save()
-            } catch {
-                self.showError(error: error)
-            }
-        }
-
-        loadLocalSubscriptions()
-    }
-
-    func resolveChannelList() {
-        Lbry.apiCall(
-            method: BackendMethods.resolve,
-            params: .init(
-                urls: subscriptions.compactMap(\.url)
-            )
-        )
-        .subscribeResult { result in
-            self.didResolveChannelList(result)
-        }
-    }
-
-    func didResolveChannelList(_ result: Result<ResolveResult, Error>) {
-        guard case let .success(resolve) = result else {
-            result.showErrorIfPresent()
-            return
-        }
-
-        following.removeAll(keepingCapacity: true)
-        following.append(contentsOf: resolve.claims.values)
-
-        checkSelectedChannel()
-        channelListView.reloadData()
-        contentListView.reloadData()
-
-        if Lbryio.subscriptionsDirty {
-            loadingContent = false
-            resetSubscriptionContent()
-            let index = indexForSelectedChannelClaim()
-            if index == -1 {
-                selectedChannelIds = []
-            }
-            Lbryio.subscriptionsDirty = false
-        }
-
-        loadSubscriptionContent()
-    }
-
-    func deselectChannels(except: Claim) {
-        for i in following.indices {
-            if except.claimId == following[i].claimId {
-                continue
-            }
-            following[i].selected = false
-            channelListView.reloadItems(at: [IndexPath(item: i, section: 0)])
         }
     }
 
@@ -726,34 +571,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 self.loadSubscriptionContent()
             }
         }
-    }
-
-    func syncCompleted() {
-        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "Subscription")
-        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-        do {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            try context.execute(deleteRequest)
-        } catch {
-            showError(error: error)
-            return
-        }
-
-        // save cached subscriptions
-        subscriptions.removeAll()
-        for (url, sub) in Lbryio.cachedSubscriptions {
-            let uri: LbryUri? = LbryUri.tryParse(url: url, requireProto: false)
-            if let url = uri?.description, let channelName = uri?.channelName {
-                addSubscription(
-                    url: url,
-                    channelName: channelName,
-                    isNotificationsDisabled: sub.notificationsDisabled ?? true,
-                    reloadAfter: false
-                )
-            }
-        }
-
-        loadLocalSubscriptions(true)
     }
 
     func showError(error: Error?) {

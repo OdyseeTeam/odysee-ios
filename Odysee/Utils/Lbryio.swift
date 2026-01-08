@@ -102,7 +102,6 @@ enum Lbryio {
     static var cachedSubscriptions = [String: LbrySubscription]()
     static var cachedNotifications: [LbryNotification] = []
     static var latestNotificationId: Int64 = 0
-    static var subscriptionsDirty = false
 
     static var appleFilteredClaimsTagged = [String: String]()
     static var appleFilteredClaimIds = Set<String>()
