@@ -238,5 +238,6 @@ enum LbryioMethods {
 
     static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
     static let userSignOut = Method<NilType, NilType>(name: "user/signout")
-    static let syncGet = Method<SyncGetParams, WalletSync>(name: "sync/get")
+    static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
+    static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
 }

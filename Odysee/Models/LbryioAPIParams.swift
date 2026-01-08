@@ -20,3 +20,15 @@ struct UserNewParams: Encodable, LbryioMethodParams {
 struct SyncGetParams: Encodable, LbryioMethodParams {
     var hash: String
 }
+
+struct SyncSetParams: Encodable, LbryioMethodParams {
+    var oldHash: String
+    var newHash: String
+    var data: String
+
+    enum CodingKeys: String, CodingKey {
+        case oldHash = "old_hash"
+        case newHash = "new_hash"
+        case data
+    }
+}

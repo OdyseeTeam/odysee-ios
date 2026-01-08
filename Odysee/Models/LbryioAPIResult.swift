@@ -14,3 +14,14 @@ struct UserNewResult: Decodable {
         case authToken = "auth_token"
     }
 }
+
+struct SyncGetResult: Decodable {
+    var changed: Bool
+    var hash: String?
+    var data: String?
+}
+
+struct SyncSetResult: Decodable {
+    var changed: Bool
+    var hash: String?
+}

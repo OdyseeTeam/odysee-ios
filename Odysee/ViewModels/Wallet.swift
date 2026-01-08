@@ -5,6 +5,7 @@
 //  Created by Keith Toh on 18/12/2025.
 //
 
+import AsyncAlgorithms
 import Combine
 import Foundation
 
@@ -20,10 +21,12 @@ actor Wallet {
     private var remoteWalletHash: String?
 
     private var sync: Task<Void, Never>?
+    private var pushQueue = AsyncChannel<Void>()
 
     private init() {
         Task {
             await startSync()
+            await monitorPushQueue()
         }
     }
 
@@ -35,7 +38,7 @@ actor Wallet {
         sync = Task {
             while true {
                 do {
-                    _ = try await pullSync()
+                    try await pullSync()
                     try await Task.sleep(nanoseconds: Self.syncInterval)
                 } catch {
                     if !(error is CancellationError) &&
@@ -54,8 +57,16 @@ actor Wallet {
         sync = nil
     }
 
+    func queuePushSync() async {
+        await pushQueue.send(())
+    }
+
+    private func pullSync() async throws {
+        _ = try await pullSync(updateState: true)
+    }
+
     // FIXME: Need to check in progress? With another actor?
-    func pullSync() async throws -> SharedPreference {
+    private func pullSync(updateState: Bool) async throws -> SharedPreference {
         let hash = try await LbryMethods.syncHash.call(params: .init())
 
         localWalletHash = hash
@@ -80,23 +91,38 @@ actor Wallet {
 
         let sharedPreference = try await LbryMethods.sharedPreferenceGet.call(params: .init())
 
-        // FIXME: No loop
-        following = try sharedPreference.following.reduce(into: Following()) {
-            guard let channelName = $1.uri.channelName,
-                  let claimId = $1.uri.channelClaimId
-            else {
-                return
+        if updateState {
+            following = try sharedPreference.following.reduce(into: Following()) {
+                guard let channelName = $1.uri.channelName,
+                      let claimId = $1.uri.channelClaimId
+                else {
+                    return
+                }
+                try $0[LbryUri.parse(
+                    url: "lbry://@\(channelName):\(claimId)", requireProto: true
+                )] = $1.notificationsDisabled
             }
-            try $0[LbryUri.parse(
-                url: "lbry://@\(channelName):\(claimId)", requireProto: true
-            )] = $1.notificationsDisabled
         }
 
         return sharedPreference
     }
 
-    func pushSync() async throws {
-        var sharedPreference = try await pullSync()
+    private func monitorPushQueue() async {
+        for await _ in pushQueue {
+            do {
+                try await pushSync()
+            } catch {
+                await Helper.showError(error: error)
+
+                // TODO: Is it necessary to pause pull sync, so local state isn't overwritten?
+
+                // TODO: Retry push
+            }
+        }
+    }
+
+    private func pushSync() async throws {
+        var sharedPreference = try await pullSync(updateState: false)
 
         sharedPreference.following = following.map {
             SharedPreference.Following(
@@ -107,5 +133,15 @@ actor Wallet {
         sharedPreference.subscriptions = Array(following.keys)
 
         _ = try await LbryMethods.sharedPreferenceSet.call(params: .init(value: sharedPreference))
+
+        let syncApply = try await LbryMethods.syncApply.call(params: .init())
+        localWalletHash = syncApply.hash
+
+        let syncSet = try await LbryioMethods.syncSet.call(params: .init(
+            oldHash: remoteWalletHash ?? "", newHash: syncApply.hash, data: syncApply.data
+        ))
+        if syncSet.changed {
+            remoteWalletHash = syncSet.hash
+        }
     }
 }
