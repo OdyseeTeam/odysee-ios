@@ -6,7 +6,6 @@
 //
 
 import AVKit
-import CoreData
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import UIKit
@@ -19,7 +18,7 @@ class InitViewController: UIViewController {
 
     // Init process flow
     // 1. loadExchangeRate
-    // 2. loadAndCacheRemoteSubscriptions
+    // 2. loadCategories
     // 3. authenticateAndRegisterInstall
     func runInit() async {
         let defaults = UserDefaults.standard
@@ -53,7 +52,7 @@ class InitViewController: UIViewController {
                 return
             }
 
-            self.loadAndCacheSubscriptions()
+            self.authenticateAndRegisterInstall()
         })
     }
 
@@ -126,78 +125,6 @@ class InitViewController: UIViewController {
         })
     }
 
-    // we only want to cache the URLs for followed channels (both local and remote) here
-    func loadAndCacheSubscriptions() {
-        do {
-            // load local subscriptions
-            loadLocalSubscriptions()
-
-            // check if there are remote subscriptions and load them too
-            try Lbryio.get(resource: "subscription", action: "list", completion: { data, error in
-                guard let data = data, error == nil else {
-                    self.authenticateAndRegisterInstall()
-                    return
-                }
-
-                if (data as? NSNull) != nil {
-                    self.authenticateAndRegisterInstall()
-                    return
-                }
-
-                if let subs = data as? [[String: Any]] {
-                    for sub in subs {
-                        do {
-                            let jsonData = try JSONSerialization.data(
-                                withJSONObject: sub,
-                                options: [.prettyPrinted, .sortedKeys]
-                            )
-                            let subscription: LbrySubscription? = try JSONDecoder()
-                                .decode(LbrySubscription.self, from: jsonData)
-                            if let subscription,
-                               let channelName = subscription.channelName,
-                               let claimId = subscription.claimId,
-                               let subUrl = LbryUri.tryParse(
-                                   url: "\(channelName)#\(claimId)",
-                                   requireProto: false
-                               )
-                            {
-                                Lbryio.addSubscription(sub: subscription, url: subUrl.description)
-                            }
-                        } catch {
-                            // skip the sub if it failed to parse
-                        }
-                    }
-                }
-
-                self.authenticateAndRegisterInstall()
-            })
-        } catch {
-            // simply continue if it fails
-            authenticateAndRegisterInstall()
-        }
-    }
-
-    func loadLocalSubscriptions() {
-        let fetchRequest = NSFetchRequest<Subscription>(entityName: "Subscription")
-        fetchRequest.returnsObjectsAsFaults = false
-
-        DispatchQueue.main.async {
-            AppDelegate.shared.persistentContainer.performBackgroundTask { context in
-                do {
-                    let subs = try context.fetch(fetchRequest)
-                    for sub in subs {
-                        let cacheSub = LbrySubscription.fromLocalSubscription(subscription: sub)
-                        if !cacheSub.claimId.isBlank {
-                            Lbryio.addSubscription(sub: cacheSub, url: sub.url)
-                        }
-                    }
-                } catch {
-                    // pass
-                }
-            }
-        }
-    }
-
     func showLoading() {
         DispatchQueue.main.async {
             self.loadingIndicator.isHidden = false
@@ -222,7 +149,7 @@ class InitViewController: UIViewController {
         initErrorState = false
         Lbryio.loadExchangeRate(completion: { _, _ in
             // don't bother with error checks here, simply proceed to authenticate
-            self.loadAndCacheSubscriptions()
+            self.authenticateAndRegisterInstall()
         })
     }
 
