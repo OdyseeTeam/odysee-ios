@@ -86,15 +86,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
-    func removeFollowing(claim: Claim) {
-        DispatchQueue.main.async {
-            self.following.remove(claim)
-            self.claims.removeAll()
-            self.channelListView.reloadData()
-            self.contentListView.reloadData()
-        }
-    }
-
     func checkSelectedChannel() {
         DispatchQueue.main.async {
             if self.selectedChannelClaim != nil {
