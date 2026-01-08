@@ -1935,15 +1935,29 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
-            subscribeOrUnsubscribe(
-                claim: channelClaim,
-                notificationsDisabled: Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
-                unsubscribing: Lbryio.isFollowing(claim: channelClaim)
-            )
-
-            // check if the following tab is open to prevent a crash
-            if let vc = AppDelegate.shared.mainTabViewController?.selectedViewController as? FollowingViewController {
-                vc.removeFollowing(claim: channelClaim)
+            Task {
+                if await Wallet.shared.isFollowing(claim: channelClaim) {
+                    let alert = UIAlertController(
+                        title: String.localized("Stop following channel?"),
+                        message: String.localized("Are you sure you want to stop following this channel?"),
+                        preferredStyle: .alert
+                    )
+                    alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
+                        self.subscribeOrUnsubscribe(
+                            claim: channelClaim,
+                            notificationsDisabled: true, // Unused
+                            unsubscribing: true
+                        )
+                    })
+                    alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
+                    present(alert, animated: true, completion: nil)
+                } else {
+                    subscribeOrUnsubscribe(
+                        claim: channelClaim,
+                        notificationsDisabled: true, // New subscriptions have notifications disabled
+                        unsubscribing: false
+                    )
+                }
             }
         }
     }
@@ -1957,11 +1971,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
-            subscribeOrUnsubscribe(
-                claim: channelClaim,
-                notificationsDisabled: !Lbryio.isNotificationsDisabledForSub(claim: channelClaim),
-                unsubscribing: false
-            )
+            Task {
+                subscribeOrUnsubscribe(
+                    claim: channelClaim,
+                    notificationsDisabled: !(await Wallet.shared.isNotificationsDisabled(claim: channelClaim)),
+                    unsubscribing: false
+                )
+            }
         }
     }
 
@@ -1970,28 +1986,32 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        DispatchQueue.main.async {
-            if Lbryio.isFollowing(claim: channelClaim) {
-                // show unfollow and bell icons
-                self.followLabel.isHidden = true
-                self.bellView.isHidden = false
-                self.followUnfollowIconView.image = UIImage(systemName: "heart.slash.fill")
-                self.followUnfollowIconView.tintColor = UIColor.label
+        Task {
+            if await Wallet.shared.isFollowing(claim: channelClaim) {
+                await MainActor.run {
+                    // show unfollow and bell icons
+                    self.followLabel.isHidden = true
+                    self.bellView.isHidden = false
+                    self.followUnfollowIconView.image = UIImage(systemName: "heart.slash.fill")
+                    self.followUnfollowIconView.tintColor = UIColor.label
 
-                self.streamerFollowLabel.isHidden = true
-                self.streamerBellView.isHidden = false
-                self.streamerFollowUnfollowIconView.image = UIImage(systemName: "heart.slash.fill")
-                self.streamerFollowUnfollowIconView.tintColor = UIColor.label
+                    self.streamerFollowLabel.isHidden = true
+                    self.streamerBellView.isHidden = false
+                    self.streamerFollowUnfollowIconView.image = UIImage(systemName: "heart.slash.fill")
+                    self.streamerFollowUnfollowIconView.tintColor = UIColor.label
+                }
             } else {
-                self.followLabel.isHidden = false
-                self.bellView.isHidden = true
-                self.followUnfollowIconView.image = UIImage(systemName: "heart")
-                self.followUnfollowIconView.tintColor = UIColor.systemRed
+                await MainActor.run {
+                    self.followLabel.isHidden = false
+                    self.bellView.isHidden = true
+                    self.followUnfollowIconView.image = UIImage(systemName: "heart")
+                    self.followUnfollowIconView.tintColor = UIColor.systemRed
 
-                self.streamerFollowLabel.isHidden = false
-                self.streamerBellView.isHidden = true
-                self.streamerFollowUnfollowIconView.image = UIImage(systemName: "heart")
-                self.streamerFollowUnfollowIconView.tintColor = UIColor.systemRed
+                    self.streamerFollowLabel.isHidden = false
+                    self.streamerBellView.isHidden = true
+                    self.streamerFollowUnfollowIconView.image = UIImage(systemName: "heart")
+                    self.streamerFollowUnfollowIconView.tintColor = UIColor.systemRed
+                }
             }
         }
     }
@@ -2001,15 +2021,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        if !Lbryio.isFollowing(claim: channelClaim) {
-            return
-        }
-
-        DispatchQueue.main.async {
-            if Lbryio.isNotificationsDisabledForSub(claim: channelClaim) {
-                self.bellIconView.image = UIImage(systemName: "bell.fill")
+        Task {
+            let image = if await Wallet.shared.isNotificationsDisabled(claim: channelClaim) {
+                "bell.fill"
             } else {
-                self.bellIconView.image = UIImage(systemName: "bell.slash.fill")
+                "bell.slash.fill"
+            }
+            await MainActor.run {
+                self.bellIconView.image = UIImage(systemName: image)
             }
         }
     }
@@ -2057,42 +2076,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         return
                     }
 
-                    if !unsubscribing {
-                        Lbryio.addSubscription(
-                            sub: LbrySubscription.fromClaim(
+                    Task {
+                        if !unsubscribing {
+                            await Wallet.shared.addOrSetFollowing(
                                 claim: claim,
                                 notificationsDisabled: notificationsDisabled
-                            ),
-                            url: subUrl.description
-                        )
-                        if let channelName = subUrl.channelName {
-                            self.addSubscription(
-                                url: subUrl.description,
-                                channelName: channelName,
-                                isNotificationsDisabled: notificationsDisabled,
-                                reloadAfter: true
                             )
+                        } else {
+                            await Wallet.shared.removeFollowing(claim: claim)
                         }
-                    } else {
-                        Lbryio.removeSubscription(subUrl: subUrl.description)
-                        if let channelName = subUrl.channelName {
-                            self.removeSubscription(url: subUrl.description, channelName: channelName)
-                        }
+
+                        await Wallet.shared.queuePushSync()
                     }
 
                     self.checkFollowing(actualClaim)
                     self.checkNotificationsDisabled(actualClaim)
-                    Lbryio.subscriptionsDirty = true
-                    Lbry.saveSharedUserState(completion: { success, err in
-                        guard err == nil else {
-                            // pass
-                            return
-                        }
-                        if success {
-                            // run wallet sync
-                            Lbry.pushSyncWallet()
-                        }
-                    })
                 }
             )
         } catch {
