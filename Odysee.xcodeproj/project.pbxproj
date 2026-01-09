@@ -80,7 +80,6 @@
 		646E4A64259CF5380008C9C8 /* CommentTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E4A63259CF5380008C9C8 /* CommentTableViewCell.swift */; };
 		646E54D8257D40DC00BEBFBE /* ChannelViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */; };
 		646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54DC257DCD6100BEBFBE /* UIPaddedLabel.swift */; };
-		646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54E1257E276400BEBFBE /* LbrySubscription.swift */; };
 		646E54EA257E565000BEBFBE /* SupportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646E54E9257E565000BEBFBE /* SupportViewController.swift */; };
 		646F1F7625F0D67A00F75F3B /* PublishesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646F1F7525F0D67A00F75F3B /* PublishesViewController.swift */; };
 		646F1F7E25F0D6BE00F75F3B /* PublishViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646F1F7D25F0D6BE00F75F3B /* PublishViewController.swift */; };
@@ -229,7 +228,6 @@
 		646E4A63259CF5380008C9C8 /* CommentTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentTableViewCell.swift; sourceTree = "<group>"; };
 		646E54D7257D40DC00BEBFBE /* ChannelViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelViewController.swift; sourceTree = "<group>"; };
 		646E54DC257DCD6100BEBFBE /* UIPaddedLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIPaddedLabel.swift; sourceTree = "<group>"; };
-		646E54E1257E276400BEBFBE /* LbrySubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbrySubscription.swift; sourceTree = "<group>"; };
 		646E54E9257E565000BEBFBE /* SupportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewController.swift; sourceTree = "<group>"; };
 		646F1F7525F0D67A00F75F3B /* PublishesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishesViewController.swift; sourceTree = "<group>"; };
 		646F1F7D25F0D6BE00F75F3B /* PublishViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishViewController.swift; sourceTree = "<group>"; };
@@ -476,7 +474,6 @@
 			children = (
 				641108EB255AA4CF00F0FB8A /* User.swift */,
 				642B6B06257A635300F17355 /* WalletSync.swift */,
-				646E54E1257E276400BEBFBE /* LbrySubscription.swift */,
 				640BEF2E2587A8FA0019B840 /* LbryNotification.swift */,
 				64D72BB9258C952A00F5C4E3 /* RewardVerified.swift */,
 				64D72BC2258CDEC400F5C4E3 /* Reward.swift */,
@@ -863,7 +860,6 @@
 				CC015766267A9C1100F96EFE /* ImageURLs.swift in Sources */,
 				641682D825ACBA7800BCDC3A /* CommentsViewController.swift in Sources */,
 				5391E4362EFE36C4008EF30A /* Wallet.swift in Sources */,
-				646E54E2257E276400BEBFBE /* LbrySubscription.swift in Sources */,
 				64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */,
 				640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */,
 				CC3A1E7826853D7E00683E28 /* BackendAPIParams.swift in Sources */,
