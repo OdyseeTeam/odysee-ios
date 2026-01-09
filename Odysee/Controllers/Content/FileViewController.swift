@@ -431,7 +431,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(urls: [url])
         )
         .subscribeResult(didResolveClaim)
@@ -1231,7 +1231,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             })
         } else {
             Lbry.apiCall(
-                method: Lbry.Methods.addressUnused,
+                method: LbryMethods.addressUnused,
                 params: .init()
             )
             .subscribeResult { result in
@@ -1462,7 +1462,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         if let playlistClaims {
             Lbry.apiCall(
-                method: Lbry.Methods.claimSearch,
+                method: LbryMethods.claimSearch,
                 params: .init(
                     page: 1,
                     pageSize: 999, // FIXME: pagination
@@ -1716,7 +1716,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 }
             }
             Lbry.apiCall(
-                method: Lbry.Methods.resolve,
+                method: LbryMethods.resolve,
                 params: .init(urls: urls)
             )
             .subscribeResult(self.handleRelatedContentResult)
@@ -2303,7 +2303,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         commentsLoading = true
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentMethods.list,
             params: .init(
                 claimId: claimId,
                 page: commentsCurrentPage,
@@ -2353,7 +2353,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func resolveCommentAuthors(urls: [String]) {
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(urls: urls)
         )
         .subscribeResult(didResolveCommentAuthors)
@@ -2379,7 +2379,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         loadingChannels = true
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -2427,7 +2427,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentMethods.list,
             params: .init(
                 claimId: claimId,
                 page: 1,
@@ -2585,7 +2585,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             }
 
             Lbry.apiCall(
-                method: Lbry.Methods.channelSign,
+                method: LbryMethods.channelSign,
                 params: .init(
                     channelId: channelId,
                     hexdata: Helper.strToHex(chatText)
@@ -2593,7 +2593,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             )
             .flatMap { channelSignResult in
                 Lbry.commentApiCall(
-                    method: Lbry.CommentMethods.create,
+                    method: CommentMethods.create,
                     params: .init(
                         claimId: claimId,
                         channelId: channelId,

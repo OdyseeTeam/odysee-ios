@@ -187,7 +187,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     func getNewReceiveAddress() {
         // getNewAddressButton.isEnabled = false
-        Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
+        Lbry.apiCall(method: LbryMethods.addressUnused, params: .init()).subscribeResult { result in
             guard case let .success(address) = result else {
                 result.showErrorIfPresent()
                 return
@@ -282,7 +282,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         noRecentTransactionsLabel.isHidden = true
 
         Lbry.apiCall(
-            method: Lbry.Methods.transactionList,
+            method: LbryMethods.transactionList,
             params: .init(
                 page: 1,
                 pageSize: 5

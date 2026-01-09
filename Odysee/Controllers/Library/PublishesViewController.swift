@@ -74,7 +74,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         loadingContainer.isHidden = false
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.stream],
                 page: currentPage,
@@ -116,7 +116,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             return
         }
         Lbry.apiCall(
-            method: Lbry.Methods.streamAbandon,
+            method: LbryMethods.streamAbandon,
             params: .init(
                 claimId: claimId,
                 blocking: true

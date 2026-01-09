@@ -190,7 +190,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
         commentsLoading = true
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentMethods.list,
             params: .init(
                 claimId: claimId,
                 page: commentsCurrentPage,
@@ -249,7 +249,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     func resolveCommentAuthors(urls: [String]) {
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: LbryMethods.resolve,
             params: .init(urls: urls)
         )
         .subscribeResult(didResolveCommentAuthors)
@@ -269,7 +269,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: LbryMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -365,7 +365,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
         Lbry.apiCall(
-            method: Lbry.Methods.channelSign,
+            method: LbryMethods.channelSign,
             params: .init(
                 channelId: channelId,
                 hexdata: Helper.strToHex(commentText)
@@ -373,7 +373,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         )
         .flatMap { channelSignResult in
             Lbry.commentApiCall(
-                method: Lbry.CommentMethods.create,
+                method: CommentMethods.create,
                 params: .init(
                     claimId: claimId,
                     channelId: channelId,
@@ -499,7 +499,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         if currentCommentAsIndex == -1 || channels.count == 0 {
             Lbry.commentApiCall(
-                method: Lbry.CommentMethods.reactList,
+                method: CommentMethods.reactList,
                 params: .init(commentIds: commentIds.joined(separator: ","))
             )
             .subscribeResult(handler)
@@ -510,7 +510,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 return
             }
             Lbry.apiCall(
-                method: Lbry.Methods.channelSign,
+                method: LbryMethods.channelSign,
                 params: .init(
                     channelId: claimId,
                     hexdata: Helper.strToHex(name)
@@ -518,7 +518,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             )
             .flatMap { channelSignResult in
                 Lbry.commentApiCall(
-                    method: Lbry.CommentMethods.reactList,
+                    method: CommentMethods.reactList,
                     params: .init(
                         commentIds: commentIds.joined(separator: ","),
                         channelName: name,
@@ -596,12 +596,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         updateSingleCommentReactions(updatedComment)
 
         Lbry.apiCall(
-            method: Lbry.Methods.channelSign,
+            method: LbryMethods.channelSign,
             params: .init(channelId: claimId, hexdata: Helper.strToHex(name))
         )
         .flatMap { channelSignResult in
             Lbry.commentApiCall(
-                method: Lbry.CommentMethods.react,
+                method: CommentMethods.react,
                 params: .init(
                     commentIds: commentId,
                     signature: channelSignResult.signature,
@@ -657,7 +657,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         commentsLoading = true
         loadingContainer.isHidden = false
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentMethods.list,
             params: .init(
                 claimId: claimId,
                 parentId: parentId,
@@ -712,7 +712,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
         loadingContainer.isHidden = false
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.byId,
+            method: CommentMethods.byId,
             params: .init(
                 commentId: currentCommentId,
                 withAncestors: true
@@ -742,7 +742,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 throw GenericError("couldn't get claimId and/or parent commentId")
             }
             return try (comment, Lbry.apiRequest(
-                method: Lbry.CommentMethods.list.name,
+                method: CommentMethods.list.name,
                 params: .init(
                     claimId: claimId,
                     parentId: parentId,

@@ -63,42 +63,6 @@ enum Lbry {
         page.items.forEach(Lbry.addClaimToCache)
     }
 
-    struct Method<ParamType: Encodable, ResultType: Decodable> {
-        var name: String
-        var defaultTransform: ((inout ResultType) throws -> Void)?
-    }
-
-    enum Methods {
-        static let resolve = Method<ResolveParams, ResolveResult>(
-            name: "resolve",
-            defaultTransform: processResolvedClaims
-        )
-        static let claimSearch = Method<ClaimSearchParams, Page<Claim>>(
-            name: "claim_search",
-            defaultTransform: processPageOfClaims
-        )
-        static let claimList = Method<ClaimListParams, Page<Claim>>(
-            name: "claim_list",
-            defaultTransform: processPageOfClaims
-        )
-        static let streamAbandon = Method<StreamAbandonParams, Transaction>(name: "stream_abandon")
-        static let addressUnused = Method<AddressUnusedParams, String>(name: "address_unused")
-        static let channelAbandon = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
-        static let channelSign = Method<ChannelSignParams, ChannelSignResult>(name: "channel_sign")
-        static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
-        static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
-    }
-
-    enum CommentMethods {
-        static let byId = Method<CommentByIdParams, CommentByIdResult>(name: "comment.ByID")
-        static let list = Method<CommentListParams, Page<Comment>>(name: "comment.List")
-        static let create = Method<CommentCreateParams, Comment>(name: "comment.Create")
-        static let reactList = Method<CommentReactListParams, ReactListResult>(name: "reaction.List")
-        static let react = Method<CommentReactParams, NilType>(name: "reaction.React")
-    }
-
-    struct NilType: Decodable {}
-
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
     static let methodChannelCreate = "channel_create"
     static let methodChannelUpdate = "channel_update"
@@ -154,9 +118,9 @@ enum Lbry {
         req.httpMethod = "POST"
         do {
             req.httpBody = try bodyEncoder.encode(body)
-        } catch let e {
-            assertionFailure("API encoding error: \(e)")
-            throw e
+        } catch {
+            assertionFailure("API encoding error: \(error)")
+            throw error
         }
         req.addValue("application/json", forHTTPHeaderField: "Content-Type")
         req.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -179,29 +143,29 @@ enum Lbry {
 
     // `transform` is run off-main to do things like sorting/filtering. Be cafeful!
     // The returned publisher receives events on the main thread.
-    static func commentApiCall<Params: Encodable, ReturnType: Decodable>
+    static func commentApiCall<Params: Encodable, ResultType: Decodable>
     (
-        method: Method<Params, ReturnType>,
+        method: Method<Params, ResultType>,
         params: Params,
         url: URL = commentronURL,
-        transform: ((inout ReturnType) throws -> Void)? = nil
+        transform: ((inout ResultType) throws -> Void)? = nil
     )
-        -> AnyPublisher<ReturnType, Error>
+        -> AnyPublisher<ResultType, Error>
     {
         return apiCall(method: method, params: params, url: url, transform: transform)
     }
 
     // `transform` is run off-main to do things like sorting/filtering. Be cafeful!
     // The returned publisher receives events on the main thread.
-    static func apiCall<Params: Encodable, ReturnType: Decodable>
+    static func apiCall<Params: Encodable, ResultType: Decodable>
     (
-        method: Method<Params, ReturnType>,
+        method: Method<Params, ResultType>,
         params: Params,
         url: URL = lbrytvURL,
         authToken: String? = Lbryio.authToken,
-        transform: ((inout ReturnType) throws -> Void)? = nil
+        transform: ((inout ResultType) throws -> Void)? = nil
     )
-        -> AnyPublisher<ReturnType, Error>
+        -> AnyPublisher<ResultType, Error>
     {
         // Note: We subscribe on global queue to do encoding etc. off the main thread.
         return Just(()).subscribe(on: DispatchQueue.global()).tryMap {
@@ -212,9 +176,9 @@ enum Lbry {
             // Run data task.
             URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }
         }
-        .tryMap { data, _ -> ReturnType in
+        .tryMap { data, _ -> ResultType in
             // Decode and validate result.
-            let response = try JSONDecoder().decode(APIResponse<ReturnType>.self, from: data)
+            let response = try JSONDecoder().decode(APIResponse<ResultType>.self, from: data)
             if response.jsonrpc != "2.0" {
                 assertionFailure()
                 throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
