@@ -1,5 +1,5 @@
 //
-//  CommentAPIParams.swift
+//  CommentsAPIParams.swift
 //  Odysee
 //
 //  Created by Keith Toh on 11/07/2022.
@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct CommentByIdParams: Encodable {
+struct CommentByIdParams: Encodable, CommentsMethodParams {
     var commentId: String
     var withAncestors: Bool?
 }
 
-struct CommentListParams: Encodable {
+struct CommentListParams: Encodable, CommentsMethodParams {
     var claimId: String
     var channelId: String?
     var channelName: String?
@@ -23,7 +23,7 @@ struct CommentListParams: Encodable {
     var topLevel: Bool? = true
 }
 
-struct CommentCreateParams: Encodable {
+struct CommentCreateParams: Encodable, CommentsMethodParams {
     var claimId: String
     var channelId: String
     var signature: String
@@ -32,7 +32,7 @@ struct CommentCreateParams: Encodable {
     var parentId: String?
 }
 
-struct CommentReactParams: Encodable {
+struct CommentReactParams: Encodable, CommentsMethodParams {
     var commentIds: String
     var signature: String
     var signingTs: String
@@ -43,7 +43,7 @@ struct CommentReactParams: Encodable {
     var channelName: String
 }
 
-struct CommentReactListParams: Encodable {
+struct CommentReactListParams: Encodable, CommentsMethodParams {
     var commentIds: String
     var channelName: String?
     var channelId: String?

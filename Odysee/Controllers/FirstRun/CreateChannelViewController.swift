@@ -55,7 +55,7 @@ class CreateChannelViewController: UIViewController, UITextFieldDelegate {
         frDelegate?.requestStarted()
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: BackendMethods.claimList,
             params: .init(claimType: [.channel], page: 1, pageSize: 999)
         )
         .subscribeResult(didLoadChannels)
