@@ -7,7 +7,6 @@
 
 import Base58Swift
 import Combine
-import CoreData
 import CryptoKit
 import FirebaseAnalytics
 import FirebaseCrashlytics

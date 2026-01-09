@@ -7,7 +7,6 @@
 
 import AVFoundation
 import AVKit
-import CoreData
 import FirebaseCrashlytics
 import MediaPlayer
 import MessageUI
@@ -92,25 +91,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         AppDelegate.shared.mainViewController = self
 
         notificationBadgeView.layer.cornerRadius = 6
-
-        // Load blocked channels
-        let fetchRequest = NSFetchRequest<BlockedChannel>(entityName: "BlockedChannel")
-        fetchRequest.returnsObjectsAsFaults = false
-
-        DispatchQueue.main.async {
-            AppDelegate.shared.persistentContainer.performBackgroundTask { context in
-                do {
-                    let blockedChannels = try context.fetch(fetchRequest)
-                    Lbry.blockedChannels = blockedChannels
-                    DispatchQueue.main.async {
-                        // notify observers, if any
-                        self.notifyBlockChannelObservers()
-                    }
-                } catch {
-                    print("NSAsynchronousFetchRequest error: \(error)")
-                }
-            }
-        }
 
         // Do any additional setup after loading the view
         startWalletBalanceTimer()

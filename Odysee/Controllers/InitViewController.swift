@@ -6,7 +6,6 @@
 //
 
 import AVKit
-import CoreData
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import UIKit

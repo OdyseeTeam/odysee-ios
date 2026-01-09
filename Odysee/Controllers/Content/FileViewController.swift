@@ -7,7 +7,6 @@
 
 import AVFoundation
 import AVKit
-import CoreData
 import FirebaseAnalytics
 import ImageScrollView
 import OrderedCollections
@@ -2095,41 +2094,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             )
         } catch {
             showError(error: error)
-        }
-    }
-
-    func addSubscription(url: String, channelName: String, isNotificationsDisabled: Bool, reloadAfter: Bool) {
-        // persist the subscription to CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
-            let subToSave = Subscription(context: context)
-            subToSave.url = url
-            subToSave.channelName = channelName
-            subToSave.isNotificationsDisabled = isNotificationsDisabled
-
-            AppDelegate.shared.saveContext()
-        }
-    }
-
-    func removeSubscription(url: String, channelName: String) {
-        // remove the subscription from CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            let fetchRequest: NSFetchRequest<Subscription> = Subscription.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "url == %@", url)
-
-            do {
-                let subs = try context.fetch(fetchRequest)
-                for sub in subs {
-                    context.delete(sub)
-                }
-
-                try context.save()
-            } catch {
-                // pass
-            }
         }
     }
 
