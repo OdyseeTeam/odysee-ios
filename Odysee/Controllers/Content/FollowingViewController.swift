@@ -162,7 +162,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         // load remote
                         self.loadRemoteSubscriptions()
                     } else {
-                        self.resolveChannelList(refresh)
+                        self.resolveChannelList()
                         if !self.showingSuggested {
                             DispatchQueue.main.async {
                                 self.suggestedView.isHidden = true
@@ -257,7 +257,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimSearch,
+            method: BackendMethods.claimSearch,
             params: .init(
                 claimType: [.channel],
                 page: currentSuggestedPage,
@@ -311,7 +311,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             let releaseTimeValue = currentSortByIndex == 2 ? Helper
                 .buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
             Lbry.apiCall(
-                method: Lbry.Methods.claimSearch,
+                method: BackendMethods.claimSearch,
                 params: .init(
                     claimType: [.stream],
                     page: currentPage,
@@ -642,27 +642,25 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         loadLocalSubscriptions()
     }
 
-    func resolveChannelList(_ refresh: Bool = false) {
+    func resolveChannelList() {
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: BackendMethods.resolve,
             params: .init(
                 urls: subscriptions.compactMap(\.url)
             )
         )
         .subscribeResult { result in
-            self.didResolveChannelList(result, refresh: refresh)
+            self.didResolveChannelList(result)
         }
     }
 
-    func didResolveChannelList(_ result: Result<ResolveResult, Error>, refresh: Bool) {
+    func didResolveChannelList(_ result: Result<ResolveResult, Error>) {
         guard case let .success(resolve) = result else {
             result.showErrorIfPresent()
             return
         }
 
-        if refresh {
-            following.removeAll(keepingCapacity: true)
-        }
+        following.removeAll(keepingCapacity: true)
         following.append(contentsOf: resolve.claims.values)
 
         checkSelectedChannel()

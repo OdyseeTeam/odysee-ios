@@ -293,7 +293,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
         if let receiveAddress = defaults.string(forKey: Helper.keyReceiveAddress), !receiveAddress.isBlank {
             claimReward(reward, walletAddress: receiveAddress)
         } else {
-            Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
+            Lbry.apiCall(method: BackendMethods.addressUnused, params: .init()).subscribeResult { result in
                 guard case let .success(newAddress) = result else {
                     self.claimRewardFinished()
                     self.showError(
@@ -310,7 +310,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     func claimReward(_ reward: Reward, walletAddress: String) {
         if reward.rewardType == Reward.typeFirstPublish || reward.rewardType == Reward.typeFirstChannel {
             Lbry.apiCall(
-                method: Lbry.Methods.claimList,
+                method: BackendMethods.claimList,
                 params: .init(
                     claimType: [reward.rewardType == Reward.typeFirstPublish ? .stream : .channel],
                     page: 1,

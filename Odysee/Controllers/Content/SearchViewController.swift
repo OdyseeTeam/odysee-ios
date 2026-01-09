@@ -118,7 +118,7 @@ class SearchViewController: UIViewController,
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.resolve,
+            method: BackendMethods.resolve,
             params: .init(urls: possibleUrls)
         )
         .subscribeResult(didResolveWinning)
@@ -237,7 +237,7 @@ class SearchViewController: UIViewController,
                     }
                 }
                 Lbry.apiCall(
-                    method: Lbry.Methods.resolve,
+                    method: BackendMethods.resolve,
                     params: .init(urls: self.lighthouseUrls)
                 )
                 .subscribeResult(self.didResolveResults)

@@ -66,7 +66,7 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
         transactionListView.isHidden = currentPage == 1
 
         Lbry.apiCall(
-            method: Lbry.Methods.transactionList,
+            method: BackendMethods.transactionList,
             params: .init(
                 page: currentPage,
                 pageSize: pageSize

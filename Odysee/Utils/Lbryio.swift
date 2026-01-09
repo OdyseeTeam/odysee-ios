@@ -12,7 +12,7 @@ import Foundation
 import os
 
 enum Lbryio {
-    enum Method: String {
+    enum Method_: String {
         case GET
         case POST
         func isEqual(toString str: String) -> Bool {
@@ -262,7 +262,7 @@ enum Lbryio {
         resource: String,
         action: String,
         options: [String: String]? = nil,
-        method: Method,
+        method: Method_,
         authTokenOverride: String? = nil,
         completion: @escaping (Any?, Error?) -> Void
     ) throws {
@@ -293,7 +293,6 @@ enum Lbryio {
                     persistAuthToken()
                 }
 
-                // send the call after the auth token has been retrieved
                 do {
                     try call(
                         resource: resource,
@@ -329,7 +328,7 @@ enum Lbryio {
             with: "%2B"
         )
 
-        if Method.GET.isEqual(toString: method) {
+        if Method_.GET.isEqual(toString: method) {
             requestUrl = urlComponents.url
         }
 
@@ -345,7 +344,7 @@ enum Lbryio {
         let session = URLSession(configuration: config)
         var req = URLRequest(url: requestUrl)
         req.httpMethod = method
-        if Method.POST.isEqual(toString: method) {
+        if Method_.POST.isEqual(toString: method) {
             req.httpBody = buildQueryString(authToken: authTokenOverride ?? authToken, options: options).data
         }
 
@@ -489,7 +488,7 @@ enum Lbryio {
 
     static func areCommentsEnabled(channelId: String, channelName: String, completion: @escaping (Bool) -> Void) {
         Lbry.commentApiCall(
-            method: Lbry.CommentMethods.list,
+            method: CommentsMethods.list,
             params: .init(
                 claimId: channelId,
                 channelId: channelId,
@@ -735,6 +734,9 @@ enum Lbryio {
 
 enum LbryioRequestError: Error {
     case runtimeError(String)
+    case invalidUrl(_ url: String)
+    case invalidUrl(components: URLComponents)
+    case invalidResponse(_ response: URLResponse)
 }
 
 struct LbryioResponseError: Error {
