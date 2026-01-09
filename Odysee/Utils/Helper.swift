@@ -389,13 +389,6 @@ enum Helper {
         return message
     }
 
-    static func isChannelBlocked(claimId: String?) -> Bool {
-        guard claimId != nil else {
-            return false
-        }
-        return Lbry.blockedChannels.map(\.claimId).contains(claimId)
-    }
-
     @MainActor
     static func showMessage(message: String?) {
         (AppDelegate.shared.mainViewController as? MainViewController)?.showMessage(message: message)
