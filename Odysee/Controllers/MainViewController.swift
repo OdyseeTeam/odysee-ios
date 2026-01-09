@@ -158,7 +158,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             if let receiveAddress, !receiveAddress.isBlank {
                 claimEmailReward(walletAddress: receiveAddress, completion: completion)
             } else {
-                Lbry.apiCall(method: Lbry.Methods.addressUnused, params: .init()).subscribeResult { result in
+                Lbry.apiCall(method: BackendMethods.addressUnused, params: .init()).subscribeResult { result in
                     guard case let .success(newAddress) = result else {
                         return
                     }
@@ -783,7 +783,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func loadChannels() {
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: BackendMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,

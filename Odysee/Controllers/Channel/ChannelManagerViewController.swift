@@ -79,7 +79,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         noChannelsView.isHidden = true
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: BackendMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -113,7 +113,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             return
         }
         Lbry.apiCall(
-            method: Lbry.Methods.channelAbandon,
+            method: BackendMethods.channelAbandon,
             params: .init(
                 claimId: claimId,
                 blocking: true

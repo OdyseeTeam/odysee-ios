@@ -118,7 +118,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
     func loadUploads() {
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: BackendMethods.claimList,
             params: .init(
                 claimType: [.stream],
                 page: 1,
@@ -144,7 +144,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         }
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: BackendMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
