@@ -8,6 +8,11 @@
 import FirebaseAnalytics
 import UIKit
 
+// NOTE(2026-01-08):
+// Bypassed for now, to be removed
+// Wallet.swift handles sync
+// TODO: Implement password & unlock
+
 // initial wallet sync processing after sign in / sign up
 class WalletSyncViewController: UIViewController {
     var firstRunFlow = false
