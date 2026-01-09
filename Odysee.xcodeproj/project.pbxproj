@@ -106,7 +106,6 @@
 		64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE79E25502A290082AF2E /* SceneDelegate.swift */; };
 		64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7A025502A290082AF2E /* HomeViewController.swift */; };
 		64FBE7A425502A290082AF2E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7A225502A290082AF2E /* Main.storyboard */; };
-		64FBE7A725502A290082AF2E /* Odysee.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */; };
 		64FBE7A925502A2C0082AF2E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7A825502A2C0082AF2E /* Assets.xcassets */; };
 		64FBE7AC25502A2C0082AF2E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */; };
 		64FBE7C225502A2D0082AF2E /* OdyseeUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64FBE7C125502A2D0082AF2E /* OdyseeUITests.swift */; };
@@ -254,7 +253,6 @@
 		64FBE79E25502A290082AF2E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		64FBE7A025502A290082AF2E /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		64FBE7A325502A290082AF2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		64FBE7A625502A290082AF2E /* Odysee.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Odysee.xcdatamodel; sourceTree = "<group>"; };
 		64FBE7A825502A2C0082AF2E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		64FBE7AB25502A2C0082AF2E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		64FBE7AD25502A2C0082AF2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -548,7 +546,6 @@
 				538C8CC52ED74B8C00E20949 /* AppIcon.icon */,
 				64FBE7AA25502A2C0082AF2E /* LaunchScreen.storyboard */,
 				64FBE7AD25502A2C0082AF2E /* Info.plist */,
-				64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */,
 				532650E3286EAB1B00F0FF0B /* Settings.bundle */,
 				53FAD3FB288504C60000F980 /* Localizable.strings */,
 			);
@@ -785,7 +782,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				64FBE7A725502A290082AF2E /* Odysee.xcdatamodeld in Sources */,
 				64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */,
 				538C27562EFB8DA300305361 /* AuthToken.swift in Sources */,
 				642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */,
@@ -1412,19 +1408,6 @@
 			productName = OrderedCollections;
 		};
 /* End XCSwiftPackageProductDependency section */
-
-/* Begin XCVersionGroup section */
-		64FBE7A525502A290082AF2E /* Odysee.xcdatamodeld */ = {
-			isa = XCVersionGroup;
-			children = (
-				64FBE7A625502A290082AF2E /* Odysee.xcdatamodel */,
-			);
-			currentVersion = 64FBE7A625502A290082AF2E /* Odysee.xcdatamodel */;
-			path = Odysee.xcdatamodeld;
-			sourceTree = "<group>";
-			versionGroupType = wrapper.xcdatamodel;
-		};
-/* End XCVersionGroup section */
 	};
 	rootObject = 64FBE79125502A290082AF2E /* Project object */;
 }
