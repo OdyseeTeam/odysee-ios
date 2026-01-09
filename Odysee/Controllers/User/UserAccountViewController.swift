@@ -533,20 +533,36 @@ class UserAccountViewController: UIViewController {
         }
 
         finishWalletSyncStarted = true
-        DispatchQueue.main.async {
-            let vc = self.storyboard?
-                .instantiateViewController(identifier: "wallet_sync_vc") as! WalletSyncViewController
-            vc.firstRunFlow = self.firstRunFlow
-            vc.frDelegate = self.frDelegate
 
-            if self.firstRunFlow {
-                self.frDelegate?.requestStarted()
-                self.frDelegate?.showViewController(vc)
+        Task { await Wallet.shared.startSync() }
+
+        DispatchQueue.main.async {
+            AppDelegate.shared.mainController.startWalletBalanceTimer()
+            AppDelegate.shared.mainController.checkAndClaimEmailReward(completion: {})
+
+            if let vcs = self.navigationController?.viewControllers {
+                let index = max(0, vcs.count - 2)
+                var targetVc = vcs[index]
+                if targetVc == self {
+                    targetVc = vcs[index - 1]
+                }
+                self.navigationController?.popToViewController(targetVc, animated: true)
+                self.checkAndShowYouTubeSync(popViewController: false)
             } else {
-                AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
-                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+                self.checkAndShowYouTubeSync(popViewController: true)
             }
         }
+    }
+
+    func checkAndShowYouTubeSync(popViewController: Bool) {
+        if popViewController {
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
+        }
+        guard !Lbryio.Defaults.isYouTubeSyncDone else {
+            return
+        }
+        let vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     // dismiss soft keyboard when anywhere in the view (outside of text fields) is tapped
