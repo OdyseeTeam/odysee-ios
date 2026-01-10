@@ -213,7 +213,6 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
             method: Lbry.methodChannelCreate,
             params: options,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     self.showError(error: error)
@@ -236,17 +235,15 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
                                 options: [.prettyPrinted, .sortedKeys]
                             )
                             let claimResult: Claim? = try JSONDecoder().decode(Claim.self, from: data)
-                            if let claimResult = claimResult, claimResult.valueType == .channel {
+                            if let claimResult,
+                               claimResult.valueType == .channel,
+                               let claimId = claimResult.claimId
+                            {
                                 Lbryio.logPublishEvent(claimResult)
-                                Lbry.defaultChannelId = claimResult.claimId
-                                Lbry.saveSharedUserState { success, error in
-                                    guard error == nil else {
-                                        self.showError(error: error)
-                                        return
-                                    }
-                                    if success {
-                                        Lbry.pushSyncWallet()
-                                    }
+
+                                Task {
+                                    await Wallet.shared.setDefaultChannelId(channelId: claimId)
+                                    await Wallet.shared.queuePushSync()
                                 }
                             }
                         } catch {

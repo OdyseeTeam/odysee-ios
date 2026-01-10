@@ -19,6 +19,8 @@ enum Helper {
     static let commentMaxLength: Int = 2000
     static let txLinkPrefix = "https://explorer.lbry.com/tx"
     static let keyReceiveAddress = "walletReceiveAddress"
+    /// Can be a reinstall after uninstall, in which case UserDefaults is cleared but not Keychain
+    static let keyHasRunAfterInstall = "hasRunAfterInstall"
     static let keyFirstRunCompleted = "firstRunCompleted"
     static let keyPostedCommentHideTos = "postedCommentHideTos"
     static let reactionTypeLike = "like"
@@ -387,11 +389,19 @@ enum Helper {
         return message
     }
 
-    static func isChannelBlocked(claimId: String?) -> Bool {
-        guard claimId != nil else {
-            return false
-        }
-        return Lbry.blockedChannels.map(\.claimId).contains(claimId)
+    @MainActor
+    static func showMessage(message: String?) {
+        (AppDelegate.shared.mainViewController as? MainViewController)?.showMessage(message: message)
+    }
+
+    @MainActor
+    static func showError(message: String?) {
+        (AppDelegate.shared.mainViewController as? MainViewController)?.showError(message: message)
+    }
+
+    @MainActor
+    static func showError(error: Error) {
+        (AppDelegate.shared.mainViewController as? MainViewController)?.showError(error: error)
     }
 }
 

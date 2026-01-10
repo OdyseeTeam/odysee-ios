@@ -7,7 +7,6 @@
 
 import Base58Swift
 import Combine
-import CoreData
 import CryptoKit
 import FirebaseAnalytics
 import FirebaseCrashlytics
@@ -63,42 +62,6 @@ enum Lbry {
         page.items.forEach(Lbry.addClaimToCache)
     }
 
-    struct Method<ParamType: Encodable, ResultType: Decodable> {
-        var name: String
-        var defaultTransform: ((inout ResultType) throws -> Void)?
-    }
-
-    enum Methods {
-        static let resolve = Method<ResolveParams, ResolveResult>(
-            name: "resolve",
-            defaultTransform: processResolvedClaims
-        )
-        static let claimSearch = Method<ClaimSearchParams, Page<Claim>>(
-            name: "claim_search",
-            defaultTransform: processPageOfClaims
-        )
-        static let claimList = Method<ClaimListParams, Page<Claim>>(
-            name: "claim_list",
-            defaultTransform: processPageOfClaims
-        )
-        static let streamAbandon = Method<StreamAbandonParams, Transaction>(name: "stream_abandon")
-        static let addressUnused = Method<AddressUnusedParams, String>(name: "address_unused")
-        static let channelAbandon = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
-        static let channelSign = Method<ChannelSignParams, ChannelSignResult>(name: "channel_sign")
-        static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
-        static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
-    }
-
-    enum CommentMethods {
-        static let byId = Method<CommentByIdParams, CommentByIdResult>(name: "comment.ByID")
-        static let list = Method<CommentListParams, Page<Comment>>(name: "comment.List")
-        static let create = Method<CommentCreateParams, Comment>(name: "comment.Create")
-        static let reactList = Method<CommentReactListParams, ReactListResult>(name: "reaction.List")
-        static let react = Method<CommentReactParams, NilType>(name: "reaction.React")
-    }
-
-    struct NilType: Decodable {}
-
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
     static let methodChannelCreate = "channel_create"
     static let methodChannelUpdate = "channel_update"
@@ -126,7 +89,6 @@ enum Lbry {
     private static var claimCacheByUrl = NSCache<NSString, Claim>()
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
-    static var blockedChannels: [BlockedChannel] = []
     static var defaultChannelId: String?
 
     private struct APIBody<CallParams: Encodable>: Encodable {
@@ -153,10 +115,14 @@ enum Lbry {
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         do {
-            req.httpBody = try bodyEncoder.encode(body)
-        } catch let e {
-            assertionFailure("API encoding error: \(e)")
-            throw e
+            req.httpBody = if method == BackendMethods.sharedPreferenceSet.name {
+                try JSONEncoder().encode(body)
+            } else {
+                try bodyEncoder.encode(body)
+            }
+        } catch {
+            assertionFailure("API encoding error: \(error)")
+            throw error
         }
         req.addValue("application/json", forHTTPHeaderField: "Content-Type")
         req.addValue("application/json", forHTTPHeaderField: "Accept")
@@ -179,42 +145,54 @@ enum Lbry {
 
     // `transform` is run off-main to do things like sorting/filtering. Be cafeful!
     // The returned publisher receives events on the main thread.
-    static func commentApiCall<Params: Encodable, ReturnType: Decodable>
+    static func commentApiCall<Params: Encodable, ResultType: Decodable>
     (
-        method: Method<Params, ReturnType>,
+        method: Method<Params, ResultType>,
         params: Params,
         url: URL = commentronURL,
-        transform: ((inout ReturnType) throws -> Void)? = nil
+        transform: ((inout ResultType) throws -> Void)? = nil
     )
-        -> AnyPublisher<ReturnType, Error>
+        -> AnyPublisher<ResultType, Error>
     {
         return apiCall(method: method, params: params, url: url, transform: transform)
     }
 
     // `transform` is run off-main to do things like sorting/filtering. Be cafeful!
     // The returned publisher receives events on the main thread.
-    static func apiCall<Params: Encodable, ReturnType: Decodable>
+    static func apiCall<Params: Encodable, ResultType: Decodable>
     (
-        method: Method<Params, ReturnType>,
+        method: Method<Params, ResultType>,
         params: Params,
         url: URL = lbrytvURL,
-        authToken: String? = Lbryio.authToken,
-        transform: ((inout ReturnType) throws -> Void)? = nil
+        authTokenOverride: String? = nil,
+        transform: ((inout ResultType) throws -> Void)? = nil
     )
-        -> AnyPublisher<ReturnType, Error>
+        -> AnyPublisher<ResultType, Error>
     {
         // Note: We subscribe on global queue to do encoding etc. off the main thread.
-        return Just(()).subscribe(on: DispatchQueue.global()).tryMap {
-            // Create URLRequest.
-            try apiRequest(method: method.name, params: params, url: url, authToken: authToken)
+        return Just(()).subscribe(on: DispatchQueue.global()).flatMap {
+            Future { promise in
+                Task {
+                    let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
+
+                    do {
+                        // Create URLRequest.
+                        try promise(.success(
+                            apiRequest(method: method.name, params: params, url: url, authToken: authToken)
+                        ))
+                    } catch {
+                        promise(.failure(error))
+                    }
+                }
+            }
         }
         .flatMap { request in
             // Run data task.
             URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }
         }
-        .tryMap { data, _ -> ReturnType in
+        .tryMap { data, _ -> ResultType in
             // Decode and validate result.
-            let response = try JSONDecoder().decode(APIResponse<ReturnType>.self, from: data)
+            let response = try JSONDecoder().decode(APIResponse<ResultType>.self, from: data)
             if response.jsonrpc != "2.0" {
                 assertionFailure()
                 throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
@@ -237,54 +215,59 @@ enum Lbry {
         method: String,
         params: [String: Any],
         url: URL,
-        authToken: String? = nil,
+        authTokenOverride: String? = nil,
         completion: @escaping ([String: Any]?, Error?) -> Void
     ) {
-        let req: URLRequest
-        do {
-            req = try apiRequest(
-                method: method,
-                params: params as NSDictionary,
-                url: url,
-                authToken: authToken
-            )
-        } catch {
-            completion(nil, error)
-            return
-        }
-        let task = URLSession.shared.dataTask(with: req, completionHandler: { data, _, error in
-            guard let data = data, error == nil else {
-                // handle error
+        Task {
+            // Intentionally allow blank for calls that need it
+            let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
+
+            let req: URLRequest
+            do {
+                req = try apiRequest(
+                    method: method,
+                    params: params as NSDictionary,
+                    url: url,
+                    authToken: authToken
+                )
+            } catch {
                 completion(nil, error)
                 return
             }
-            do {
-                Log.verboseJSON.logIfEnabled(
-                    .debug,
-                    "Response to `\(method)`: \(String(data: data, encoding: .utf8) ?? "Couldn't parse data")"
-                )
-
-                let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                if response?["result"] != nil {
-                    completion(response, nil)
-                } else {
-                    if response?["error"] == nil, response?["result"] == nil {
-                        completion(nil, nil)
-                    } else if let error = response?["error"] as? String {
-                        completion(nil, LbryApiResponseError(error))
-                    } else if let errorJson = response?["error"] as? [String: Any],
-                              let errorMessage = errorJson["message"] as? String
-                    {
-                        completion(nil, LbryApiResponseError(errorMessage))
-                    } else {
-                        completion(nil, LbryApiResponseError("unknown api error"))
-                    }
+            let task = URLSession.shared.dataTask(with: req, completionHandler: { data, _, error in
+                guard let data = data, error == nil else {
+                    // handle error
+                    completion(nil, error)
+                    return
                 }
-            } catch {
-                completion(nil, error)
-            }
-        })
-        task.resume()
+                do {
+                    Log.verboseJSON.logIfEnabled(
+                        .debug,
+                        "Response to `\(method)`: \(String(data: data, encoding: .utf8) ?? "Couldn't parse data")"
+                    )
+
+                    let response = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                    if response?["result"] != nil {
+                        completion(response, nil)
+                    } else {
+                        if response?["error"] == nil, response?["result"] == nil {
+                            completion(nil, nil)
+                        } else if let error = response?["error"] as? String {
+                            completion(nil, LbryApiResponseError(error))
+                        } else if let errorJson = response?["error"] as? [String: Any],
+                                  let errorMessage = errorJson["message"] as? String
+                        {
+                            completion(nil, LbryApiResponseError(errorMessage))
+                        } else {
+                            completion(nil, LbryApiResponseError("unknown api error"))
+                        }
+                    }
+                } catch {
+                    completion(nil, error)
+                }
+            })
+            task.resume()
+        }
     }
 
     static func cachedClaim(url: String) -> Claim? {
@@ -332,410 +315,6 @@ enum Lbry {
             return Base58.base58Encode(Array(hash.makeIterator()))
         }
         return nil
-    }
-
-    static func loadSharedUserState(completion: @escaping (Bool, Error?) -> Void) {
-        getSharedPreference(completion: { data, _, error in
-            guard let data = data, error == nil else {
-                completion(false, error)
-                return
-            }
-
-            if let shared = data["shared"] as? [String: Any],
-               shared["type"] as? String == "object",
-               let value = shared["value"] as? [String: Any]
-            {
-                // load subscriptions only
-                let subscriptionUrls = value["subscriptions"] as? [String]
-                let following = value["following"] as? [[String: Any]]
-
-                var sharedPrefSubs: [LbrySubscription] = []
-                if let subscriptionUrls {
-                    for urlString in subscriptionUrls {
-                        if let url = LbryUri.tryParse(url: urlString, requireProto: false) {
-                            sharedPrefSubs.append(buildSharedPreferenceSubscription(url, following: following ?? []))
-                        }
-                    }
-                }
-
-                processSharedPreferenceSubs(sharedPrefSubs)
-
-                if let blockedUrls = value["blocked"] as? [String] {
-                    processBlockedUrls(blockedUrls)
-                }
-
-                if let settings = value["settings"] as? [String: Any],
-                   let defaultChannelId = settings["active_channel_claim"] as? String
-                {
-                    Lbry.defaultChannelId = defaultChannelId
-                }
-            }
-
-            completion(true, nil)
-        })
-    }
-
-    // move to main thread due to the appdelegate reference
-    static func processBlockedUrls(_ blockedUrls: [String]) {
-        DispatchQueue.main.async {
-            let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "BlockedChannel")
-            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
-            do {
-                let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-                try context.execute(deleteRequest)
-            } catch {
-                // pass
-                return
-            }
-
-            if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
-                for aUrl in blockedUrls {
-                    let lbryUrl = LbryUri.tryParse(url: aUrl, requireProto: false)
-                    if let claimId = lbryUrl?.claimId, let channelName = lbryUrl?.channelName {
-                        mainVc.addBlockedChannel(
-                            claimId: claimId,
-                            channelName: channelName,
-                            notifyAfter: false
-                        )
-                    }
-                }
-                mainVc.notifyBlockChannelObservers()
-            }
-        }
-    }
-
-    static func processSharedPreferenceSubs(_ subs: [LbrySubscription]) {
-        if subs.count > 0 {
-            // clear all subscriptions in local state
-            Lbryio.cachedSubscriptions.removeAll()
-            for sub in subs {
-                if let channelName = sub.channelName, let claimId = sub.claimId,
-                   let lbryUrl = LbryUri.tryParse(
-                       url: "\(normalizeChannelName(channelName)):\(claimId)",
-                       requireProto: false
-                   )
-                {
-                    Lbryio.addSubscription(sub: sub, url: lbryUrl.description)
-                }
-            }
-        }
-    }
-
-    static func buildSharedPreferenceSubscription(_ url: LbryUri, following: [[String: Any]]?) -> LbrySubscription {
-        var sub = LbrySubscription()
-        if let channelName = url.channelName {
-            sub.channelName = normalizeChannelName(channelName)
-        }
-        sub.claimId = url.claimId
-        sub.notificationsDisabled = isNotificationsDisabledForSubUrl(url.description, following: following)
-        return sub
-    }
-
-    static func normalizeChannelName(_ channelName: String) -> String {
-        if !channelName.starts(with: "@") {
-            return "@\(channelName)"
-        }
-        return channelName
-    }
-
-    static func isNotificationsDisabledForSubUrl(_ url: String, following: [[String: Any]]?) -> Bool {
-        if let following {
-            for item in following {
-                if item["uri"] as? String == url {
-                    return (item["notificationsDisabled"] as? Bool) ?? true
-                }
-            }
-        }
-        return true
-    }
-
-    static func saveSharedUserState(completion: @escaping (Bool, Error?) -> Void) {
-        getSharedPreference(completion: { data, newState, error in
-            if let error {
-                Crashlytics.crashlytics().recordImmediate(error: error)
-                return
-            }
-
-            var shared: [String: Any]?
-            var existingDataValid = false
-            if let data = data,
-               var newShared = data["shared"] as? [String: Any],
-               newShared["type"] as? String == "object",
-               var newValue = newShared["value"] as? [String: Any],
-               var newSettings = newValue["settings"] as? [String: Any]
-            {
-                existingDataValid = true
-                let (subscriptionUrls, following) = buildSubscriptionUrlsAndFollowingPreferences()
-                let blockedUrls = buildBlockedUrlsPreference()
-
-                newSettings["active_channel_claim"] = Lbry.defaultChannelId
-
-                newValue["subscriptions"] = subscriptionUrls
-                newValue["following"] = following
-                newValue["blocked"] = blockedUrls
-                newValue["settings"] = newSettings
-
-                newShared["value"] = newValue
-                shared = newShared
-            }
-
-            if newState || !existingDataValid {
-                shared = [
-                    "version": sharedPreferenceVersion,
-                    "type": "object",
-                    "value": buildNewSharedPreference(),
-                ]
-            }
-
-            if let dataToSave = try? JSONSerialization.data(
-                withJSONObject: shared as Any,
-                options: [.prettyPrinted, .sortedKeys]
-            ), let value = String(data: dataToSave, encoding: String.Encoding.utf8) {
-                var params = [String: Any]()
-                params["key"] = keyShared
-                params["value"] = value
-                apiCall(
-                    method: methodPreferenceSet,
-                    params: params,
-                    url: lbrytvURL,
-                    authToken: Lbryio.authToken,
-                    completion: { data, error in
-                        guard data != nil, error == nil else {
-                            completion(false, error)
-                            return
-                        }
-
-                        completion(true, nil)
-                    }
-                )
-            }
-        })
-    }
-
-    static func buildNewSharedPreference() -> [String: Any] {
-        let (subscriptionUrls, following) = buildSubscriptionUrlsAndFollowingPreferences()
-        let blockedUrls = buildBlockedUrlsPreference()
-
-        var settings = [String: Any]()
-        settings["active_channel_claim"] = Lbry.defaultChannelId
-
-        var preference = [String: Any]()
-        preference["tags"] = [] // tags not supported right now, so just make it an empty list
-        preference["subscriptions"] = subscriptionUrls
-        preference["following"] = following
-        preference["blocked"] = blockedUrls
-        preference["settings"] = settings
-
-        return preference
-    }
-
-    static func buildSubscriptionUrlsAndFollowingPreferences() -> ([String], [[String: Any]]) {
-        var subscriptionUrls: [String] = []
-        var following: [[String: Any]] = []
-        for (_, value) in Lbryio.cachedSubscriptions {
-            if let channelName = value.channelName,
-               let claimId = value.claimId,
-               let url = LbryUri.tryParse(
-                   url: "\(normalizeChannelName(channelName)):\(claimId)",
-                   requireProto: false
-               )
-            {
-                subscriptionUrls.append(url.description)
-                following.append(["uri": url.description, "notificationsDisabled": value.notificationsDisabled ?? true])
-            }
-        }
-
-        return (subscriptionUrls, following)
-    }
-
-    static func buildBlockedUrlsPreference() -> [String] {
-        var blockedUrls: [String] = []
-        for blockedChannel in Lbry.blockedChannels {
-            if let name = blockedChannel.name,
-               let claimId = blockedChannel.claimId,
-               let lbryUrl = LbryUri.tryParse(
-                   url: "\(normalizeChannelName(name)):\(claimId)",
-                   requireProto: false
-               )
-            {
-                blockedUrls.append(lbryUrl.description)
-            }
-        }
-
-        return blockedUrls
-    }
-
-    static func getSharedPreference(completion: @escaping ([String: Any]?, Bool, Error?) -> Void) {
-        var params = [String: Any]()
-        params["key"] = keyShared
-        apiCall(
-            method: methodPreferenceGet,
-            params: params,
-            url: lbrytvURL,
-            authToken: Lbryio.authToken,
-            completion: { data, error in
-                guard error == nil else {
-                    completion(nil, false, error)
-                    return
-                }
-
-                guard let data else {
-                    completion(nil, true, nil)
-                    return
-                }
-
-                completion(data["result"] as? [String: Any], false, nil)
-            }
-        )
-    }
-
-    static func pullSyncWallet(completion: ((Bool) -> Void)?) {
-        if walletSyncInProgress {
-            return
-        }
-
-        walletSyncInProgress = true
-        apiCall(
-            method: Lbry.methodSyncHash,
-            params: [String: Any](),
-            url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
-            completion: { data, error in
-                guard let data = data, error == nil else {
-                    if let error {
-                        Crashlytics.crashlytics().recordImmediate(error: error)
-                    }
-                    walletSyncInProgress = false
-                    return
-                }
-
-                if let hash = data["result"] as? String {
-                    localWalletHash = hash
-                    Lbryio.syncGet(hash: hash, completion: { walletSync, _, wsError in
-                        guard let walletSync = walletSync, wsError == nil else {
-                            print(wsError as Any)
-                            walletSyncInProgress = false
-                            return
-                        }
-
-                        remoteWalletHash = walletSync.hash
-                        if walletSync.data != nil, (walletSync.changed ?? true) || localWalletHash != remoteWalletHash {
-                            // sync apply changes
-                            var params = [String: Any]()
-                            params["password"] = ""
-                            params["data"] = walletSync.data
-                            params["blocking"] = true
-                            apiCall(
-                                method: methodSyncApply,
-                                params: params,
-                                url: Lbry.lbrytvURL,
-                                authToken: Lbryio.authToken,
-                                completion: { saData, saError in
-                                    guard let saData = saData, saError == nil else {
-                                        if let saError {
-                                            Crashlytics.crashlytics().recordImmediate(error: saError)
-                                        }
-                                        completion?(false)
-                                        walletSyncInProgress = false
-                                        return
-                                    }
-
-                                    if let result = saData["result"] as? [String: Any],
-                                       let saHash = result["hash"] as? String
-                                    {
-                                        localWalletHash = saHash
-                                    }
-
-                                    walletSyncInProgress = false
-                                    loadSharedUserState(completion: { _, _ in
-                                        completion?(true)
-                                    })
-
-                                    checkPushSyncQueue()
-                                }
-                            )
-                        } else {
-                            // no changes applied
-                            walletSyncInProgress = false
-                            loadSharedUserState(completion: { _, _ in
-                                // reload all the same
-                                completion?(true)
-                            })
-                        }
-                    })
-
-                    return
-                }
-
-                walletSyncInProgress = false
-            }
-        )
-    }
-
-    static func checkPushSyncQueue() {
-        if pushWalletSyncQueueCount > 0 {
-            pushWalletSyncQueueCount -= 1
-            pushSyncWallet()
-        }
-    }
-
-    static func pushSyncWallet() {
-        if walletSyncInProgress {
-            pushWalletSyncQueueCount = pushWalletSyncQueueCount + 1
-            return
-        }
-
-        walletSyncInProgress = true
-        var params = [String: Any]()
-        params["password"] = ""
-
-        Lbry.apiCall(
-            method: Lbry.methodSyncApply,
-            params: params,
-            url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
-            completion: { data, error in
-                guard let data = data, error == nil else {
-                    walletSyncInProgress = false
-                    checkPushSyncQueue()
-                    return
-                }
-
-                if let result = data["result"] as? [String: Any] {
-                    if let hash = result["hash"] as? String, let walletData = result["data"] as? String {
-                        Lbry.localWalletHash = hash
-                        Lbryio.syncSet(
-                            oldHash: remoteWalletHash ?? "",
-                            newHash: hash,
-                            data: walletData,
-                            completion: { remoteHash, error in
-                                guard let remoteHash = remoteHash, error == nil else {
-                                    walletSyncInProgress = false
-                                    checkPushSyncQueue()
-                                    if let error {
-                                        Crashlytics.crashlytics().recordImmediate(error: error)
-                                    }
-                                    return
-                                }
-
-                                Lbry.remoteWalletHash = remoteHash
-                                if Lbry.remoteWalletHash != Lbry.localWalletHash {
-                                    pullSyncWallet(completion: nil)
-                                } else {
-                                    walletSyncInProgress = false
-                                    checkPushSyncQueue()
-                                }
-                            }
-                        )
-                    }
-
-                    return
-                }
-
-                walletSyncInProgress = false
-                checkPushSyncQueue()
-            }
-        )
     }
 }
 

@@ -78,7 +78,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         options["page_size"] = 999
         options["resolve"] = true
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: BackendMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -94,6 +94,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             result.showErrorIfPresent()
             return
         }
+
         channels.removeAll(keepingCapacity: true)
         addAnonymousPlaceholder()
         channels.append(contentsOf: page.items)
@@ -101,9 +102,13 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         loadingSendSupportView.isHidden = true
         tipButton.isEnabled = true
         channelPickerView.reloadAllComponents()
-        let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
-        if channels.count > index {
-            channelPickerView.selectRow(index, inComponent: 0, animated: true)
+
+        Task {
+            let defaultChannelId = await Wallet.shared.defaultChannelId
+            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+            if channels.count > index {
+                channelPickerView.selectRow(index, inComponent: 0, animated: true)
+            }
         }
     }
 
@@ -228,7 +233,6 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             method: Lbry.methodSupportCreate,
             params: params,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard data != nil, error == nil else {
                     self.showError(error: error)

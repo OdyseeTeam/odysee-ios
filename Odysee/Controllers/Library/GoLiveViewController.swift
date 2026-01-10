@@ -220,7 +220,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         precheckLoadingView.isHidden = false
 
         Lbry.apiCall(
-            method: Lbry.Methods.claimList,
+            method: BackendMethods.claimList,
             params: .init(
                 claimType: [.channel],
                 page: 1,
@@ -273,9 +273,12 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             channels.append(contentsOf: page.items)
             channelPicker.reloadAllComponents()
 
-            let index = channels.firstIndex { $0.claimId == Lbry.defaultChannelId } ?? 0
-            if channels.count > index {
-                channelPicker.selectRow(index, inComponent: 0, animated: true)
+            Task {
+                let defaultChannelId = await Wallet.shared.defaultChannelId
+                let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+                if channels.count > index {
+                    channelPicker.selectRow(index, inComponent: 0, animated: true)
+                }
             }
 
             if channels.count > 0 {
@@ -401,7 +404,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
         Lbry.apiCall(
-            method: Lbry.Methods.channelSign,
+            method: BackendMethods.channelSign,
             params: .init(channelId: claimId, hexdata: Helper.strToHex(name))
         )
         .subscribeResult { result in
@@ -449,7 +452,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
 
             self.waitForConfirmationTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
                 Lbry.apiCall(
-                    method: Lbry.Methods.txoList,
+                    method: BackendMethods.txoList,
                     params: .init(
                         type: [.stream],
                         txid: txid
@@ -483,7 +486,6 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             method: Lbry.methodPublish,
             params: options,
             url: Lbry.lbrytvURL,
-            authToken: Lbryio.authToken,
             completion: { data, error in
                 guard let data = data, error == nil else {
                     DispatchQueue.main.async {
