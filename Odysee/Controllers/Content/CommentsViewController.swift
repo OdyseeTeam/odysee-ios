@@ -66,7 +66,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             loadComments()
         }
         if currentCommentIsReply, currentCommentId != nil {
-            loadCurrentCommentThread()
+            Task { await loadCurrentCommentThread() }
         }
     }
 
@@ -705,115 +705,78 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
     }
 
-    func loadCurrentCommentThread() {
+    func loadCurrentCommentThread() async {
         guard let currentCommentId else {
-            showError(message: "couldn't get current commentId")
+            Helper.showError(message: "couldn't get current commentId")
             return
         }
-        loadingContainer.isHidden = false
-        Lbry.commentApiCall(
-            method: CommentsMethods.byId,
-            params: .init(
-                commentId: currentCommentId,
-                withAncestors: true
-            )
-        )
-        .subscribeResult { result in
-            switch result {
-            case let .failure(error):
-                self.showError(error: error)
-            case let .success(result):
-                if let ancestors = result.ancestors {
-                    if let parent = ancestors.last {
-                        if !self.comments.contains(where: { $0.commentId == parent.commentId }) {
-                            self.comments.insert(parent, at: 0)
-                            self.commentList.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
-                        }
-                    }
-                    self.loadThread(thread: ancestors.reversed())
-                }
-            }
+        guard let claimId else {
+            Helper.showError(message: "couldn't get claimId")
+            return
         }
-    }
 
-    func loadThread(thread: [Comment]) {
-        thread.publisher.subscribe(on: DispatchQueue.global()).tryMap { comment -> (Comment, URLRequest) in
-            guard let claimId = self.claimId, let parentId = comment.commentId else {
-                throw GenericError("couldn't get claimId and/or parent commentId")
+        loadingContainer.isHidden = false
+
+        do {
+            let byId = try await CommentsMethods.byId.call(params: .init(
+                commentId: currentCommentId, withAncestors: true
+            ))
+
+            guard let ancestors = byId.ancestors else {
+                throw GenericError(String.localized("Comment could not be found"))
             }
-            return try (comment, Lbry.apiRequest(
-                method: CommentsMethods.list.name,
-                params: .init(
+
+            if let parent = ancestors.last, !comments.contains(where: { $0.commentId == parent.commentId }) {
+                comments.insert(parent, at: 0)
+                commentList.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
+            }
+
+            for comment in ancestors.reversed() {
+                guard let parentId = comment.commentId else {
+                    throw GenericError("couldn't get parent commentId")
+                }
+
+                let page = try await CommentsMethods.list.call(params: .init(
                     claimId: claimId,
                     parentId: parentId,
                     page: 1,
                     pageSize: 999,
                     skipValidation: true,
                     topLevel: false
-                ) as CommentListParams,
-                url: Lbry.commentronURL,
-                authToken: Lbryio.authToken
-            ))
-        }
-        .flatMap(maxPublishers: .max(1)) { comment, request in
-            // Run data task.
-            URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }.map { (comment, $0) }
-        }
-        .tryMap { comment, dataTaskOutput -> (Comment, Page<Comment>) in
-            let (data, _) = dataTaskOutput
+                ))
 
-            // Decode and validate result.
-            let response = try JSONDecoder().decode(Lbry.APIResponse<Page<Comment>>.self, from: data)
-            if response.jsonrpc != "2.0" {
-                assertionFailure()
-                throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
-            }
-
-            guard let result = response.result else {
-                throw LbryApiResponseError(response.error?.message ?? "unknown api error")
-            }
-            return (comment, result)
-        }
-        .receive(on: DispatchQueue.main)
-        .eraseToAnyPublisher()
-        .subscribeResultFinally { result in
-            self.loadingContainer.isHidden = true
-            switch result {
-            case let .failure(error):
-                self.showError(error: error)
-            case let .success(output):
-                if let (parent, page) = output {
-                    let loadedComments = page.items.filter {
-                        comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
-                    }.map { comment in
-                        var comment = comment
-                        var currentComment: Comment? = comment
-                        while let currentComment_ = currentComment {
-                            comment.replyDepth += 1
-                            currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
-                        }
-                        return comment
+                let loadedComments = page.items.filter {
+                    comment in !comments.contains(where: { $0.commentId == comment.commentId })
+                }.map { comment in
+                    var comment = comment
+                    var currentComment: Comment? = comment
+                    while let currentComment_ = currentComment {
+                        comment.replyDepth += 1
+                        currentComment = comments.first(where: { $0.commentId == currentComment_.parentId })
                     }
-
-                    if let parentIndex = self.comments.firstIndex(where: {
-                        $0.commentId == parent.commentId
-                    }), loadedComments.count > 0 {
-                        self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
-                        self.commentList.insertRows(
-                            at: Array(parentIndex + 1 ... parentIndex + loadedComments.count).map {
-                                IndexPath(row: $0, section: 0)
-                            },
-                            with: .automatic
-                        )
-                        self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
-                        self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
-                    }
-
-                    self.setCommentRepliesLoaded(parent)
-                } else {
-                    self.scrollToCurrentComment()
+                    return comment
                 }
+
+                if let parentIndex = comments.firstIndex(where: { $0.commentId == parentId }),
+                   loadedComments.count > 0
+                {
+                    comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
+                    commentList.insertRows(
+                        at: Array(parentIndex + 1 ... parentIndex + loadedComments.count).map {
+                            IndexPath(row: $0, section: 0)
+                        },
+                        with: .automatic
+                    )
+                    loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+                    resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
+                }
+
+                setCommentRepliesLoaded(comment)
             }
+
+            scrollToCurrentComment()
+        } catch {
+            Helper.showError(error: error)
         }
     }
 
