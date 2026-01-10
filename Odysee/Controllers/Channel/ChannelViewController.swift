@@ -11,8 +11,7 @@ import SafariServices
 import UIKit
 
 class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UIScrollViewDelegate, UITableViewDelegate,
-    UITableViewDataSource, UICollectionViewDelegate, UICollectionViewDataSource, UITextViewDelegate,
-    BlockChannelStatusObserver
+    UITableViewDataSource, UICollectionViewDelegate, UICollectionViewDataSource, UITextViewDelegate
 {
     var channelClaim: Claim?
     var claimUrl: LbryUri?
@@ -142,10 +141,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         // Do any additional setup after loading the view
         thumbnailImageView.rounded()
 
-        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
-            mainVc.addBlockChannelObserver(name: "channel", observer: self)
-        }
-
         // TODO: If channelClaim is not set, resolve the claim url before displaying
         if channelClaim == nil, let claimUrl {
             resolveAndDisplayClaim(claimUrl: claimUrl)
@@ -164,12 +159,27 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         } else {
             displayNothingAtLocation()
         }
-    }
 
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
-            mainVc.removeBlockChannelObserver(name: "channel")
+        Task {
+            if let page = try? await BackendMethods.claimList.call(params: .init(
+                claimType: [.channel],
+                page: 1,
+                pageSize: 999,
+                resolve: true
+            )) {
+                Lbry.ownChannels = page.items
+            }
+        }
+
+        Task {
+            for await _ in await Wallet.shared.$blocked.values {
+                if let claimId = channelClaim?.claimId {
+                    blockUnblockLabel.text = String.localized(
+                        await Wallet.shared.isBlocked(claimId: claimId) ?
+                            "Unblock channel" : "Block channel"
+                    )
+                }
+            }
         }
     }
 
@@ -334,10 +344,12 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
            let claimId = channelClaim?.claimId,
            let name = channelClaim?.name
         {
-            blockUnblockLabel.text = String.localized(
-                Helper.isChannelBlocked(claimId: channelClaim?.claimId) ?
-                    "Unblock channel" : "Block channel"
-            )
+            Task {
+                blockUnblockLabel.text = String.localized(
+                    await Wallet.shared.isBlocked(claimId: claimId) ?
+                        "Unblock channel" : "Block channel"
+                )
+            }
 
             Lbryio.areCommentsEnabled(
                 channelId: claimId,
@@ -830,35 +842,46 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func blockUnblockActionTapped(_ sender: Any) {
-        if let claimId = channelClaim?.claimId,
-           let name = channelClaim?.name
-        {
-            let isBlocked = Helper.isChannelBlocked(claimId: claimId)
-            if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
-                if isBlocked {
-                    mainVc.removeBlockedChannel(claimId: claimId)
-                } else {
-                    let alert = UIAlertController(
-                        title: String(format: String.localized("Block %@?"), name),
-                        message: String(
-                            format: String
-                                .localized(
-                                    "Are you sure you want to block this channel? You will no longer see comments nor content from %@."
-                                ),
-                            name
+        if !Lbryio.isSignedIn() {
+            showUAView()
+            return
+        }
+        guard let claimId = channelClaim?.claimId,
+              let channelName = channelClaim?.name
+        else {
+            return
+        }
+
+        guard !Lbry.ownChannels.contains(where: { $0.claimId == claimId }) else {
+            Helper.showError(message: "you cannot block one of your own channels")
+            return
+        }
+
+        Task {
+            if await Wallet.shared.isBlocked(claimId: claimId) {
+                await Wallet.shared.removeBlocked(claimId: claimId)
+
+                await Wallet.shared.queuePushSync()
+            } else {
+                let alert = UIAlertController(
+                    title: String(format: String.localized("Block %@?"), channelName),
+                    message: String(
+                        format: String.localized(
+                            "Are you sure you want to block this channel? You will no longer see comments nor content from %@."
                         ),
-                        preferredStyle: .alert
-                    )
-                    alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
-                        mainVc.addBlockedChannel(
-                            claimId: claimId,
-                            channelName: name,
-                            notifyAfter: true
-                        )
-                    }))
-                    alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
-                    present(alert, animated: true)
-                }
+                        channelName
+                    ),
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default) { _ in
+                    Task {
+                        await Wallet.shared.addBlocked(channelName: channelName, claimId: claimId)
+
+                        await Wallet.shared.queuePushSync()
+                    }
+                })
+                alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+                present(alert, animated: true)
             }
         }
     }
@@ -1064,15 +1087,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             futureStreamsCollectionView.heightAnchor
                 .constraint(equalToConstant: collectionViewFrame.height)
         ])
-    }
-
-    func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
-        if let current = channelClaim {
-            blockUnblockLabel.text = String.localized(
-                Helper.isChannelBlocked(claimId: current.claimId) ?
-                    "Unblock channel" : "Block channel"
-            )
-        }
     }
 
     func showError(error: Error?) {

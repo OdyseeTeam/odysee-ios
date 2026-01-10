@@ -85,7 +85,6 @@
 		646F1F7625F0D67A00F75F3B /* PublishesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646F1F7525F0D67A00F75F3B /* PublishesViewController.swift */; };
 		646F1F7E25F0D6BE00F75F3B /* PublishViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646F1F7D25F0D6BE00F75F3B /* PublishViewController.swift */; };
 		647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647408502577FA30008007C6 /* ChannelCollectionViewCell.swift */; };
-		647AFE8E2886FEF500704944 /* BlockChannelStatusObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647AFE8D2886FEF500704944 /* BlockChannelStatusObserver.swift */; };
 		647EB3F225F54EB1003AA76B /* UIStackCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 647EB3F125F54EB1003AA76B /* UIStackCardView.swift */; };
 		6484E1AD2582238900221658 /* NotificationsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6484E1AC2582238900221658 /* NotificationsViewController.swift */; };
 		648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 648F31FB2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift */; };
@@ -235,7 +234,6 @@
 		646F1F7525F0D67A00F75F3B /* PublishesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishesViewController.swift; sourceTree = "<group>"; };
 		646F1F7D25F0D6BE00F75F3B /* PublishViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishViewController.swift; sourceTree = "<group>"; };
 		647408502577FA30008007C6 /* ChannelCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelCollectionViewCell.swift; sourceTree = "<group>"; };
-		647AFE8D2886FEF500704944 /* BlockChannelStatusObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockChannelStatusObserver.swift; sourceTree = "<group>"; };
 		647EB3F125F54EB1003AA76B /* UIStackCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIStackCardView.swift; sourceTree = "<group>"; };
 		6484E1AC2582238900221658 /* NotificationsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewController.swift; sourceTree = "<group>"; };
 		6484E1B12582269100221658 /* Odysee.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Odysee.entitlements; sourceTree = "<group>"; };
@@ -385,7 +383,6 @@
 				641E7EB82608BDB100A79CD3 /* Predefined.swift */,
 				649F023B2717F918009A5698 /* Constants.swift */,
 				53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */,
-				647AFE8D2886FEF500704944 /* BlockChannelStatusObserver.swift */,
 				5385091F28E13D28009A7AAB /* MembershipPerk.swift */,
 				53D59FFB2EF3AE530081D800 /* Methods.swift */,
 				53D59FFD2EF3B3150081D800 /* QueryItemsEncoder.swift */,
@@ -851,7 +848,6 @@
 				64424DDA255895A500F2D247 /* ContentSources.swift in Sources */,
 				643382A3258DB119004B562B /* RewardTableViewCell.swift in Sources */,
 				641108EC255AA4CF00F0FB8A /* User.swift in Sources */,
-				647AFE8E2886FEF500704944 /* BlockChannelStatusObserver.swift in Sources */,
 				64A8B65125E671AC00F06D74 /* YouTubeSyncStatusViewController.swift in Sources */,
 				CCDDA921265852920006035F /* Multistream.swift in Sources */,
 				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,

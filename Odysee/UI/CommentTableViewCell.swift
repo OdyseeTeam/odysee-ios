@@ -148,31 +148,32 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     @objc func blockChannelTapped(_ sender: Any) {
-        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController,
-           let channelId = currentComment?.channelId,
-           let channelName = currentComment?.channelName
-        {
-            let alert = UIAlertController(
-                title: String(format: String.localized("Block %@?"), channelName),
-                message: String(
-                    format: String
-                        .localized(
-                            "Are you sure you want to block the comment author? You will no longer see comments nor content from %@."
-                        ),
-                    channelName,
-                ),
-                preferredStyle: .alert
-            )
-            alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
-                mainVc.addBlockedChannel(
-                    claimId: channelId,
-                    channelName: channelName,
-                    notifyAfter: true
-                )
-            }))
-            alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
-            mainVc.present(alert, animated: true)
+        guard let mainVc = AppDelegate.shared.mainViewController as? MainViewController,
+              let claimId = currentComment?.claimId,
+              let channelName = currentComment?.channelName
+        else {
+            return
         }
+
+        let alert = UIAlertController(
+            title: String(format: String.localized("Block %@?"), channelName),
+            message: String(
+                format: String.localized(
+                    "Are you sure you want to block the comment author? You will no longer see comments nor content from %@."
+                ),
+                channelName
+            ),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default) { _ in
+            Task {
+                await Wallet.shared.addBlocked(channelName: channelName, claimId: claimId)
+
+                await Wallet.shared.queuePushSync()
+            }
+        })
+        alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+        mainVc.present(alert, animated: true)
     }
 
     @objc func reportContentTapped(_ sender: Any) {

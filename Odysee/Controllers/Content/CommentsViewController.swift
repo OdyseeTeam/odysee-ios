@@ -9,9 +9,7 @@ import Combine
 import CoreActionSheetPicker
 import UIKit
 
-class CommentsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate,
-    BlockChannelStatusObserver
-{
+class CommentsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextViewDelegate {
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var closeButton: UIButton!
     @IBOutlet var noCommentsLabel: UILabel!
@@ -117,6 +115,15 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 currentCommentAsIndex = index
                 updateCommentAsChannel(index)
             }
+
+            for await blocked in await Wallet.shared.$blocked.values {
+                guard let blocked = blocked?.map(\.claimId) else {
+                    continue
+                }
+
+                comments.removeAll { blocked.contains($0.channelId) }
+                commentList.reloadData()
+            }
         }
 
         if comments.count > 0 {
@@ -126,17 +133,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
         channelDriverView.isHidden = channels.count > 0
         channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
-
-        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
-            mainVc.addBlockChannelObserver(name: "comments", observer: self)
-        }
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
-            mainVc.removeBlockChannelObserver(name: "comments")
-        }
     }
 
     /*
@@ -202,38 +198,42 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             )
         )
         .subscribeResult { result in
-            self.loadingContainer.isHidden = true
-            switch result {
-            case let .failure(error):
-                self.showError(error: error)
-            case let .success(page):
-                self.commentsLastPageReached = page.isLastPage
-                let loadedComments = page.items.filter {
-                    comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
-                }
-                self.comments.append(contentsOf: loadedComments)
+            Task {
+                self.loadingContainer.isHidden = true
+                switch result {
+                case let .failure(error):
+                    self.showError(error: error)
+                case let .success(page):
+                    self.commentsLastPageReached = page.isLastPage
+                    var loadedComments = page.items.filter {
+                        comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
+                    }
+                    if let blocked = (await Wallet.shared.blocked)?.map(\.claimId) {
+                        loadedComments.removeAll { blocked.contains($0.channelId) }
+                    }
+                    self.comments.append(contentsOf: loadedComments)
 
-                if loadedComments.count > 0 {
-                    self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
-                }
-                // resolve author map
-                if self.comments.count > 0 {
-                    self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
-                }
+                    if loadedComments.count > 0 {
+                        self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+                    }
+                    // resolve author map
+                    if self.comments.count > 0 {
+                        self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
+                    }
 
-                self.commentsLoading = false
-                self.filterBlockedChannels(false)
-                self.commentList.reloadData()
-                self.checkNoComments()
+                    self.commentsLoading = false
+                    self.commentList.reloadData()
+                    self.checkNoComments()
 
-                if self.currentCommentId != nil && !self.currentCommentIsReply {
-                    if !self.commentsLastPageReached && !self.comments.contains(where: {
-                        $0.commentId == self.currentCommentId
-                    }) {
-                        self.commentsCurrentPage += 1
-                        self.loadComments()
-                    } else if !self.hasScrolledToCurrentComment {
-                        self.scrollToCurrentComment()
+                    if self.currentCommentId != nil && !self.currentCommentIsReply {
+                        if !self.commentsLastPageReached && !self.comments.contains(where: {
+                            $0.commentId == self.currentCommentId
+                        }) {
+                            self.commentsCurrentPage += 1
+                            self.loadComments()
+                        } else if !self.hasScrolledToCurrentComment {
+                            self.scrollToCurrentComment()
+                        }
                     }
                 }
             }
@@ -855,18 +855,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
-    }
-
-    func filterBlockedChannels(_ reload: Bool) {
-        comments.removeAll { Helper.isChannelBlocked(claimId: $0.channelId) }
-        if reload {
-            commentList.reloadData()
-        }
-    }
-
-    func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
-        // simply use the mainViewController's blockedChannels list to filter
-        filterBlockedChannels(true)
     }
 
     struct CombinedReactionData {

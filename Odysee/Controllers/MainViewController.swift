@@ -7,7 +7,6 @@
 
 import AVFoundation
 import AVKit
-import CoreData
 import FirebaseCrashlytics
 import MediaPlayer
 import MessageUI
@@ -48,9 +47,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     let balanceTimerInterval: Double = 5 // 5 seconds
 
     let snackbar = Snackbar()
-
-    var blockChannelObservers = [String: BlockChannelStatusObserver?]()
-    var fetchContext: NSManagedObjectContext?
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -96,25 +92,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
         notificationBadgeView.layer.cornerRadius = 6
 
-        // Load blocked channels
-        let fetchRequest = NSFetchRequest<BlockedChannel>(entityName: "BlockedChannel")
-        fetchRequest.returnsObjectsAsFaults = false
-
-        DispatchQueue.main.async {
-            AppDelegate.shared.persistentContainer.performBackgroundTask { context in
-                do {
-                    let blockedChannels = try context.fetch(fetchRequest)
-                    Lbry.blockedChannels = blockedChannels
-                    DispatchQueue.main.async {
-                        // notify observers, if any
-                        self.notifyBlockChannelObservers()
-                    }
-                } catch {
-                    print("NSAsynchronousFetchRequest error: \(error)")
-                }
-            }
-        }
-
         // Do any additional setup after loading the view
         startWalletBalanceTimer()
         loadNotifications()
@@ -134,16 +111,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             checkAndClaimEmailReward(completion: {})
             checkAndShowYouTubeSync()
             loadChannels()
-        }
-    }
-
-    func addBlockChannelObserver(name: String, observer: BlockChannelStatusObserver) {
-        blockChannelObservers[name] = observer
-    }
-
-    func removeBlockChannelObserver(name: String) {
-        if blockChannelObservers[name] != nil {
-            blockChannelObservers.removeValue(forKey: name)
         }
     }
 
@@ -843,95 +810,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         coordinator.animate(alongsideTransition: nil) { _ in
             // Player pauses when returning from full screen
             playerViewController.player?.play()
-        }
-    }
-
-    func notifyBlockChannelObservers() {
-        for observer in blockChannelObservers.values {
-            if let observer = observer, Lbry.blockedChannels.count > 0 {
-                // use the first claim ID to trigger (this will be used after initial load or sync get)
-                observer.blockChannelStatusChanged(claimId: Lbry.blockedChannels[0].claimId ?? "", isBlocked: true)
-            }
-        }
-    }
-
-    func addBlockedChannel(claimId: String, channelName: String, notifyAfter: Bool = false) {
-        // persist the subscription to CoreData
-        DispatchQueue.main.async {
-            let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-            context.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-
-            let entity = BlockedChannel(context: context)
-            entity.claimId = claimId
-            entity.name = channelName
-
-            if !Lbry.blockedChannels.contains(entity) {
-                Lbry.blockedChannels.append(entity)
-            }
-
-            AppDelegate.shared.saveContext()
-
-            // notify the observers
-            if notifyAfter {
-                for observer in self.blockChannelObservers.values {
-                    if let observer = observer {
-                        observer.blockChannelStatusChanged(claimId: claimId, isBlocked: true)
-                    }
-                }
-
-                // NOTE: notifyAfter is set to false for loadSharedUserState, so we save state here (and avoid an infinite call loop)
-                // run a wallet sync operation to update "blocked"
-                Lbry.saveSharedUserState(completion: { success, err in
-                    guard err == nil else {
-                        // pass
-                        return
-                    }
-                    if success {
-                        // run wallet sync
-                        Lbry.pushSyncWallet()
-                    }
-                })
-            }
-        }
-    }
-
-    func removeBlockedChannel(claimId: String) {
-        // remove the subscription from CoreData
-        DispatchQueue.main.async {
-            do {
-                let context: NSManagedObjectContext = AppDelegate.shared.persistentContainer.viewContext
-                let fetchRequest: NSFetchRequest<BlockedChannel> = BlockedChannel.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "claimId == %@", claimId)
-                let entities = try context.fetch(fetchRequest)
-
-                if entities.count > 0 {
-                    let entityToDelete = entities[0]
-                    context.delete(entityToDelete)
-                    Lbry.blockedChannels = Lbry.blockedChannels.filter { $0.claimId != entityToDelete.claimId }
-                }
-
-                try context.save()
-
-                for observer in self.blockChannelObservers.values {
-                    if let observer = observer {
-                        observer.blockChannelStatusChanged(claimId: claimId, isBlocked: false)
-                    }
-                }
-
-                // run a wallet sync operation
-                Lbry.saveSharedUserState(completion: { success, err in
-                    guard err == nil else {
-                        self.showError(error: err)
-                        return
-                    }
-                    if success {
-                        // run wallet sync
-                        Lbry.pushSyncWallet()
-                    }
-                })
-            } catch {
-                self.showError(error: error)
-            }
         }
     }
 
