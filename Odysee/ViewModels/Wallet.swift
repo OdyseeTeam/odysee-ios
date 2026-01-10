@@ -26,6 +26,8 @@ actor Wallet {
 
     @Published private(set) var following: Following?
 
+    @Published private(set) var blocked: [LbryUri]?
+
     private(set) var defaultChannelId: String?
 
     // MARK: Sync
@@ -125,6 +127,8 @@ actor Wallet {
                 try $0[Self.buildFollow(channelName: channelName, claimId: claimId)] = $1.notificationsDisabled
             }
 
+            blocked = sharedPreference.blocked
+
             defaultChannelId = sharedPreference.defaultChannelId
         }
 
@@ -156,6 +160,10 @@ actor Wallet {
                 )
             }
             sharedPreference.subscriptions = Array(following.keys)
+        }
+
+        if let blocked {
+            sharedPreference.blocked = blocked
         }
 
         sharedPreference.defaultChannelId = defaultChannelId
@@ -236,6 +244,37 @@ extension Wallet {
         }
 
         return following?[uri] ?? true
+    }
+}
+
+// MARK: Blocked
+
+extension Wallet {
+    static func buildBlocked(channelName: String, claimId: String) throws -> LbryUri {
+        let channelName = channelName.starts(with: "@") ? channelName : "@\(channelName)"
+        return try LbryUri.parse(url: "lbry://\(channelName):\(claimId)", requireProto: true)
+    }
+
+    func addBlocked(channelName: String, claimId: String) {
+        guard !Lbry.ownChannels.contains(where: { $0.claimId == claimId }) else {
+            return
+        }
+
+        guard let uri = try? Self.buildBlocked(channelName: channelName, claimId: claimId),
+              !(blocked?.contains(uri) ?? false)
+        else {
+            return
+        }
+
+        blocked?.append(uri)
+    }
+
+    func removeBlocked(claimId: String) {
+        blocked?.removeAll { $0.claimId == claimId }
+    }
+
+    func isBlocked(claimId: String) -> Bool {
+        return blocked?.map(\.claimId).contains(claimId) ?? false
     }
 }
 
