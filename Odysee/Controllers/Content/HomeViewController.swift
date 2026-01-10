@@ -16,8 +16,7 @@ class HomeViewController: UIViewController,
     UICollectionViewDataSource,
     UICollectionViewDelegate,
     UITableViewDataSourcePrefetching,
-    UICollectionViewDataSourcePrefetching,
-    BlockChannelStatusObserver
+    UICollectionViewDataSourcePrefetching
 {
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var claimListView: UITableView!
@@ -99,15 +98,22 @@ class HomeViewController: UIViewController,
         }
         selectCategoryButton(button: categoryButtons[0])
 
-        if let mainVc = AppDelegate.shared.mainViewController as? MainViewController {
-            mainVc.addBlockChannelObserver(name: "home", observer: self)
-        }
-
         if claims.count == 0 {
             loadClaims()
         }
         if livestreams.count == 0 {
             loadLivestreams()
+        }
+
+        Task {
+            for await blocked in await Wallet.shared.$blocked.values {
+                guard let blocked = blocked?.map(\.claimId) else {
+                    continue
+                }
+
+                claims.removeAll { blocked.contains($0.signingChannel?.claimId) }
+                claimListView.reloadData()
+            }
         }
     }
 
@@ -126,22 +132,27 @@ class HomeViewController: UIViewController,
     func didLoadClaims(_ result: Result<Page<Claim>, Error>) {
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
-        if case var .success(payload) = result {
-            payload.items.removeAll { Helper.isChannelBlocked(claimId: $0.signingChannel?.claimId) }
 
-            let oldCount = claims.count
-            claims.append(contentsOf: payload.items)
-            if claims.count != oldCount {
-                claimListView.reloadData()
+        Task {
+            if case var .success(payload) = result {
+                if let blocked = (await Wallet.shared.blocked)?.map(\.claimId) {
+                    payload.items.removeAll { blocked.contains($0.signingChannel?.claimId) }
+                }
+
+                let oldCount = claims.count
+                claims.append(contentsOf: payload.items)
+                if claims.count != oldCount {
+                    claimListView.reloadData()
+                }
+                claimsLastPageReached = payload.isLastPage
             }
-            claimsLastPageReached = payload.isLastPage
+            if !loadingLivestreams {
+                loadingContainer.isHidden = true
+            }
+            loadingClaims = false
+            checkNoContent()
+            refreshControl.endRefreshing()
         }
-        if !loadingLivestreams {
-            loadingContainer.isHidden = true
-        }
-        loadingClaims = false
-        checkNoContent()
-        refreshControl.endRefreshing()
     }
 
     func loadClaims() {
@@ -565,13 +576,6 @@ class HomeViewController: UIViewController,
             livestreamsLabel.leadingAnchor.constraint(equalTo: livestreamsView.leadingAnchor, constant: 18),
             livestreamsCollectionView.leadingAnchor.constraint(equalTo: livestreamsView.leadingAnchor),
         ])
-    }
-
-    func blockChannelStatusChanged(claimId: String, isBlocked: Bool) {
-        claims.removeAll {
-            Helper.isChannelBlocked(claimId: $0.signingChannel?.claimId)
-        }
-        claimListView.reloadData()
     }
 
     // MARK: UITableViewDataSourcePrefetching
