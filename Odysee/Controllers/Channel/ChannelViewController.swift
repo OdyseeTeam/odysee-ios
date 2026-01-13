@@ -958,7 +958,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
-        guard let claimId = claim.claimId else {
+        guard let claimId = claim.claimId, let name = claim.name else {
+            showError(message: "couldn't get claim")
             return
         }
 
@@ -967,7 +968,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             var options = [String: String]()
             options["claim_id"] = claimId
             if !unsubscribing {
-                options["channel_name"] = claim.name
+                options["channel_name"] = name
                 options["notifications_disabled"] = String(notificationsDisabled)
             }
 
