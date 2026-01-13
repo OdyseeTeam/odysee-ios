@@ -86,7 +86,7 @@ enum ContentSources {
 
                 if respCode >= 200, respCode < 300 {
                     if respData?["data"] == nil {
-                        completion(LbryioResponseError("Could not find data key in response returned", respCode))
+                        completion(LbryioResponseError.error("Could not find data key in response returned", respCode))
                         return
                     }
 
@@ -148,11 +148,11 @@ enum ContentSources {
                 }
 
                 if respData?["error"] as? NSNull != nil {
-                    completion(LbryioResponseError("no error message", respCode))
+                    completion(LbryioResponseError.error("no error message", respCode))
                 } else if let error = respData?["error"] as? String {
-                    completion(LbryioResponseError(error, respCode))
+                    completion(LbryioResponseError.error(error, respCode))
                 } else {
-                    completion(LbryioResponseError("Unknown api error signature", respCode))
+                    completion(LbryioResponseError.error("Unknown api error signature", respCode))
                 }
             } catch let err {
                 completion(err)

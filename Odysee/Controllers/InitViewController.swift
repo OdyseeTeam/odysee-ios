@@ -68,14 +68,15 @@ class InitViewController: UIViewController {
         do {
             try Lbryio.fetchCurrentUser(completion: { user, error in
                 if error != nil || user == nil {
-                    if let responseError = error as? LbryioResponseError {
-                        if responseError.code == 403 {
-                            // invalidated auth token, get a new one
-                            Lbryio.Defaults.reset()
-                            Task { await AuthToken.reset() }
-                            self.authenticateAndRegisterInstall()
-                            return
-                        }
+                    if let error = error as? LbryioResponseError,
+                       case let LbryioResponseError.error(_, code) = error,
+                       code == 403
+                    {
+                        // invalidated auth token, get a new one
+                        Lbryio.Defaults.reset()
+                        Task { await AuthToken.reset() }
+                        self.authenticateAndRegisterInstall()
+                        return
                     }
 
                     // show a startup error message
