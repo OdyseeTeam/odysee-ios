@@ -327,8 +327,10 @@ class UserAccountViewController: UIViewController {
                 options["email"] = email
                 try Lbryio.post(resource: "user", action: "exists", options: options, completion: { data, error in
                     guard let data = data, error == nil else {
-                        if let responseError = error as? LbryioResponseError {
-                            if responseError.code == 412 {
+                        if let error = error as? LbryioResponseError,
+                           case let LbryioResponseError.error(_, code) = error
+                        {
+                            if code == 412 {
                                 // old email verification flow
                                 self.currentEmail = email
                                 self.handleUserSignInWithoutPassword(email: email)
@@ -397,9 +399,11 @@ class UserAccountViewController: UIViewController {
                 }
 
                 guard let data = data, error == nil else {
-                    if let responseError = error as? LbryioResponseError {
+                    if let error = error as? LbryioResponseError,
+                       case let LbryioResponseError.error(_, code) = error
+                    {
                         self.requestInProgress = false
-                        if responseError.code == 409 {
+                        if code == 409 {
                             self.handleEmailVerificationFlow(email: email)
                             return
                         }
@@ -476,8 +480,10 @@ class UserAccountViewController: UIViewController {
             options["send_verification_email"] = "true"
             try Lbryio.post(resource: "user_email", action: "new", options: options, completion: { data, error in
                 guard data != nil, error == nil else {
-                    if let responseError = error as? LbryioResponseError {
-                        if responseError.code == 409 {
+                    if let error = error as? LbryioResponseError,
+                       case let LbryioResponseError.error(_, code) = error
+                    {
+                        if code == 409 {
                             self.handleEmailVerificationFlow(email: email)
                         } else {
                             self.showError(error: error)

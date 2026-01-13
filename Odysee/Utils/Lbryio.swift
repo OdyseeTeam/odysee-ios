@@ -279,11 +279,11 @@ enum Lbryio {
                     }
 
                     if respData?["error"] as? NSNull != nil {
-                        completion(nil, LbryioResponseError("no error message", respCode))
+                        completion(nil, LbryioResponseError.error("no error message", respCode))
                     } else if let error = respData?["error"] as? String {
-                        completion(nil, LbryioResponseError(error, respCode))
+                        completion(nil, LbryioResponseError.error(error, respCode))
                     } else {
-                        completion(nil, LbryioResponseError("Unknown api error signature", respCode))
+                        completion(nil, LbryioResponseError.error("Unknown api error signature", respCode))
                     }
                 } catch {
                     completion(nil, error)
@@ -449,7 +449,7 @@ enum Lbryio {
                     return
                 }
 
-                completion(nil, LbryioResponseError("exchange rate retrieval failed", 0))
+                completion(nil, LbryioResponseError.error("exchange rate retrieval failed", 0))
             })
         } catch {
             completion(nil, error)
@@ -492,12 +492,13 @@ enum Lbryio {
         do {
             try post(resource: "sync", action: "get", options: options, completion: { data, error in
                 guard let response = data as? [String: Any], error == nil else {
-                    if let responseError = error as? LbryioResponseError {
-                        if responseError.code == 404 {
-                            // no wallet found for the user, so it's a new sync
-                            completion(nil, true, nil)
-                            return
-                        }
+                    if let error = error as? LbryioResponseError,
+                       case let LbryioResponseError.error(_, code) = error,
+                       code == 404
+                    {
+                        // no wallet found for the user, so it's a new sync
+                        completion(nil, true, nil)
+                        return
                     }
                     completion(nil, nil, error)
                     return
@@ -614,15 +615,14 @@ enum LbryioRequestError: Error {
     case invalidResponse(_ response: URLResponse)
 }
 
-struct LbryioResponseError: Error {
-    let message: String
-    let code: Int
-    init(_ message: String, _ code: Int) {
-        self.message = message
-        self.code = code
-    }
+enum LbryioResponseError: Error {
+    case error(_ message: String, _ code: Int)
 
     var localizedDescription: String {
+        guard case let .error(message, _) = self else {
+            return "Account response error"
+        }
+
         return message
     }
 }

@@ -180,7 +180,7 @@ extension Method where ParamType: AccountMethodParams {
         let response = try JSONDecoder().decode(LbryioAPIResponse<ResultType>.self, from: data)
 
         guard let result = response.result else {
-            throw LbryioResponseError(response.error ?? "unknown api error", respCode)
+            throw LbryioResponseError.error(response.error ?? "unknown api error", respCode)
         }
 
         return result
