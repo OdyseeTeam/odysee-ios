@@ -280,13 +280,15 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     @IBAction func openCurrentClaim(_ sender: Any) {
-        if AppDelegate.shared.mainNavigationController?.topViewController ==
-            AppDelegate.shared.currentFileViewController
-        {
-            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
-        } else if let fileVc = AppDelegate.shared.currentFileViewController,
-                  fileVc.claim == AppDelegate.shared.currentClaim ||
-                  fileVc.currentPlaylistClaim() == AppDelegate.shared.currentClaim
+        if let viewControllers = AppDelegate.shared.mainNavigationController?.viewControllers {
+            AppDelegate.shared.mainNavigationController?.viewControllers = viewControllers.filter {
+                !($0 is FileViewController)
+            }
+        }
+
+        if let fileVc = AppDelegate.shared.currentFileViewController,
+           fileVc.claim == AppDelegate.shared.currentClaim ||
+           fileVc.currentPlaylistClaim() == AppDelegate.shared.currentClaim
         {
             AppDelegate.shared.mainNavigationController?.view.layer.add(
                 Helper.buildFileViewTransition(),
@@ -769,16 +771,21 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void
     ) {
         if AppDelegate.shared.mainNavigationController?.topViewController ==
-            AppDelegate.shared.currentFileViewController
+            AppDelegate.shared.currentFileViewController,
+            AppDelegate.shared.currentFileViewController?.claim == AppDelegate.shared.pictureInPicturePlayingClaim
         {
-            if AppDelegate.shared.currentFileViewController?.claim == AppDelegate.shared.pictureInPicturePlayingClaim {
-                completionHandler(true)
-                return
-            }
+            completionHandler(true)
+            return
+        }
 
-            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
-        } else if let fileVc = AppDelegate.shared.currentFileViewController,
-                  fileVc.claim == AppDelegate.shared.pictureInPicturePlayingClaim
+        if let viewControllers = AppDelegate.shared.mainNavigationController?.viewControllers {
+            AppDelegate.shared.mainNavigationController?.viewControllers = viewControllers.filter {
+                !($0 is FileViewController)
+            }
+        }
+
+        if let fileVc = AppDelegate.shared.currentFileViewController,
+           fileVc.claim == AppDelegate.shared.pictureInPicturePlayingClaim
         {
             AppDelegate.shared.mainNavigationController?.view.layer.add(
                 Helper.buildFileViewTransition(),
