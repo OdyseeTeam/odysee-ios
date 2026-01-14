@@ -334,7 +334,6 @@ enum Lbryio {
 
             if data != nil {
                 do {
-                    Crashlytics.crashlytics().setCustomValue(data as Any, forKey: "fetchCurrentUser_data")
                     let jsonData = try JSONSerialization.data(
                         withJSONObject: data as Any,
                         options: [.prettyPrinted, .sortedKeys]
