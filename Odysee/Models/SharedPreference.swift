@@ -28,7 +28,7 @@ struct SharedPreference: Codable {
 
         init(from decoder: any Decoder) throws {
             let container = try decoder.container(keyedBy: SharedPreference.Following.CodingKeys.self)
-            notificationsDisabled = (try? container.decode(Bool.self, forKey: .notificationsDisabled)) ?? true
+            notificationsDisabled = try container.decodeIfPresent(Bool.self, forKey: .notificationsDisabled) ?? true
             uri = try container.decode(LbryUri.self, forKey: .uri)
         }
     }
@@ -116,7 +116,7 @@ struct SharedPreference: Codable {
         subscriptions = try value.decode([LbryUri].self, forKey: .subscriptions)
         following = try value.decode([Following].self, forKey: .following)
         blocked = try value.decode([LbryUri].self, forKey: .blocked)
-        defaultChannelId = try? settings.decode(String.self, forKey: .defaultChannelId)
+        defaultChannelId = try settings.decodeIfPresent(String.self, forKey: .defaultChannelId)
     }
 
     func encode(to encoder: Encoder) throws {
