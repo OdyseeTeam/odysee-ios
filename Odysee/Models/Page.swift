@@ -11,6 +11,11 @@ struct Page<Item: Decodable>: Decodable {
     var items: [Item]
     var isLastPage: Bool
 
+    init(items: [Item], isLastPage: Bool) {
+        self.items = items
+        self.isLastPage = isLastPage
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         items = try container.decodeIfPresent([Item].self, forKey: .items) ?? []

@@ -207,12 +207,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             return
         }
 
-        DispatchQueue.main.async {
-            self.loadingContainer.isHidden = false
-        }
-
-        loadingContent = true
-
         let channelIds = if let selectedClaimId = selectedChannelClaim?.claimId {
             [selectedClaimId]
         } else {
@@ -220,6 +214,12 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         if channelIds.count > 0 {
+            DispatchQueue.main.async {
+                self.loadingContainer.isHidden = false
+            }
+
+            loadingContent = true
+
             let releaseTimeValue = currentSortByIndex == 2 ? Helper
                 .buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
             Lbry.apiCall(
@@ -235,6 +235,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 )
             )
             .subscribeResult(didLoadSubscriptionContent)
+        } else {
+            didLoadSubscriptionContent(.success(Page(items: [], isLastPage: false)))
         }
     }
 
