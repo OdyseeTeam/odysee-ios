@@ -621,8 +621,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 for: indexPath
             ) as! ClaimTableViewCell
 
-            let claim: Claim = claims[indexPath.row]
-            cell.setClaim(claim: claim)
+            if claims.count > indexPath.row {
+                let claim = claims[indexPath.row]
+                cell.setClaim(claim: claim)
+            }
 
             return cell
         }
@@ -633,7 +635,11 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if tableView == contentListView {
-            let claim: Claim = claims[indexPath.row]
+            guard claims.count > indexPath.row else {
+                return
+            }
+
+            let claim = claims[indexPath.row]
 
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
             vc.claim = claim
@@ -659,8 +665,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             for: indexPath
         ) as! LivestreamCollectionViewCell
 
-        let futureStream = futureStreams[indexPath.row]
-        cell.setFutureStreamClaim(claim: futureStream)
+        if futureStreams.count > indexPath.row {
+            let futureStream = futureStreams[indexPath.row]
+            cell.setFutureStreamClaim(claim: futureStream)
+        }
 
         return cell
     }
@@ -675,6 +683,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+
+        guard futureStreams.count > indexPath.row else {
+            return
+        }
 
         let claim = futureStreams[indexPath.row]
         let vc = storyboard?.instantiateViewController(withIdentifier: "file_view_vc") as! FileViewController

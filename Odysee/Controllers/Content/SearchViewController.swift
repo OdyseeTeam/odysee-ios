@@ -80,7 +80,11 @@ class SearchViewController: UIViewController,
         super.viewDidLoad()
 
         prefetchController = ImagePrefetchingController { [unowned self] indexPath in
-            ClaimTableViewCell.imagePrefetchURLs(claim: claims[indexPath.row])
+            guard claims.count > indexPath.row else {
+                return []
+            }
+
+            return ClaimTableViewCell.imagePrefetchURLs(claim: claims[indexPath.row])
         }
 
         loadingContainer.layer.cornerRadius = 20
@@ -469,15 +473,22 @@ class SearchViewController: UIViewController,
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
 
-        let claim: Claim = claims[indexPath.row]
-        cell.setClaim(claim: claim)
+        if claims.count > indexPath.row {
+            let claim = claims[indexPath.row]
+            cell.setClaim(claim: claim)
+        }
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let claim: Claim = claims[indexPath.row]
+
+        guard claims.count > indexPath.row else {
+            return
+        }
+
+        let claim = claims[indexPath.row]
 
         if claim.name?.starts(with: "@") ?? false {
             // channel claim

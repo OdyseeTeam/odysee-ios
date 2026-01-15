@@ -272,6 +272,10 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        guard channels.count > row else {
+            return nil
+        }
+
         return channels[row].name
     }
 

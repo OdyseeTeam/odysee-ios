@@ -419,7 +419,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         }
 
         let selectedChannelIndex: Int = channelPickerView.selectedRow(inComponent: 0)
-        if selectedChannelIndex > 0 {
+        if selectedChannelIndex > 0, channels.count > selectedChannelIndex {
             // not anonymous
             params["channel_id"] = channels[selectedChannelIndex].claimId
         }
@@ -507,6 +507,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
         if pickerView == channelPickerView {
+            guard channels.count > row else {
+                return
+            }
+
             let channel = channels[row]
             let name = channel.name ?? ""
             if name.lowercased() == "anonymous" {
@@ -665,6 +669,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         if pickerView == channelPickerView {
+            guard channels.count > row else {
+                return nil
+            }
+
             return channels[row].name
         } else if pickerView == languagePickerView {
             return Predefined.publishLanguages[row].localizedName
