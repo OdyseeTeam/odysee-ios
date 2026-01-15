@@ -263,19 +263,21 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     @IBAction func doneTapped(_ sender: UIButton) {
-        if following.count == 0 {
-            showMessage(message: String.localized("Please select one or more creators to follow"))
-            return
+        Task {
+            guard let following = await Wallet.shared.following, following.count > 0 else {
+                Helper.showMessage(message: String.localized("Please select one or more creators to follow"))
+                return
+            }
+
+            selectedSuggestedFollows.removeAll()
+
+            suggestedView.isHidden = true
+            mainView.isHidden = false
+            showingSuggested = false
+
+            resetSubscriptionContent()
+            loadSubscriptionContent()
         }
-
-        selectedSuggestedFollows.removeAll()
-
-        suggestedView.isHidden = true
-        mainView.isHidden = false
-        showingSuggested = false
-
-        resetSubscriptionContent()
-        loadSubscriptionContent()
     }
 
     @IBAction func discoverTapped(_ sender: Any) {
