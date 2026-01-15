@@ -393,7 +393,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 cell?.setSelected(selected: true)
             }
         } else {
-            if following.count > indexPath.row {
+            if !loadingContent, following.count > indexPath.row {
                 let prevSelectedClaimId = selectedChannelClaim?.claimId
 
                 let claim = following[indexPath.row]
