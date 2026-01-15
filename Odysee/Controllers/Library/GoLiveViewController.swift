@@ -112,7 +112,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                 message: String.localized("Do you want to stop streaming?"),
                 preferredStyle: .alert
             )
-            alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in self.closeStream() }))
+            alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in self.closeStream() }))
             alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
             present(alert, animated: true, completion: nil)
             return

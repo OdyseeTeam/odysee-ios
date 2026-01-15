@@ -174,7 +174,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                     preferredStyle: .alert
                 )
                 alert.addTextField(configurationHandler: nil)
-                alert.addAction(UIAlertAction(title: String.localized("Delete Anyway"), style: .default, handler: { _ in
+                alert.addAction(UIAlertAction(title: String.localized("Delete Anyway"), style: .destructive, handler: { _ in
                     guard let textFields = alert.textFields,
                           textFields.count > 0,
                           let response = textFields[0].text
@@ -196,14 +196,13 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
                     self.confirmDeleteAccount()
                 }))
-                alert
-                    .addAction(UIAlertAction(
-                        title: String.localized("Retrieve Credits"),
-                        style: .cancel,
-                        handler: { _ in
-                            self.presentingViewController?.dismiss(animated: false, completion: nil)
-                        }
-                    ))
+                alert.addAction(UIAlertAction(
+                    title: String.localized("Retrieve Credits"),
+                    style: .cancel,
+                    handler: { _ in
+                        self.presentingViewController?.dismiss(animated: false, completion: nil)
+                    }
+                ))
                 present(alert, animated: true)
                 return
             }
@@ -252,7 +251,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
             preferredStyle: .alert
         )
         alert.addTextField(configurationHandler: nil)
-        alert.addAction(UIAlertAction(title: String.localized("Delete"), style: .default, handler: { _ in
+        alert.addAction(UIAlertAction(title: String.localized("Delete"), style: .destructive, handler: { _ in
             guard let textFields = alert.textFields,
                   textFields.count > 0,
                   let response = textFields[0].text

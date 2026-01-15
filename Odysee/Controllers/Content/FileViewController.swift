@@ -1941,7 +1941,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         message: String.localized("Are you sure you want to stop following this channel?"),
                         preferredStyle: .alert
                     )
-                    alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
+                    alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
                         self.subscribeOrUnsubscribe(
                             claim: channelClaim,
                             notificationsDisabled: true, // Unused

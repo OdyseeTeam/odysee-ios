@@ -196,12 +196,12 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
                 message: String.localized("Are you sure you want to delete this channel?"),
                 preferredStyle: .alert
             )
-            alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
+            alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .destructive, handler: { _ in
                 self.abandonChannel(channel: claim)
                 self.channels.remove(at: indexPath.row)
                 tableView.deleteRows(at: [indexPath], with: .fade)
             }))
-            alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+            alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
             present(alert, animated: true)
         }
     }
