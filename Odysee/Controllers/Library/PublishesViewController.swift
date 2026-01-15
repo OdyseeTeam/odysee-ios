@@ -138,15 +138,22 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
 
-        let claim: Claim = uploads[indexPath.row]
-        cell.setClaim(claim: claim)
+        if uploads.count > indexPath.row {
+            let claim = uploads[indexPath.row]
+            cell.setClaim(claim: claim)
+        }
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let claim: Claim = uploads[indexPath.row]
+
+        guard uploads.count > indexPath.row else {
+            return
+        }
+
+        let claim = uploads[indexPath.row]
         if claim.claimId == "new" {
             let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
@@ -162,8 +169,10 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     @objc func handleUploadCellLongPress(sender: UILongPressGestureRecognizer) {
         if longPressGestureRecognizer.state == .began {
             let touchPoint = longPressGestureRecognizer.location(in: uploadsListView)
-            if let indexPath = uploadsListView.indexPathForRow(at: touchPoint) {
-                let claim: Claim = uploads[indexPath.row]
+            if let indexPath = uploadsListView.indexPathForRow(at: touchPoint),
+               uploads.count > indexPath.row
+            {
+                let claim = uploads[indexPath.row]
                 let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
                 vc.currentClaim = claim
                 AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
@@ -176,9 +185,13 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         commit editingStyle: UITableViewCell.EditingStyle,
         forRowAt indexPath: IndexPath
     ) {
+        guard uploads.count > indexPath.row else {
+            return
+        }
+
         if editingStyle == .delete {
             // abandon channel
-            let claim: Claim = uploads[indexPath.row]
+            let claim = uploads[indexPath.row]
             if claim.claimId == "new" {
                 return
             }

@@ -245,15 +245,22 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
             for: indexPath
         ) as! NotificationTableViewCell
 
-        let notification: LbryNotification = notifications[indexPath.row]
-        cell.setNotification(notification: notification)
+        if notifications.count > indexPath.row {
+            let notification = notifications[indexPath.row]
+            cell.setNotification(notification: notification)
+        }
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let notification: LbryNotification = notifications[indexPath.row]
+
+        guard notifications.count > indexPath.row else {
+            return
+        }
+
+        let notification = notifications[indexPath.row]
 
         if let targetUrl = notification.targetUrl {
             markSingleNotificationRead(id: notification.id)
@@ -297,6 +304,10 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         commit editingStyle: UITableViewCell.EditingStyle,
         forRowAt indexPath: IndexPath
     ) {
+        guard notifications.count > indexPath.row else {
+            return
+        }
+
         if editingStyle == .delete {
             let notification: LbryNotification = notifications[indexPath.row]
             deleteNotification(id: notification.id)

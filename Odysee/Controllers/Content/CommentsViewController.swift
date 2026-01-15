@@ -155,10 +155,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             for: indexPath
         ) as! CommentTableViewCell
 
-        let comment: Comment = comments[indexPath.row]
-        cell.setComment(comment: comment)
-        cell.setAuthorImageMap(map: authorThumbnailMap)
-        cell.viewController = self
+        if comments.count > indexPath.row {
+            let comment = comments[indexPath.row]
+            cell.setComment(comment: comment)
+            cell.setAuthorImageMap(map: authorThumbnailMap)
+            cell.viewController = self
+        }
 
         return cell
     }
@@ -337,17 +339,21 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         commentInput.resignFirstResponder()
         UserDefaults.standard.set(1, forKey: Helper.keyPostedCommentHideTos)
 
-        if postingComment {
+        guard !postingComment else {
             return
         }
 
-        if channels.count == 0 {
+        guard channels.count > 0 else {
             showError(message: String.localized("You need to create a channel before you can post comments"))
             return
         }
-
-        if currentCommentAsIndex == -1 {
+        guard channels.count > currentCommentAsIndex else {
+            showError(message: String.localized("Invalid selected channel index. Try selecting the channel again."))
+            return
+        }
+        guard currentCommentAsIndex > -1 else {
             showError(message: String.localized("No channel selected. This is probably a bug."))
+            return
         }
 
         guard let commentText = commentInput.text else {
@@ -355,7 +361,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
 
-        if commentText.count > Helper.commentMaxLength {
+        guard commentText.count <= Helper.commentMaxLength else {
             showError(message: String.localized("Your comment is too long"))
             return
         }
@@ -500,7 +506,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             }
         }
 
-        if currentCommentAsIndex == -1 || channels.count == 0 {
+        if currentCommentAsIndex == -1 || channels.count == 0 || channels.count <= currentCommentAsIndex {
             Lbry.commentApiCall(
                 method: CommentsMethods.reactList,
                 params: .init(commentIds: commentIds.joined(separator: ","))
@@ -547,21 +553,25 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func react(_ comment: Comment, type: String) {
-        if !Lbryio.isSignedIn() {
+        guard Lbryio.isSignedIn() else {
             showUAView()
             return
         }
 
-        if channels.count == 0 {
+        guard channels.count > 0 else {
             showError(message: String.localized("You need to create a channel before you can react to comments"))
             return
         }
-
-        if currentCommentAsIndex == -1 {
+        guard channels.count > currentCommentAsIndex else {
+            showError(message: String.localized("Invalid selected channel index. Try selecting the channel again."))
+            return
+        }
+        guard currentCommentAsIndex > -1 else {
             showError(message: String.localized("No channel selected. This is probably a bug."))
+            return
         }
 
-        if reacting {
+        guard !reacting else {
             return
         }
 
@@ -813,7 +823,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func updateCommentAsChannel(_ index: Int) {
-        if index < 0 || channels.count == 0 {
+        guard index > -1, channels.count > index else {
             return
         }
 

@@ -522,12 +522,18 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        guard channels.count > row else {
+            return nil
+        }
+
         return channels.map(\.name)[row]
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        selectedChannel = channels[row]
-        _ = checkCanStreamOnChannel(selectedChannel)
+        if channels.count > row {
+            selectedChannel = channels[row]
+            _ = checkCanStreamOnChannel(selectedChannel)
+        }
     }
 
     @IBAction func selectImageTapped(_ sender: UIButton) {

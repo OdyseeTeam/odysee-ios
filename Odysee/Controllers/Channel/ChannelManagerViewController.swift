@@ -141,15 +141,22 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             for: indexPath
         ) as! ChannelListTableViewCell
 
-        let claim: Claim = channels[indexPath.row]
-        cell.setClaim(claim: claim)
+        if channels.count > indexPath.row {
+            let claim = channels[indexPath.row]
+            cell.setClaim(claim: claim)
+        }
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let claim: Claim = channels[indexPath.row]
+
+        guard channels.count > indexPath.row else {
+            return
+        }
+
+        let claim = channels[indexPath.row]
         if claim.claimId == "new" {
             let vc = storyboard?
                 .instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
@@ -166,8 +173,10 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     @objc func handleUploadCellLongPress(sender: UILongPressGestureRecognizer) {
         if longPressGestureRecognizer.state == .began {
             let touchPoint = longPressGestureRecognizer.location(in: channelListView)
-            if let indexPath = channelListView.indexPathForRow(at: touchPoint) {
-                let claim: Claim = channels[indexPath.row]
+            if let indexPath = channelListView.indexPathForRow(at: touchPoint),
+               channels.count > indexPath.row
+            {
+                let claim = channels[indexPath.row]
                 let vc = storyboard?
                     .instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
                 if claim.claimId != "new" {
@@ -183,9 +192,13 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         commit editingStyle: UITableViewCell.EditingStyle,
         forRowAt indexPath: IndexPath
     ) {
+        guard channels.count > indexPath.row else {
+            return
+        }
+
         if editingStyle == .delete {
             // abandon channel
-            let claim: Claim = channels[indexPath.row]
+            let claim = channels[indexPath.row]
             if claim.claimId == "new" {
                 return
             }

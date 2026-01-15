@@ -76,10 +76,18 @@ class HomeViewController: UIViewController,
 
         buildDynamicCategories()
         claimsPrefetchController = ImagePrefetchingController { [unowned self] indexPath in
+            guard claims.count > indexPath.row else {
+                return []
+            }
+
             let claim = claims[indexPath.row]
             return ClaimTableViewCell.imagePrefetchURLs(claim: claim)
         }
         livestreamsPrefetchController = ImagePrefetchingController { [unowned self] indexPath in
+            guard livestreams.count > indexPath.row else {
+                return []
+            }
+
             let claim = livestreams[indexPath.row].claim
             return LivestreamCollectionViewCell.imagePrefetchURLs(claim: claim)
         }
@@ -157,7 +165,10 @@ class HomeViewController: UIViewController,
 
     func loadClaims() {
         assert(Thread.isMainThread)
-        if loadingClaims {
+        guard !loadingClaims,
+              channelLimits.count > currentCategoryIndex,
+              channelIds.count > currentCategoryIndex
+        else {
             return
         }
 
@@ -235,8 +246,10 @@ class HomeViewController: UIViewController,
     func claimSearchLivestreams() {
         let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
         if !isWildWest {
-            livestreamInfos = livestreamInfos.filter {
-                channelIds[currentCategoryIndex]?.contains($0.channelClaimId) ?? false
+            if channelIds.count > currentCategoryIndex {
+                livestreamInfos = livestreamInfos.filter {
+                    channelIds[currentCategoryIndex]?.contains($0.channelClaimId) ?? false
+                }
             }
 
             guard livestreamInfos.count > 0 else {
@@ -325,15 +338,22 @@ class HomeViewController: UIViewController,
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
 
-        let claim: Claim = claims[indexPath.row]
-        cell.setClaim(claim: claim, showRepostOverlay: false)
+        if claims.count > indexPath.row {
+            let claim = claims[indexPath.row]
+            cell.setClaim(claim: claim, showRepostOverlay: false)
+        }
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let claim: Claim = claims[indexPath.row]
+
+        guard claims.count > indexPath.row else {
+            return
+        }
+
+        let claim = claims[indexPath.row]
         let actualClaim = if claim.valueType == ClaimType.repost, let repostedClaim = claim.repostedClaim {
             repostedClaim
         } else {
@@ -363,12 +383,14 @@ class HomeViewController: UIViewController,
             for: indexPath
         ) as! LivestreamCollectionViewCell
 
-        let livestream = livestreams[indexPath.row]
-        cell.setLivestreamInfo(
-            claim: livestream.claim,
-            startTime: livestream.startTime,
-            viewerCount: livestream.viewerCount
-        )
+        if livestreams.count > indexPath.row {
+            let livestream = livestreams[indexPath.row]
+            cell.setLivestreamInfo(
+                claim: livestream.claim,
+                startTime: livestream.startTime,
+                viewerCount: livestream.viewerCount
+            )
+        }
 
         return cell
     }
@@ -383,6 +405,10 @@ class HomeViewController: UIViewController,
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+
+        guard livestreams.count > indexPath.row else {
+            return
+        }
 
         let claim = livestreams[indexPath.row].claim
         let vc = storyboard?.instantiateViewController(withIdentifier: "file_view_vc") as! FileViewController
