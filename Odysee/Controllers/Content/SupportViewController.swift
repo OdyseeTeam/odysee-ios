@@ -205,7 +205,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default, handler: { _ in
             self.confirmSendTip(amount: amount)
         }))
-        alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+        alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
 
         present(alert, animated: true, completion: nil)
     }

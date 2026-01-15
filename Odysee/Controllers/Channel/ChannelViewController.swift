@@ -873,14 +873,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     ),
                     preferredStyle: .alert
                 )
-                alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default) { _ in
+                alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .destructive) { _ in
                     Task {
                         await Wallet.shared.addBlocked(channelName: channelName, claimId: claimId)
 
                         await Wallet.shared.queuePushSync()
                     }
                 })
-                alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+                alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
                 present(alert, animated: true)
             }
         }
@@ -916,7 +916,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     message: String.localized("Are you sure you want to stop following this channel?"),
                     preferredStyle: .alert
                 )
-                alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
+                alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
                     self.subscribeOrUnsubscribe(
                         claim: channelClaim,
                         notificationsDisabled: true, // Unused

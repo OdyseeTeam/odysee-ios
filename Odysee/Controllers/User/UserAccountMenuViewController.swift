@@ -174,36 +174,39 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                     preferredStyle: .alert
                 )
                 alert.addTextField(configurationHandler: nil)
-                alert.addAction(UIAlertAction(title: String.localized("Delete Anyway"), style: .default, handler: { _ in
-                    guard let textFields = alert.textFields,
-                          textFields.count > 0,
-                          let response = textFields[0].text
-                    else {
-                        self.showError(message: String.localized("Failed to get text"))
-                        return
-                    }
-                    if response != self.forfeitCreditsVerfication {
-                        self.showError(message: String.localized("Please type the verification phrase to continue"))
-                        self.deleteAccountTapped(UIButton())
-                        return
-                    }
-
-                    // send out all credits if there are any
-                    if availableBalance > 1 {
-                        self.sweepCredits()
-                        return
-                    }
-
-                    self.confirmDeleteAccount()
-                }))
-                alert
-                    .addAction(UIAlertAction(
-                        title: String.localized("Retrieve Credits"),
-                        style: .cancel,
-                        handler: { _ in
-                            self.presentingViewController?.dismiss(animated: false, completion: nil)
+                alert.addAction(UIAlertAction(
+                    title: String.localized("Delete Anyway"),
+                    style: .destructive,
+                    handler: { _ in
+                        guard let textFields = alert.textFields,
+                              textFields.count > 0,
+                              let response = textFields[0].text
+                        else {
+                            self.showError(message: String.localized("Failed to get text"))
+                            return
                         }
-                    ))
+                        if response != self.forfeitCreditsVerfication {
+                            self.showError(message: String.localized("Please type the verification phrase to continue"))
+                            self.deleteAccountTapped(UIButton())
+                            return
+                        }
+
+                        // send out all credits if there are any
+                        if availableBalance > 1 {
+                            self.sweepCredits()
+                            return
+                        }
+
+                        self.confirmDeleteAccount()
+                    }
+                ))
+                alert.addAction(UIAlertAction(
+                    title: String.localized("Retrieve Credits"),
+                    style: .cancel,
+                    handler: { _ in
+                        self.presentingViewController?.dismiss(animated: false, completion: nil)
+                    }
+                ))
                 present(alert, animated: true)
                 return
             }
@@ -252,7 +255,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
             preferredStyle: .alert
         )
         alert.addTextField(configurationHandler: nil)
-        alert.addAction(UIAlertAction(title: String.localized("Delete"), style: .default, handler: { _ in
+        alert.addAction(UIAlertAction(title: String.localized("Delete"), style: .destructive, handler: { _ in
             guard let textFields = alert.textFields,
                   textFields.count > 0,
                   let response = textFields[0].text
