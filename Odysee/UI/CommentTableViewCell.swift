@@ -165,14 +165,14 @@ class CommentTableViewCell: UITableViewCell {
             ),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default) { _ in
+        alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .destructive) { _ in
             Task {
                 await Wallet.shared.addBlocked(channelName: channelName, claimId: claimId)
 
                 await Wallet.shared.queuePushSync()
             }
         })
-        alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+        alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
         mainVc.present(alert, animated: true)
     }
 

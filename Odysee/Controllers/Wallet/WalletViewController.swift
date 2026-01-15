@@ -135,7 +135,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 amount: Helper.sdkAmountFormatter.string(from: amount as NSDecimalNumber) ?? ""
             )
         }))
-        alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+        alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
 
         present(alert, animated: true, completion: nil)
     }
