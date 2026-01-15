@@ -2267,7 +2267,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             title: String.localized("Comment as"),
             origin: commentAsChannelLabel,
             rows: channels.map { $0.name ?? "" },
-            initialSelection: currentCommentAsIndex,
+            initialSelection: max(0, min(currentCommentAsIndex, channels.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentCommentAsIndex
             self.currentCommentAsIndex = selectedIndex

@@ -544,7 +544,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             title: String.localized("Sort content by"),
             origin: sortByLabel,
             rows: Helper.sortByItemNames,
-            initialSelection: currentSortByIndex
+            initialSelection: max(0, min(currentSortByIndex, Helper.sortByItemNames.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentSortByIndex
             self.currentSortByIndex = selectedIndex
@@ -561,7 +561,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             title: String.localized("Content from"),
             origin: contentFromLabel,
             rows: Helper.contentFromItemNames,
-            initialSelection: currentContentFromIndex
+            initialSelection: max(0, min(currentContentFromIndex, Helper.contentFromItemNames.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentContentFromIndex
             self.currentContentFromIndex = selectedIndex
