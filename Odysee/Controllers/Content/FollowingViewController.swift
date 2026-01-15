@@ -80,9 +80,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             for i in following.indices {
                 if following[i].claimId == selectedChannelClaim?.claimId {
                     following[i].selected = true
-                    break
+                    return
                 }
             }
+
+            selectedChannelClaim = nil
         }
     }
 
