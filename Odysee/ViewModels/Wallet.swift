@@ -210,7 +210,7 @@ extension Wallet {
         return try LbryUri.parse(url: "lbry://\(channelName):\(claimId)", requireProto: true)
     }
 
-    func addOrSetFollowing(claim: Claim, notificationsDisabled: NotificationsDisabled) {
+    func addOrSetFollowing(claim: Claim, notificationsDisabled: NotificationsDisabled) async {
         guard let channelName = claim.name,
               channelName.starts(with: "@"),
               let claimId = claim.claimId
@@ -218,19 +218,26 @@ extension Wallet {
             return
         }
 
-        addOrSetFollowing(channelName: channelName, claimId: claimId, notificationsDisabled: notificationsDisabled)
+        await addOrSetFollowing(
+            channelName: channelName,
+            claimId: claimId,
+            notificationsDisabled: notificationsDisabled
+        )
     }
 
-    func addOrSetFollowing(channelName: String, claimId: String, notificationsDisabled: NotificationsDisabled) {
-        guard let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId) else {
+    func addOrSetFollowing(channelName: String, claimId: String, notificationsDisabled: NotificationsDisabled) async {
+        guard (try? await pullSync()) != nil,
+              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+        else {
             return
         }
 
         following?[uri] = notificationsDisabled
     }
 
-    func removeFollowing(claim: Claim) {
-        guard let channelName = claim.name,
+    func removeFollowing(claim: Claim) async {
+        guard (try? await pullSync()) != nil,
+              let channelName = claim.name,
               channelName.starts(with: "@"),
               let claimId = claim.claimId,
               let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
@@ -275,8 +282,10 @@ extension Wallet {
         return try LbryUri.parse(url: "lbry://\(channelName):\(claimId)", requireProto: true)
     }
 
-    func addBlocked(channelName: String, claimId: String) {
-        guard !Lbry.ownChannels.contains(where: { $0.claimId == claimId }) else {
+    func addBlocked(channelName: String, claimId: String) async {
+        guard (try? await pullSync()) != nil,
+              !Lbry.ownChannels.contains(where: { $0.claimId == claimId })
+        else {
             return
         }
 
@@ -289,7 +298,11 @@ extension Wallet {
         blocked?.append(uri)
     }
 
-    func removeBlocked(claimId: String) {
+    func removeBlocked(claimId: String) async {
+        guard (try? await pullSync()) != nil else {
+            return
+        }
+
         blocked?.removeAll { $0.claimId == claimId }
     }
 
