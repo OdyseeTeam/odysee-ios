@@ -147,9 +147,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             name = "@\(name_)"
         }
         // Name starts with @ from previous line
-        guard let name = name?.dropFirst(),
-              LbryUri.isNameValid(String(name))
-        else {
+        guard let name, LbryUri.isNameValid(String(name.dropFirst())) else {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
