@@ -172,7 +172,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         Task {
-            for await _ in await Wallet.shared.$blocked.values {
+            for await _ in await Wallet.shared.sBlocked {
                 if let claimId = channelClaim?.claimId {
                     blockUnblockLabel.text = String.localized(
                         await Wallet.shared.isBlocked(claimId: claimId) ?
