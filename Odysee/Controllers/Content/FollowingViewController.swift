@@ -105,7 +105,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 await update(newFollowing)
             }
 
-            for await newFollowing in await Wallet.shared.$following.values {
+            for await newFollowing in await Wallet.shared.sFollowing {
                 guard let newFollowing else {
                     continue
                 }

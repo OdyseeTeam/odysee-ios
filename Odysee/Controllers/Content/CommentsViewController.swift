@@ -5,7 +5,6 @@
 //  Created by Akinwale Ariwodola on 11/01/2021.
 //
 
-import Combine
 import CoreActionSheetPicker
 import UIKit
 
@@ -116,7 +115,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 updateCommentAsChannel(index)
             }
 
-            for await blocked in await Wallet.shared.$blocked.values {
+            for await blocked in await Wallet.shared.sBlocked {
                 guard let blocked = blocked?.map(\.claimId) else {
                     continue
                 }

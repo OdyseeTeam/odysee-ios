@@ -6,7 +6,6 @@
 //
 
 import AsyncAlgorithms
-import Combine
 import Foundation
 
 actor Wallet {
@@ -24,9 +23,27 @@ actor Wallet {
 
     typealias Following = [LbryUri: NotificationsDisabled]
 
-    @Published private(set) var following: Following?
+    private(set) var following: Following? {
+        didSet {
+            Task {
+                await followingQueue.send(following)
+            }
+        }
+    }
 
-    @Published private(set) var blocked: [LbryUri]?
+    private(set) var sFollowing: AsyncShareSequence<AsyncChannel<Following?>>
+    private let followingQueue = AsyncChannel<Following?>()
+
+    private(set) var blocked: [LbryUri]? {
+        didSet {
+            Task {
+                await blockedQueue.send(blocked)
+            }
+        }
+    }
+
+    private(set) var sBlocked: AsyncShareSequence<AsyncChannel<[LbryUri]?>>
+    private let blockedQueue = AsyncChannel<[LbryUri]?>()
 
     private(set) var defaultChannelId: String?
 
@@ -36,9 +53,12 @@ actor Wallet {
     private var remoteWalletHash: String?
 
     private var sync: Task<Void, Never>?
-    private var pushQueue = AsyncChannel<Void>()
+    private let pushQueue = AsyncChannel<Void>()
 
     private init() {
+        sFollowing = followingQueue.share()
+        sBlocked = blockedQueue.share()
+
         Task {
             await startSync()
             await monitorPushQueue()
