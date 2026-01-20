@@ -16,6 +16,8 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     @IBOutlet var noChannelsView: UIView!
     @IBOutlet var newChannelButton: UIButton!
 
+    static let channelCreationLimit = 5
+
     var longPressGestureRecognizer: UILongPressGestureRecognizer!
 
     var loadingChannels = false
@@ -158,9 +160,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
 
         let claim = channels[indexPath.row]
         if claim.claimId == "new" {
-            let vc = storyboard?
-                .instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
-            navigationController?.pushViewController(vc, animated: true)
+            newChannelTapped(tableView)
             return
         }
 
@@ -177,11 +177,14 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
                channels.count > indexPath.row
             {
                 let claim = channels[indexPath.row]
+
+                guard claim.claimId != "new" else {
+                    return
+                }
+
                 let vc = storyboard?
                     .instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
-                if claim.claimId != "new" {
-                    vc.currentClaim = claim
-                }
+                vc.currentClaim = claim
                 navigationController?.pushViewController(vc, animated: true)
             }
         }
@@ -234,6 +237,25 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     }
 
     @IBAction func newChannelTapped(_ sender: Any) {
+        guard let user = Lbryio.currentUser else {
+            showError(message: "Failed to get current user")
+            return
+        }
+
+        let ids = if let ytChannels = user.youtubeChannels, ytChannels.count > 0 {
+            channels.map(\.claimId).filter { id in
+                !ytChannels.contains(where: { $0.channelClaimId == id })
+            }
+        } else {
+            channels.map(\.claimId)
+        }
+
+        // https://github.com/OdyseeTeam/odysee-frontend/blob/9d7b39b5a8337b4b424aec458b133f02de8f5fca/ui/redux/selectors/claims.js#L1131
+        guard ids.filter({ $0 != "new" }).count <= Self.channelCreationLimit else {
+            showError(message: "Channel limit exceeded")
+            return
+        }
+
         let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
