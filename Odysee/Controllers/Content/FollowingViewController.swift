@@ -186,9 +186,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 pageSize: suggestedPageSize,
                 notTags: Constants.NotTags,
                 notChannelIds: following.compactMap(\.claimId),
-                claimIds: ContentSources.DynamicContentCategories
-                    .filter { $0.name == HomeViewController.categoryKeyPrimaryContent }.first?.channelIds,
-                orderBy: ["effective_amount"]
+                claimIds: ContentSources.DynamicContentCategories.first {
+                    $0.key == HomeViewController.categoryKeyDiscover
+                }?.channelIds,
+                orderBy: ["creation_timestamp"]
             )
         )
         .subscribeResult(didLoadSuggestedFollows)
