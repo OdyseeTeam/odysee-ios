@@ -3599,6 +3599,7 @@
                         <outlet property="signUpLoginButton" destination="SsW-fO-Rpz" id="suw-5f-UHF"/>
                         <outlet property="signUpLoginContainer" destination="eKa-B1-Kwb" id="Qd2-8m-8Vj"/>
                         <outlet property="userEmailLabel" destination="NHX-0X-Mg3" id="buh-b2-xhx"/>
+                        <outlet property="youTubeSyncLabel" destination="b2U-4S-TtX" id="gSf-6d-daP"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ogv-JF-xiv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
