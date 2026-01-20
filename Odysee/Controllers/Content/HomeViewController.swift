@@ -26,7 +26,9 @@ class HomeViewController: UIViewController,
     @IBOutlet var sortByLabel: UILabel!
     @IBOutlet var contentFromLabel: UILabel!
 
+    static var categoryIndexDiscover = -1
     static var categoryIndexWildWest = -1
+    static let categoryKeyDiscover = "discoverNew"
     static let categoryKeyWildWest = "WILD_WEST"
     static let categoryKeyPrimaryContent = "PRIMARY_CONTENT"
 
@@ -53,7 +55,7 @@ class HomeViewController: UIViewController,
     var livestreamsLabel: UILabel!
     var livestreamsCollectionView: UICollectionView!
 
-    var currentSortByIndex = 0 // default to Trending content
+    var currentSortByIndex = 1 // default to New content (starts on Discover)
     var currentContentFromIndex = 1 // default to Past week
 
     var claimsPrefetchController: ImagePrefetchingController!
@@ -106,6 +108,8 @@ class HomeViewController: UIViewController,
         }
         selectCategoryButton(button: categoryButtons[0])
 
+        checkUpdatedSortBy()
+
         if claims.count == 0 {
             loadClaims()
         }
@@ -130,7 +134,9 @@ class HomeViewController: UIViewController,
             categories.append(String.localized(category.label))
             channelLimits.append(category.channelLimit)
             channelIds.append(category.channelIds)
-            if category.key == Self.categoryKeyWildWest {
+            if category.key == Self.categoryKeyDiscover {
+                Self.categoryIndexDiscover = idx
+            } else if category.key == Self.categoryKeyWildWest {
                 wildWestExcludedChannelIds = category.excludedChannelIds
                 Self.categoryIndexWildWest = idx
             }
@@ -217,6 +223,11 @@ class HomeViewController: UIViewController,
     func loadLivestreams() {
         assert(Thread.isMainThread)
         if loadingLivestreams {
+            return
+        }
+
+        // Don't show livestreams in Discover
+        guard currentCategoryIndex != Self.categoryIndexDiscover else {
             return
         }
 
@@ -479,6 +490,14 @@ class HomeViewController: UIViewController,
 
         if let category = sender.title(for: .normal) {
             currentCategoryIndex = categories.firstIndex(of: category) ?? 0
+
+            if currentCategoryIndex == Self.categoryIndexDiscover {
+                currentSortByIndex = 1 // default to New content
+            } else {
+                currentSortByIndex = 0 // default to Trending content
+            }
+            checkUpdatedSortBy()
+
             resetContent()
             loadClaims()
             loadLivestreams()

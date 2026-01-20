@@ -15,11 +15,13 @@ enum ContentSources {
     static let defaultsKey = "ContentSourcesCache"
     static let endpoint = "https://odysee.com/$/api/content/v2/get"
 
+    static let discoverCategory = "EXPLORABLE_CHANNEL"
+
     static let placeholderDiscoverCategory = Category(
         sortOrder: 1,
-        key: "EXPLORABLE_CHANNEL",
-        name: "explore",
-        label: "DIscover",
+        key: HomeViewController.categoryKeyDiscover,
+        name: HomeViewController.categoryKeyDiscover,
+        label: "Discover",
         channelLimit: 1,
         channelIds: [],
         excludedChannelIds: []
@@ -99,10 +101,11 @@ enum ContentSources {
                         }
 
                         if let langData = data[languageKey] as? [String: Any] ?? data[languageCodeEN] as? [String: Any],
-                           let langCategories = langData["categories"] as? [String: Any]
+                           let langCategories = langData["categories"] as? [String: Any],
+                           let langDiscoverNew = langData["discoverNew"] as? [String]
                         {
                             let keys = Array(langCategories.keys)
-                            for key in keys {
+                            for key in keys where key != discoverCategory {
                                 if let contentSource = langCategories[key] as? [String: Any] {
                                     if let label = contentSource["label"] as? String,
                                        let name = contentSource["name"] as? String,
@@ -124,23 +127,35 @@ enum ContentSources {
                                     }
                                 }
                             }
+
+                            categories.append(Category(
+                                sortOrder: 1,
+                                key: HomeViewController.categoryKeyDiscover,
+                                name: HomeViewController.categoryKeyDiscover,
+                                label: "Discover",
+                                channelLimit: 1,
+                                channelIds: langDiscoverNew,
+                                excludedChannelIds: []
+                            ))
                         }
                     }
 
                     categories.sort(by: { $0.sortOrder < $1.sortOrder })
                     ContentSources.DynamicContentCategories = categories
 
-                    // cache the categories
-                    let csCache = ContentSourceCache(categories: categories, lastUpdated: Date())
-                    do {
-                        let data = try JSONEncoder().encode(csCache)
-                        UserDefaults.standard.setValue(
-                            String(data: data, encoding: .utf8),
-                            forKey: defaultsKey
-                        )
-                    } catch {
-                        completion(error)
-                        return
+                    if categories.count > 0 {
+                        // cache the categories
+                        let csCache = ContentSourceCache(categories: categories, lastUpdated: Date())
+                        do {
+                            let data = try JSONEncoder().encode(csCache)
+                            UserDefaults.standard.setValue(
+                                String(data: data, encoding: .utf8),
+                                forKey: defaultsKey
+                            )
+                        } catch {
+                            completion(error)
+                            return
+                        }
                     }
 
                     completion(nil)
