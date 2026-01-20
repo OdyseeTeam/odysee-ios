@@ -23,7 +23,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     @IBOutlet var descriptionField: UITextView!
     @IBOutlet var nameField: UITextField!
     @IBOutlet var namePrefixLabel: UILabel!
-    @IBOutlet var depositField: UITextField!
     @IBOutlet var videoNameField: UITextField!
     @IBOutlet var selectVideoArea: UIView!
     @IBOutlet var guidelinesTextView: UITextView!
@@ -100,7 +99,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         guidelinesTextView.textColor = .label
         guidelinesTextView.font = .systemFont(ofSize: 12)
 
-        depositField.text = Helper.minimumDepositString
         loadChannels()
         loadUploads()
     }
@@ -190,7 +188,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         nameField.text = currentClaim?.name
         titleField.text = currentClaim?.value?.title ?? ""
         descriptionField.text = currentClaim?.value?.description ?? ""
-        depositField.text = currentClaim?.amount ?? ""
         selectVideoArea.isHidden = true
 
         if let thumbnailUrlValue = currentClaim?.value?.thumbnail?.url,
@@ -338,13 +335,8 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     @IBAction func uploadTapped(_ sender: UIButton) {
         view.endEditing(true)
 
-        guard let depositString = depositField.text else {
-            showError(message: String.localized("Please enter a valid deposit amount"))
-            return
-        }
-
         let name = nameField.text
-        let deposit = Decimal(string: depositString)
+        let deposit = Helper.minimumDeposit
         let title = titleField.text
         let editMode = currentClaim != nil
 
@@ -374,19 +366,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             return
         }
 
-        guard let deposit else {
-            showError(message: String.localized("Please enter a valid deposit amount"))
-            return
-        }
-
-        if deposit < Helper.minimumDeposit {
-            showError(message: String(
-                format: String.localized("The minimum allowed deposit amount is %@"),
-                Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber) ?? ""
-            ))
-            return
-        }
-
         // prev deposit only set when it's edit mode
         let prevDeposit: Decimal = if let currentClaim,
                                       let amountString = currentClaim.amount,
@@ -408,7 +387,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
         var params: [String: Any] = [
             "blocking": true,
-            "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber) ?? "0",
+            "bid": Helper.minimumDepositString,
             "title": title ?? "",
             "description": descriptionField.text ?? "",
             "thumbnail_url": currentThumbnailUrl ?? "",

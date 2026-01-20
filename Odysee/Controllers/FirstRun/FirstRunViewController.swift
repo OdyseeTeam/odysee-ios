@@ -205,7 +205,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
 
         var options: [String: Any] = [:]
         options["name"] = name
-        options["bid"] = Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber) ?? "0"
+        options["bid"] = Helper.minimumDepositString
         options["blocking"] = true
         Lbry.apiCall(
             method: Lbry.methodChannelCreate,

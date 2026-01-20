@@ -3122,62 +3122,6 @@
                                                 </subviews>
                                                 <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
                                             </stackView>
-                                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yQa-u0-NmL" userLabel="Divider">
-                                                <rect key="frame" x="0.0" y="697" width="414" height="1"/>
-                                                <color key="backgroundColor" systemColor="systemGray5Color"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="1" id="Dqn-yy-Ado"/>
-                                                </constraints>
-                                            </view>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="BGc-uJ-XSE" userLabel="Deposit Area">
-                                                <rect key="frame" x="0.0" y="714" width="414" height="189"/>
-                                                <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Deposit" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ww0-QA-XOG">
-                                                        <rect key="frame" x="16" y="0.0" width="382" height="16"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kGK-eP-GxJ">
-                                                        <rect key="frame" x="16" y="24" width="382" height="128"/>
-                                                        <subviews>
-                                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="credits_icon" translatesAutoresizingMaskIntoConstraints="NO" id="DA0-uK-mxH">
-                                                                <rect key="frame" x="0.0" y="56" width="16" height="16"/>
-                                                                <constraints>
-                                                                    <constraint firstAttribute="height" constant="16" id="AMa-iZ-PtC"/>
-                                                                    <constraint firstAttribute="width" constant="16" id="ibN-Rp-zLl"/>
-                                                                </constraints>
-                                                            </imageView>
-                                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="0.01" textAlignment="right" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="xth-KK-9jb">
-                                                                <rect key="frame" x="20" y="0.0" width="72" height="128"/>
-                                                                <constraints>
-                                                                    <constraint firstAttribute="width" constant="72" id="IP8-Q7-vUq"/>
-                                                                </constraints>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                                                <textInputTraits key="textInputTraits" keyboardType="decimalPad"/>
-                                                                <connections>
-                                                                    <outlet property="delegate" destination="ZpA-3Q-B8s" id="Zlg-fa-ORM"/>
-                                                                </connections>
-                                                            </textField>
-                                                        </subviews>
-                                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                                        <constraints>
-                                                            <constraint firstItem="xth-KK-9jb" firstAttribute="top" secondItem="kGK-eP-GxJ" secondAttribute="top" id="HRY-WB-dv2"/>
-                                                            <constraint firstItem="DA0-uK-mxH" firstAttribute="centerY" secondItem="kGK-eP-GxJ" secondAttribute="centerY" id="Qfk-vJ-Hvi"/>
-                                                            <constraint firstAttribute="bottom" secondItem="xth-KK-9jb" secondAttribute="bottom" id="YFH-RM-dCI"/>
-                                                            <constraint firstItem="DA0-uK-mxH" firstAttribute="leading" secondItem="kGK-eP-GxJ" secondAttribute="leading" id="Zah-Eb-3b3"/>
-                                                            <constraint firstItem="xth-KK-9jb" firstAttribute="leading" secondItem="DA0-uK-mxH" secondAttribute="trailing" constant="4" id="ctJ-Mw-NKc"/>
-                                                        </constraints>
-                                                    </view>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Any amount will give you the highest bid, but larger amounts help your content be trusted and discovered." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rFE-zm-eP3">
-                                                        <rect key="frame" x="16" y="160" width="382" height="29"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                </subviews>
-                                                <edgeInsets key="layoutMargins" top="0.0" left="16" bottom="0.0" right="16"/>
-                                            </stackView>
                                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YSo-JT-v70" userLabel="Divider">
                                                 <rect key="frame" x="0.0" y="919" width="414" height="1"/>
                                                 <color key="backgroundColor" systemColor="systemGray5Color"/>
@@ -3306,7 +3250,6 @@
                     <connections>
                         <outlet property="cancelButton" destination="Wr8-xd-PFv" id="7QK-aU-D7t"/>
                         <outlet property="channelPickerView" destination="yhv-Co-fdU" id="w2m-fJ-QOG"/>
-                        <outlet property="depositField" destination="xth-KK-9jb" id="KDZ-yT-l8C"/>
                         <outlet property="descriptionField" destination="iQJ-66-ZUi" id="BOW-9f-wx3"/>
                         <outlet property="generateThumbnailButton" destination="vec-ew-jqK" id="d9P-Cf-aUD"/>
                         <outlet property="guidelinesTextView" destination="y5L-w0-aeA" id="jf6-Mm-rGr"/>
@@ -4013,48 +3956,6 @@
                                                     </textField>
                                                 </subviews>
                                             </stackView>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="gfm-tk-xdV">
-                                                <rect key="frame" x="16" y="156" width="382" height="148"/>
-                                                <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Deposit" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HvO-I5-Dzk">
-                                                        <rect key="frame" x="0.0" y="0.0" width="382" height="16"/>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Hzj-yQ-sTx">
-                                                        <rect key="frame" x="0.0" y="20" width="382" height="128"/>
-                                                        <subviews>
-                                                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="credits_icon" translatesAutoresizingMaskIntoConstraints="NO" id="RUY-Mj-8Ay">
-                                                                <rect key="frame" x="0.0" y="56" width="16" height="16"/>
-                                                                <constraints>
-                                                                    <constraint firstAttribute="height" constant="16" id="AhM-Rk-e8K"/>
-                                                                    <constraint firstAttribute="width" constant="16" id="Rdu-oq-wEj"/>
-                                                                </constraints>
-                                                            </imageView>
-                                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="0.01" textAlignment="right" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="LWK-WU-F3V">
-                                                                <rect key="frame" x="20" y="0.0" width="72" height="128"/>
-                                                                <constraints>
-                                                                    <constraint firstAttribute="width" constant="72" id="eHl-zS-8t7"/>
-                                                                </constraints>
-                                                                <fontDescription key="fontDescription" type="system" pointSize="16"/>
-                                                                <textInputTraits key="textInputTraits" keyboardType="decimalPad"/>
-                                                                <connections>
-                                                                    <outlet property="delegate" destination="ZpA-3Q-B8s" id="fEm-nv-TAo"/>
-                                                                </connections>
-                                                            </textField>
-                                                        </subviews>
-                                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                                        <constraints>
-                                                            <constraint firstAttribute="bottom" secondItem="LWK-WU-F3V" secondAttribute="bottom" id="7Xr-wn-aMB"/>
-                                                            <constraint firstItem="LWK-WU-F3V" firstAttribute="leading" secondItem="RUY-Mj-8Ay" secondAttribute="trailing" constant="4" id="90N-7I-1kS"/>
-                                                            <constraint firstItem="RUY-Mj-8Ay" firstAttribute="centerY" secondItem="Hzj-yQ-sTx" secondAttribute="centerY" id="KH3-19-wpc"/>
-                                                            <constraint firstItem="RUY-Mj-8Ay" firstAttribute="leading" secondItem="Hzj-yQ-sTx" secondAttribute="leading" id="fRo-ia-5H4"/>
-                                                            <constraint firstItem="LWK-WU-F3V" firstAttribute="top" secondItem="Hzj-yQ-sTx" secondAttribute="top" id="zWb-yB-x2a"/>
-                                                        </constraints>
-                                                    </view>
-                                                </subviews>
-                                            </stackView>
                                             <stackView hidden="YES" opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="fVb-wy-N7i" userLabel="Optional Fields">
                                                 <rect key="frame" x="16" y="312" width="382" height="108"/>
                                                 <subviews>
@@ -4225,7 +4126,6 @@
                         <outlet property="cancelButton" destination="lUA-Hl-nQT" id="o4p-Da-xpg"/>
                         <outlet property="coverEditContainer" destination="3i2-o9-5Uk" id="Ibc-UW-oaR"/>
                         <outlet property="coverImageView" destination="1Uu-FF-apS" id="HrB-7Q-F4H"/>
-                        <outlet property="depositField" destination="LWK-WU-F3V" id="X4k-VM-Qur"/>
                         <outlet property="descriptionField" destination="co3-Mn-sAk" id="SoI-dB-TCc"/>
                         <outlet property="emailField" destination="nkd-N0-XFi" id="7wa-dx-sph"/>
                         <outlet property="nameField" destination="O6a-0a-Kxg" id="oF9-pu-iPK"/>
