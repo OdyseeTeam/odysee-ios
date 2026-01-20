@@ -21,6 +21,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     @IBOutlet var channelsLabel: UILabel!
     @IBOutlet var rewardsLabel: UILabel!
     @IBOutlet var invitesLabel: UILabel!
+    @IBOutlet var youTubeSyncLabel: UILabel!
     @IBOutlet var deleteAccountLabel: UILabel!
     @IBOutlet var signOutLabel: UILabel!
 
@@ -52,6 +53,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         channelsLabel.isHidden = !Lbryio.isSignedIn()
         rewardsLabel.isHidden = !Lbryio.isSignedIn()
         // invitesLabel.isHidden = !Lbryio.isSignedIn()
+        youTubeSyncLabel.isHidden = !Lbryio.isSignedIn()
         deleteAccountLabel.isHidden = !Lbryio.isSignedIn()
         signOutLabel.isHidden = !Lbryio.isSignedIn()
 
