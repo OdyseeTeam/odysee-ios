@@ -468,8 +468,13 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
 
+        let deposit = Helper.minimumDeposit
+        if Lbry.walletBalance == nil || deposit > Lbry.walletBalance?.available ?? 0 {
+            showError(message: "Deposit cannot be higher than your wallet balance")
+            return
+        }
+
         // check eligibility? (50 credits fked on channel)
-        // TODO: Check wallet balance for deposit?
         let suffix = String(describing: Int(Date().timeIntervalSince1970))
         let options: [String: Any] = [
             "blocking": true,
