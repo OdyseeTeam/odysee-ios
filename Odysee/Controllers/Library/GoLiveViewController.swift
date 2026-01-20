@@ -469,11 +469,11 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         }
 
         // check eligibility? (50 credits fked on channel)
-        let deposit = Decimal(0.001)
+        // TODO: Check wallet balance for deposit?
         let suffix = String(describing: Int(Date().timeIntervalSince1970))
         let options: [String: Any] = [
             "blocking": true,
-            "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber) ?? "0",
+            "bid": Helper.minimumDepositString,
             "title": title,
             "description": "",
             "thumbnail_url": currentThumbnailUrl ?? (channel.value?.thumbnail?.url ?? ""),

@@ -18,7 +18,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
 
     @IBOutlet var titleField: UITextField!
     @IBOutlet var nameField: UITextField!
-    @IBOutlet var depositField: UITextField!
     @IBOutlet var descriptionField: UITextView!
     @IBOutlet var websiteField: UITextField!
     @IBOutlet var emailField: UITextField!
@@ -73,7 +72,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         descriptionField.layer.borderWidth = 1
         descriptionField.layer.cornerRadius = 4
 
-        depositField.text = Helper.minimumDepositString
         populateFieldsForEdit()
     }
 
@@ -90,7 +88,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         nameField.text = currentClaim?.name
         titleField.text = currentClaim?.value?.title
         nameField.text = currentClaim?.name
-        depositField.text = currentClaim?.amount
         descriptionField.text = currentClaim?.value?.description
         websiteField.text = currentClaim?.value?.websiteUrl
         emailField.text = currentClaim?.value?.email
@@ -134,13 +131,8 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             return
         }
 
-        guard let depositString = depositField.text else {
-            showError(message: String.localized("Please enter a valid deposit amount"))
-            return
-        }
-
         var name = nameField.text
-        let deposit = Decimal(string: depositString)
+        let deposit = Helper.minimumDeposit
         let editMode = currentClaim != nil
 
         if let name_ = name, !name_.starts(with: "@") {
@@ -157,17 +149,6 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             return
         }
 
-        guard let deposit else {
-            showError(message: String.localized("Please enter a valid deposit amount"))
-            return
-        }
-        if deposit < Helper.minimumDeposit {
-            showError(message: String(
-                format: String.localized("The minimum allowed deposit amount is %@"),
-                Helper.currencyFormatter4.string(for: Helper.minimumDeposit as NSDecimalNumber) ?? ""
-            ))
-            return
-        }
         let prevDeposit: Decimal = if let currentClaim,
                                       let amountString = currentClaim.amount,
                                       let amount = Decimal(string: amountString)
@@ -188,7 +169,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             options["claim_id"] = currentClaim?.claimId
         }
 
-        options["bid"] = Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber) ?? "0"
+        options["bid"] = Helper.minimumDepositString
         options["blocking"] = true
 
         if let currentCoverUrl, !currentCoverUrl.isBlank {
