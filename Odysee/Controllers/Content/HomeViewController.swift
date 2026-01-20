@@ -30,7 +30,6 @@ class HomeViewController: UIViewController,
     static var categoryIndexWildWest = -1
     static let categoryKeyDiscover = "discoverNew"
     static let categoryKeyWildWest = "WILD_WEST"
-    static let categoryKeyPrimaryContent = "PRIMARY_CONTENT"
 
     let refreshControl = UIRefreshControl()
     var categories: [String] = []
