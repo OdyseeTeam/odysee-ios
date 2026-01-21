@@ -9,7 +9,7 @@ import FirebaseAnalytics
 import UIKit
 import WebKit
 
-class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
+class YouTubeSyncViewController: UIViewController, UIGestureRecognizerDelegate, WKNavigationDelegate {
     @IBOutlet var claimNowButton: UIButton!
     @IBOutlet var skipButton: UIButton!
     @IBOutlet var youTubeSyncSwitch: UISwitch!
@@ -35,6 +35,9 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
                 AnalyticsParameterScreenClass: "YouTubeSyncViewController",
             ]
         )
+
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewDidLoad() {

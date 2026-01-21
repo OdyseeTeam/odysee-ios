@@ -8,7 +8,7 @@
 import FirebaseAnalytics
 import UIKit
 
-class YouTubeSyncStatusViewController: UIViewController {
+class YouTubeSyncStatusViewController: UIViewController, UIGestureRecognizerDelegate {
     @IBOutlet var cmStatusClaimYourHandle: UIImageView!
     @IBOutlet var cmStatusAgreeToSync: UIImageView!
     @IBOutlet var cmStatusWaitForVideos: UIImageView!
@@ -48,6 +48,9 @@ class YouTubeSyncStatusViewController: UIViewController {
                 AnalyticsParameterScreenClass: "YouTubeSyncStatusViewController",
             ]
         )
+
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
 
     override func viewWillDisappear(_ animated: Bool) {
