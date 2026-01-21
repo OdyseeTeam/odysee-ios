@@ -255,7 +255,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
         lastPageReached = page.isLastPage
         claims.append(contentsOf: page.items)
-        claims.sort(by: { $0.value?.releaseTime ?? "0" > $1.value?.releaseTime ?? "0" })
         contentListView.reloadData()
         refreshControl.endRefreshing()
     }
