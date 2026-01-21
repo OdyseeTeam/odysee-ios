@@ -36,8 +36,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     var commentsLastPageReached: Bool = false
     var commentsLoading: Bool = false
     var postingComment: Bool = false
-    var channels: [Claim] = Lbry.ownChannels
-    var comments: [Comment] = []
+    var channels = [Claim]()
+    var comments = [Comment]()
     var authorThumbnailMap = [String: URL]()
     var isChannelComments = false
     var reacting = false
@@ -105,24 +105,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         guidelinesTextView.font = .systemFont(ofSize: 12)
         if UserDefaults.standard.integer(forKey: Helper.keyPostedCommentHideTos) != 0 {
             guidelinesTextView.heightAnchor.constraint(equalToConstant: 0).isActive = true
-        }
-
-        Task {
-            let defaultChannelId = await Wallet.shared.defaultChannelId
-            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
-            if channels.count > index, currentCommentAsIndex == -1 {
-                currentCommentAsIndex = index
-                updateCommentAsChannel(index)
-            }
-
-            for await blocked in await Wallet.shared.sBlocked {
-                guard let blocked = blocked?.map(\.claimId) else {
-                    continue
-                }
-
-                comments.removeAll { blocked.contains($0.channelId) }
-                commentList.reloadData()
-            }
         }
 
         if comments.count > 0 {
@@ -291,10 +273,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels
-        if currentCommentAsIndex != -1, !channels.isEmpty {
-            currentCommentAsIndex = 0
-            updateCommentAsChannel(0)
-        }
         channelDriverView.isHidden = channels.count > 0
         channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
         if let picker = commentAsPicker {
@@ -303,6 +281,24 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             picker.hideWithCancelAction()
             DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .seconds(1))) {
                 self.commentAsTapped(self)
+            }
+        }
+
+        Task {
+            let defaultChannelId = await Wallet.shared.defaultChannelId
+            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+            if channels.count > index, currentCommentAsIndex == -1 {
+                currentCommentAsIndex = index
+                updateCommentAsChannel(index)
+            }
+
+            for await blocked in await Wallet.shared.sBlocked {
+                guard let blocked = blocked?.map(\.claimId) else {
+                    continue
+                }
+
+                comments.removeAll { blocked.contains($0.channelId) }
+                commentList.reloadData()
             }
         }
     }
