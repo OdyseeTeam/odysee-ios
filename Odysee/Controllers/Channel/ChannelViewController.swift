@@ -634,15 +634,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        if tableView == contentListView {
-            guard claims.count > indexPath.row else {
-                return
-            }
-
-            let claim = claims[indexPath.row]
-
+        if tableView == contentListView, let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell {
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-            vc.claim = claim
+            vc.claim = cell.currentClaim
 
             AppDelegate.shared.mainNavigationController?.view.layer.add(
                 Helper.buildFileViewTransition(),

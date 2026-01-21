@@ -149,11 +149,12 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard uploads.count > indexPath.row else {
+        guard let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell,
+              let claim = cell.currentClaim
+        else {
             return
         }
 
-        let claim = uploads[indexPath.row]
         if claim.claimId == "new" {
             let vc = storyboard?.instantiateViewController(identifier: "publish_vc") as! PublishViewController
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)

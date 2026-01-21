@@ -359,19 +359,12 @@ class HomeViewController: UIViewController,
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard claims.count > indexPath.row else {
+        guard let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell else {
             return
         }
 
-        let claim = claims[indexPath.row]
-        let actualClaim = if claim.valueType == ClaimType.repost, let repostedClaim = claim.repostedClaim {
-            repostedClaim
-        } else {
-            claim
-        }
-
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-        vc.claim = actualClaim
+        vc.claim = cell.currentClaim
 
         AppDelegate.shared.mainNavigationController?.view.layer.add(
             Helper.buildFileViewTransition(),

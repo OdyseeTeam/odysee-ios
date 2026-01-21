@@ -1808,17 +1808,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if tableView == relatedContentListView {
             tableView.deselectRow(at: indexPath, animated: true)
 
-            if isPlaylist {
-                guard playlistItems.count > indexPath.row else {
-                    return
-                }
-            } else {
-                guard relatedContent.count > indexPath.row else {
-                    return
-                }
+            guard let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell,
+                  let claim = cell.currentClaim
+            else {
+                return
             }
 
-            let claim = isPlaylist ? playlistItems[indexPath.row] : relatedContent[indexPath.row]
             if claim.claimId == "placeholder" {
                 return
             }
