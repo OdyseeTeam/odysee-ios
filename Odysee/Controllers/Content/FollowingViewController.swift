@@ -101,15 +101,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         contentListView.addSubview(refreshControl)
 
         Task {
-            if let newFollowing = await Wallet.shared.following {
-                await update(newFollowing)
-            }
+            await update(await Wallet.shared.following)
 
             for await newFollowing in await Wallet.shared.sFollowing {
-                guard let newFollowing else {
-                    continue
-                }
-
                 // FIXME: Only if changed
 
                 await update(newFollowing)
@@ -117,10 +111,17 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
     }
 
-    func update(_ newFollowing: Wallet.Following) async {
-        do {
-            following.removeAll(keepingCapacity: true)
+    func update(_ newFollowing: Wallet.Following?) async {
+        following.removeAll(keepingCapacity: true)
 
+        guard let newFollowing else {
+            loadingContainer.isHidden = false
+            suggestedView.isHidden = true
+            mainView.isHidden = true
+            return
+        }
+
+        do {
             guard newFollowing.count > 0 else {
                 loadingContainer.isHidden = true
                 showingSuggested = true
