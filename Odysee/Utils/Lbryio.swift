@@ -275,7 +275,7 @@ enum Lbryio {
                         return
                     }
 
-                    if respData?["error"] as? NSNull != nil {
+                    if respData?["error"] is NSNull {
                         completion(nil, LbryioResponseError.error("no error message", respCode))
                     } else if let error = respData?["error"] as? String {
                         completion(nil, LbryioResponseError.error(error, respCode))
