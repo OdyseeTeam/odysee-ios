@@ -376,7 +376,9 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             0
         }
         if Lbry.walletBalance == nil || deposit - prevDeposit > Lbry.walletBalance?.available ?? 0 {
-            showError(message: "Deposit cannot be higher than your wallet balance")
+            showError(
+                message: "Please try to claim some credits on odysee.com directly or reach out to hello@odysee.com to get more credits"
+            )
             return
         }
 
