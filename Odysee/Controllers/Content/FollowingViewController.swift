@@ -229,7 +229,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             Lbry.apiCall(
                 method: BackendMethods.claimSearch,
                 params: .init(
-                    claimType: [.stream],
+                    claimType: [.stream, .repost],
                     page: currentPage,
                     pageSize: pageSize,
                     releaseTime: [releaseTimeValue].compactMap { $0 } + [Helper.releaseTimeBeforeFuture],
