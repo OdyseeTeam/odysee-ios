@@ -484,11 +484,11 @@ class SearchViewController: UIViewController,
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        guard claims.count > indexPath.row else {
+        guard let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell,
+              let claim = cell.currentClaim
+        else {
             return
         }
-
-        let claim = claims[indexPath.row]
 
         if claim.name?.starts(with: "@") ?? false {
             // channel claim
