@@ -529,6 +529,7 @@ class UserAccountViewController: UIViewController {
         Task { await Wallet.shared.startSync() }
 
         DispatchQueue.main.async {
+            AppDelegate.shared.mainController.checkUploadButton()
             AppDelegate.shared.mainController.startWalletBalanceTimer()
             AppDelegate.shared.mainController.checkAndClaimEmailReward(completion: {})
 
