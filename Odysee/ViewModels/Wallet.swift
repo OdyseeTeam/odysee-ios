@@ -76,11 +76,14 @@ actor Wallet {
                     try await pullSync()
                     try await Task.sleep(nanoseconds: Self.syncInterval)
                 } catch {
-                    if !(error is CancellationError) &&
-                        (error as? LbryApiResponseError)?.localizedDescription != "authentication required"
-                    {
+                    if error is CancellationError {
+                        return
+                    }
+
+                    if (error as? LbryApiResponseError)?.localizedDescription != "authentication required" {
                         await Helper.showError(error: error)
                     }
+
                     try? await Task.sleep(nanoseconds: Self.syncRetryInterval)
                 }
             }
@@ -90,6 +93,10 @@ actor Wallet {
     func stopSync() {
         sync?.cancel()
         sync = nil
+
+        following = nil
+        blocked = nil
+        defaultChannelId = nil
     }
 
     func queuePushSync() async {
