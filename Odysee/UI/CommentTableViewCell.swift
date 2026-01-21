@@ -113,7 +113,7 @@ class CommentTableViewCell: UITableViewCell {
         if let channelUrl = currentComment?.channelUrl,
            let url = LbryUri.tryParse(url: channelUrl, requireProto: false)
         {
-            if UIApplication.currentViewController() as? FileViewController != nil {
+            if UIApplication.currentViewController() is FileViewController {
                 AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
             let vc = AppDelegate.shared.mainViewController?.storyboard?

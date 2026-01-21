@@ -448,7 +448,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @IBAction func channelDriverTapped(_ sender: Any) {
-        if UIApplication.currentViewController() as? FileViewController != nil {
+        if UIApplication.currentViewController() is FileViewController {
             AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
         let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
@@ -859,7 +859,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func showUAView() {
-        if UIApplication.currentViewController() as? FileViewController != nil {
+        if UIApplication.currentViewController() is FileViewController {
             AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
