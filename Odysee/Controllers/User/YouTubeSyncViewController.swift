@@ -85,16 +85,16 @@ class YouTubeSyncViewController: UIViewController, WKNavigationDelegate {
                     return
                 }
 
-                if let oauthUrl = data as? String {
-                    if let url = URL(string: oauthUrl) {
-                        DispatchQueue.main.async {
-                            self.webView.isHidden = false
-                            let request = URLRequest(url: url)
-                            self.webView.load(request)
-                        }
-
-                        return
+                if let oauthUrl = data as? String,
+                   let url = URL(string: oauthUrl)
+                {
+                    DispatchQueue.main.async {
+                        self.webView.isHidden = false
+                        let request = URLRequest(url: url)
+                        self.webView.load(request)
                     }
+
+                    return
                 }
 
                 // no valid url was returned
