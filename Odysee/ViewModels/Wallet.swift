@@ -75,16 +75,18 @@ actor Wallet {
                 do {
                     try await pullSync()
                     try await Task.sleep(nanoseconds: Self.syncInterval)
+                } catch is CancellationError {
+                    return
                 } catch {
-                    if error is CancellationError {
-                        return
-                    }
-
                     if (error as? LbryApiResponseError)?.localizedDescription != "authentication required" {
                         await Helper.showError(error: error)
                     }
 
-                    try? await Task.sleep(nanoseconds: Self.syncRetryInterval)
+                    do {
+                        try await Task.sleep(nanoseconds: Self.syncRetryInterval)
+                    } catch {
+                        return
+                    }
                 }
             }
         }
