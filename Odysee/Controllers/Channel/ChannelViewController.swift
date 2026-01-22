@@ -172,7 +172,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         Task {
-            for await _ in await Wallet.shared.$blocked.values {
+            for await _ in await Wallet.shared.sBlocked {
                 if let claimId = channelClaim?.claimId {
                     blockUnblockLabel.text = String.localized(
                         await Wallet.shared.isBlocked(claimId: claimId) ?
@@ -621,8 +621,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 for: indexPath
             ) as! ClaimTableViewCell
 
-            let claim: Claim = claims[indexPath.row]
-            cell.setClaim(claim: claim)
+            if claims.count > indexPath.row {
+                let claim = claims[indexPath.row]
+                cell.setClaim(claim: claim)
+            }
 
             return cell
         }
@@ -632,11 +634,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        if tableView == contentListView {
-            let claim: Claim = claims[indexPath.row]
-
+        if tableView == contentListView, let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell {
             let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-            vc.claim = claim
+            vc.claim = cell.currentClaim
 
             AppDelegate.shared.mainNavigationController?.view.layer.add(
                 Helper.buildFileViewTransition(),
@@ -659,8 +659,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             for: indexPath
         ) as! LivestreamCollectionViewCell
 
-        let futureStream = futureStreams[indexPath.row]
-        cell.setFutureStreamClaim(claim: futureStream)
+        if futureStreams.count > indexPath.row {
+            let futureStream = futureStreams[indexPath.row]
+            cell.setFutureStreamClaim(claim: futureStream)
+        }
 
         return cell
     }
@@ -675,6 +677,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+
+        guard futureStreams.count > indexPath.row else {
+            return
+        }
 
         let claim = futureStreams[indexPath.row]
         let vc = storyboard?.instantiateViewController(withIdentifier: "file_view_vc") as! FileViewController
@@ -692,7 +698,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             title: String.localized("Sort content by"),
             origin: sortByLabel,
             rows: Helper.sortByItemNames,
-            initialSelection: currentSortByIndex
+            initialSelection: max(0, min(currentSortByIndex, Helper.sortByItemNames.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentSortByIndex
             self.currentSortByIndex = selectedIndex
@@ -709,7 +715,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             title: String.localized("Content from"),
             origin: contentFromLabel,
             rows: Helper.contentFromItemNames,
-            initialSelection: currentContentFromIndex
+            initialSelection: max(0, min(currentContentFromIndex, Helper.contentFromItemNames.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentContentFromIndex
             self.currentContentFromIndex = selectedIndex
@@ -873,14 +879,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     ),
                     preferredStyle: .alert
                 )
-                alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default) { _ in
+                alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .destructive) { _ in
                     Task {
                         await Wallet.shared.addBlocked(channelName: channelName, claimId: claimId)
 
                         await Wallet.shared.queuePushSync()
                     }
                 })
-                alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+                alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
                 present(alert, animated: true)
             }
         }
@@ -916,7 +922,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     message: String.localized("Are you sure you want to stop following this channel?"),
                     preferredStyle: .alert
                 )
-                alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
+                alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
                     self.subscribeOrUnsubscribe(
                         claim: channelClaim,
                         notificationsDisabled: true, // Unused
@@ -958,7 +964,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
-        guard let claimId = claim.claimId else {
+        guard let claimId = claim.claimId, let name = claim.name else {
+            showError(message: "couldn't get claim")
             return
         }
 
@@ -967,7 +974,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             var options = [String: String]()
             options["claim_id"] = claimId
             if !unsubscribing {
-                options["channel_name"] = claim.name
+                options["channel_name"] = name
                 options["notifications_disabled"] = String(notificationsDisabled)
             }
 

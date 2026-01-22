@@ -186,9 +186,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
             name = "@\(name_)"
         }
         // Name starts with @ from previous line
-        guard let name = name?.dropFirst(),
-              LbryUri.isNameValid(String(name))
-        else {
+        guard let name, LbryUri.isNameValid(String(name.dropFirst())) else {
             showError(message: String.localized("Please enter a valid name for the channel"))
             return
         }
@@ -207,7 +205,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
 
         var options: [String: Any] = [:]
         options["name"] = name
-        options["bid"] = Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber) ?? "0"
+        options["bid"] = Helper.minimumDepositString
         options["blocking"] = true
         Lbry.apiCall(
             method: Lbry.methodChannelCreate,

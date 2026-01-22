@@ -80,9 +80,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             for i in following.indices {
                 if following[i].claimId == selectedChannelClaim?.claimId {
                     following[i].selected = true
-                    break
+                    return
                 }
             }
+
+            selectedChannelClaim = nil
         }
     }
 
@@ -99,15 +101,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         contentListView.addSubview(refreshControl)
 
         Task {
-            if let newFollowing = await Wallet.shared.following {
-                await update(newFollowing)
-            }
+            await update(await Wallet.shared.following)
 
-            for await newFollowing in await Wallet.shared.$following.values {
-                guard let newFollowing else {
-                    continue
-                }
-
+            for await newFollowing in await Wallet.shared.sFollowing {
                 // FIXME: Only if changed
 
                 await update(newFollowing)
@@ -115,10 +111,17 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
     }
 
-    func update(_ newFollowing: Wallet.Following) async {
-        do {
-            following.removeAll(keepingCapacity: true)
+    func update(_ newFollowing: Wallet.Following?) async {
+        following.removeAll(keepingCapacity: true)
 
+        guard let newFollowing else {
+            loadingContainer.isHidden = false
+            suggestedView.isHidden = true
+            mainView.isHidden = true
+            return
+        }
+
+        do {
             guard newFollowing.count > 0 else {
                 loadingContainer.isHidden = true
                 showingSuggested = true
@@ -184,9 +187,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 pageSize: suggestedPageSize,
                 notTags: Constants.NotTags,
                 notChannelIds: following.compactMap(\.claimId),
-                claimIds: ContentSources.DynamicContentCategories
-                    .filter { $0.name == HomeViewController.categoryKeyPrimaryContent }.first?.channelIds,
-                orderBy: ["effective_amount"]
+                claimIds: ContentSources.DynamicContentCategories.first {
+                    $0.key == HomeViewController.categoryKeyDiscover
+                }?.channelIds,
+                orderBy: ["creation_timestamp"]
             )
         )
         .subscribeResult(didLoadSuggestedFollows)
@@ -207,12 +211,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             return
         }
 
-        DispatchQueue.main.async {
-            self.loadingContainer.isHidden = false
-        }
-
-        loadingContent = true
-
         let channelIds = if let selectedClaimId = selectedChannelClaim?.claimId {
             [selectedClaimId]
         } else {
@@ -220,12 +218,18 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         if channelIds.count > 0 {
+            DispatchQueue.main.async {
+                self.loadingContainer.isHidden = false
+            }
+
+            loadingContent = true
+
             let releaseTimeValue = currentSortByIndex == 2 ? Helper
                 .buildReleaseTime(contentFrom: Helper.contentFromItemNames[currentContentFromIndex]) : nil
             Lbry.apiCall(
                 method: BackendMethods.claimSearch,
                 params: .init(
-                    claimType: [.stream],
+                    claimType: [.stream, .repost],
                     page: currentPage,
                     pageSize: pageSize,
                     releaseTime: [releaseTimeValue].compactMap { $0 } + [Helper.releaseTimeBeforeFuture],
@@ -235,6 +239,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 )
             )
             .subscribeResult(didLoadSubscriptionContent)
+        } else {
+            didLoadSubscriptionContent(.success(Page(items: [], isLastPage: false)))
         }
     }
 
@@ -249,7 +255,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
         lastPageReached = page.isLastPage
         claims.append(contentsOf: page.items)
-        claims.sort(by: { $0.value?.releaseTime ?? "0" > $1.value?.releaseTime ?? "0" })
         contentListView.reloadData()
         refreshControl.endRefreshing()
     }
@@ -261,19 +266,21 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     @IBAction func doneTapped(_ sender: UIButton) {
-        if following.count == 0 {
-            showMessage(message: String.localized("Please select one or more creators to follow"))
-            return
+        Task {
+            guard let following = await Wallet.shared.following, following.count > 0 else {
+                Helper.showMessage(message: String.localized("Please select one or more creators to follow"))
+                return
+            }
+
+            selectedSuggestedFollows.removeAll()
+
+            suggestedView.isHidden = true
+            mainView.isHidden = false
+            showingSuggested = false
+
+            resetSubscriptionContent()
+            loadSubscriptionContent()
         }
-
-        selectedSuggestedFollows.removeAll()
-
-        suggestedView.isHidden = true
-        mainView.isHidden = false
-        showingSuggested = false
-
-        resetSubscriptionContent()
-        loadSubscriptionContent()
     }
 
     @IBAction func discoverTapped(_ sender: Any) {
@@ -307,18 +314,18 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        if claims.count > indexPath.row {
-            let claim = claims[indexPath.row]
-
-            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-            vc.claim = claim
-
-            AppDelegate.shared.mainNavigationController?.view.layer.add(
-                Helper.buildFileViewTransition(),
-                forKey: kCATransition
-            )
-            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+        guard let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell else {
+            return
         }
+
+        let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+        vc.claim = cell.currentClaim
+
+        AppDelegate.shared.mainNavigationController?.view.layer.add(
+            Helper.buildFileViewTransition(),
+            forKey: kCATransition
+        )
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -387,7 +394,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 cell?.setSelected(selected: true)
             }
         } else {
-            if following.count > indexPath.row {
+            if !loadingContent, following.count > indexPath.row {
                 let prevSelectedClaimId = selectedChannelClaim?.claimId
 
                 let claim = following[indexPath.row]
@@ -544,7 +551,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             title: String.localized("Sort content by"),
             origin: sortByLabel,
             rows: Helper.sortByItemNames,
-            initialSelection: currentSortByIndex
+            initialSelection: max(0, min(currentSortByIndex, Helper.sortByItemNames.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentSortByIndex
             self.currentSortByIndex = selectedIndex
@@ -561,7 +568,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             title: String.localized("Content from"),
             origin: contentFromLabel,
             rows: Helper.contentFromItemNames,
-            initialSelection: currentContentFromIndex
+            initialSelection: max(0, min(currentContentFromIndex, Helper.contentFromItemNames.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentContentFromIndex
             self.currentContentFromIndex = selectedIndex

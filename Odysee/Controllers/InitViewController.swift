@@ -149,7 +149,7 @@ class InitViewController: UIViewController {
         initErrorState = false
         Lbryio.loadExchangeRate(completion: { _, _ in
             // don't bother with error checks here, simply proceed to authenticate
-            self.authenticateAndRegisterInstall()
+            self.loadCategories()
         })
     }
 

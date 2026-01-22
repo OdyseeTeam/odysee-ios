@@ -275,7 +275,7 @@ enum Lbryio {
                         return
                     }
 
-                    if respData?["error"] as? NSNull != nil {
+                    if respData?["error"] is NSNull {
                         completion(nil, LbryioResponseError.error("no error message", respCode))
                     } else if let error = respData?["error"] as? String {
                         completion(nil, LbryioResponseError.error(error, respCode))
@@ -334,7 +334,6 @@ enum Lbryio {
 
             if data != nil {
                 do {
-                    Crashlytics.crashlytics().setCustomValue(data as Any, forKey: "fetchCurrentUser_data")
                     let jsonData = try JSONSerialization.data(
                         withJSONObject: data as Any,
                         options: [.prettyPrinted, .sortedKeys]
@@ -343,10 +342,7 @@ enum Lbryio {
                     if let user {
                         currentUser = user
                         if let id = user.id {
-                            Analytics.setDefaultEventParameters([
-                                "user_id": id,
-                                "user_email": user.primaryEmail ?? "",
-                            ])
+                            Analytics.setDefaultEventParameters(["user_id": id])
                         }
 
                         completion(user, nil)

@@ -26,9 +26,10 @@ class HomeViewController: UIViewController,
     @IBOutlet var sortByLabel: UILabel!
     @IBOutlet var contentFromLabel: UILabel!
 
+    static var categoryIndexDiscover = -1
     static var categoryIndexWildWest = -1
+    static let categoryKeyDiscover = "discoverNew"
     static let categoryKeyWildWest = "WILD_WEST"
-    static let categoryKeyPrimaryContent = "PRIMARY_CONTENT"
 
     let refreshControl = UIRefreshControl()
     var categories: [String] = []
@@ -53,7 +54,7 @@ class HomeViewController: UIViewController,
     var livestreamsLabel: UILabel!
     var livestreamsCollectionView: UICollectionView!
 
-    var currentSortByIndex = 0 // default to Trending content
+    var currentSortByIndex = 1 // default to New content (starts on Discover)
     var currentContentFromIndex = 1 // default to Past week
 
     var claimsPrefetchController: ImagePrefetchingController!
@@ -76,10 +77,18 @@ class HomeViewController: UIViewController,
 
         buildDynamicCategories()
         claimsPrefetchController = ImagePrefetchingController { [unowned self] indexPath in
+            guard claims.count > indexPath.row else {
+                return []
+            }
+
             let claim = claims[indexPath.row]
             return ClaimTableViewCell.imagePrefetchURLs(claim: claim)
         }
         livestreamsPrefetchController = ImagePrefetchingController { [unowned self] indexPath in
+            guard livestreams.count > indexPath.row else {
+                return []
+            }
+
             let claim = livestreams[indexPath.row].claim
             return LivestreamCollectionViewCell.imagePrefetchURLs(claim: claim)
         }
@@ -98,6 +107,8 @@ class HomeViewController: UIViewController,
         }
         selectCategoryButton(button: categoryButtons[0])
 
+        checkUpdatedSortBy()
+
         if claims.count == 0 {
             loadClaims()
         }
@@ -106,7 +117,7 @@ class HomeViewController: UIViewController,
         }
 
         Task {
-            for await blocked in await Wallet.shared.$blocked.values {
+            for await blocked in await Wallet.shared.sBlocked {
                 guard let blocked = blocked?.map(\.claimId) else {
                     continue
                 }
@@ -122,7 +133,9 @@ class HomeViewController: UIViewController,
             categories.append(String.localized(category.label))
             channelLimits.append(category.channelLimit)
             channelIds.append(category.channelIds)
-            if category.key == Self.categoryKeyWildWest {
+            if category.key == Self.categoryKeyDiscover {
+                Self.categoryIndexDiscover = idx
+            } else if category.key == Self.categoryKeyWildWest {
                 wildWestExcludedChannelIds = category.excludedChannelIds
                 Self.categoryIndexWildWest = idx
             }
@@ -157,7 +170,10 @@ class HomeViewController: UIViewController,
 
     func loadClaims() {
         assert(Thread.isMainThread)
-        if loadingClaims {
+        guard !loadingClaims,
+              channelLimits.count > currentCategoryIndex,
+              channelIds.count > currentCategoryIndex
+        else {
             return
         }
 
@@ -209,6 +225,11 @@ class HomeViewController: UIViewController,
             return
         }
 
+        // Don't show livestreams in Discover
+        guard currentCategoryIndex != Self.categoryIndexDiscover else {
+            return
+        }
+
         loadingContainer.isHidden = false
         loadingLivestreams = true
 
@@ -235,8 +256,10 @@ class HomeViewController: UIViewController,
     func claimSearchLivestreams() {
         let isWildWest = currentCategoryIndex == Self.categoryIndexWildWest
         if !isWildWest {
-            livestreamInfos = livestreamInfos.filter {
-                channelIds[currentCategoryIndex]?.contains($0.channelClaimId) ?? false
+            if channelIds.count > currentCategoryIndex {
+                livestreamInfos = livestreamInfos.filter {
+                    channelIds[currentCategoryIndex]?.contains($0.channelClaimId) ?? false
+                }
             }
 
             guard livestreamInfos.count > 0 else {
@@ -325,23 +348,23 @@ class HomeViewController: UIViewController,
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "claim_cell", for: indexPath) as! ClaimTableViewCell
 
-        let claim: Claim = claims[indexPath.row]
-        cell.setClaim(claim: claim, showRepostOverlay: false)
+        if claims.count > indexPath.row {
+            let claim = claims[indexPath.row]
+            cell.setClaim(claim: claim, showRepostOverlay: false)
+        }
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let claim: Claim = claims[indexPath.row]
-        let actualClaim = if claim.valueType == ClaimType.repost, let repostedClaim = claim.repostedClaim {
-            repostedClaim
-        } else {
-            claim
+
+        guard let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell else {
+            return
         }
 
         let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-        vc.claim = actualClaim
+        vc.claim = cell.currentClaim
 
         AppDelegate.shared.mainNavigationController?.view.layer.add(
             Helper.buildFileViewTransition(),
@@ -363,12 +386,14 @@ class HomeViewController: UIViewController,
             for: indexPath
         ) as! LivestreamCollectionViewCell
 
-        let livestream = livestreams[indexPath.row]
-        cell.setLivestreamInfo(
-            claim: livestream.claim,
-            startTime: livestream.startTime,
-            viewerCount: livestream.viewerCount
-        )
+        if livestreams.count > indexPath.row {
+            let livestream = livestreams[indexPath.row]
+            cell.setLivestreamInfo(
+                claim: livestream.claim,
+                startTime: livestream.startTime,
+                viewerCount: livestream.viewerCount
+            )
+        }
 
         return cell
     }
@@ -383,6 +408,10 @@ class HomeViewController: UIViewController,
 
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
+
+        guard livestreams.count > indexPath.row else {
+            return
+        }
 
         let claim = livestreams[indexPath.row].claim
         let vc = storyboard?.instantiateViewController(withIdentifier: "file_view_vc") as! FileViewController
@@ -453,6 +482,14 @@ class HomeViewController: UIViewController,
 
         if let category = sender.title(for: .normal) {
             currentCategoryIndex = categories.firstIndex(of: category) ?? 0
+
+            if currentCategoryIndex == Self.categoryIndexDiscover {
+                currentSortByIndex = 1 // default to New content
+            } else {
+                currentSortByIndex = 0 // default to Trending content
+            }
+            checkUpdatedSortBy()
+
             resetContent()
             loadClaims()
             loadLivestreams()
@@ -498,7 +535,7 @@ class HomeViewController: UIViewController,
             title: String.localized("Sort content by"),
             origin: sortByLabel,
             rows: Helper.sortByItemNames,
-            initialSelection: currentSortByIndex
+            initialSelection: max(0, min(currentSortByIndex, Helper.sortByItemNames.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentSortByIndex
             self.currentSortByIndex = selectedIndex
@@ -515,7 +552,7 @@ class HomeViewController: UIViewController,
             title: String.localized("Content from"),
             origin: contentFromLabel,
             rows: Helper.contentFromItemNames,
-            initialSelection: currentContentFromIndex
+            initialSelection: max(0, min(currentContentFromIndex, Helper.contentFromItemNames.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentContentFromIndex
             self.currentContentFromIndex = selectedIndex

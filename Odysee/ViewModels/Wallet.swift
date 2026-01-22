@@ -6,7 +6,6 @@
 //
 
 import AsyncAlgorithms
-import Combine
 import Foundation
 
 actor Wallet {
@@ -24,9 +23,27 @@ actor Wallet {
 
     typealias Following = [LbryUri: NotificationsDisabled]
 
-    @Published private(set) var following: Following?
+    private(set) var following: Following? {
+        didSet {
+            Task {
+                await followingQueue.send(following)
+            }
+        }
+    }
 
-    @Published private(set) var blocked: [LbryUri]?
+    private(set) var sFollowing: AsyncShareSequence<AsyncChannel<Following?>>
+    private let followingQueue = AsyncChannel<Following?>()
+
+    private(set) var blocked: [LbryUri]? {
+        didSet {
+            Task {
+                await blockedQueue.send(blocked)
+            }
+        }
+    }
+
+    private(set) var sBlocked: AsyncShareSequence<AsyncChannel<[LbryUri]?>>
+    private let blockedQueue = AsyncChannel<[LbryUri]?>()
 
     private(set) var defaultChannelId: String?
 
@@ -36,9 +53,12 @@ actor Wallet {
     private var remoteWalletHash: String?
 
     private var sync: Task<Void, Never>?
-    private var pushQueue = AsyncChannel<Void>()
+    private let pushQueue = AsyncChannel<Void>()
 
     private init() {
+        sFollowing = followingQueue.share()
+        sBlocked = blockedQueue.share()
+
         Task {
             await startSync()
             await monitorPushQueue()
@@ -55,13 +75,18 @@ actor Wallet {
                 do {
                     try await pullSync()
                     try await Task.sleep(nanoseconds: Self.syncInterval)
+                } catch is CancellationError {
+                    return
                 } catch {
-                    if !(error is CancellationError) &&
-                        (error as? LbryApiResponseError)?.localizedDescription != "authentication required"
-                    {
+                    if (error as? LbryApiResponseError)?.localizedDescription != "authentication required" {
                         await Helper.showError(error: error)
                     }
-                    try? await Task.sleep(nanoseconds: Self.syncRetryInterval)
+
+                    do {
+                        try await Task.sleep(nanoseconds: Self.syncRetryInterval)
+                    } catch {
+                        return
+                    }
                 }
             }
         }
@@ -70,6 +95,10 @@ actor Wallet {
     func stopSync() {
         sync?.cancel()
         sync = nil
+
+        following = nil
+        blocked = nil
+        defaultChannelId = nil
     }
 
     func queuePushSync() async {
@@ -190,7 +219,7 @@ extension Wallet {
         return try LbryUri.parse(url: "lbry://\(channelName):\(claimId)", requireProto: true)
     }
 
-    func addOrSetFollowing(claim: Claim, notificationsDisabled: NotificationsDisabled) {
+    func addOrSetFollowing(claim: Claim, notificationsDisabled: NotificationsDisabled) async {
         guard let channelName = claim.name,
               channelName.starts(with: "@"),
               let claimId = claim.claimId
@@ -198,19 +227,26 @@ extension Wallet {
             return
         }
 
-        addOrSetFollowing(channelName: channelName, claimId: claimId, notificationsDisabled: notificationsDisabled)
+        await addOrSetFollowing(
+            channelName: channelName,
+            claimId: claimId,
+            notificationsDisabled: notificationsDisabled
+        )
     }
 
-    func addOrSetFollowing(channelName: String, claimId: String, notificationsDisabled: NotificationsDisabled) {
-        guard let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId) else {
+    func addOrSetFollowing(channelName: String, claimId: String, notificationsDisabled: NotificationsDisabled) async {
+        guard (try? await pullSync()) != nil,
+              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+        else {
             return
         }
 
         following?[uri] = notificationsDisabled
     }
 
-    func removeFollowing(claim: Claim) {
-        guard let channelName = claim.name,
+    func removeFollowing(claim: Claim) async {
+        guard (try? await pullSync()) != nil,
+              let channelName = claim.name,
               channelName.starts(with: "@"),
               let claimId = claim.claimId,
               let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
@@ -255,8 +291,10 @@ extension Wallet {
         return try LbryUri.parse(url: "lbry://\(channelName):\(claimId)", requireProto: true)
     }
 
-    func addBlocked(channelName: String, claimId: String) {
-        guard !Lbry.ownChannels.contains(where: { $0.claimId == claimId }) else {
+    func addBlocked(channelName: String, claimId: String) async {
+        guard (try? await pullSync()) != nil,
+              !Lbry.ownChannels.contains(where: { $0.claimId == claimId })
+        else {
             return
         }
 
@@ -269,7 +307,11 @@ extension Wallet {
         blocked?.append(uri)
     }
 
-    func removeBlocked(claimId: String) {
+    func removeBlocked(claimId: String) async {
+        guard (try? await pullSync()) != nil else {
+            return
+        }
+
         blocked?.removeAll { $0.claimId == claimId }
     }
 

@@ -47,16 +47,15 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     func displayAuthorImage() {
-        if let channelUrl = currentComment?.channelUrl {
-            if let thumbnailUrl = authorImageMap[channelUrl],
-               let optimisedUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
-            {
-                authorThumbnailView.backgroundColor = UIColor.clear
-                authorThumbnailView.load(url: optimisedUrl)
-            } else {
-                authorThumbnailView.image = UIImage(named: "spaceman")
-                authorThumbnailView.backgroundColor = Helper.lightPrimaryColor
-            }
+        if let channelUrl = currentComment?.channelUrl,
+           let thumbnailUrl = authorImageMap[channelUrl],
+           let optimisedUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+        {
+            authorThumbnailView.backgroundColor = UIColor.clear
+            authorThumbnailView.load(url: optimisedUrl)
+        } else {
+            authorThumbnailView.image = UIImage(named: "spaceman")
+            authorThumbnailView.backgroundColor = Helper.lightPrimaryColor
         }
     }
 
@@ -113,7 +112,7 @@ class CommentTableViewCell: UITableViewCell {
         if let channelUrl = currentComment?.channelUrl,
            let url = LbryUri.tryParse(url: channelUrl, requireProto: false)
         {
-            if UIApplication.currentViewController() as? FileViewController != nil {
+            if UIApplication.currentViewController() is FileViewController {
                 AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
             let vc = AppDelegate.shared.mainViewController?.storyboard?
@@ -165,14 +164,14 @@ class CommentTableViewCell: UITableViewCell {
             ),
             preferredStyle: .alert
         )
-        alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .default) { _ in
+        alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .destructive) { _ in
             Task {
                 await Wallet.shared.addBlocked(channelName: channelName, claimId: claimId)
 
                 await Wallet.shared.queuePushSync()
             }
         })
-        alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+        alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
         mainVc.present(alert, animated: true)
     }
 

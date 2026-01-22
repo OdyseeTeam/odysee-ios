@@ -261,7 +261,7 @@ enum Helper {
             filename = "image.png"
         }
         guard let mimeType, let imageData, let filename else {
-            completion(nil, GenericError("The selcted image could not be uploaded"))
+            completion(nil, GenericError("The selected image could not be uploaded"))
             return
         }
 

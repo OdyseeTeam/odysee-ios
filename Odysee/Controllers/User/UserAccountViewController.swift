@@ -184,7 +184,6 @@ class UserAccountViewController: UIViewController {
                 if let stringData = data as? String {
                     if stringData.lowercased() == "ok" {
                         self.currentEmail = email
-                        Analytics.logEvent("email_added", parameters: ["email": self.currentEmail as Any])
 
                         // display waiting for email verification view
                         self.waitForVerification()
@@ -274,8 +273,6 @@ class UserAccountViewController: UIViewController {
 
                     // close the view
                     DispatchQueue.main.async {
-                        Analytics.logEvent("email_verified", parameters: ["email": self.currentEmail as Any])
-
                         AppDelegate.shared.mainController.checkUploadButton()
 
                         // after email verification, finish with wallet sync
@@ -334,7 +331,6 @@ class UserAccountViewController: UIViewController {
                                 // old email verification flow
                                 self.currentEmail = email
                                 self.handleUserSignInWithoutPassword(email: email)
-                                Analytics.logEvent("email_added", parameters: ["email": self.currentEmail as Any])
                             } else {
                                 DispatchQueue.main.async {
                                     self.defaultActionButton.isEnabled = true
@@ -348,7 +344,6 @@ class UserAccountViewController: UIViewController {
                     }
 
                     self.currentEmail = email
-                    Analytics.logEvent("email_added", parameters: ["email": self.currentEmail as Any])
 
                     self.emailSignInChecked = true
                     guard let respData = data as? [String: Any],
@@ -424,10 +419,7 @@ class UserAccountViewController: UIViewController {
                     if let user {
                         Lbryio.currentUser = user
                         if let id = user.id {
-                            Analytics.setDefaultEventParameters([
-                                "user_id": id,
-                                "user_email": user.primaryEmail ?? "",
-                            ])
+                            Analytics.setDefaultEventParameters(["user_id": id])
                         }
 
                         self.requestInProgress = false
@@ -537,19 +529,25 @@ class UserAccountViewController: UIViewController {
         Task { await Wallet.shared.startSync() }
 
         DispatchQueue.main.async {
+            AppDelegate.shared.mainController.checkUploadButton()
             AppDelegate.shared.mainController.startWalletBalanceTimer()
             AppDelegate.shared.mainController.checkAndClaimEmailReward(completion: {})
 
-            if let vcs = self.navigationController?.viewControllers {
-                let index = max(0, vcs.count - 2)
-                var targetVc = vcs[index]
-                if targetVc == self {
-                    targetVc = vcs[index - 1]
-                }
-                self.navigationController?.popToViewController(targetVc, animated: true)
-                self.checkAndShowYouTubeSync(popViewController: false)
+            if self.firstRunFlow {
+                self.frDelegate?.requestFinished(showSkip: true, showContinue: true)
+                self.frDelegate?.nextStep()
             } else {
-                self.checkAndShowYouTubeSync(popViewController: true)
+                if let vcs = self.navigationController?.viewControllers {
+                    let index = max(0, vcs.count - 2)
+                    var targetVc = vcs[index]
+                    if targetVc == self {
+                        targetVc = vcs[index - 1]
+                    }
+                    self.navigationController?.popToViewController(targetVc, animated: true)
+                    self.checkAndShowYouTubeSync(popViewController: false)
+                } else {
+                    self.checkAndShowYouTubeSync(popViewController: true)
+                }
             }
         }
     }

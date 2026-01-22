@@ -166,6 +166,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func stopAllTimers() {
         walletBalanceTimer.invalidate()
+        balanceTimerScheduled = false
         Task { await Wallet.shared.stopSync() }
     }
 
@@ -242,7 +243,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     @IBAction func uploadTapped(_ sender: Any) {
-        if UIApplication.currentViewController() as? PublishViewController != nil {
+        if UIApplication.currentViewController() is PublishViewController {
             return
         }
 
@@ -280,13 +281,15 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     @IBAction func openCurrentClaim(_ sender: Any) {
-        if AppDelegate.shared.mainNavigationController?.topViewController ==
-            AppDelegate.shared.currentFileViewController
-        {
-            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
-        } else if let fileVc = AppDelegate.shared.currentFileViewController,
-                  fileVc.claim == AppDelegate.shared.currentClaim ||
-                  fileVc.currentPlaylistClaim() == AppDelegate.shared.currentClaim
+        if let viewControllers = AppDelegate.shared.mainNavigationController?.viewControllers {
+            AppDelegate.shared.mainNavigationController?.viewControllers = viewControllers.filter {
+                !($0 is FileViewController)
+            }
+        }
+
+        if let fileVc = AppDelegate.shared.currentFileViewController,
+           fileVc.claim == AppDelegate.shared.currentClaim ||
+           fileVc.currentPlaylistClaim() == AppDelegate.shared.currentClaim
         {
             AppDelegate.shared.mainNavigationController?.view.layer.add(
                 Helper.buildFileViewTransition(),
@@ -686,7 +689,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func handleSpecialUrl(url: String) -> Bool {
         if url.starts(with: "lbry://?") {
-            let destination = url.split(separator: "?")[1]
+            // Similarly, if the string begins or ends with the separator, the first or last substring, respectively, is empty.
+            // Therefore it's safe to get [1]
+            let destination = url.components(separatedBy: "lbry://?")[1]
 
             if destination == "subscriptions" || destination == "subscription" || destination == "following" {
                 AppDelegate.shared.mainTabViewController?.selectedIndex = 1
@@ -769,16 +774,21 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void
     ) {
         if AppDelegate.shared.mainNavigationController?.topViewController ==
-            AppDelegate.shared.currentFileViewController
+            AppDelegate.shared.currentFileViewController,
+            AppDelegate.shared.currentFileViewController?.claim == AppDelegate.shared.pictureInPicturePlayingClaim
         {
-            if AppDelegate.shared.currentFileViewController?.claim == AppDelegate.shared.pictureInPicturePlayingClaim {
-                completionHandler(true)
-                return
-            }
+            completionHandler(true)
+            return
+        }
 
-            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
-        } else if let fileVc = AppDelegate.shared.currentFileViewController,
-                  fileVc.claim == AppDelegate.shared.pictureInPicturePlayingClaim
+        if let viewControllers = AppDelegate.shared.mainNavigationController?.viewControllers {
+            AppDelegate.shared.mainNavigationController?.viewControllers = viewControllers.filter {
+                !($0 is FileViewController)
+            }
+        }
+
+        if let fileVc = AppDelegate.shared.currentFileViewController,
+           fileVc.claim == AppDelegate.shared.pictureInPicturePlayingClaim
         {
             AppDelegate.shared.mainNavigationController?.view.layer.add(
                 Helper.buildFileViewTransition(),

@@ -98,8 +98,10 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "tx_cell", for: indexPath) as! TransactionTableViewCell
 
-        let transaction: Transaction = transactions[indexPath.row]
-        cell.setTransaction(transaction: transaction)
+        if transactions.count > indexPath.row {
+            let transaction = transactions[indexPath.row]
+            cell.setTransaction(transaction: transaction)
+        }
 
         return cell
     }

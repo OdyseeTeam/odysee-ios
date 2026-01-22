@@ -135,7 +135,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 amount: Helper.sdkAmountFormatter.string(from: amount as NSDecimalNumber) ?? ""
             )
         }))
-        alert.addAction(UIAlertAction(title: String.localized("No"), style: .destructive))
+        alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
 
         present(alert, animated: true, completion: nil)
     }
@@ -314,8 +314,10 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             for: indexPath
         ) as! TransactionTableViewCell
 
-        let transaction: Transaction = recentTransactions[indexPath.row]
-        cell.setTransaction(transaction: transaction)
+        if recentTransactions.count > indexPath.row {
+            let transaction = recentTransactions[indexPath.row]
+            cell.setTransaction(transaction: transaction)
+        }
 
         return cell
     }

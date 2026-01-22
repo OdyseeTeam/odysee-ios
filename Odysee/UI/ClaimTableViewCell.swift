@@ -263,7 +263,7 @@ class ClaimTableViewCell: UITableViewCell {
                     // if we already have the channel page open, don't do anything
                     return
                 }
-            } else if currentVc as? FileViewController != nil {
+            } else if currentVc is FileViewController {
                 AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
 
@@ -282,7 +282,7 @@ class ClaimTableViewCell: UITableViewCell {
                     // if we already have the channel page open, don't do anything
                     return
                 }
-            } else if currentVc as? FileViewController != nil {
+            } else if currentVc is FileViewController {
                 AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
 
