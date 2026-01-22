@@ -689,7 +689,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func handleSpecialUrl(url: String) -> Bool {
         if url.starts(with: "lbry://?") {
-            let destination = url.split(separator: "?")[1]
+            // Similarly, if the string begins or ends with the separator, the first or last substring, respectively, is empty.
+            // Therefore it's safe to get [1]
+            let destination = url.components(separatedBy: "lbry://?")[1]
 
             if destination == "subscriptions" || destination == "subscription" || destination == "following" {
                 AppDelegate.shared.mainTabViewController?.selectedIndex = 1

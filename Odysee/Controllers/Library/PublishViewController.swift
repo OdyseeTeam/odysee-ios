@@ -530,7 +530,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                     let pathExt = videoUrl.pathExtension
 
                     let types = UTType.types(tag: pathExt, tagClass: .filenameExtension, conformingTo: nil)
-                    if types.count > 0, let mimetype = types[0].preferredMIMEType {
+                    if let mimetype = types.first?.preferredMIMEType {
                         mimeType = mimetype
                     }
 

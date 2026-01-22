@@ -109,7 +109,7 @@ class SearchViewController: UIViewController,
         var sanitisedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         let range = NSMakeRange(0, sanitisedQuery.count)
         sanitisedQuery = LbryUri.regexInvalidUri.stringByReplacingMatches(
-            in: query,
+            in: sanitisedQuery,
             options: [],
             range: range,
             withTemplate: ""
@@ -359,9 +359,13 @@ class SearchViewController: UIViewController,
     }
 
     @IBAction func noResultsViewTapped(_ sender: Any) {
-        if let currentQuery, Lighthouse.containsFilteredKeyword(currentQuery),
-           let url = URL(string: "https://odysee.com/$/search?q=\(currentQuery)")
-        {
+        if let currentQuery, Lighthouse.containsFilteredKeyword(currentQuery) {
+            var components = URLComponents(string: "https://odysee.com/$/search")
+            components?.queryItems = [URLQueryItem(name: "q", value: currentQuery)]
+            guard let url = components?.url else {
+                return
+            }
+
             let vc = SFSafariViewController(url: url)
             AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
         }
