@@ -47,16 +47,15 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     func displayAuthorImage() {
-        if let channelUrl = currentComment?.channelUrl {
-            if let thumbnailUrl = authorImageMap[channelUrl],
-               let optimisedUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
-            {
-                authorThumbnailView.backgroundColor = UIColor.clear
-                authorThumbnailView.load(url: optimisedUrl)
-            } else {
-                authorThumbnailView.image = UIImage(named: "spaceman")
-                authorThumbnailView.backgroundColor = Helper.lightPrimaryColor
-            }
+        if let channelUrl = currentComment?.channelUrl,
+           let thumbnailUrl = authorImageMap[channelUrl],
+           let optimisedUrl = thumbnailUrl.makeImageURL(spec: ClaimTableViewCell.channelImageSpec)
+        {
+            authorThumbnailView.backgroundColor = UIColor.clear
+            authorThumbnailView.load(url: optimisedUrl)
+        } else {
+            authorThumbnailView.image = UIImage(named: "spaceman")
+            authorThumbnailView.backgroundColor = Helper.lightPrimaryColor
         }
     }
 

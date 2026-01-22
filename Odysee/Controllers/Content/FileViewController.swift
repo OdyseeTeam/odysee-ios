@@ -135,7 +135,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var currentPlaylistIndex: Int = 0
     var channels: [Claim] = []
     var loadingRelated = false
-    var loadingPlaylist = false
     var fileViewLogged = false
     var loggingInProgress = false
     var playRequestTime: Int64 = 0
@@ -1434,7 +1433,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func loadPlaylistContent() {
-        if loadingPlaylist || isLivestream {
+        if loadingRelated || isLivestream {
             return
         }
 
@@ -1574,6 +1573,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     {
                         self.getTranscodedUrlAndInitializePlayer(claim: singleClaim, sourceUrl: sourceUrl)
                     }
+                } else {
+                    self.mediaLoadingIndicator.isHidden = true
+                    self.showError(message: "Failed to get media location")
                 }
             }
         )
