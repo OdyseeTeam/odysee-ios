@@ -342,10 +342,7 @@ enum Lbryio {
                     if let user {
                         currentUser = user
                         if let id = user.id {
-                            Analytics.setDefaultEventParameters([
-                                "user_id": id,
-                                "user_email": user.primaryEmail ?? "",
-                            ])
+                            Analytics.setDefaultEventParameters(["user_id": id])
                         }
 
                         completion(user, nil)
