@@ -1914,6 +1914,8 @@
                             </scrollView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="close" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Rh-Q5-YIW">
                                 <rect key="frame" x="376" y="112" width="22" height="21"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <buttonConfiguration key="configuration" style="plain" cornerStyle="capsule"/>
                                 <connections>
                                     <action selector="closeButtonTapped:" destination="yQM-IV-uQ4" eventType="touchUpInside" id="EwW-XK-Lc8"/>
                                 </connections>
