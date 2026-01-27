@@ -41,7 +41,13 @@ class UserAccountViewController: UIViewController {
         super.viewWillAppear(animated)
 
         AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        if AppDelegate.shared.lazyPlayer != nil {
+            AppDelegate.shared.mainController.toggleMiniPlayer(hidden: false)
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
