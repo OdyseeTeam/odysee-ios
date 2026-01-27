@@ -66,8 +66,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             ]
         )
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
-
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
     }
