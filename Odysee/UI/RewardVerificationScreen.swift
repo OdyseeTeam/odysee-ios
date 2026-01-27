@@ -1,5 +1,5 @@
 //
-//  RewardVerificationView.swift
+//  RewardVerificationScreen.swift
 //  Odysee
 //
 //  Created by Keith Toh on 20/11/2025.
@@ -12,7 +12,7 @@ extension View {
     func apply<V: View>(@ViewBuilder _ block: (Self) -> V) -> V { block(self) }
 }
 
-struct RewardVerificationView: View {
+struct RewardVerificationScreen: View {
     var close: () -> Void
 
     @State private var verifyHeight = CGFloat.zero
@@ -116,11 +116,11 @@ struct RewardVerificationView: View {
 }
 
 #Preview {
-    RewardVerificationView(close: {})
+    RewardVerificationScreen(close: {})
 }
 
 @available(iOS 17, *)
 #Preview(traits: .landscapeLeft) {
-    RewardVerificationView(close: {})
+    RewardVerificationScreen(close: {})
         .environment(\.sizeCategory, .accessibilityExtraExtraExtraLarge)
 }
