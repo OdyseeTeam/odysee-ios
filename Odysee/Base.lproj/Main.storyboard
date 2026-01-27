@@ -6520,30 +6520,6 @@
                             <containerView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GiF-qv-hoI">
                                 <rect key="frame" x="0.0" y="336" width="414" height="492"/>
                             </containerView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IzU-bX-6Of" userLabel="Dismiss File View">
-                                <rect key="frame" x="189" y="96" width="36" height="24"/>
-                                <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="chevron.down" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="ukC-pb-N9P">
-                                        <rect key="frame" x="9" y="8" width="18" height="8.5"/>
-                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="18" id="Bnd-B8-D3N"/>
-                                            <constraint firstAttribute="width" constant="18" id="iJw-t9-QJ0"/>
-                                        </constraints>
-                                    </imageView>
-                                </subviews>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.90000000000000002" colorSpace="custom" customColorSpace="calibratedRGB"/>
-                                <gestureRecognizers/>
-                                <constraints>
-                                    <constraint firstItem="ukC-pb-N9P" firstAttribute="centerX" secondItem="IzU-bX-6Of" secondAttribute="centerX" id="4iW-jf-jnF"/>
-                                    <constraint firstAttribute="height" constant="24" id="S6R-8n-Fsp"/>
-                                    <constraint firstItem="ukC-pb-N9P" firstAttribute="centerY" secondItem="IzU-bX-6Of" secondAttribute="centerY" id="WwW-GM-5Fh"/>
-                                    <constraint firstAttribute="width" constant="36" id="hi4-2B-zRK"/>
-                                </constraints>
-                                <connections>
-                                    <outletCollection property="gestureRecognizers" destination="OfH-6p-L16" appends="YES" id="s4y-Gh-ixA"/>
-                                </connections>
-                            </view>
                             <visualEffectView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qd0-BA-FzN" userLabel="Player Rate View">
                                 <rect key="frame" x="233" y="102" width="75" height="34.5"/>
                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="QZC-gu-Wyg">
@@ -6719,8 +6695,6 @@
                             <constraint firstItem="J4Z-JJ-JZs" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="bottom" id="9LP-gD-rRi"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="trailing" secondItem="Ia6-r3-4DT" secondAttribute="trailing" constant="16" id="9PZ-3e-gfe"/>
                             <constraint firstItem="NdN-tQ-3r6" firstAttribute="trailing" secondItem="hZs-fq-qQ6" secondAttribute="trailing" id="9k8-xU-Tdu"/>
-                            <constraint firstItem="Qd0-BA-FzN" firstAttribute="leading" secondItem="IzU-bX-6Of" secondAttribute="trailing" constant="8" id="BDE-h6-FNF"/>
-                            <constraint firstItem="IzU-bX-6Of" firstAttribute="centerX" secondItem="u0E-KJ-ZkJ" secondAttribute="centerX" id="CPk-3i-L9w"/>
                             <constraint firstItem="He6-U5-U2Z" firstAttribute="centerY" secondItem="hZs-fq-qQ6" secondAttribute="centerY" id="CWx-Z5-eLQ"/>
                             <constraint firstItem="Qd0-BA-FzN" firstAttribute="top" secondItem="NdN-tQ-3r6" secondAttribute="top" constant="6" id="DrF-pj-85k"/>
                             <constraint firstItem="J4Z-JJ-JZs" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="EBx-V0-qST"/>
@@ -6733,7 +6707,6 @@
                             <constraint firstItem="71p-zu-OCP" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="McW-bo-rnI"/>
                             <constraint firstItem="VuG-8T-cXR" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="N28-eQ-YVK"/>
                             <constraint firstItem="GiF-qv-hoI" firstAttribute="top" secondItem="hZs-fq-qQ6" secondAttribute="bottom" id="P6d-Zr-cU6"/>
-                            <constraint firstItem="IzU-bX-6Of" firstAttribute="top" secondItem="NdN-tQ-3r6" secondAttribute="top" id="RvA-XI-XvI"/>
                             <constraint firstItem="VuG-8T-cXR" firstAttribute="top" secondItem="NdN-tQ-3r6" secondAttribute="top" id="W6W-6O-Q88"/>
                             <constraint firstItem="hSv-c7-vMI" firstAttribute="leading" secondItem="NdN-tQ-3r6" secondAttribute="leading" id="Wri-Dx-7Hp"/>
                             <constraint firstItem="hSv-c7-vMI" firstAttribute="bottom" secondItem="NdN-tQ-3r6" secondAttribute="bottom" id="X8X-Tz-8bu"/>
@@ -6774,7 +6747,6 @@
                         <outlet property="descriptionDivider" destination="0Bk-Nb-7Gz" id="fL0-eJ-l40"/>
                         <outlet property="descriptionTextView" destination="8aR-NN-XFQ" id="arh-XD-65Z"/>
                         <outlet property="detailsScrollView" destination="hSv-c7-vMI" id="lXK-nk-sFo"/>
-                        <outlet property="dismissFileView" destination="IzU-bX-6Of" id="s79-ob-wXH"/>
                         <outlet property="dismissPanRecognizer" destination="0h5-cd-N4G" id="HWX-3w-AZS"/>
                         <outlet property="featuredCommentLabel" destination="7Zg-ZZ-Hpb" id="8jH-Wt-QMB"/>
                         <outlet property="featuredCommentThumbnail" destination="Asy-44-nhW" id="UeI-Ld-4A9"/>
@@ -6849,11 +6821,6 @@
                 <tapGestureRecognizer id="qen-Ay-6nN" userLabel="Bell Tap Gesture Recognizer">
                     <connections>
                         <action selector="bellTapped:" destination="Wx8-f6-Mvh" id="cyB-Mr-cbh"/>
-                    </connections>
-                </tapGestureRecognizer>
-                <tapGestureRecognizer id="OfH-6p-L16" userLabel="Dismiss File View Tap Gesture Recognizer">
-                    <connections>
-                        <action selector="dismissFileViewTapped:" destination="Wx8-f6-Mvh" id="ghM-u3-c7H"/>
                     </connections>
                 </tapGestureRecognizer>
                 <panGestureRecognizer minimumNumberOfTouches="1" id="0h5-cd-N4G" userLabel="Dismiss File View Pan Gesture Recognizer">
