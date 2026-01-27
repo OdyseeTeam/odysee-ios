@@ -53,6 +53,8 @@ class UserAccountViewController: UIViewController {
                 AnalyticsParameterScreenClass: "UserAccountViewController",
             ]
         )
+
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = false
     }
 
     override func viewDidLoad() {
