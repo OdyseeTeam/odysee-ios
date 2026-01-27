@@ -108,7 +108,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet var webViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet var imageViewer: ImageScrollView!
     @IBOutlet var webView: WKWebView!
-    @IBOutlet var dismissFileView: UIView!
     @IBOutlet var playerRateView: UIVisualEffectView!
     @IBOutlet var playerRateButton: UIButton!
     @IBOutlet var jumpBackwardView: UIVisualEffectView!
@@ -768,7 +767,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         mediaViewHeightConstraint.constant = mediaViewHeight
 
         if isTextContent || isImageContent || isOtherContent {
-            dismissFileView.isHidden = true
             contentInfoView.isHidden = false
             closeOtherContentButton.isHidden = false
             contentInfoViewButton.isHidden = true
@@ -1133,12 +1131,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         AppDelegate.shared.lazyPlayer?.pause()
         avpc.player?.play()
-
-        let task = DispatchWorkItem { [weak self] in
-            self?.dismissFileView.isHidden = true
-        }
-        // hide the dismiss file view control 5 seconds after playback starts
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 5, execute: task)
     }
 
     func displayRelatedPlaceholders() {
@@ -2134,16 +2126,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         DispatchQueue.main.async {
             AppDelegate.shared.mainController.showMessage(message: message)
         }
-    }
-
-    @IBAction func dismissFileViewTapped(_ sender: Any) {
-        let transition = CATransition()
-        transition.duration = 0.2
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        transition.type = .push
-        transition.subtype = .fromBottom
-        AppDelegate.shared.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
-        navigationController?.popViewController(animated: false)
     }
 
     var interactiveDismiss: UIPercentDrivenInteractiveTransition?
