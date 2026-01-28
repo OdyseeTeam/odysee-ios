@@ -287,15 +287,18 @@
                             <constraint firstItem="WdW-3H-xb0" firstAttribute="top" secondItem="FKL-n0-nM7" secondAttribute="bottom" id="Ahl-tS-nVM"/>
                             <constraint firstAttribute="bottom" secondItem="WdW-3H-xb0" secondAttribute="bottom" id="BEF-Ta-2AS"/>
                             <constraint firstItem="TI8-P3-gXi" firstAttribute="trailing" secondItem="FKL-n0-nM7" secondAttribute="trailing" id="EDS-C9-m3U"/>
+                            <constraint firstItem="WdW-3H-xb0" firstAttribute="top" secondItem="35t-ER-wNy" secondAttribute="top" priority="999" id="H93-zO-8oa"/>
                             <constraint firstItem="MkF-lQ-MQ4" firstAttribute="leading" secondItem="TI8-P3-gXi" secondAttribute="leading" constant="2" id="NQh-79-8yY"/>
                             <constraint firstItem="FKL-n0-nM7" firstAttribute="trailing" secondItem="TI8-P3-gXi" secondAttribute="trailing" id="ReK-XB-P40"/>
                             <constraint firstItem="FKL-n0-nM7" firstAttribute="leading" secondItem="TI8-P3-gXi" secondAttribute="leading" id="enU-Ou-mxy"/>
-                            <constraint firstItem="WdW-3H-xb0" firstAttribute="leading" secondItem="TI8-P3-gXi" secondAttribute="leading" id="hGS-7w-e6N"/>
+                            <constraint firstItem="WdW-3H-xb0" firstAttribute="leading" secondItem="35t-ER-wNy" secondAttribute="leading" id="hGS-7w-e6N"/>
                             <constraint firstItem="FKL-n0-nM7" firstAttribute="top" secondItem="TI8-P3-gXi" secondAttribute="top" id="nCP-wb-RU5"/>
-                            <constraint firstItem="TI8-P3-gXi" firstAttribute="trailing" secondItem="WdW-3H-xb0" secondAttribute="trailing" id="uDo-qU-Bhj"/>
+                            <constraint firstAttribute="trailing" secondItem="WdW-3H-xb0" secondAttribute="trailing" id="uDo-qU-Bhj"/>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="containerBelowHeaderConstraint" destination="Ahl-tS-nVM" id="6Kz-nE-g4H"/>
+                        <outlet property="containerFullscreenConstraint" destination="H93-zO-8oa" id="JLi-zm-Rzh"/>
                         <outlet property="headerArea" destination="FKL-n0-nM7" id="APG-WG-4V1"/>
                         <outlet property="headerAreaHeightConstraint" destination="uEV-ig-UlO" id="HaE-7n-Jhz"/>
                         <outlet property="mainBalanceLabel" destination="3gz-dN-Qi8" id="X4p-4q-U8U"/>
