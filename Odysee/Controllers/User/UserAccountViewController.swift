@@ -6,6 +6,7 @@
 //
 
 import FirebaseAnalytics
+import SwiftUI
 import UIKit
 
 class UserAccountViewController: UIViewController {
@@ -26,6 +27,13 @@ class UserAccountViewController: UIViewController {
     @IBOutlet var magicLinkButton: UIButton!
     @IBOutlet var verificationActionsView: UIView!
 
+    lazy var signInUp = {
+        let rootView = SignInUpScreen(close: { self.closeButtonTapped(self) })
+        let vc = UIHostingController(rootView: rootView)
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
+        return vc
+    }()
+
     var frDelegate: FirstRunDelegate?
     var firstRunFlow = false
     var signInMode = false
@@ -40,7 +48,7 @@ class UserAccountViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true, fullscreen: true)
         AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
     }
 
@@ -66,6 +74,16 @@ class UserAccountViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        addChild(signInUp)
+        view.addSubview(signInUp.view)
+        signInUp.didMove(toParent: self)
+        NSLayoutConstraint.activate([
+            signInUp.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            signInUp.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            signInUp.view.topAnchor.constraint(equalTo: view.topAnchor),
+            signInUp.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
 
         // Do any additional setup after loading the view.
         registerForKeyboardNotifications()
