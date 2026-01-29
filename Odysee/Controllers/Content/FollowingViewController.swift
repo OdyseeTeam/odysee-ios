@@ -104,8 +104,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             await update(await Wallet.shared.following)
 
             for await newFollowing in await Wallet.shared.sFollowing {
-                // FIXME: Only if changed
-
                 await update(newFollowing)
             }
         }
