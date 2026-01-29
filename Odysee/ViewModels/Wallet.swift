@@ -25,7 +25,9 @@ actor Wallet {
 
     private(set) var following: Following? {
         didSet {
-            followingQueue.send(following)
+            if following != oldValue {
+                followingQueue.send(following)
+            }
         }
     }
 
@@ -34,7 +36,9 @@ actor Wallet {
 
     private(set) var blocked: [LbryUri]? {
         didSet {
-            blockedQueue.send(blocked)
+            if blocked != oldValue {
+                blockedQueue.send(blocked)
+            }
         }
     }
 
