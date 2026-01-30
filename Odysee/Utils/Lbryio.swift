@@ -565,10 +565,10 @@ enum LbryioRequestError: Error {
     case invalidResponse(_ response: URLResponse)
 }
 
-enum LbryioResponseError: Error {
+enum LbryioResponseError: LocalizedError {
     case error(_ message: String, _ code: Int)
 
-    var localizedDescription: String {
+    var errorDescription: String? {
         guard case let .error(message, _) = self else {
             return "Account response error"
         }
