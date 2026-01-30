@@ -7,11 +7,6 @@
 
 import SwiftUI
 
-// https://stackoverflow.com/a/77735876
-extension View {
-    func apply<V: View>(@ViewBuilder _ block: (Self) -> V) -> V { block(self) }
-}
-
 struct RewardVerificationScreen: View {
     var close: () -> Void
 
