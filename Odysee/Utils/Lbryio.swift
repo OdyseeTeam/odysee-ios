@@ -570,13 +570,11 @@ enum LbryioResponseError: LocalizedError {
 
     var errorDescription: String? {
         guard case let .error(message, code) = self else {
-            return "Account response error"
+            return __("Account API response error")
         }
 
         guard let message else {
-            return String(
-                localized: "No error message (\(code) \(HTTPURLResponse.localizedString(forStatusCode: code)))"
-            )
+            return __("No error message (\(code) \(HTTPURLResponse.localizedString(forStatusCode: code)))")
         }
 
         return message
