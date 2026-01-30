@@ -17,6 +17,20 @@ struct UserNewParams: Encodable, AccountMethodParams {
     }
 }
 
+struct UserExistsParams: Encodable, AccountMethodParams {
+    var email: String
+}
+
+struct UserSignInUpParams: Encodable, AccountMethodParams {
+    var email: String
+    var password: String
+}
+
+struct UserEmailResendTokenParams: Encodable, AccountMethodParams {
+    var email: String
+    let only_if_expired = true
+}
+
 struct SyncGetParams: Encodable, AccountMethodParams {
     var hash: String
 }

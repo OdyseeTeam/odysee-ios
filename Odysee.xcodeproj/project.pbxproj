@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		530525AB28125CCE00D92A2E /* Txo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 530525AA28125CCE00D92A2E /* Txo.swift */; };
 		532650E4286EAB1B00F0FF0B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 532650E3286EAB1B00F0FF0B /* Settings.bundle */; };
-		533562922ECEBF9E0024ECC9 /* RewardVerificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533562912ECEBF9E0024ECC9 /* RewardVerificationView.swift */; };
+		533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */; };
 		534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */; };
 		534B71A4287BE0F200F01D42 /* ChannelSignResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */; };
 		53593F31287E5D75007FD08E /* CommentsAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentsAPIResult.swift */; };
@@ -26,11 +26,13 @@
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
+		53C01F552F28CFFC008ED3F8 /* SignInUpScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */; };
+		53D4CFAA2F2B357C00F395A3 /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 53D4CFA92F2B357C00F395A3 /* AsyncExtensions */; };
+		53D4CFAC2F2C5A9000F395A3 /* SignInUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */; };
 		53D59FFA2EF3AAEA0081D800 /* BackendAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FF92EF3AAEA0081D800 /* BackendAPIResult.swift */; };
 		53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFB2EF3AE530081D800 /* Methods.swift */; };
 		53D59FFE2EF3B3150081D800 /* QueryItemsEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFD2EF3B3150081D800 /* QueryItemsEncoder.swift */; };
 		53D5A0002EF3BB580081D800 /* QueryItemsEncoderTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFF2EF3BB580081D800 /* QueryItemsEncoderTest.swift */; };
-		53E420A72F19F2E00067F644 /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = 53E420A62F19F2E00067F644 /* AsyncAlgorithms */; };
 		53F64E382ECCEC2A001A7D8F /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */; };
 		53FAD3FD288504C60000F980 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 53FAD3FB288504C60000F980 /* Localizable.strings */; };
 		64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = 64019A0D269C101D00E16A51 /* ImageScrollView */; };
@@ -149,7 +151,7 @@
 /* Begin PBXFileReference section */
 		530525AA28125CCE00D92A2E /* Txo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Txo.swift; sourceTree = "<group>"; };
 		532650E3286EAB1B00F0FF0B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
-		533562912ECEBF9E0024ECC9 /* RewardVerificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerificationView.swift; sourceTree = "<group>"; };
+		533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerificationScreen.swift; sourceTree = "<group>"; };
 		534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIParams.swift; sourceTree = "<group>"; };
 		534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelSignResult.swift; sourceTree = "<group>"; };
 		53593F30287E5D75007FD08E /* CommentsAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIResult.swift; sourceTree = "<group>"; };
@@ -164,6 +166,8 @@
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
+		53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpScreen.swift; sourceTree = "<group>"; };
+		53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpViewModel.swift; sourceTree = "<group>"; };
 		53D59FF92EF3AAEA0081D800 /* BackendAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendAPIResult.swift; sourceTree = "<group>"; };
 		53D59FFB2EF3AE530081D800 /* Methods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Methods.swift; sourceTree = "<group>"; };
 		53D59FFD2EF3B3150081D800 /* QueryItemsEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryItemsEncoder.swift; sourceTree = "<group>"; };
@@ -297,7 +301,7 @@
 				648F70D226307BC700885A2F /* HaishinKit in Frameworks */,
 				5391E43D2EFED725008EF30A /* ValueCodable in Frameworks */,
 				CCDDA929265861AF0006035F /* PINRemoteImage in Frameworks */,
-				53E420A72F19F2E00067F644 /* AsyncAlgorithms in Frameworks */,
+				53D4CFAA2F2B357C00F395A3 /* AsyncExtensions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -322,6 +326,7 @@
 			isa = PBXGroup;
 			children = (
 				5391E4332EFE36C4008EF30A /* Wallet.swift */,
+				53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -404,7 +409,8 @@
 				647EB3F125F54EB1003AA76B /* UIStackCardView.swift */,
 				645912212620789E00B2ABA5 /* ChatMessageTableViewCell.swift */,
 				53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */,
-				533562912ECEBF9E0024ECC9 /* RewardVerificationView.swift */,
+				533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */,
+				53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -612,7 +618,7 @@
 				53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */,
 				5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */,
 				5391E43C2EFED725008EF30A /* ValueCodable */,
-				53E420A62F19F2E00067F644 /* AsyncAlgorithms */,
+				53D4CFA92F2B357C00F395A3 /* AsyncExtensions */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -703,7 +709,7 @@
 				64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */,
 				5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */,
 				5391E43B2EFED725008EF30A /* XCRemoteSwiftPackageReference "ValueCodable" */,
-				53E420A52F19F2E00067F644 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
+				53D4CFA82F2B357C00F395A3 /* XCRemoteSwiftPackageReference "AsyncExtensions" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -810,7 +816,8 @@
 				CC0B2B0D266D0E72002490BB /* Lock.swift in Sources */,
 				6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */,
 				64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */,
-				533562922ECEBF9E0024ECC9 /* RewardVerificationView.swift in Sources */,
+				53C01F552F28CFFC008ED3F8 /* SignInUpScreen.swift in Sources */,
+				533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */,
 				648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */,
 				6462DABD255D3CFE001CF1E8 /* UICardView.swift in Sources */,
 				641108DC255A8D7D00F0FB8A /* Lbryio.swift in Sources */,
@@ -842,6 +849,7 @@
 				643382A3258DB119004B562B /* RewardTableViewCell.swift in Sources */,
 				641108EC255AA4CF00F0FB8A /* User.swift in Sources */,
 				64A8B65125E671AC00F06D74 /* YouTubeSyncStatusViewController.swift in Sources */,
+				53D4CFAC2F2C5A9000F395A3 /* SignInUpViewModel.swift in Sources */,
 				CCDDA921265852920006035F /* Multistream.swift in Sources */,
 				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
@@ -1267,12 +1275,12 @@
 				minimumVersion = 0.2.0;
 			};
 		};
-		53E420A52F19F2E00067F644 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+		53D4CFA82F2B357C00F395A3 /* XCRemoteSwiftPackageReference "AsyncExtensions" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/OdyseeTeam/swift-async-algorithms";
+			repositoryURL = "https://github.com/sideeffect-io/AsyncExtensions";
 			requirement = {
-				kind = revision;
-				revision = 5d2ce613d3b86fd060fc82444ce04f77f4cbd754;
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.5.5;
 			};
 		};
 		64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */ = {
@@ -1352,10 +1360,10 @@
 			package = 5391E43B2EFED725008EF30A /* XCRemoteSwiftPackageReference "ValueCodable" */;
 			productName = ValueCodable;
 		};
-		53E420A62F19F2E00067F644 /* AsyncAlgorithms */ = {
+		53D4CFA92F2B357C00F395A3 /* AsyncExtensions */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 53E420A52F19F2E00067F644 /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
-			productName = AsyncAlgorithms;
+			package = 53D4CFA82F2B357C00F395A3 /* XCRemoteSwiftPackageReference "AsyncExtensions" */;
+			productName = AsyncExtensions;
 		};
 		53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;

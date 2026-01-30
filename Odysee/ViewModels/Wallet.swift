@@ -5,7 +5,7 @@
 //  Created by Keith Toh on 18/12/2025.
 //
 
-import AsyncAlgorithms
+import AsyncExtensions
 import Foundation
 
 actor Wallet {
@@ -25,25 +25,25 @@ actor Wallet {
 
     private(set) var following: Following? {
         didSet {
-            Task {
-                await followingQueue.send(following)
+            if following != oldValue {
+                followingQueue.send(following)
             }
         }
     }
 
-    private(set) var sFollowing: AsyncShareSequence<AsyncChannel<Following?>>
-    private let followingQueue = AsyncChannel<Following?>()
+    private(set) var sFollowing: AsyncShareSequence<AsyncBufferedChannel<Following?>>
+    private let followingQueue = AsyncBufferedChannel<Following?>()
 
     private(set) var blocked: [LbryUri]? {
         didSet {
-            Task {
-                await blockedQueue.send(blocked)
+            if blocked != oldValue {
+                blockedQueue.send(blocked)
             }
         }
     }
 
-    private(set) var sBlocked: AsyncShareSequence<AsyncChannel<[LbryUri]?>>
-    private let blockedQueue = AsyncChannel<[LbryUri]?>()
+    private(set) var sBlocked: AsyncShareSequence<AsyncBufferedChannel<[LbryUri]?>>
+    private let blockedQueue = AsyncBufferedChannel<[LbryUri]?>()
 
     private(set) var defaultChannelId: String?
 
@@ -53,7 +53,7 @@ actor Wallet {
     private var remoteWalletHash: String?
 
     private var sync: Task<Void, Never>?
-    private let pushQueue = AsyncChannel<Void>()
+    private let pushQueue = AsyncBufferedChannel<Void>()
 
     private init() {
         sFollowing = followingQueue.share()
@@ -78,6 +78,7 @@ actor Wallet {
                 } catch is CancellationError {
                     return
                 } catch {
+                    // FIXME: no need cast?
                     if (error as? LbryApiResponseError)?.localizedDescription != "authentication required" {
                         await Helper.showError(error: error)
                     }

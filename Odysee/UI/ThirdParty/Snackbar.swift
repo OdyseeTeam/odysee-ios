@@ -70,7 +70,7 @@ class Snackbar: NSObject {
         txt.frame = CGRect(
             x: window.frame.width * 5 / 100,
             y: 0,
-            width: window.frame.width * 95 / 100,
+            width: window.frame.width * 90 / 100,
             height: snackbarHeight
         )
         snackbarView.addSubview(txt)
@@ -124,7 +124,12 @@ class Snackbar: NSObject {
     private func setupSnackbarView() {
         window.addSubview(snackbarView)
 
-        snackbarView.frame = CGRect(x: 0, y: window.bounds.height, width: window.frame.width, height: snackbarHeight)
+        snackbarView.frame = CGRect(
+            x: 0,
+            y: window.bounds.height - window.safeAreaInsets.bottom,
+            width: window.frame.width,
+            height: snackbarHeight + window.safeAreaInsets.bottom
+        )
         snackbarView.backgroundColor = backgroundColor
     }
 
@@ -144,9 +149,9 @@ class Snackbar: NSObject {
     private func updateSnackbarFrame() {
         snackbarView.frame = CGRect(
             x: 0,
-            y: window.bounds.height - snackbarHeight - kbSize.height,
+            y: window.bounds.height - window.safeAreaInsets.bottom - snackbarHeight - kbSize.height,
             width: window.frame.width,
-            height: snackbarHeight
+            height: snackbarHeight + window.safeAreaInsets.bottom
         )
     }
 

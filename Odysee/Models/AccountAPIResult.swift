@@ -15,6 +15,14 @@ struct UserNewResult: Decodable {
     }
 }
 
+struct UserExistsResult: Decodable {
+    var hasPassword: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case hasPassword = "has_password"
+    }
+}
+
 struct SyncGetResult: Decodable {
     var changed: Bool
     var hash: String?
