@@ -163,7 +163,7 @@ enum ContentSources {
                 }
 
                 if respData?["error"] is NSNull {
-                    completion(LbryioResponseError.error("no error message", respCode))
+                    completion(LbryioResponseError.error(nil, respCode))
                 } else if let error = respData?["error"] as? String {
                     completion(LbryioResponseError.error(error, respCode))
                 } else {
