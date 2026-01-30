@@ -405,14 +405,14 @@ enum Helper {
     }
 }
 
-struct GenericError: Error {
+struct GenericError: LocalizedError {
     let message: String
 
     init(_ message: String) {
         self.message = message
     }
 
-    var localizedDescription: String {
+    var errorDescription: String? {
         return message
     }
 }
