@@ -276,7 +276,7 @@ enum Lbryio {
                     }
 
                     if respData?["error"] is NSNull {
-                        completion(nil, LbryioResponseError.error("no error message", respCode))
+                        completion(nil, LbryioResponseError.error(nil, respCode))
                     } else if let error = respData?["error"] as? String {
                         completion(nil, LbryioResponseError.error(error, respCode))
                     } else {
@@ -566,11 +566,17 @@ enum LbryioRequestError: Error {
 }
 
 enum LbryioResponseError: LocalizedError {
-    case error(_ message: String, _ code: Int)
+    case error(_ message: String?, _ code: Int)
 
     var errorDescription: String? {
-        guard case let .error(message, _) = self else {
+        guard case let .error(message, code) = self else {
             return "Account response error"
+        }
+
+        guard let message else {
+            return String(
+                localized: "No error message (\(code) \(HTTPURLResponse.localizedString(forStatusCode: code)))"
+            )
         }
 
         return message
