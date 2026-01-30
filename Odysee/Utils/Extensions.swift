@@ -288,3 +288,9 @@ extension Crashlytics {
 extension View {
     func apply<V: View>(@ViewBuilder _ block: (Self) -> V) -> V { block(self) }
 }
+
+// swift-format-ignore
+// Localization helper (same as web)
+func __(_ string: String.LocalizationValue) -> String {
+    String(localized: string)
+}
