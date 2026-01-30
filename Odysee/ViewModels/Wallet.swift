@@ -78,6 +78,7 @@ actor Wallet {
                 } catch is CancellationError {
                     return
                 } catch {
+                    // FIXME: no need cast?
                     if (error as? LbryApiResponseError)?.localizedDescription != "authentication required" {
                         await Helper.showError(error: error)
                     }
