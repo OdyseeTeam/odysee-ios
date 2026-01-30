@@ -624,19 +624,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     func showError(error: Error?) {
-        if let responseError = error as? LbryioResponseError {
-            showError(message: responseError.localizedDescription)
-            return
-        }
-        if let apiError = error as? LbryApiResponseError {
-            showError(message: apiError.localizedDescription)
-            return
-        }
-        if let genericError = error as? GenericError {
-            showError(message: genericError.localizedDescription)
-            return
-        }
-
         showError(message: error?.localizedDescription)
     }
 
