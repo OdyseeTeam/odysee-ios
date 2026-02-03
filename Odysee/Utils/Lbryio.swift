@@ -354,6 +354,17 @@ enum Lbryio {
         })
     }
 
+    static func fetchCurrentUser() async throws -> User {
+        let user = try await AccountMethods.userMe.call(params: .init())
+
+        currentUser = user
+        if let id = user.id {
+            Analytics.setDefaultEventParameters(["user_id": id])
+        }
+
+        return user
+    }
+
     static func areCommentsEnabled(channelId: String, channelName: String, completion: @escaping (Bool) -> Void) {
         Lbry.commentApiCall(
             method: CommentsMethods.list,
