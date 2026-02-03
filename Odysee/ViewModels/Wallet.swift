@@ -78,7 +78,7 @@ actor Wallet {
                 } catch is CancellationError {
                     return
                 } catch {
-                    if (error as? LbryApiResponseError)?.localizedDescription != "authentication required" {
+                    if error.localizedDescription != "authentication required" {
                         await Helper.showError(error: error)
                     }
 
