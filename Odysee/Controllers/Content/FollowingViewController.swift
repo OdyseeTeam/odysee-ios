@@ -489,7 +489,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
 
         await Wallet.shared.addOrSetFollowingAll(values: Dictionary(
-            uniqueKeysWithValues: selected.map { ($0, true) }
+            selected.map { ($0, true) }, uniquingKeysWith: { _, last in last }
         ))
 
         await Wallet.shared.queuePushSync()
