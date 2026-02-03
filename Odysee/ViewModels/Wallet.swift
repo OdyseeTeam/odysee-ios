@@ -147,14 +147,7 @@ actor Wallet {
         let sharedPreference = try await BackendMethods.sharedPreferenceGet.call(params: .init()).shared
 
         if updateState {
-            following = try sharedPreference.following.reduce(into: Following()) {
-                guard let channelName = $1.uri.channelName,
-                      let claimId = $1.uri.channelClaimId
-                else {
-                    return
-                }
-                try $0[Self.buildFollow(channelName: channelName, claimId: claimId)] = $1.notificationsDisabled
-            }
+            following = try sharedPreference.walletFollowing
 
             blocked = sharedPreference.blocked
 
@@ -213,6 +206,24 @@ actor Wallet {
 
 // MARK: Following
 
+extension SharedPreference {
+    var walletFollowing: Wallet.Following {
+        get throws {
+            return try Dictionary(uniqueKeysWithValues: following.compactMap {
+                guard let channelName = $0.uri.channelName,
+                      let claimId = $0.uri.channelClaimId
+                else {
+                    return nil
+                }
+                return try (
+                    Wallet.buildFollow(channelName: channelName, claimId: claimId),
+                    $0.notificationsDisabled
+                )
+            })
+        }
+    }
+}
+
 extension Wallet {
     static func buildFollow(channelName: String, claimId: String) throws -> Follow {
         let channelName = channelName.starts(with: "@") ? channelName : "@\(channelName)"
@@ -235,17 +246,20 @@ extension Wallet {
     }
 
     func addOrSetFollowing(channelName: String, claimId: String, notificationsDisabled: NotificationsDisabled) async {
-        guard (try? await pullSync()) != nil,
+        guard let sharedPreference = try? await pullSync(updateState: false),
+              var newFollowing = try? sharedPreference.walletFollowing,
               let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
         else {
             return
         }
 
-        following?[uri] = notificationsDisabled
+        newFollowing[uri] = notificationsDisabled
+        following = newFollowing
     }
 
     func removeFollowing(claim: Claim) async {
-        guard (try? await pullSync()) != nil,
+        guard let sharedPreference = try? await pullSync(updateState: false),
+              var newFollowing = try? sharedPreference.walletFollowing,
               let channelName = claim.name,
               channelName.starts(with: "@"),
               let claimId = claim.claimId,
@@ -254,7 +268,8 @@ extension Wallet {
             return
         }
 
-        following?.removeValue(forKey: uri)
+        newFollowing.removeValue(forKey: uri)
+        following = newFollowing
     }
 
     func isFollowing(claim: Claim) -> Bool {
@@ -292,27 +307,33 @@ extension Wallet {
     }
 
     func addBlocked(channelName: String, claimId: String) async {
-        guard (try? await pullSync()) != nil,
+        guard let sharedPreference = try? await pullSync(updateState: false),
               !Lbry.ownChannels.contains(where: { $0.claimId == claimId })
         else {
             return
         }
 
+        var newBlocked = sharedPreference.blocked
+
         guard let uri = try? Self.buildBlocked(channelName: channelName, claimId: claimId),
-              !(blocked?.contains(uri) ?? false)
+              !newBlocked.contains(uri)
         else {
             return
         }
 
-        blocked?.append(uri)
+        newBlocked.append(uri)
+        blocked = newBlocked
     }
 
     func removeBlocked(claimId: String) async {
-        guard (try? await pullSync()) != nil else {
+        guard let sharedPreference = try? await pullSync(updateState: false) else {
             return
         }
 
-        blocked?.removeAll { $0.claimId == claimId }
+        var newBlocked = sharedPreference.blocked
+
+        newBlocked.removeAll { $0.claimId == claimId }
+        blocked = newBlocked
     }
 
     func isBlocked(claimId: String) -> Bool {
