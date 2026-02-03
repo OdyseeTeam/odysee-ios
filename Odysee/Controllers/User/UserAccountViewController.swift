@@ -10,7 +10,23 @@ import SwiftUI
 
 class UserAccountViewController: UIViewController {
     lazy var signInUp = {
-        let rootView = SignInUpScreen(close: closeButtonTapped)
+        let rootView = SignInUpScreen(
+            showClose: !firstRunFlow,
+            close: { [weak self] in
+                self?.closeButtonTapped()
+            },
+            model: .init(
+                finish: { [weak self] in
+                    Task { await self?.finishWithWalletSync() }
+                },
+                frRequestStarted: { [weak self] in
+                    self?.frDelegate?.requestStarted()
+                },
+                frRequestFinished: { [weak self] in
+                    self?.frDelegate?.requestFinished(showSkip: true, showContinue: false)
+                }
+            )
+        )
         let vc = UIHostingController(rootView: rootView)
         vc.view.translatesAutoresizingMaskIntoConstraints = false
         return vc
