@@ -247,8 +247,13 @@ enum AccountMethods {
 
     struct NilType: Codable, AccountMethodParams {}
 
+    static let userMe = Method<NilType, User>(name: "user/me", method: .GET)
     static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
+    static let userExists = Method<UserExistsParams, UserExistsResult>(name: "user/exists")
+    static let userSignUp = Method<UserSignInUpParams, NilType>(name: "user/signup")
+    static let userSignIn = Method<UserSignInUpParams, User>(name: "user/signin")
     static let userSignOut = Method<NilType, NilType>(name: "user/signout")
+    static let userEmailResendToken = Method<UserEmailResendTokenParams, NilType>(name: "user_email/resend_token")
     static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
     static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
     static let subscriptionNew = Method<SubscriptionNewParams, NilType>(name: "subscription/new")
