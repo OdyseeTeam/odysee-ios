@@ -32,3 +32,15 @@ struct SyncSetParams: Encodable, AccountMethodParams {
         case data
     }
 }
+
+struct SubscriptionNewParams: Encodable, AccountMethodParams {
+    var claimId: String
+    var channelName: String
+    var notificationsDisabled: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case claimId = "claim_id"
+        case channelName = "channel_name"
+        case notificationsDisabled = "notifications_disabled"
+    }
+}

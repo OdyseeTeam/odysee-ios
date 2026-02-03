@@ -231,29 +231,28 @@ extension Wallet {
     }
 
     func addOrSetFollowing(claim: Claim, notificationsDisabled: NotificationsDisabled) async {
-        guard let channelName = claim.name,
-              channelName.starts(with: "@"),
-              let claimId = claim.claimId
-        else {
-            return
-        }
-
-        await addOrSetFollowing(
-            channelName: channelName,
-            claimId: claimId,
-            notificationsDisabled: notificationsDisabled
-        )
+        await addOrSetFollowingAll(values: [claim: notificationsDisabled])
     }
 
-    func addOrSetFollowing(channelName: String, claimId: String, notificationsDisabled: NotificationsDisabled) async {
+    func addOrSetFollowingAll(values: [Claim: NotificationsDisabled]) async {
         guard let sharedPreference = try? await pullSync(updateState: false),
-              var newFollowing = try? sharedPreference.walletFollowing,
-              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+              var newFollowing = try? sharedPreference.walletFollowing
         else {
             return
         }
 
-        newFollowing[uri] = notificationsDisabled
+        for (claim, notificationsDisabled) in values {
+            guard let channelName = claim.name,
+                  channelName.starts(with: "@"),
+                  let claimId = claim.claimId,
+                  let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+            else {
+                return
+            }
+
+            newFollowing[uri] = notificationsDisabled
+        }
+
         following = newFollowing
     }
 

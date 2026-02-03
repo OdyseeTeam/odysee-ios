@@ -251,4 +251,5 @@ enum AccountMethods {
     static let userSignOut = Method<NilType, NilType>(name: "user/signout")
     static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
     static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
+    static let subscriptionNew = Method<SubscriptionNewParams, NilType>(name: "subscription/new")
 }
