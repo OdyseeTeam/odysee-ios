@@ -30,7 +30,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var selectedChannelClaim: Claim?
     var suggestedFollows = OrderedSet<Claim>()
     var following = OrderedSet<Claim>()
-    var selectedSuggestedFollows = [String: Claim]()
+    var selectedSuggestedFollows = Set<Claim>()
 
     let suggestedPageSize: Int = 42
     let refreshControl = UIRefreshControl()
@@ -265,19 +265,27 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     @IBAction func doneTapped(_ sender: UIButton) {
         Task {
-            guard let following = await Wallet.shared.following, following.count > 0 else {
+            guard let following = await Wallet.shared.following,
+                  following.count + selectedSuggestedFollows.count > 0
+            else {
                 Helper.showMessage(message: String.localized("Please select one or more creators to follow"))
                 return
             }
 
-            selectedSuggestedFollows.removeAll()
+            do {
+                try await subscribeAll(selected: selectedSuggestedFollows)
 
-            suggestedView.isHidden = true
-            mainView.isHidden = false
-            showingSuggested = false
+                selectedSuggestedFollows.removeAll()
 
-            resetSubscriptionContent()
-            loadSubscriptionContent()
+                suggestedView.isHidden = true
+                mainView.isHidden = false
+                showingSuggested = false
+
+                resetSubscriptionContent()
+                loadSubscriptionContent()
+            } catch {
+                Helper.showError(error: error)
+            }
         }
     }
 
@@ -347,15 +355,14 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             if suggestedFollows.count > indexPath.row {
                 let claim = suggestedFollows[indexPath.row]
                 cell.setClaim(claim: claim)
-                if let claimId = claim.claimId {
-                    cell.setSelected(selected: selectedSuggestedFollows[claimId] != nil)
-                    if selectedSuggestedFollows[claimId] != nil {
-                        suggestedFollowsView.selectItem(
-                            at: indexPath,
-                            animated: false,
-                            scrollPosition: .centeredVertically
-                        )
-                    }
+
+                cell.setSelected(selected: selectedSuggestedFollows.contains(claim))
+                if selectedSuggestedFollows.contains(claim) {
+                    suggestedFollowsView.selectItem(
+                        at: indexPath,
+                        animated: false,
+                        scrollPosition: .centeredVertically
+                    )
                 }
             }
 
@@ -379,14 +386,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         if collectionView == suggestedFollowsView {
             if suggestedFollows.count > indexPath.row {
                 let claim = suggestedFollows[indexPath.row]
-                if let claimId = claim.claimId {
-                    selectedSuggestedFollows[claimId] = claim
-                }
-                subscribeOrUnsubscribe(
-                    claim: claim,
-                    notificationsDisabled: true, // New subscriptions have notifications disabled
-                    unsubscribing: false
-                )
+                selectedSuggestedFollows.insert(claim)
 
                 let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
                 cell?.setSelected(selected: true)
@@ -424,14 +424,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         if collectionView == suggestedFollowsView {
             if suggestedFollows.count > indexPath.row {
                 let claim = suggestedFollows[indexPath.row]
-                if let claimId = claim.claimId {
-                    selectedSuggestedFollows.removeValue(forKey: claimId)
-                }
-                subscribeOrUnsubscribe(
-                    claim: claim,
-                    notificationsDisabled: true, // Unused
-                    unsubscribing: true
-                )
+                selectedSuggestedFollows.remove(claim)
 
                 let cell = collectionView.cellForItem(at: indexPath) as? SuggestedChannelCollectionViewCell
                 cell?.setSelected(selected: false)
@@ -468,47 +461,37 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         return 4
     }
 
-    func subscribeOrUnsubscribe(claim: Claim?, notificationsDisabled: Bool, unsubscribing: Bool) {
-        do {
-            guard let claim, let claimId = claim.claimId else {
-                showError(message: "couldn't get claim info")
-                return
-            }
-
-            var options = [String: String]()
-            options["claim_id"] = claimId
-            if !unsubscribing {
-                options["channel_name"] = claim.name
-                options["notifications_disabled"] = String(notificationsDisabled)
-            }
-
-            try Lbryio.get(
-                resource: "subscription",
-                action: unsubscribing ? "delete" : "new",
-                options: options,
-                completion: { data, error in
-                    guard data != nil, error == nil else {
-                        self.showError(error: error)
-                        return
-                    }
-
-                    Task {
-                        if !unsubscribing {
-                            await Wallet.shared.addOrSetFollowing(
-                                claim: claim,
-                                notificationsDisabled: notificationsDisabled
-                            )
-                        } else {
-                            await Wallet.shared.removeFollowing(claim: claim)
-                        }
-
-                        await Wallet.shared.queuePushSync()
-                    }
-                }
-            )
-        } catch {
-            print(error)
+    func subscribeAll(selected: Set<Claim>) async throws {
+        loadingContainer.isHidden = false
+        defer {
+            loadingContainer.isHidden = true
         }
+
+        try await withThrowingTaskGroup { taskGroup in
+            for claim in selected {
+                guard let claimId = claim.claimId,
+                      let channelName = claim.name
+                else {
+                    throw GenericError("couldn't get claim info")
+                }
+
+                taskGroup.addTask {
+                    _ = try await AccountMethods.subscriptionNew.call(params: .init(
+                        claimId: claimId,
+                        channelName: channelName,
+                        notificationsDisabled: true // New subscriptions have notifications disabled
+                    ))
+                }
+
+                try await taskGroup.next()
+            }
+        }
+
+        await Wallet.shared.addOrSetFollowingAll(values: Dictionary(
+            uniqueKeysWithValues: selected.map { ($0, true) }
+        ))
+
+        await Wallet.shared.queuePushSync()
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
