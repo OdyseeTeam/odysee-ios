@@ -122,14 +122,6 @@ extension Result {
     }
 }
 
-extension Optional {
-    // Assert this optional is not nil (so we catch it in debug), and return `self ?? defaultValue`
-    func assertAndDefault(_ defaultValue: @autoclosure () -> Wrapped) -> Wrapped {
-        assert(self != nil)
-        return self ?? defaultValue()
-    }
-}
-
 // These extensions are useful for Lbry.swift – so that we can support old methods that haven't
 // migrated to their own Params type yet and still use dictionaries.
 extension NSString: @retroactive Encodable {

@@ -561,16 +561,4 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             }
         }
     }
-
-    func showError(error: Error?) {
-        DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(error: error)
-        }
-    }
-
-    func showError(message: String) {
-        DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(message: message)
-        }
-    }
 }
