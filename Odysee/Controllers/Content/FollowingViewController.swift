@@ -482,9 +482,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                         notificationsDisabled: true // New subscriptions have notifications disabled
                     ))
                 }
-
-                try await taskGroup.next()
             }
+
+            // Make task group throwing
+            try await taskGroup.waitForAll()
         }
 
         await Wallet.shared.addOrSetFollowingAll(values: Dictionary(
