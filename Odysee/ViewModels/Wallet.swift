@@ -209,17 +209,20 @@ actor Wallet {
 extension SharedPreference {
     var walletFollowing: Wallet.Following {
         get throws {
-            return try Dictionary(uniqueKeysWithValues: following.compactMap {
-                guard let channelName = $0.uri.channelName,
-                      let claimId = $0.uri.channelClaimId
-                else {
-                    return nil
-                }
-                return try (
-                    Wallet.buildFollow(channelName: channelName, claimId: claimId),
-                    $0.notificationsDisabled
-                )
-            })
+            return try Dictionary(
+                following.compactMap {
+                    guard let channelName = $0.uri.channelName,
+                          let claimId = $0.uri.channelClaimId
+                    else {
+                        return nil
+                    }
+                    return try (
+                        Wallet.buildFollow(channelName: channelName, claimId: claimId),
+                        $0.notificationsDisabled
+                    )
+                },
+                uniquingKeysWith: { _, last in last }
+            )
         }
     }
 }
