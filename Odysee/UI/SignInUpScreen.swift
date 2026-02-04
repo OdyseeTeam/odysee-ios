@@ -31,6 +31,16 @@ struct SignInUpScreen: View {
     @State private var password = ""
     @FocusState private var focusedField: Field?
 
+    private func passwordField(metrics: GeometryProxy) -> some View {
+        SecureField("Password", text: $password)
+            .multilineTextAlignment(.center)
+            .frame(width: metrics.size.width * 2 / 3)
+            .submitLabel(.done)
+            .focused($focusedField, equals: .password)
+            .opacity(!signUp && !passwordStep ? 0.01 : 1)
+            .accessibilityHidden(!signUp && !passwordStep)
+    }
+
     var body: some View {
         ZStack {
             GeometryReader { metrics in
@@ -44,27 +54,24 @@ struct SignInUpScreen: View {
                         .padding(.bottom, 32)
 
                     if !emailVerification {
-                        if signUp || !passwordStep {
-                            TextField("Email", text: $email)
-                                .multilineTextAlignment(.center)
-                                .frame(width: metrics.size.width * 2 / 3)
-                                .keyboardType(.emailAddress)
-                                .textContentType(.username)
-                                .submitLabel(.next)
-                                .focused($focusedField, equals: .email)
-                        }
-                        if signUp || passwordStep {
-                            SecureField("Password", text: $password)
-                                .multilineTextAlignment(.center)
-                                .frame(width: metrics.size.width * 2 / 3)
-                                .textContentType(signUp ? .newPassword : .password)
-                                .submitLabel(.done)
-                                .focused($focusedField, equals: .password)
-                                .onAppear {
-                                    if passwordStep {
-                                        focusedField = .password
-                                    }
-                                }
+                        TextField("Email", text: $email)
+                            .multilineTextAlignment(.center)
+                            .frame(width: metrics.size.width * 2 / 3)
+                            .keyboardType(.emailAddress)
+                            .textContentType(.username)
+                            .submitLabel(.next)
+                            .focused($focusedField, equals: .email)
+                            .opacity(!signUp && passwordStep ? 0.75 : 1)
+                            .disabled(!signUp && passwordStep)
+
+                        // Completely replace the password field
+                        // to trigger AutoFill to re-detect sign-in vs sign-up
+                        if signUp {
+                            passwordField(metrics: metrics)
+                                .textContentType(.newPassword)
+                        } else {
+                            passwordField(metrics: metrics)
+                                .textContentType(.password)
                         }
 
                         Button(
@@ -130,15 +137,20 @@ struct SignInUpScreen: View {
                     }
 
                     Button(signUp ? "Log In" : "Sign Up") {
-                        model.stopEmailVerificationWait()
+                        Task<Void, Never> {
+                            model.stopEmailVerificationWait()
 
-                        signUp = !signUp
+                            signUp = !signUp
 
-                        passwordStep = false
-                        emailVerification = false
-                        email = ""
-                        password = ""
-                        focusedField = .email
+                            passwordStep = false
+                            emailVerification = false
+                            email = ""
+                            password = ""
+
+                            // Needs some time to settle change
+                            try? await Task.sleep(nanoseconds: 50_000_000)
+                            focusedField = .email
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -203,6 +215,9 @@ struct SignInUpScreen: View {
                         switch try await model.emailContinue(email: email) {
                         case .password:
                             passwordStep = true
+                            // Needs some time to settle change
+                            try? await Task.sleep(nanoseconds: 1_000_000)
+                            focusedField = .password
                         case .emailVerification:
                             emailVerification = true
                         }
