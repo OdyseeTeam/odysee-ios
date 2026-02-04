@@ -44,118 +44,140 @@ struct SignInUpScreen: View {
     var body: some View {
         ZStack {
             GeometryReader { metrics in
-                VStack {
-                    Image("spaceman_white")
-                        .resizable()
-                        .frame(width: 120, height: 120)
-                        .padding(.bottom, 32)
-
-                    Text(signUp ? "Join Odysee" : "Log In to Odysee")
-                        .padding(.bottom, 32)
-
-                    if !emailVerification {
-                        TextField("Email", text: $email)
-                            .multilineTextAlignment(.center)
-                            .frame(width: metrics.size.width * 2 / 3)
-                            .keyboardType(.emailAddress)
-                            .textContentType(.username)
-                            .submitLabel(.next)
-                            .focused($focusedField, equals: .email)
-                            .opacity(!signUp && passwordStep ? 0.75 : 1)
-                            .disabled(!signUp && passwordStep)
-
-                        // Completely replace the password field
-                        // to trigger AutoFill to re-detect sign-in vs sign-up
-                        if signUp {
-                            passwordField(metrics: metrics)
-                                .textContentType(.newPassword)
-                        } else {
-                            passwordField(metrics: metrics)
-                                .textContentType(.password)
-                        }
-
-                        Button(
-                            signUp ? "Sign Up" :
-                                passwordStep ? "Sign In" : "Continue",
-                            action: submit
-                        )
-                        .padding(.top, 32)
-                        .buttonStyle(.borderedProminent)
-
-                        if !signUp && passwordStep {
-                            Button("Use magic link") {
-                                Task {
-                                    do {
-                                        if try await model.emailVerification(email: email) == .emailVerification {
-                                            emailVerification = true
-                                        }
-                                    } catch {
-                                        Helper.showError(error: error)
+                ScrollView {
+                    VStack {
+                        Image("spaceman_white")
+                            .resizable()
+                            .scaledToFit()
+                            .padding(.bottom, 32)
+                            .apply {
+                                if #available(iOS 17, *) {
+                                    $0.containerRelativeFrame(.vertical) { size, _ in
+                                        size * 0.1 + 50
                                     }
+                                } else {
+                                    $0.frame(width: 120, height: 120)
                                 }
                             }
+
+                        Text(signUp ? "Join Odysee" : "Log In to Odysee")
+                            .padding(.bottom, 32)
+
+                        if !emailVerification {
+                            TextField("Email", text: $email)
+                                .multilineTextAlignment(.center)
+                                .frame(width: metrics.size.width * 2 / 3)
+                                .keyboardType(.emailAddress)
+                                .textContentType(.username)
+                                .submitLabel(.next)
+                                .focused($focusedField, equals: .email)
+                                .opacity(!signUp && passwordStep ? 0.75 : 1)
+                                .disabled(!signUp && passwordStep)
+
+                            // Completely replace the password field
+                            // to trigger AutoFill to re-detect sign-in vs sign-up
+                            if signUp {
+                                passwordField(metrics: metrics)
+                                    .textContentType(.newPassword)
+                            } else {
+                                passwordField(metrics: metrics)
+                                    .textContentType(.password)
+                            }
+
+                            Button(
+                                signUp ? "Sign Up" :
+                                    passwordStep ? "Sign In" : "Continue",
+                                action: submit
+                            )
                             .padding(.top, 32)
-                        }
-                    } else {
-                        Text(
-                            "We sent an email to the address you provided. Please click the link in the message to complete email verification and continue using Odysee."
-                        )
-                        .padding(.bottom, 32)
+                            .buttonStyle(.borderedProminent)
 
-                        HStack {
-                            Button("Resend Email") {
-                                Task {
-                                    do {
-                                        _ = try await model.emailVerification(email: email)
-                                    } catch {
-                                        Helper.showError(error: error)
+                            if !signUp && passwordStep {
+                                Button("Use magic link") {
+                                    Task {
+                                        do {
+                                            if try await model.emailVerification(email: email) == .emailVerification {
+                                                emailVerification = true
+                                            }
+                                        } catch {
+                                            Helper.showError(error: error)
+                                        }
                                     }
                                 }
+                                .padding(.top, 32)
                             }
+                        } else {
+                            Text(
+                                "We sent an email to the address you provided. Please click the link in the message to complete email verification and continue using Odysee."
+                            )
+                            .padding(.bottom, 32)
 
-                            Spacer()
+                            HStack {
+                                Button("Resend Email") {
+                                    Task {
+                                        do {
+                                            _ = try await model.emailVerification(email: email)
+                                        } catch {
+                                            Helper.showError(error: error)
+                                        }
+                                    }
+                                }
 
-                            Button("Start Over") {
+                                Spacer()
+
+                                Button("Start Over") {
+                                    model.stopEmailVerificationWait()
+
+                                    signUp = true
+                                    passwordStep = false
+                                    emailVerification = false
+                                    email = ""
+                                    password = ""
+                                    focusedField = .email
+                                }
+                            }
+                            .frame(width: metrics.size.width * 4 / 5)
+                        }
+
+                        Spacer(minLength: 32)
+
+                        if !emailVerification {
+                            Text(signUp ? "Already have an account?" : "Don't have an account?")
+                                .padding(.bottom, 32)
+                        }
+
+                        Button(signUp ? "Log In" : "Sign Up") {
+                            Task<Void, Never> {
                                 model.stopEmailVerificationWait()
 
-                                signUp = true
+                                signUp = !signUp
+
                                 passwordStep = false
                                 emailVerification = false
                                 email = ""
                                 password = ""
+
+                                // Needs some time to settle change
+                                try? await Task.sleep(nanoseconds: 50_000_000)
                                 focusedField = .email
                             }
                         }
-                        .frame(width: metrics.size.width * 4 / 5)
                     }
-
-                    Spacer()
-
-                    if !emailVerification {
-                        Text(signUp ? "Already have an account?" : "Don't have an account?")
-                            .padding(.bottom, 32)
-                    }
-
-                    Button(signUp ? "Log In" : "Sign Up") {
-                        Task<Void, Never> {
-                            model.stopEmailVerificationWait()
-
-                            signUp = !signUp
-
-                            passwordStep = false
-                            emailVerification = false
-                            email = ""
-                            password = ""
-
-                            // Needs some time to settle change
-                            try? await Task.sleep(nanoseconds: 50_000_000)
-                            focusedField = .email
-                        }
-                    }
+                    .frame(
+                        maxWidth: .infinity,
+                        minHeight: metrics.size.height - metrics.safeAreaInsets.top - metrics.safeAreaInsets.bottom
+                            - 64 /* CONSTANT: First Run controls */
+                    )
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding(.top)
                 .padding(.bottom, 32)
+                .apply {
+                    if #available(iOS 16.4, *) {
+                        $0.scrollBounceBehavior(.basedOnSize)
+                    } else {
+                        $0
+                    }
+                }
             }
 
             if showClose {
