@@ -139,7 +139,7 @@ class SearchViewController: UIViewController,
                         Decimal(string: $0.meta?.effectiveAmount ?? "0") ?? 0 >
                             Decimal(string: $1.meta?.effectiveAmount ?? "0") ?? 0
                     })
-                let winningClaim = winningClaims[0]
+                var winningClaim = winningClaims[0]
                 winningClaim.featured = true
 
                 var canShow = true

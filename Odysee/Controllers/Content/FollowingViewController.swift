@@ -79,7 +79,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         if selectedChannelClaim != nil {
             for i in following.indices {
                 if following[i].claimId == selectedChannelClaim?.claimId {
-                    following[i].selected = true
+                    following[mutating: i].selected = true
                     return
                 }
             }
@@ -403,19 +403,17 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             if !loadingContent, following.count > indexPath.row {
                 let prevSelectedClaimId = selectedChannelClaim?.claimId
 
-                let claim = following[indexPath.row]
-                let selected = claim.selected
+                let selected = following[indexPath.row].selected
 
                 for i in following.indices {
-                    following[i].selected = false
+                    following[mutating: i].selected = false
                 }
 
-                if selected {
-                    claim.selected = false
-                    selectedChannelClaim = nil
+                following[mutating: indexPath.row].selected = !selected
+                selectedChannelClaim = if selected {
+                    nil
                 } else {
-                    claim.selected = true
-                    selectedChannelClaim = claim
+                    following[indexPath.row]
                 }
 
                 if prevSelectedClaimId != selectedChannelClaim?.claimId {

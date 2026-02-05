@@ -65,8 +65,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     }
 
     func addNewPlaceholder() {
-        let newPlaceholder = Claim()
-        newPlaceholder.claimId = "new"
+        let newPlaceholder = Claim(claimId: "new")
         channels.append(newPlaceholder)
     }
 

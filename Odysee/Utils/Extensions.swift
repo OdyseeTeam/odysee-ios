@@ -8,6 +8,7 @@
 import Combine
 import FirebaseCrashlytics
 import Foundation
+import OrderedCollections
 import PINRemoteImage
 import SwiftUI
 import UIKit
@@ -293,4 +294,15 @@ extension View {
 // Localization helper (same as web)
 func __(_ string: String.LocalizationValue) -> String {
     String(localized: string)
+}
+
+extension OrderedSet {
+    subscript(mutating position: Int) -> Element {
+        get {
+            self[position]
+        }
+        set {
+            update(newValue, at: position)
+        }
+    }
 }

@@ -77,8 +77,8 @@ enum Lbry {
     static var localWalletHash: String?
     static var walletBalance: WalletBalance?
 
-    private static var claimCacheById = NSCache<NSString, Claim>()
-    private static var claimCacheByUrl = NSCache<NSString, Claim>()
+    private static var claimCacheById = NSCache<NSString, Box<Claim>>()
+    private static var claimCacheByUrl = NSCache<NSString, Box<Claim>>()
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
     static var defaultChannelId: String?
@@ -263,11 +263,11 @@ enum Lbry {
     }
 
     static func cachedClaim(url: String) -> Claim? {
-        return claimCacheByUrl.object(forKey: url as NSString)
+        return claimCacheByUrl.object(forKey: url as NSString)?.wrappedValue
     }
 
     static func cachedClaim(id: String) -> Claim? {
-        return claimCacheById.object(forKey: id as NSString)
+        return claimCacheById.object(forKey: id as NSString)?.wrappedValue
     }
 
     static func addClaimToCache(claim: Claim?) {
@@ -275,19 +275,22 @@ enum Lbry {
             return
         }
         assert(claim.claimId != nil)
+
+        let boxed = Box(claim)
+
         if let id = claim.claimId {
-            claimCacheById.setObject(claim, forKey: id as NSString)
+            claimCacheById.setObject(boxed, forKey: id as NSString)
         }
         if let claimUrl = claim.permanentUrl,
            let parsed = LbryUri.tryParse(url: claimUrl, requireProto: false)?.description
         {
-            Lbry.claimCacheByUrl.setObject(claim, forKey: parsed as NSString)
+            Lbry.claimCacheByUrl.setObject(boxed, forKey: parsed as NSString)
         }
         if let shortUrl = claim.shortUrl, !shortUrl.isBlank {
-            Lbry.claimCacheByUrl.setObject(claim, forKey: shortUrl as NSString)
+            Lbry.claimCacheByUrl.setObject(boxed, forKey: shortUrl as NSString)
         }
         if let canonicalUrl = claim.canonicalUrl, !canonicalUrl.isBlank {
-            Lbry.claimCacheByUrl.setObject(claim, forKey: canonicalUrl as NSString)
+            Lbry.claimCacheByUrl.setObject(boxed, forKey: canonicalUrl as NSString)
         }
     }
 

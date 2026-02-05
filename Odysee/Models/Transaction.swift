@@ -51,27 +51,27 @@ struct Transaction: Decodable, Hashable {
     var claim: Claim? {
         if let claimInfo = claimInfo {
             if claimInfo.count > 0 {
-                let result = Claim()
-                result.claimId = claimInfo[0].claimId
-                result.name = claimInfo[0].claimName
-                return result
+                return Claim(
+                    claimId: claimInfo[0].claimId,
+                    name: claimInfo[0].claimName
+                )
             }
         }
 
         if let updateInfo = claimInfo {
             if updateInfo.count > 0 {
-                let result = Claim()
-                result.claimId = updateInfo[0].claimId
-                result.name = updateInfo[0].claimName
-                return result
+                return Claim(
+                    claimId: updateInfo[0].claimId,
+                    name: updateInfo[0].claimName
+                )
             }
         }
         if let supportInfo = supportInfo {
             if supportInfo.count > 0 {
-                let result = Claim()
-                result.claimId = supportInfo[0].claimId
-                result.name = supportInfo[0].claimName
-                return result
+                return Claim(
+                    claimId: supportInfo[0].claimId,
+                    name: supportInfo[0].claimName
+                )
             }
         }
 
