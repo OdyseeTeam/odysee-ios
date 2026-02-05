@@ -8,6 +8,7 @@
 import AVFoundation
 import AVKit
 import FirebaseAnalytics
+import FirebaseCrashlytics
 import ImageScrollView
 import OrderedCollections
 import PerfectMarkdown
@@ -1636,8 +1637,23 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             self.showClaimAndCheckFollowing()
                         }
                     } else {
-                        self.mediaLoadingIndicator.isHidden = true
-                        self.showError(message: String.localized("Failed to get transcoded media location"))
+                        Crashlytics.crashlytics().recordImmediate(
+                            error: GenericError("Transcoded media redirect (308) had no Location header"),
+                            userInfo: [
+                                "claim_canonicalUrl": claim.canonicalUrl
+                            ]
+                        )
+
+                        DispatchQueue.main.async {
+                            let headers: [String: String] = [
+                                "Referer": "https://ios.odysee.com/",
+                            ]
+                            self.initializePlayerWithUrl(
+                                singleClaim: claim,
+                                sourceUrl: sourceUrl,
+                                headers: headers
+                            )
+                        }
                     }
                     return
                 }
