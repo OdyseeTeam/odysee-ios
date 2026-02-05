@@ -13,7 +13,6 @@ import os
 import UIKit
 
 enum Lbry {
-    static let ttlCLaimSearchValue = 120_000
     // swift-format-ignore
     // Initialized once with static value
     static let lbrytvURL = URL(string: "https://api.na-backend.odysee.com/api/v1/proxy")!
@@ -23,11 +22,6 @@ enum Lbry {
     // swift-format-ignore
     // Initialized once with static value
     static let commentronURL = URL(string: "https://comments.odysee.tv/api/v2")!
-    static let keyShared = "shared"
-    static let sharedPreferenceVersion = "0.1"
-
-    static var walletSyncInProgress = false
-    static var pushWalletSyncQueueCount = 0
 
     static func processResolvedClaims(_ result: inout ResolveResult) {
         // if there was only one value returned, this is a result for the File view
