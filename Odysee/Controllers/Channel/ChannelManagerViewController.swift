@@ -242,12 +242,12 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             return
         }
 
-        let ids = if let ytChannels = user.youtubeChannels, ytChannels.count > 0 {
-            channels.map(\.claimId).filter { id in
-                !ytChannels.contains(where: { $0.channelClaimId == id })
+        var ids = channels.compactMap(\.claimId)
+        if let ytChannels = user.youtubeChannels, ytChannels.count > 0 {
+            let ytChannelIds = Set(ytChannels.compactMap(\.channelClaimId))
+            ids = ids.filter {
+                !ytChannelIds.contains($0)
             }
-        } else {
-            channels.map(\.claimId)
         }
 
         // https://github.com/OdyseeTeam/odysee-frontend/blob/9d7b39b5a8337b4b424aec458b133f02de8f5fca/ui/redux/selectors/claims.js#L1131
