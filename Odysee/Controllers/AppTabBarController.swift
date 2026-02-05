@@ -20,9 +20,13 @@ class AppTabBarController: UITabBarController {
         AppDelegate.shared.mainTabViewController = self
         delegate = AppDelegate.shared
 
-        let defaults = UserDefaults.standard
-        if let lastIndex = defaults.value(forKey: AppDelegate.keyLastTabIndex) as? Int {
-            selectedIndex = lastIndex
+        if Lbryio.isSignedIn() {
+            let lastIndex = UserDefaults.standard.integer(forKey: AppDelegate.keyLastTabIndex)
+            if lastIndex >= 0 && lastIndex <= 3 {
+                selectedIndex = lastIndex
+            }
+        } else {
+            selectedIndex = 0 // Home
         }
     }
 
