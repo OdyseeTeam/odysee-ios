@@ -112,7 +112,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
                 message: String.localized("Do you want to stop streaming?"),
                 preferredStyle: .alert
             )
-            alert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { _ in self.closeStream() }))
+            alert.addAction(UIAlertAction(title: "Yes", style: .destructive, handler: { _ in self.closeStream() }))
             alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
             present(alert, animated: true, completion: nil)
             return
@@ -468,12 +468,19 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
 
+        let deposit = Helper.minimumDeposit
+        if Lbry.walletBalance == nil || deposit > Lbry.walletBalance?.available ?? 0 {
+            showError(
+                message: "Please try to claim some credits on odysee.com directly or reach out to hello@odysee.com to get more credits"
+            )
+            return
+        }
+
         // check eligibility? (50 credits fked on channel)
-        let deposit = Decimal(0.001)
         let suffix = String(describing: Int(Date().timeIntervalSince1970))
         let options: [String: Any] = [
             "blocking": true,
-            "bid": Helper.sdkAmountFormatter.string(from: deposit as NSDecimalNumber) ?? "0",
+            "bid": Helper.minimumDepositString,
             "title": title,
             "description": "",
             "thumbnail_url": currentThumbnailUrl ?? (channel.value?.thumbnail?.url ?? ""),
@@ -522,12 +529,18 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
     }
 
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        guard channels.count > row else {
+            return nil
+        }
+
         return channels.map(\.name)[row]
     }
 
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        selectedChannel = channels[row]
-        _ = checkCanStreamOnChannel(selectedChannel)
+        if channels.count > row {
+            selectedChannel = channels[row]
+            _ = checkCanStreamOnChannel(selectedChannel)
+        }
     }
 
     @IBAction func selectImageTapped(_ sender: UIButton) {

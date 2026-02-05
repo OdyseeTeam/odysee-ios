@@ -5,7 +5,6 @@
 //  Created by Akinwale Ariwodola on 11/01/2021.
 //
 
-import Combine
 import CoreActionSheetPicker
 import UIKit
 
@@ -37,8 +36,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     var commentsLastPageReached: Bool = false
     var commentsLoading: Bool = false
     var postingComment: Bool = false
-    var channels: [Claim] = Lbry.ownChannels
-    var comments: [Comment] = []
+    var channels = [Claim]()
+    var comments = [Comment]()
     var authorThumbnailMap = [String: URL]()
     var isChannelComments = false
     var reacting = false
@@ -108,24 +107,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             guidelinesTextView.heightAnchor.constraint(equalToConstant: 0).isActive = true
         }
 
-        Task {
-            let defaultChannelId = await Wallet.shared.defaultChannelId
-            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
-            if channels.count > index, currentCommentAsIndex == -1 {
-                currentCommentAsIndex = index
-                updateCommentAsChannel(index)
-            }
-
-            for await blocked in await Wallet.shared.$blocked.values {
-                guard let blocked = blocked?.map(\.claimId) else {
-                    continue
-                }
-
-                comments.removeAll { blocked.contains($0.channelId) }
-                commentList.reloadData()
-            }
-        }
-
         if comments.count > 0 {
             // comments already preloaded
             loadCommentReactions(commentIds: comments.compactMap(\.commentId))
@@ -155,10 +136,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             for: indexPath
         ) as! CommentTableViewCell
 
-        let comment: Comment = comments[indexPath.row]
-        cell.setComment(comment: comment)
-        cell.setAuthorImageMap(map: authorThumbnailMap)
-        cell.viewController = self
+        if comments.count > indexPath.row {
+            let comment = comments[indexPath.row]
+            cell.setComment(comment: comment)
+            cell.setAuthorImageMap(map: authorThumbnailMap)
+            cell.viewController = self
+        }
 
         return cell
     }
@@ -290,10 +273,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels
-        if currentCommentAsIndex != -1, !channels.isEmpty {
-            currentCommentAsIndex = 0
-            updateCommentAsChannel(0)
-        }
         channelDriverView.isHidden = channels.count > 0
         channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
         if let picker = commentAsPicker {
@@ -302,6 +281,24 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             picker.hideWithCancelAction()
             DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .seconds(1))) {
                 self.commentAsTapped(self)
+            }
+        }
+
+        Task {
+            let defaultChannelId = await Wallet.shared.defaultChannelId
+            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+            if channels.count > index, currentCommentAsIndex == -1 {
+                currentCommentAsIndex = index
+                updateCommentAsChannel(index)
+            }
+
+            for await blocked in await Wallet.shared.sBlocked {
+                guard let blocked = blocked?.map(\.claimId) else {
+                    continue
+                }
+
+                comments.removeAll { blocked.contains($0.channelId) }
+                commentList.reloadData()
             }
         }
     }
@@ -319,7 +316,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             title: String.localized("Comment as"),
             origin: commentAsChannelLabel,
             rows: channels.map { $0.name ?? "" },
-            initialSelection: currentCommentAsIndex,
+            initialSelection: max(0, min(currentCommentAsIndex, channels.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentCommentAsIndex
             self.currentCommentAsIndex = selectedIndex
@@ -337,17 +334,21 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         commentInput.resignFirstResponder()
         UserDefaults.standard.set(1, forKey: Helper.keyPostedCommentHideTos)
 
-        if postingComment {
+        guard !postingComment else {
             return
         }
 
-        if channels.count == 0 {
+        guard channels.count > 0 else {
             showError(message: String.localized("You need to create a channel before you can post comments"))
             return
         }
-
-        if currentCommentAsIndex == -1 {
+        guard channels.count > currentCommentAsIndex else {
+            showError(message: String.localized("Invalid selected channel index. Try selecting the channel again."))
+            return
+        }
+        guard currentCommentAsIndex > -1 else {
             showError(message: String.localized("No channel selected. This is probably a bug."))
+            return
         }
 
         guard let commentText = commentInput.text else {
@@ -355,7 +356,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
 
-        if commentText.count > Helper.commentMaxLength {
+        guard commentText.count <= Helper.commentMaxLength else {
             showError(message: String.localized("Your comment is too long"))
             return
         }
@@ -443,7 +444,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @IBAction func channelDriverTapped(_ sender: Any) {
-        if UIApplication.currentViewController() as? FileViewController != nil {
+        if UIApplication.currentViewController() is FileViewController {
             AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
         let vc = storyboard?.instantiateViewController(identifier: "channel_editor_vc") as! ChannelEditorViewController
@@ -500,7 +501,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             }
         }
 
-        if currentCommentAsIndex == -1 || channels.count == 0 {
+        if currentCommentAsIndex == -1 || channels.count == 0 || channels.count <= currentCommentAsIndex {
             Lbry.commentApiCall(
                 method: CommentsMethods.reactList,
                 params: .init(commentIds: commentIds.joined(separator: ","))
@@ -547,21 +548,25 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func react(_ comment: Comment, type: String) {
-        if !Lbryio.isSignedIn() {
+        guard Lbryio.isSignedIn() else {
             showUAView()
             return
         }
 
-        if channels.count == 0 {
+        guard channels.count > 0 else {
             showError(message: String.localized("You need to create a channel before you can react to comments"))
             return
         }
-
-        if currentCommentAsIndex == -1 {
+        guard channels.count > currentCommentAsIndex else {
+            showError(message: String.localized("Invalid selected channel index. Try selecting the channel again."))
+            return
+        }
+        guard currentCommentAsIndex > -1 else {
             showError(message: String.localized("No channel selected. This is probably a bug."))
+            return
         }
 
-        if reacting {
+        guard !reacting else {
             return
         }
 
@@ -813,7 +818,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func updateCommentAsChannel(_ index: Int) {
-        if index < 0 || channels.count == 0 {
+        guard index > -1, channels.count > index else {
             return
         }
 
@@ -850,7 +855,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func showUAView() {
-        if UIApplication.currentViewController() as? FileViewController != nil {
+        if UIApplication.currentViewController() is FileViewController {
             AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController

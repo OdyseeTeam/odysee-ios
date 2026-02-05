@@ -257,15 +257,22 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "reward_cell", for: indexPath) as! RewardTableViewCell
 
-        let reward: Reward = rewards[indexPath.row]
-        cell.setReward(reward: reward)
+        if rewards.count > indexPath.row {
+            let reward = rewards[indexPath.row]
+            cell.setReward(reward: reward)
+        }
 
         return cell
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let reward: Reward = rewards[indexPath.row]
+
+        guard rewards.count > indexPath.row else {
+            return
+        }
+
+        let reward = rewards[indexPath.row]
 
         if reward.claimed, let transactionId = reward.transactionId, !transactionId.isBlank {
             // open the transaction view

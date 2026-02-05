@@ -135,7 +135,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var currentPlaylistIndex: Int = 0
     var channels: [Claim] = []
     var loadingRelated = false
-    var loadingPlaylist = false
     var fileViewLogged = false
     var loggingInProgress = false
     var playRequestTime: Int64 = 0
@@ -254,8 +253,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         super.viewDidLoad()
         relatedContentListView.register(ClaimTableViewCell.nib, forCellReuseIdentifier: "claim_cell")
 
-        if #available(iOS 16, *) {
-        } else {
+        if #unavailable(iOS 16) {
             let rateActionHandler: UIActionHandler = { action in
                 self.playerRateButton.setTitle(action.title, for: .normal)
                 let rate = Float(action.title.dropLast()) ?? 1
@@ -811,8 +809,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             avpc.updatesNowPlayingInfoCenter = false
             addChild(avpc)
 
-            if #available(iOS 16, *) {
-            } else {
+            if #unavailable(iOS 16) {
                 playerRateView.isHidden = false
                 jumpBackwardView.isHidden = false
                 jumpForwardView.isHidden = false
@@ -1165,7 +1162,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let timeToStartMs = Int64(Date().timeIntervalSince1970 * 1000.0) - playRequestTime
         let timeToStartSeconds = Int64(Double(timeToStartMs) / 1000.0)
-        if let claimUrl = isPlaylist ? currentPlaylistClaim().permanentUrl : claim?.permanentUrl {
+        if let claimUrl = isPlaylist ? currentPlaylistClaim()?.permanentUrl : claim?.permanentUrl {
             Analytics.logEvent("play", parameters: [
                 "url": claimUrl,
                 "time_to_start_ms": timeToStartMs,
@@ -1359,7 +1356,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let oldNumDislikes = numDislikes
         do {
             var remove = false
-            guard let claimId = isPlaylist ? currentPlaylistClaim().claimId : claim?.claimId else {
+            guard let claimId = isPlaylist ? currentPlaylistClaim()?.claimId : claim?.claimId else {
                 throw GenericError("couldn't get claimId")
             }
             var options: [String: String] = [
@@ -1436,7 +1433,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     func loadPlaylistContent() {
-        if loadingPlaylist || isLivestream {
+        if loadingRelated || isLivestream {
             return
         }
 
@@ -1489,30 +1486,28 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         loadingRelatedView.isHidden = true
         loadingRelated = false
 
-        let singleClaim = playlistItems[currentPlaylistIndex]
-        loadPlaylistItemClaim(singleClaim)
+        if playlistItems.count > currentPlaylistIndex {
+            let singleClaim = playlistItems[currentPlaylistIndex]
+            loadPlaylistItemClaim(singleClaim)
+        }
     }
 
     func playPreviousPlaylistItem() {
-        if !isPlaylist || playlistItems.count == 0 {
+        guard isPlaylist, currentPlaylistIndex > 0, playlistItems.count > currentPlaylistIndex - 1 else {
             return
         }
 
-        if currentPlaylistIndex > 0 {
-            currentPlaylistIndex -= 1
-            loadPlaylistItemClaim(playlistItems[currentPlaylistIndex])
-        }
+        currentPlaylistIndex -= 1
+        loadPlaylistItemClaim(playlistItems[currentPlaylistIndex])
     }
 
     func playNextPlaylistItem() {
-        if !isPlaylist || playlistItems.count == 0 {
+        guard isPlaylist, playlistItems.count > currentPlaylistIndex + 1 else {
             return
         }
 
-        if currentPlaylistIndex < playlistItems.count - 1 {
-            currentPlaylistIndex += 1
-            loadPlaylistItemClaim(playlistItems[currentPlaylistIndex])
-        }
+        currentPlaylistIndex += 1
+        loadPlaylistItemClaim(playlistItems[currentPlaylistIndex])
     }
 
     func loadPlaylistItemClaim(_ singleClaim: Claim) {
@@ -1578,6 +1573,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     {
                         self.getTranscodedUrlAndInitializePlayer(claim: singleClaim, sourceUrl: sourceUrl)
                     }
+                } else {
+                    self.mediaLoadingIndicator.isHidden = true
+                    self.showError(message: "Failed to get media location")
                 }
             }
         )
@@ -1773,8 +1771,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 withIdentifier: "claim_cell",
                 for: indexPath
             ) as! ClaimTableViewCell
-            let claim: Claim = isPlaylist ? playlistItems[indexPath.row] : relatedContent[indexPath.row]
-            cell.setClaim(claim: claim)
+
+            if isPlaylist {
+                if playlistItems.count > indexPath.row {
+                    let claim = playlistItems[indexPath.row]
+                    cell.setClaim(claim: claim)
+                }
+            } else {
+                if relatedContent.count > indexPath.row {
+                    let claim = relatedContent[indexPath.row]
+                    cell.setClaim(claim: claim)
+                }
+            }
+
             return cell
         }
 
@@ -1783,8 +1792,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 withIdentifier: "chat_message_cell",
                 for: indexPath
             ) as! ChatMessageTableViewCell
-            let comment: Comment = messages[indexPath.row]
-            cell.setComment(comment: comment)
+
+            if messages.count > indexPath.row {
+                let comment = messages[indexPath.row]
+                cell.setComment(comment: comment)
+            }
+
             return cell
         }
 
@@ -1794,7 +1807,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if tableView == relatedContentListView {
             tableView.deselectRow(at: indexPath, animated: true)
-            let claim: Claim = isPlaylist ? playlistItems[indexPath.row] : relatedContent[indexPath.row]
+
+            guard let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell,
+                  let claim = cell.currentClaim
+            else {
+                return
+            }
+
             if claim.claimId == "placeholder" {
                 return
             }
@@ -1862,7 +1881,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         commentsVc = storyboard?.instantiateViewController(identifier: "comments_vc") as? CommentsViewController
-        commentsVc.claimId = isPlaylist ? playlistItems[currentPlaylistIndex].claimId : claim?.claimId
+        commentsVc.claimId = isPlaylist ? currentPlaylistClaim()?.claimId : claim?.claimId
         commentsVc.commentsDisabled = commentsDisabled
         commentsVc.comments = comments.elements
         commentsVc.currentCommentId = currentCommentId
@@ -1911,7 +1930,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func publisherTapped(_ sender: Any) {
-        let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
+        let publisher = isPlaylist ? currentPlaylistClaim()?.signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
             navigationController?.popViewController(animated: false)
             let vc = AppDelegate.shared.mainController.storyboard?
@@ -1932,7 +1951,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
+        let publisher = isPlaylist ? currentPlaylistClaim()?.signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
             Task {
                 if await Wallet.shared.isFollowing(claim: channelClaim) {
@@ -1941,7 +1960,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         message: String.localized("Are you sure you want to stop following this channel?"),
                         preferredStyle: .alert
                     )
-                    alert.addAction(UIAlertAction(title: "Yes", style: .default) { _ in
+                    alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
                         self.subscribeOrUnsubscribe(
                             claim: channelClaim,
                             notificationsDisabled: true, // Unused
@@ -1968,7 +1987,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        let publisher = isPlaylist ? currentPlaylistClaim().signingChannel : claim?.signingChannel
+        let publisher = isPlaylist ? currentPlaylistClaim()?.signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
             Task {
                 subscribeOrUnsubscribe(
@@ -2032,7 +2051,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
 
-    func currentPlaylistClaim() -> Claim {
+    func currentPlaylistClaim() -> Claim? {
+        guard playlistItems.count > currentPlaylistIndex else {
+            return nil
+        }
+
         return playlistItems[currentPlaylistIndex]
     }
 
@@ -2239,7 +2262,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             title: String.localized("Comment as"),
             origin: commentAsChannelLabel,
             rows: channels.map { $0.name ?? "" },
-            initialSelection: currentCommentAsIndex,
+            initialSelection: max(0, min(currentCommentAsIndex, channels.count - 1))
         ) { _, selectedIndex, _ in
             let prevIndex = self.currentCommentAsIndex
             self.currentCommentAsIndex = selectedIndex
@@ -2509,25 +2532,30 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField == chatInputField {
             textField.resignFirstResponder()
-            if postingChat {
+            guard !postingChat else {
                 return false
             }
 
-            if textField.text.isBlank {
+            guard !textField.text.isBlank else {
                 showError(message: String.localized("Please enter a chat message"))
                 return false
             }
 
-            if loadingChannels {
+            guard !loadingChannels else {
                 showError(message: String.localized("Please wait while we load your channels"))
                 return false
             }
-            if channels.count == 0 {
+            guard channels.count > 0 else {
                 showError(message: String.localized("You need to create a channel before you can post comments"))
                 return false
             }
-            if currentCommentAsIndex == -1 {
+            guard channels.count > currentCommentAsIndex else {
+                showError(message: String.localized("Invalid selected channel index. Try selecting the channel again."))
+                return false
+            }
+            guard currentCommentAsIndex > -1 else {
                 showError(message: String.localized("No channel selected. This is probably a bug."))
+                return false
             }
 
             guard let chatText = chatInputField.text else {
@@ -2588,8 +2616,7 @@ class TouchInterceptingAVPlayerViewController: AVPlayerViewController {
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         super.touchesBegan(touches, with: event)
-        if #available(iOS 16, *) {
-        } else {
+        if #unavailable(iOS 16) {
             UIView.animate(withDuration: 0.3, delay: 0.3, options: .curveEaseIn) {
                 if let playerRateView = self.playerRateView,
                    let jumpForwardView = self.jumpForwardView,

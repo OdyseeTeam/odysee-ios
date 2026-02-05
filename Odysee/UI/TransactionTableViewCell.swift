@@ -57,24 +57,44 @@ class TransactionTableViewCell: UITableViewCell {
     }
 
     @objc func claimInfoTapped(_ sender: Any) {
-        if let name = tx?.claim?.name, let claimId = tx?.claim?.claimId {
-            if let url = LbryUri.tryParse(url: "\(name)#\(claimId)", requireProto: false) {
-                if name.starts(with: "@") {
+        Task {
+            do {
+                guard let name = tx?.claim?.name, let claimId = tx?.claim?.claimId else {
+                    Helper.showError(message: "couldn't get transaction claim info")
+                    return
+                }
+
+                let resolve = try await BackendMethods.resolve.call(params: .init(
+                    urls: [LbryUri.normalize(url: "\(name)#\(claimId)")]
+                ))
+
+                guard var actualClaim = resolve.claims.first?.value else {
+                    Helper.showError(message: "couldn't get this transaction's claim")
+                    return
+                }
+
+                if actualClaim.valueType == ClaimType.repost, let repostedClaim = actualClaim.repostedClaim {
+                    actualClaim = repostedClaim
+                }
+
+                if actualClaim.name?.starts(with: "@") ?? false {
                     let vc = AppDelegate.shared.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
-                    vc.claimUrl = url
+                    vc.channelClaim = actualClaim
                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
                     // file claim
                     let vc = AppDelegate.shared.mainViewController?.storyboard?
                         .instantiateViewController(identifier: "file_view_vc") as! FileViewController
-                    vc.claimUrl = url
+                    vc.claim = actualClaim
                     AppDelegate.shared.mainNavigationController?.view.layer.add(
                         Helper.buildFileViewTransition(),
                         forKey: kCATransition
                     )
                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
                 }
+            } catch {
+                Helper.showError(error: error)
             }
         }
     }
