@@ -1141,8 +1141,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         relatedContent = []
         for _ in 1 ... 15 {
-            let placeholder = Claim()
-            placeholder.claimId = "placeholder"
+            let placeholder = Claim(claimId: "placeholder")
             relatedContent.append(placeholder)
         }
         relatedContentListView.reloadData()
