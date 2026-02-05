@@ -106,9 +106,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     }
 
     func addAnonymousPlaceholder() {
-        let anonymousClaim = Claim()
-        anonymousClaim.name = "Anonymous"
-        anonymousClaim.claimId = "anonymous"
+        let anonymousClaim = Claim(
+            claimId: "anonymous",
+            name: "Anonymous"
+        )
         channels.append(anonymousClaim)
     }
 
