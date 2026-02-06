@@ -276,7 +276,7 @@ enum Lbryio {
                     }
 
                     if respData?["error"] is NSNull {
-                        completion(nil, LbryioResponseError.error("no error message", respCode))
+                        completion(nil, LbryioResponseError.error(nil, respCode))
                     } else if let error = respData?["error"] as? String {
                         completion(nil, LbryioResponseError.error(error, respCode))
                     } else {
@@ -352,6 +352,17 @@ enum Lbryio {
                 }
             }
         })
+    }
+
+    static func fetchCurrentUser() async throws -> User {
+        let user = try await AccountMethods.userMe.call(params: .init())
+
+        currentUser = user
+        if let id = user.id {
+            Analytics.setDefaultEventParameters(["user_id": id])
+        }
+
+        return user
     }
 
     static func areCommentsEnabled(channelId: String, channelName: String, completion: @escaping (Bool) -> Void) {
@@ -565,14 +576,17 @@ enum LbryioRequestError: Error {
     case invalidResponse(_ response: URLResponse)
 }
 
-enum LbryioResponseError: Error {
-    case error(_ message: String, _ code: Int)
+enum LbryioResponseError: LocalizedError {
+    case error(_ message: String?, _ code: Int)
 
-    var localizedDescription: String {
-        guard case let .error(message, _) = self else {
-            return "Account response error"
+    var errorDescription: String? {
+        switch self {
+        case let .error(message, code):
+            guard let message else {
+                return __("No error message (\(code) \(HTTPURLResponse.localizedString(forStatusCode: code)))")
+            }
+
+            return message
         }
-
-        return message
     }
 }
