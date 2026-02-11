@@ -12,12 +12,6 @@ struct SignInUpScreen: View {
     var close: () -> Void
     @ObservedObject var model: ViewModel
 
-    let closeRole: ButtonRole = if #available(iOS 26, *) {
-        .close
-    } else {
-        .cancel
-    }
-
     enum Field: Hashable {
         case email
         case password
@@ -181,7 +175,7 @@ struct SignInUpScreen: View {
             }
 
             if showClose {
-                Button("Close", systemImage: "xmark", role: closeRole, action: close)
+                Button("Close", systemImage: "xmark", role: .closeOrCancel, action: close)
                     .labelStyle(.iconOnly)
                     .padding(.trailing)
                     .padding(.top)

@@ -306,3 +306,11 @@ extension OrderedSet {
         }
     }
 }
+
+extension ButtonRole {
+    static let closeOrCancel = if #available(iOS 26, *) {
+        close
+    } else {
+        cancel
+    }
+}
