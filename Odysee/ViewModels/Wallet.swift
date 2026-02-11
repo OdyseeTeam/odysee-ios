@@ -105,7 +105,7 @@ actor Wallet {
         pushQueue.send(())
     }
 
-    private func pullSync() async throws {
+    func pullSync() async throws {
         _ = try await pullSync(updateState: true)
     }
 
