@@ -165,8 +165,16 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             return
         }
 
-        resetSubscriptionContent()
-        loadSubscriptionContent()
+        Task {
+            do {
+                try await Wallet.shared.pullSync()
+            } catch {
+                Helper.showError(error: error)
+            }
+
+            resetSubscriptionContent()
+            loadSubscriptionContent()
+        }
     }
 
     func loadSuggestedFollows() {
