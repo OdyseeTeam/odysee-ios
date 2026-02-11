@@ -135,12 +135,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 urls: newFollowing.keys.map(\.description)
             ))
 
-            following.append(
-                contentsOf: resolve.claims.values
-                    .sorted {
-                        $0.name ?? "" < $1.name ?? ""
-                    }
-            )
+            following.append(contentsOf: resolve.claims.values.sorted())
 
             checkSelectedChannel()
             channelListView.reloadData()
