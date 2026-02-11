@@ -322,6 +322,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		534CCCA32F3C5E7300457BBF /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */,
+				53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
 		5391E4342EFE36C4008EF30A /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -394,6 +403,7 @@
 		6462DABB255D3CE0001CF1E8 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				534CCCA32F3C5E7300457BBF /* Screens */,
 				64CB288025768A8A00FE48B3 /* ThirdParty */,
 				64424DCE25588D0C00F2D247 /* ClaimTableViewCell.swift */,
 				6462DABC255D3CFE001CF1E8 /* UICardView.swift */,
@@ -409,8 +419,6 @@
 				647EB3F125F54EB1003AA76B /* UIStackCardView.swift */,
 				645912212620789E00B2ABA5 /* ChatMessageTableViewCell.swift */,
 				53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */,
-				533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */,
-				53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
