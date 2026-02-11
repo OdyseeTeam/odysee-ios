@@ -35,7 +35,7 @@ final class Box<T: Decodable>: Decodable {
     }
 }
 
-struct Claim: Decodable, Equatable, Hashable {
+struct Claim: Decodable {
     var address: String?
     var amount: String?
     var canonicalUrl: String?
@@ -192,14 +192,6 @@ struct Claim: Decodable, Equatable, Hashable {
         }
     }
 
-    static func == (lhs: Claim, rhs: Claim) -> Bool {
-        return lhs.claimId == rhs.claimId
-    }
-
-    func hash(into hasher: inout Hasher) {
-        claimId.hash(into: &hasher)
-    }
-
     var outpoint: Outpoint? {
         if let txid = txid, let nout = nout {
             return Outpoint(txid: txid, index: nout)
@@ -209,9 +201,36 @@ struct Claim: Decodable, Equatable, Hashable {
     }
 
     var titleOrName: String? {
-        if let value = value, let title = value.title {
+        if let title = value?.title {
             return title
         }
         return name
+    }
+}
+
+extension Claim: Equatable {
+    static func == (lhs: Claim, rhs: Claim) -> Bool {
+        return lhs.claimId == rhs.claimId
+    }
+}
+
+extension Claim: Hashable {
+    func hash(into hasher: inout Hasher) {
+        claimId.hash(into: &hasher)
+    }
+}
+
+extension Claim: Identifiable {
+    var id: String? {
+        return claimId
+    }
+}
+
+extension Claim: Comparable {
+    static func < (lhs: Claim, rhs: Claim) -> Bool {
+        guard let lhs = lhs.titleOrName, let rhs = rhs.titleOrName else {
+            return false
+        }
+        return lhs.localizedCompare(rhs) == .orderedAscending
     }
 }
