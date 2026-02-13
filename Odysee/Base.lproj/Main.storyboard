@@ -1135,19 +1135,31 @@ Line 2</string>
                                                             </label>
                                                         </subviews>
                                                     </stackView>
-                                                    <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Discover" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WV3-rg-wzc">
-                                                        <rect key="frame" x="325.5" y="0.0" width="56.5" height="24"/>
-                                                        <gestureRecognizers/>
-                                                        <constraints>
-                                                            <constraint firstAttribute="height" constant="24" id="nZR-QM-JTd"/>
-                                                        </constraints>
-                                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                                        <nil key="textColor"/>
-                                                        <nil key="highlightedColor"/>
-                                                        <connections>
-                                                            <outletCollection property="gestureRecognizers" destination="hcu-GQ-2oc" appends="YES" id="QfX-Ac-71T"/>
-                                                        </connections>
-                                                    </label>
+                                                    <stackView opaque="NO" contentMode="scaleToFill" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="pbx-n8-T7k">
+                                                        <rect key="frame" x="258" y="0.0" width="124" height="24"/>
+                                                        <subviews>
+                                                            <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Manage" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7KM-D5-ewC">
+                                                                <rect key="frame" x="0.0" y="0.0" width="51.5" height="24"/>
+                                                                <gestureRecognizers/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                                <nil key="textColor"/>
+                                                                <nil key="highlightedColor"/>
+                                                                <connections>
+                                                                    <outletCollection property="gestureRecognizers" destination="VF9-X3-6dM" appends="YES" id="ym7-dk-fNf"/>
+                                                                </connections>
+                                                            </label>
+                                                            <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Discover" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WV3-rg-wzc">
+                                                                <rect key="frame" x="67.5" y="0.0" width="56.5" height="24"/>
+                                                                <gestureRecognizers/>
+                                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                                <nil key="textColor"/>
+                                                                <nil key="highlightedColor"/>
+                                                                <connections>
+                                                                    <outletCollection property="gestureRecognizers" destination="hcu-GQ-2oc" appends="YES" id="QfX-Ac-71T"/>
+                                                                </connections>
+                                                            </label>
+                                                        </subviews>
+                                                    </stackView>
                                                 </subviews>
                                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                                 <constraints>
@@ -1155,9 +1167,11 @@ Line 2</string>
                                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="24" id="5BZ-ul-euw"/>
                                                     <constraint firstItem="5pW-H5-siz" firstAttribute="centerY" secondItem="Qhe-el-9RC" secondAttribute="centerY" id="J5N-Se-ysV"/>
                                                     <constraint firstAttribute="height" constant="24" id="MyX-cT-dxd"/>
-                                                    <constraint firstAttribute="trailing" secondItem="WV3-rg-wzc" secondAttribute="trailing" id="SWq-Fo-Q8q"/>
                                                     <constraint firstItem="5pW-H5-siz" firstAttribute="leading" secondItem="Qhe-el-9RC" secondAttribute="leading" id="Tcv-HC-2YG"/>
-                                                    <constraint firstItem="WV3-rg-wzc" firstAttribute="centerY" secondItem="Qhe-el-9RC" secondAttribute="centerY" id="fl3-1X-Jir"/>
+                                                    <constraint firstItem="pbx-n8-T7k" firstAttribute="centerY" secondItem="Qhe-el-9RC" secondAttribute="centerY" id="UtD-9N-vD2"/>
+                                                    <constraint firstAttribute="bottom" secondItem="pbx-n8-T7k" secondAttribute="bottom" id="WyW-ls-BKi"/>
+                                                    <constraint firstItem="pbx-n8-T7k" firstAttribute="top" secondItem="Qhe-el-9RC" secondAttribute="top" id="drv-s3-CBI"/>
+                                                    <constraint firstAttribute="trailing" secondItem="pbx-n8-T7k" secondAttribute="trailing" id="x2t-NL-9uX"/>
                                                     <constraint firstAttribute="bottom" secondItem="5pW-H5-siz" secondAttribute="bottom" id="xfk-zZ-adh"/>
                                                 </constraints>
                                             </view>
@@ -1388,11 +1402,6 @@ Line 2</string>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="97o-ln-t75" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="hcu-GQ-2oc" userLabel="Discover Tap Gesture Recognizer">
-                    <connections>
-                        <action selector="discoverTapped:" destination="fdD-dx-ZmO" id="SpV-8l-BRI"/>
-                    </connections>
-                </tapGestureRecognizer>
                 <tapGestureRecognizer id="kSj-y7-AaE" userLabel="Sort By Tap Gesture Recognizer">
                     <connections>
                         <action selector="sortByLabelTapped:" destination="fdD-dx-ZmO" id="7bM-sQ-3uf"/>
@@ -1401,6 +1410,16 @@ Line 2</string>
                 <tapGestureRecognizer id="5rd-Iv-mvU" userLabel="Content From Tap Gesture Recognizer">
                     <connections>
                         <action selector="contentFromLabelTapped:" destination="fdD-dx-ZmO" id="TMu-gq-Fbh"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="VF9-X3-6dM" userLabel="Manage Tap Gesture Recognizer">
+                    <connections>
+                        <action selector="manageTapped:" destination="fdD-dx-ZmO" id="wnE-Hx-w1f"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="hcu-GQ-2oc" userLabel="Discover Tap Gesture Recognizer">
+                    <connections>
+                        <action selector="discoverTapped:" destination="fdD-dx-ZmO" id="SpV-8l-BRI"/>
                     </connections>
                 </tapGestureRecognizer>
             </objects>
