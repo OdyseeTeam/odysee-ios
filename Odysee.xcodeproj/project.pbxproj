@@ -25,6 +25,7 @@
 		5391E43D2EFED725008EF30A /* ValueCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 5391E43C2EFED725008EF30A /* ValueCodable */; };
 		539D79892F3E386000E7686E /* ManageFollowingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79882F3E386000E7686E /* ManageFollowingScreen.swift */; };
 		539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 539D798B2F3E389400E7686E /* CachedAsyncImage */; };
+		539D798E2F3EBDCE00E7686E /* ManageFollowingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */; };
 		539D79932F3ECE7300E7686E /* ChannelListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79922F3ECE7300E7686E /* ChannelListItem.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
@@ -167,6 +168,7 @@
 		5391E4332EFE36C4008EF30A /* Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		5391E4392EFE6C88008EF30A /* SharedPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPreference.swift; sourceTree = "<group>"; };
 		539D79882F3E386000E7686E /* ManageFollowingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageFollowingScreen.swift; sourceTree = "<group>"; };
+		539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageFollowingViewModel.swift; sourceTree = "<group>"; };
 		539D79922F3ECE7300E7686E /* ChannelListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelListItem.swift; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -343,6 +345,7 @@
 			children = (
 				5391E4332EFE36C4008EF30A /* Wallet.swift */,
 				53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */,
+				539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -846,6 +849,7 @@
 				533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */,
 				648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */,
 				539D79932F3ECE7300E7686E /* ChannelListItem.swift in Sources */,
+				539D798E2F3EBDCE00E7686E /* ManageFollowingViewModel.swift in Sources */,
 				6462DABD255D3CFE001CF1E8 /* UICardView.swift in Sources */,
 				641108DC255A8D7D00F0FB8A /* Lbryio.swift in Sources */,
 				64FF82002604748E009B7A3B /* FirstRunViewController.swift in Sources */,
