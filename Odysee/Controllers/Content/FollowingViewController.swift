@@ -34,7 +34,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 hide: { [weak self] in
                     self?.hideManage()
                 }
-            )
+            ),
+            model: .init()
         )
         let vc = UIHostingController(rootView: rootView)
         vc.view.translatesAutoresizingMaskIntoConstraints = false
@@ -152,6 +153,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
                 loadSuggestedFollows()
 
+                manageFollowing.rootView.model.update(
+                    following: [],
+                    walletFollowing: [:]
+                )
+
                 return
             }
 
@@ -162,6 +168,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             ))
 
             following.append(contentsOf: resolve.claims.values.sorted())
+
+            manageFollowing.rootView.model.update(
+                following: Array(following),
+                walletFollowing: newFollowing
+            )
 
             checkSelectedChannel()
             channelListView.reloadData()
