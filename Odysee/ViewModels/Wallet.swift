@@ -287,16 +287,21 @@ extension Wallet {
     }
 
     /// Defaults to true (disabled) if requested following doesn't exist
-    func isNotificationsDisabled(claim: Claim) -> NotificationsDisabled {
+    static func isNotificationsDisabled(claim: Claim, for following: Following?) -> NotificationsDisabled {
         guard let channelName = claim.name,
               channelName.starts(with: "@"),
               let claimId = claim.claimId,
-              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+              let uri = try? buildFollow(channelName: channelName, claimId: claimId)
         else {
             return true
         }
 
         return following?[uri] ?? true
+    }
+
+    /// Defaults to true (disabled) if requested following doesn't exist
+    func isNotificationsDisabled(claim: Claim) -> NotificationsDisabled {
+        return Self.isNotificationsDisabled(claim: claim, for: following)
     }
 }
 
