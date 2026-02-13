@@ -292,6 +292,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
     }
 
+    @IBAction func manageTapped(_ sender: Any) {
+    }
     @IBAction func discoverTapped(_ sender: Any) {
         suggestedView.isHidden = false
         mainView.isHidden = true
