@@ -78,7 +78,7 @@ actor Wallet {
                 } catch is CancellationError {
                     return
                 } catch {
-                    if (error as? LbryApiResponseError)?.localizedDescription != "authentication required" {
+                    if error.localizedDescription != "authentication required" {
                         await Helper.showError(error: error)
                     }
 
@@ -105,7 +105,7 @@ actor Wallet {
         pushQueue.send(())
     }
 
-    private func pullSync() async throws {
+    func pullSync() async throws {
         _ = try await pullSync(updateState: true)
     }
 
@@ -287,16 +287,21 @@ extension Wallet {
     }
 
     /// Defaults to true (disabled) if requested following doesn't exist
-    func isNotificationsDisabled(claim: Claim) -> NotificationsDisabled {
+    static func isNotificationsDisabled(claim: Claim, for following: Following?) -> NotificationsDisabled {
         guard let channelName = claim.name,
               channelName.starts(with: "@"),
               let claimId = claim.claimId,
-              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+              let uri = try? buildFollow(channelName: channelName, claimId: claimId)
         else {
             return true
         }
 
         return following?[uri] ?? true
+    }
+
+    /// Defaults to true (disabled) if requested following doesn't exist
+    func isNotificationsDisabled(claim: Claim) -> NotificationsDisabled {
+        return Self.isNotificationsDisabled(claim: claim, for: following)
     }
 }
 
