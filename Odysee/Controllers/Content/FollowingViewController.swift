@@ -7,6 +7,7 @@
 
 import FirebaseAnalytics
 import OrderedCollections
+import SwiftUI
 import UIKit
 
 class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,
@@ -26,6 +27,19 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var sortByLabel: UILabel!
     @IBOutlet var contentFromLabel: UILabel!
+
+    lazy var manageFollowing = {
+        let rootView = ManageFollowingScreen(
+            navigator: .init(
+                hide: { [weak self] in
+                    self?.hideManage()
+                }
+            )
+        )
+        let vc = UIHostingController(rootView: rootView)
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
+        return vc
+    }()
 
     var selectedChannelClaim: Claim?
     var suggestedFollows = OrderedSet<Claim>()
@@ -90,6 +104,17 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        addChild(manageFollowing)
+        view.insertSubview(manageFollowing.view, at: 0) // At back
+        manageFollowing.didMove(toParent: self)
+        NSLayoutConstraint.activate([
+            manageFollowing.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            manageFollowing.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            manageFollowing.view.topAnchor.constraint(equalTo: view.topAnchor),
+            manageFollowing.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+
         loadingContainer.layer.cornerRadius = 20
         suggestedFollowsView.allowsMultipleSelection = true
         channelListView.allowsMultipleSelection = false
@@ -293,7 +318,14 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     }
 
     @IBAction func manageTapped(_ sender: Any) {
+        view.bringSubviewToFront(manageFollowing.view)
+        manageFollowing.rootView.navigator.show()
     }
+
+    private func hideManage() {
+        view.sendSubviewToBack(manageFollowing.view)
+    }
+
     @IBAction func discoverTapped(_ sender: Any) {
         suggestedView.isHidden = false
         mainView.isHidden = true
