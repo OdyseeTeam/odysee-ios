@@ -25,40 +25,53 @@ extension ManageFollowingScreen {
                         Text("No followed channels.")
                     } else {
                         List(filteredFollowing) { follow in
-                            ChannelListItem(channel: .claim(follow))
-                                .swipeActions(edge: .leading) {
-                                    Button {
-                                        Task {
-                                            let disabled = await model.toggleNotificationsDisabled(follow: follow)
+                            // UIKit action, but disclosure using empty NavigationLink
+                            Button {
+                                let vc = AppDelegate.shared.mainViewController?.storyboard?
+                                    .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+                                vc.channelClaim = follow
+                                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+                            } label: {
+                                NavigationLink {
+                                    EmptyView()
+                                } label: {
+                                    ChannelListItem(channel: .claim(follow))
+                                }
+                            }
+                            .tint(Color(UIColor.label))
+                            .swipeActions(edge: .leading) {
+                                Button {
+                                    Task {
+                                        let disabled = await model.toggleNotificationsDisabled(follow: follow)
 
-                                            if disabled {
-                                                Helper.showMessage(
-                                                    message: "Notifications turned off for \(follow.name ?? "")"
-                                                )
-                                            } else {
-                                                Helper.showMessage(
-                                                    message: "Notifications turned on for \(follow.name ?? "")"
-                                                )
-                                            }
-                                        }
-                                    } label: {
-                                        if model.isNotificationsDisabled(follow: follow) {
-                                            Label("Enable Notifications", systemImage: "bell")
+                                        if disabled {
+                                            Helper.showMessage(
+                                                message: "Notifications turned off for \(follow.name ?? "")"
+                                            )
                                         } else {
-                                            Label("Disable Notifications", systemImage: "bell.slash")
+                                            Helper.showMessage(
+                                                message: "Notifications turned on for \(follow.name ?? "")"
+                                            )
                                         }
                                     }
-                                    .tint(.blue)
-                                }
-                                .swipeActions {
-                                    Button(role: .destructive) {
-                                        Task {
-                                            await model.remove(follow: follow)
-                                        }
-                                    } label: {
-                                        Label("Unfollow", systemImage: "heart.slash")
+                                } label: {
+                                    if model.isNotificationsDisabled(follow: follow) {
+                                        Label("Enable Notifications", systemImage: "bell")
+                                    } else {
+                                        Label("Disable Notifications", systemImage: "bell.slash")
                                     }
                                 }
+                                .tint(.blue)
+                            }
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    Task {
+                                        await model.remove(follow: follow)
+                                    }
+                                } label: {
+                                    Label("Unfollow", systemImage: "heart.slash")
+                                }
+                            }
                         }
                         .apply {
                             if #available(iOS 16, *) {
