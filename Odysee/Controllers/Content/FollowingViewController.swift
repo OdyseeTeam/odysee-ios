@@ -35,7 +35,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                     self?.hideManage()
                 }
             ),
-            model: .init()
+            model: .init(),
+            openChannel: { [weak self] claim in
+                self?.openChannel(claim)
+            }
         )
         let vc = UIHostingController(rootView: rootView)
         vc.view.translatesAutoresizingMaskIntoConstraints = false
@@ -381,6 +384,13 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             forKey: kCATransition
         )
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+    }
+
+    func openChannel(_ claim: Claim) {
+        let vc = AppDelegate.shared.mainController.storyboard?
+            .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+        vc.channelClaim = claim
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
