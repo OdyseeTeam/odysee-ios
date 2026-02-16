@@ -30,6 +30,10 @@ extension ManageFollowingScreen {
             self.walletFollowing = walletFollowing
         }
 
+        func refresh() async throws {
+            try await Wallet.shared.pullSync()
+        }
+
         func search(_ search: String) -> [Claim]? {
             if search.isBlank {
                 following
