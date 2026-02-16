@@ -96,6 +96,13 @@ extension ManageFollowingScreen {
                         }
                     }
             }
+            .refreshable {
+                do {
+                    try await model.refresh()
+                } catch {
+                    Helper.showError(error: error)
+                }
+            }
             .searchable(text: $search)
             .navigationTitle("Followed Channels")
         }
