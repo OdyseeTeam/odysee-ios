@@ -41,27 +41,27 @@ enum Predefined {
         License(name: "None", url: nil),
         License(name: "Public domain", url: nil),
         License(
-            name: "Creative Commons Attribution 4.0 International",
+            name: "CC BY 4.0",
             url: "https://creativecommons.org/licenses/by/4.0/legalcode"
         ),
         License(
-            name: "Creative Commons Attribution-ShareAlike 4.0 International",
+            name: "CC BY-SA 4.0",
             url: "https://creativecommons.org/licenses/by-sa/4.0/legalcode"
         ),
         License(
-            name: "Creative Commons Attribution-NoDerivatives 4.0 International",
+            name: "CC BY-ND 4.0",
             url: "https://creativecommons.org/licenses/by-nd/4.0/legalcode"
         ),
         License(
-            name: "Creative Commons Attribution-NonCommercial 4.0 International",
+            name: "CC BY-NC 4.0",
             url: "https://creativecommons.org/licenses/by-nc/4.0/legalcode"
         ),
         License(
-            name: "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International",
+            name: "CC BY-NC-SA 4.0",
             url: "https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode"
         ),
         License(
-            name: "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International",
+            name: "CC BY-NC-ND 4.0",
             url: "https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode"
         ),
         License(name: "Copyrighted", url: nil),
