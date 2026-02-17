@@ -1,5 +1,5 @@
 //
-//  QueryItemsEncoder.swift
+//  QueryItemsCoder.swift
 //  Odysee
 //
 //  Created by Keith Toh on 18/12/2025.
@@ -142,6 +142,110 @@ private struct QueryItemsKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerPr
     }
 
     mutating func superEncoder(forKey key: Key) -> any Encoder {
+        fatalError("Only flat primitives are supported")
+    }
+}
+
+public class QueryItemsDecoder {
+    public init() {}
+
+    public func decode<T: Decodable>(_ type: T.Type, from queryItems: [URLQueryItem]) throws -> T {
+        let queryItemsDecoding = QueryItemsDecoding(from: .init(queryItems: queryItems))
+        return try T(from: queryItemsDecoding)
+    }
+}
+
+private struct QueryItemsDecoding: Decoder {
+    fileprivate final class QueryItems {
+        var queryItems: [URLQueryItem]
+
+        init(queryItems: [URLQueryItem]) {
+            self.queryItems = queryItems
+        }
+
+        func decode(key codingKey: CodingKey) -> String? {
+            let name = codingKey.stringValue
+            return queryItems.first { $0.name == name }?.value
+        }
+    }
+
+    fileprivate var queryItems: QueryItems
+
+    init(from queryItems: QueryItems) {
+        self.queryItems = queryItems
+    }
+
+    var codingPath: [any CodingKey] = []
+
+    var userInfo: [CodingUserInfoKey: Any] = [:]
+
+    func container<Key>(keyedBy type: Key.Type) throws -> KeyedDecodingContainer<Key> where Key: CodingKey {
+        let container = QueryItemsKeyedDecoding<Key>(from: queryItems)
+        return KeyedDecodingContainer(container)
+    }
+
+    func unkeyedContainer() throws -> any UnkeyedDecodingContainer {
+        fatalError("Only flat primitives are supported")
+    }
+
+    func singleValueContainer() throws -> any SingleValueDecodingContainer {
+        fatalError("Only flat primitives are supported")
+    }
+}
+
+private struct QueryItemsKeyedDecoding<Key: CodingKey>: KeyedDecodingContainerProtocol {
+    private let queryItems: QueryItemsDecoding.QueryItems
+
+    init(from queryItems: QueryItemsDecoding.QueryItems) {
+        self.queryItems = queryItems
+    }
+
+    var codingPath: [any CodingKey] = []
+
+    var allKeys: [Key] {
+        queryItems.queryItems.compactMap { Key(stringValue: $0.name) }
+    }
+
+    func contains(_ key: Key) -> Bool {
+        queryItems.queryItems.contains { $0.name == key.stringValue }
+    }
+
+    func decodeNil(forKey key: Key) throws -> Bool {
+        fatalError("Only String can be decoded")
+    }
+
+    func decode(_ type: String.Type, forKey key: Key) throws -> String {
+        guard let item = queryItems.queryItems.first(where: { $0.name == key.stringValue }) else {
+            throw DecodingError.keyNotFound(key, .init(codingPath: codingPath, debugDescription: ""))
+        }
+
+        guard let value = item.value else {
+            throw DecodingError.valueNotFound(type, .init(codingPath: codingPath, debugDescription: ""))
+        }
+
+        return value
+    }
+
+    func decode<T>(_ type: T.Type, forKey key: Key) throws -> T where T: Decodable {
+        fatalError("Only String can be decoded")
+    }
+
+    func nestedContainer<NestedKey>(
+        keyedBy type: NestedKey.Type,
+        forKey key: Key
+    ) throws -> KeyedDecodingContainer<NestedKey> where NestedKey: CodingKey {
+        fatalError("Only flat primitives are supported")
+    }
+
+    func nestedUnkeyedContainer(forKey key: Key) throws -> any UnkeyedDecodingContainer {
+        fatalError("Only flat primitives are supported")
+    }
+
+    func superDecoder() throws -> any Decoder {
+        fatalError("Only flat primitives are supported")
+    }
+
+    func superDecoder(forKey key: Key) throws -> any Decoder {
         fatalError("Only flat primitives are supported")
     }
 }
