@@ -3164,142 +3164,157 @@ Line 2</string>
                                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ABs-iZ-AJD">
                                                     <rect key="frame" x="16" y="120" width="243" height="342.5"/>
                                                     <subviews>
-                                                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="EGG-0X-rW3">
-                                                            <rect key="frame" x="0.0" y="0.0" width="243" height="342.5"/>
+                                                        <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ghm-uT-1aY">
+                                                            <rect key="frame" x="0.0" y="0.0" width="243" height="360"/>
                                                             <subviews>
-                                                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cfn-hB-SdK" userLabel="Change Default Channel Button">
-                                                                    <rect key="frame" x="52" y="0.0" width="175" height="54.5"/>
-                                                                    <state key="normal" title="Button"/>
-                                                                    <buttonConfiguration key="configuration" style="plain" title="Change default channel">
-                                                                        <color key="baseForegroundColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
-                                                                    </buttonConfiguration>
-                                                                </button>
-                                                                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Go Live" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jZL-qF-CkO">
-                                                                    <rect key="frame" x="52" y="54.5" width="175" height="40"/>
-                                                                    <gestureRecognizers/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="height" constant="40" id="sM1-dd-38N"/>
-                                                                    </constraints>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <nil key="textColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                    <connections>
-                                                                        <outletCollection property="gestureRecognizers" destination="ouo-mA-abq" appends="YES" id="yLv-NZ-cU7"/>
-                                                                    </connections>
-                                                                </label>
-                                                                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Channels" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uwd-lB-h1n">
-                                                                    <rect key="frame" x="52" y="94.5" width="175" height="40"/>
-                                                                    <gestureRecognizers/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="height" constant="40" id="O9x-8T-QzU"/>
-                                                                    </constraints>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <nil key="textColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                    <connections>
-                                                                        <outletCollection property="gestureRecognizers" destination="8NM-bn-GSW" appends="YES" id="hYz-rP-95N"/>
-                                                                    </connections>
-                                                                </label>
-                                                                <label hidden="YES" opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Rewards" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vKx-Px-itO">
-                                                                    <rect key="frame" x="52" y="134.5" width="175" height="40"/>
-                                                                    <gestureRecognizers/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="height" constant="40" id="ebB-AB-tGY"/>
-                                                                    </constraints>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <nil key="textColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                    <connections>
-                                                                        <outletCollection property="gestureRecognizers" destination="dzu-ga-YUU" appends="YES" id="Lbl-UD-PvG"/>
-                                                                    </connections>
-                                                                </label>
-                                                                <label hidden="YES" opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Invites" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qkk-tk-GA8">
-                                                                    <rect key="frame" x="52" y="134.5" width="175" height="40"/>
-                                                                    <gestureRecognizers/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="height" constant="40" id="Pyo-aw-0Kd"/>
-                                                                    </constraints>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <nil key="textColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                    <connections>
-                                                                        <outletCollection property="gestureRecognizers" destination="31h-Jw-RS5" appends="YES" id="Xf8-va-UIb"/>
-                                                                    </connections>
-                                                                </label>
-                                                                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Community Guidelines" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D04-Tc-Tnz">
-                                                                    <rect key="frame" x="52" y="134.5" width="175" height="40"/>
-                                                                    <gestureRecognizers/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="height" constant="40" id="Mkm-qE-G7y"/>
-                                                                    </constraints>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <nil key="textColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                    <connections>
-                                                                        <outletCollection property="gestureRecognizers" destination="R4N-47-ENy" appends="YES" id="nzc-Wq-eAp"/>
-                                                                    </connections>
-                                                                </label>
-                                                                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Help &amp; Support" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ecY-Qw-KBS">
-                                                                    <rect key="frame" x="52" y="174.5" width="175" height="40"/>
-                                                                    <gestureRecognizers/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="height" constant="40" id="djI-bF-6kW"/>
-                                                                    </constraints>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <nil key="textColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                    <connections>
-                                                                        <outletCollection property="gestureRecognizers" destination="178-cx-4md" appends="YES" id="D7d-Mn-oC9"/>
-                                                                    </connections>
-                                                                </label>
-                                                                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="YouTube Sync" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b2U-4S-TtX">
-                                                                    <rect key="frame" x="52" y="214.5" width="175" height="40"/>
-                                                                    <gestureRecognizers/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="height" constant="40" id="BdT-hP-NHj"/>
-                                                                    </constraints>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <nil key="textColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                    <connections>
-                                                                        <outletCollection property="gestureRecognizers" destination="288-ee-H3N" appends="YES" id="Lff-6P-BIR"/>
-                                                                    </connections>
-                                                                </label>
-                                                                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Delete Account" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="06L-1T-tpE">
-                                                                    <rect key="frame" x="52" y="254.5" width="175" height="40"/>
-                                                                    <gestureRecognizers/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="height" constant="40" id="ScP-wB-dIH"/>
-                                                                    </constraints>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <color key="textColor" systemColor="systemRedColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                    <connections>
-                                                                        <outletCollection property="gestureRecognizers" destination="5yu-Ia-oYC" appends="YES" id="RmR-Rp-Vgb"/>
-                                                                    </connections>
-                                                                </label>
-                                                                <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sign Out" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5BP-na-wYJ">
-                                                                    <rect key="frame" x="52" y="294.5" width="175" height="40"/>
-                                                                    <gestureRecognizers/>
-                                                                    <constraints>
-                                                                        <constraint firstAttribute="height" constant="40" id="WzH-x8-Dmr"/>
-                                                                    </constraints>
-                                                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
-                                                                    <nil key="textColor"/>
-                                                                    <nil key="highlightedColor"/>
-                                                                    <connections>
-                                                                        <outletCollection property="gestureRecognizers" destination="TrR-3j-Z1k" appends="YES" id="qtk-a7-P4l"/>
-                                                                    </connections>
-                                                                </label>
+                                                                <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="EGG-0X-rW3">
+                                                                    <rect key="frame" x="0.0" y="0.0" width="240.5" height="314.5"/>
+                                                                    <subviews>
+                                                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cfn-hB-SdK" userLabel="Change Default Channel Button">
+                                                                            <rect key="frame" x="36" y="0.0" width="204.5" height="34.5"/>
+                                                                            <state key="normal" title="Button"/>
+                                                                            <buttonConfiguration key="configuration" style="plain" title="Change default channel">
+                                                                                <color key="baseForegroundColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                                                            </buttonConfiguration>
+                                                                        </button>
+                                                                        <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Go Live" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jZL-qF-CkO">
+                                                                            <rect key="frame" x="36" y="34.5" width="204.5" height="40"/>
+                                                                            <gestureRecognizers/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="40" id="sM1-dd-38N"/>
+                                                                            </constraints>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <nil key="textColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                            <connections>
+                                                                                <outletCollection property="gestureRecognizers" destination="ouo-mA-abq" appends="YES" id="yLv-NZ-cU7"/>
+                                                                            </connections>
+                                                                        </label>
+                                                                        <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Channels" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uwd-lB-h1n">
+                                                                            <rect key="frame" x="36" y="74.5" width="204.5" height="40"/>
+                                                                            <gestureRecognizers/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="40" id="O9x-8T-QzU"/>
+                                                                            </constraints>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <nil key="textColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                            <connections>
+                                                                                <outletCollection property="gestureRecognizers" destination="8NM-bn-GSW" appends="YES" id="hYz-rP-95N"/>
+                                                                            </connections>
+                                                                        </label>
+                                                                        <label hidden="YES" opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Rewards" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vKx-Px-itO">
+                                                                            <rect key="frame" x="36" y="114.5" width="204.5" height="40"/>
+                                                                            <gestureRecognizers/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="40" id="ebB-AB-tGY"/>
+                                                                            </constraints>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <nil key="textColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                            <connections>
+                                                                                <outletCollection property="gestureRecognizers" destination="dzu-ga-YUU" appends="YES" id="Lbl-UD-PvG"/>
+                                                                            </connections>
+                                                                        </label>
+                                                                        <label hidden="YES" opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Invites" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qkk-tk-GA8">
+                                                                            <rect key="frame" x="36" y="114.5" width="204.5" height="40"/>
+                                                                            <gestureRecognizers/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="40" id="Pyo-aw-0Kd"/>
+                                                                            </constraints>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <nil key="textColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                            <connections>
+                                                                                <outletCollection property="gestureRecognizers" destination="31h-Jw-RS5" appends="YES" id="Xf8-va-UIb"/>
+                                                                            </connections>
+                                                                        </label>
+                                                                        <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Community Guidelines" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D04-Tc-Tnz">
+                                                                            <rect key="frame" x="36" y="114.5" width="204.5" height="40"/>
+                                                                            <gestureRecognizers/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="40" id="Mkm-qE-G7y"/>
+                                                                            </constraints>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <nil key="textColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                            <connections>
+                                                                                <outletCollection property="gestureRecognizers" destination="R4N-47-ENy" appends="YES" id="nzc-Wq-eAp"/>
+                                                                            </connections>
+                                                                        </label>
+                                                                        <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Help &amp; Support" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ecY-Qw-KBS">
+                                                                            <rect key="frame" x="36" y="154.5" width="204.5" height="40"/>
+                                                                            <gestureRecognizers/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="40" id="djI-bF-6kW"/>
+                                                                            </constraints>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <nil key="textColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                            <connections>
+                                                                                <outletCollection property="gestureRecognizers" destination="178-cx-4md" appends="YES" id="D7d-Mn-oC9"/>
+                                                                            </connections>
+                                                                        </label>
+                                                                        <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="YouTube Sync" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="b2U-4S-TtX">
+                                                                            <rect key="frame" x="36" y="194.5" width="204.5" height="40"/>
+                                                                            <gestureRecognizers/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="40" id="BdT-hP-NHj"/>
+                                                                            </constraints>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <nil key="textColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                            <connections>
+                                                                                <outletCollection property="gestureRecognizers" destination="288-ee-H3N" appends="YES" id="Lff-6P-BIR"/>
+                                                                            </connections>
+                                                                        </label>
+                                                                        <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Delete Account" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="06L-1T-tpE">
+                                                                            <rect key="frame" x="36" y="234.5" width="204.5" height="40"/>
+                                                                            <gestureRecognizers/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="40" id="ScP-wB-dIH"/>
+                                                                            </constraints>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <color key="textColor" systemColor="systemRedColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                            <connections>
+                                                                                <outletCollection property="gestureRecognizers" destination="5yu-Ia-oYC" appends="YES" id="RmR-Rp-Vgb"/>
+                                                                            </connections>
+                                                                        </label>
+                                                                        <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sign Out" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5BP-na-wYJ">
+                                                                            <rect key="frame" x="36" y="274.5" width="204.5" height="40"/>
+                                                                            <gestureRecognizers/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="40" id="WzH-x8-Dmr"/>
+                                                                            </constraints>
+                                                                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                                            <nil key="textColor"/>
+                                                                            <nil key="highlightedColor"/>
+                                                                            <connections>
+                                                                                <outletCollection property="gestureRecognizers" destination="TrR-3j-Z1k" appends="YES" id="qtk-a7-P4l"/>
+                                                                            </connections>
+                                                                        </label>
+                                                                    </subviews>
+                                                                    <edgeInsets key="layoutMargins" top="0.0" left="36" bottom="0.0" right="0.0"/>
+                                                                </stackView>
                                                             </subviews>
-                                                            <edgeInsets key="layoutMargins" top="0.0" left="52" bottom="8" right="16"/>
-                                                        </stackView>
+                                                            <constraints>
+                                                                <constraint firstItem="EGG-0X-rW3" firstAttribute="bottom" secondItem="82o-LJ-a3O" secondAttribute="bottom" id="8gi-cm-lCk"/>
+                                                                <constraint firstAttribute="height" constant="360" id="9Ki-pi-b8E"/>
+                                                                <constraint firstItem="82o-LJ-a3O" firstAttribute="top" secondItem="EGG-0X-rW3" secondAttribute="top" id="RL6-43-rfY"/>
+                                                                <constraint firstItem="EGG-0X-rW3" firstAttribute="leading" secondItem="82o-LJ-a3O" secondAttribute="leading" id="a4e-tq-vaJ"/>
+                                                                <constraint firstAttribute="height" priority="999" constant="100" id="hjT-Ba-z5X"/>
+                                                                <constraint firstItem="EGG-0X-rW3" firstAttribute="trailing" secondItem="82o-LJ-a3O" secondAttribute="trailing" id="ktV-Vp-TsR"/>
+                                                            </constraints>
+                                                            <viewLayoutGuide key="contentLayoutGuide" id="82o-LJ-a3O"/>
+                                                            <viewLayoutGuide key="frameLayoutGuide" id="9yl-0G-r52"/>
+                                                        </scrollView>
                                                     </subviews>
                                                     <constraints>
-                                                        <constraint firstAttribute="bottom" secondItem="EGG-0X-rW3" secondAttribute="bottom" id="510-3X-PhM"/>
-                                                        <constraint firstItem="EGG-0X-rW3" firstAttribute="top" secondItem="ABs-iZ-AJD" secondAttribute="top" id="gg2-Ks-I4f"/>
-                                                        <constraint firstAttribute="trailing" secondItem="EGG-0X-rW3" secondAttribute="trailing" id="sXR-F2-Idx"/>
-                                                        <constraint firstItem="EGG-0X-rW3" firstAttribute="leading" secondItem="ABs-iZ-AJD" secondAttribute="leading" id="xrO-hK-JYq"/>
+                                                        <constraint firstAttribute="bottom" secondItem="Ghm-uT-1aY" secondAttribute="bottom" id="5iP-Zj-qQ0"/>
+                                                        <constraint firstItem="Ghm-uT-1aY" firstAttribute="top" secondItem="ABs-iZ-AJD" secondAttribute="top" id="AFl-E5-deM"/>
+                                                        <constraint firstItem="Ghm-uT-1aY" firstAttribute="leading" secondItem="ABs-iZ-AJD" secondAttribute="leading" id="bTA-Yz-Wzh"/>
+                                                        <constraint firstAttribute="trailing" secondItem="Ghm-uT-1aY" secondAttribute="trailing" id="kDJ-Ys-4ow"/>
                                                     </constraints>
                                                 </view>
                                             </subviews>
@@ -3322,6 +3337,7 @@ Line 2</string>
                         <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="T3n-T9-zPL" firstAttribute="trailing" secondItem="n2q-RJ-MUP" secondAttribute="trailing" constant="4" id="ABG-wF-WmV"/>
+                            <constraint firstItem="T3n-T9-zPL" firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="n2q-RJ-MUP" secondAttribute="bottom" constant="32" id="l2N-9b-shl"/>
                             <constraint firstItem="n2q-RJ-MUP" firstAttribute="top" secondItem="T3n-T9-zPL" secondAttribute="top" constant="48" id="mao-gc-95Z"/>
                         </constraints>
                         <connections>
@@ -3340,6 +3356,8 @@ Line 2</string>
                         <outlet property="signOutLabel" destination="5BP-na-wYJ" id="J2a-na-RNT"/>
                         <outlet property="signUpLoginButton" destination="SsW-fO-Rpz" id="suw-5f-UHF"/>
                         <outlet property="signUpLoginContainer" destination="eKa-B1-Kwb" id="Qd2-8m-8Vj"/>
+                        <outlet property="signedInMenuHeight" destination="9Ki-pi-b8E" id="d6d-Sz-cal"/>
+                        <outlet property="signedOutMenuHeight" destination="hjT-Ba-z5X" id="c6q-1r-twz"/>
                         <outlet property="userEmailLabel" destination="NHX-0X-Mg3" id="buh-b2-xhx"/>
                         <outlet property="youTubeSyncLabel" destination="b2U-4S-TtX" id="gSf-6d-daP"/>
                     </connections>
