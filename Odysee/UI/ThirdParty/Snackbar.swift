@@ -176,7 +176,7 @@ class Snackbar: NSObject {
         })
     }
 
-    @objc private func rotate() {
+    @objc func rotate() {
         DispatchQueue.main.async {
             if self.showingSnackbar {
                 self.updateSnackbarFrame()

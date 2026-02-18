@@ -88,6 +88,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
 
+    func windowScene(
+        _ windowScene: UIWindowScene,
+        didUpdate previousCoordinateSpace: any UICoordinateSpace,
+        interfaceOrientation previousInterfaceOrientation: UIInterfaceOrientation,
+        traitCollection previousTraitCollection: UITraitCollection
+    ) {
+        // Handles window resize
+        (AppDelegate.shared.mainViewController as? MainViewController)?.snackbar.rotate()
+    }
+
     @available(iOS 26.0, *)
     func preferredWindowingControlStyle(for windowScene: UIWindowScene) -> UIWindowScene.WindowingControlStyle {
         .minimal
