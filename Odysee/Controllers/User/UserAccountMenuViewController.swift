@@ -16,6 +16,8 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     @IBOutlet var userEmailLabel: UILabel!
     @IBOutlet var signUpLoginContainer: UIView!
 
+    @IBOutlet var signedOutMenuHeight: NSLayoutConstraint!
+    @IBOutlet var signedInMenuHeight: NSLayoutConstraint!
     @IBOutlet var changeDefaultChannelButton: UIButton!
     @IBOutlet var goLiveLabel: UILabel!
     @IBOutlet var channelsLabel: UILabel!
@@ -46,6 +48,9 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         signUpLoginButton.layer.cornerRadius = 16
 
         signUpLoginContainer.isHidden = Lbryio.isSignedIn()
+
+        signedOutMenuHeight.isActive = !Lbryio.isSignedIn()
+        signedInMenuHeight.isActive = Lbryio.isSignedIn()
 
         changeDefaultChannelButton.isHidden = !Lbryio.isSignedIn()
         goLiveLabel.isHidden = !Lbryio.isSignedIn()

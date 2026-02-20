@@ -15,6 +15,8 @@ import UIKit
 class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMailComposeViewControllerDelegate {
     @IBOutlet var headerArea: UIView!
     @IBOutlet var headerAreaHeightConstraint: NSLayoutConstraint!
+    @IBOutlet var containerBelowHeaderConstraint: NSLayoutConstraint!
+    @IBOutlet var containerFullscreenConstraint: NSLayoutConstraint!
     @IBOutlet var miniPlayerBottomConstraint: NSLayoutConstraint!
 
     @IBOutlet var miniPlayerView: UIView!
@@ -201,9 +203,18 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     // Experimental
-    func toggleHeaderVisibility(hidden: Bool) {
+    func toggleHeaderVisibility(hidden: Bool, fullscreen: Bool = false) {
         headerArea.isHidden = hidden
         headerAreaHeightConstraint.constant = hidden ? 0 : 52
+
+        if hidden && fullscreen {
+            containerBelowHeaderConstraint.isActive = false
+            containerFullscreenConstraint.isActive = true
+        } else {
+            containerFullscreenConstraint.isActive = false
+            containerBelowHeaderConstraint.isActive = true
+        }
+
         view.layoutIfNeeded()
     }
 
@@ -613,19 +624,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     func showError(error: Error?) {
-        if let responseError = error as? LbryioResponseError {
-            showError(message: responseError.localizedDescription)
-            return
-        }
-        if let apiError = error as? LbryApiResponseError {
-            showError(message: apiError.localizedDescription)
-            return
-        }
-        if let genericError = error as? GenericError {
-            showError(message: genericError.localizedDescription)
-            return
-        }
-
         showError(message: error?.localizedDescription)
     }
 

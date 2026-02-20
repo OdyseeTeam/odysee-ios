@@ -16,12 +16,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         willConnectTo session: UISceneSession,
         options connectionOptions: UIScene.ConnectionOptions
     ) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        windowScene.windows.forEach { $0.tintColor = Helper.primaryColor }
-
         UIApplication.shared.beginReceivingRemoteControlEvents()
 
         if let userActivity = connectionOptions.userActivities.first,
@@ -92,6 +86,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         } else {
             AppDelegate.shared.pendingOpenUrl = url.absoluteString
         }
+    }
+
+    func windowScene(
+        _ windowScene: UIWindowScene,
+        didUpdate previousCoordinateSpace: any UICoordinateSpace,
+        interfaceOrientation previousInterfaceOrientation: UIInterfaceOrientation,
+        traitCollection previousTraitCollection: UITraitCollection
+    ) {
+        // Handles window resize
+        (AppDelegate.shared.mainViewController as? MainViewController)?.snackbar.rotate()
     }
 
     @available(iOS 26.0, *)
