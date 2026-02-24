@@ -281,43 +281,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         // Do any additional setup after loading the view.
         if claim == nil, claimUrl != nil {
             resolveAndDisplayClaim()
-        } else if let currentClaim = claim,
-                  let signingChannel = currentClaim.signingChannel,
-                  let claimId = currentClaim.claimId
-        {
-            if checkRepost() {
-                return
-            }
-            if Lbryio.isClaimBlocked(currentClaim) || Lbryio.isClaimBlocked(signingChannel) {
-                displayClaimBlocked()
-            } else if Lbryio.isClaimAppleFiltered(currentClaim) || Lbryio.isClaimAppleFiltered(signingChannel) {
-                displayClaimBlockedWithMessage(
-                    message: Lbryio.getFilteredMessageForClaim(claimId, signingChannel.claimId ?? "")
-                )
-            } else if Helper.isCustomBlocked(claimId: claimId, appDelegate: AppDelegate.shared) ||
-                Helper.isCustomBlocked(claimId: signingChannel.claimId ?? "", appDelegate: AppDelegate.shared)
-            {
-                displayClaimBlockedWithMessage(
-                    message: Helper.getCustomBlockedMessage(
-                        claimId: claimId, appDelegate: AppDelegate.shared
-                    ) ?? Helper.getCustomBlockedMessage(
-                        claimId: signingChannel.claimId ?? "",
-                        appDelegate: AppDelegate.shared
-                    ) ?? ""
-                )
-            } else if currentClaim.value?.tags?.contains(Constants.MembersOnly) ?? false {
-                membersOnly = true
-                checkHasAccess()
-            } else {
-                displayClaim()
-                if !isPlaylist {
-                    loadAndDisplayViewCount(currentClaim)
-                    loadReactions(currentClaim)
-                }
-                loadPlaylistOrRelated()
-            }
         } else {
-            displayNothingAtLocation()
+            showClaimAndCheckFollowing()
         }
     }
 
@@ -374,41 +339,62 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if checkRepost() {
             return
         }
-        guard let claim, let signingChannel = claim.signingChannel else {
+
+        guard let claim, let claimId = claim.claimId else {
+            displayNothingAtLocation()
             return
         }
 
-        if Lbryio.isClaimBlocked(claim) || Lbryio.isClaimBlocked(signingChannel) {
+        guard !Lbryio.isClaimBlocked(claim) else {
             displayClaimBlocked()
-        } else if Lbryio.isClaimAppleFiltered(claim) || Lbryio.isClaimAppleFiltered(signingChannel) {
-            displayClaimBlockedWithMessage(message: Lbryio.getFilteredMessageForClaim(
-                claim.claimId ?? "", signingChannel.claimId ?? ""
-            ))
-        } else if Helper.isCustomBlocked(claimId: claim.claimId ?? "", appDelegate: AppDelegate.shared) ||
-            Helper.isCustomBlocked(claimId: signingChannel.claimId ?? "", appDelegate: AppDelegate.shared)
-        {
-            displayClaimBlockedWithMessage(message:
-                Helper.getCustomBlockedMessage(
-                    claimId: claim.claimId ?? "",
-                    appDelegate: AppDelegate.shared
-                ) ?? Helper.getCustomBlockedMessage(
-                    claimId: signingChannel.claimId ?? "",
-                    appDelegate: AppDelegate.shared
-                ) ?? ""
+            return
+        }
+        guard !Lbryio.isClaimAppleFiltered(claim) else {
+            displayClaimBlockedWithMessage(
+                message: Lbryio.getFilteredMessageForClaim(claimId, "")
             )
-        } else if claim.value?.tags?.contains(Constants.MembersOnly) ?? false {
+            return
+        }
+        guard !Helper.isCustomBlocked(claimId: claimId) else {
+            displayClaimBlockedWithMessage(
+                message: Helper.getCustomBlockedMessage(claimId: claimId) ?? ""
+            )
+            return
+        }
+
+        if let signingChannel = claim.signingChannel, let signingClaimId = signingChannel.claimId {
+            guard !Lbryio.isClaimBlocked(signingChannel) else {
+                displayClaimBlocked()
+                return
+            }
+            guard !Lbryio.isClaimAppleFiltered(signingChannel) else {
+                displayClaimBlockedWithMessage(
+                    message: Lbryio.getFilteredMessageForClaim("", signingClaimId)
+                )
+                return
+            }
+            guard !Helper.isCustomBlocked(claimId: signingClaimId) else {
+                displayClaimBlockedWithMessage(
+                    message: Helper.getCustomBlockedMessage(claimId: signingClaimId) ?? ""
+                )
+                return
+            }
+        }
+
+        guard !(claim.value?.tags?.contains(Constants.MembersOnly) ?? false) else {
             membersOnly = true
             checkHasAccess()
-        } else {
-            displayClaim()
-            if !isPlaylist {
-                loadAndDisplayViewCount(claim)
-                loadReactions(claim)
-                checkFollowing(claim)
-                checkNotificationsDisabled(claim)
-            }
-            loadPlaylistOrRelated()
+            return
         }
+
+        displayClaim()
+        if !isPlaylist {
+            loadAndDisplayViewCount(claim)
+            loadReactions(claim)
+            checkFollowing(claim)
+            checkNotificationsDisabled(claim)
+        }
+        loadPlaylistOrRelated()
     }
 
     func resolveAndDisplayClaim() {
