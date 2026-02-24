@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import PINRemoteImage
 import UIKit
 
 private let kImageServerBaseURL = "https://thumbnails.odycdn.com/optimize/"
