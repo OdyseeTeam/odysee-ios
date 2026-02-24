@@ -7,7 +7,6 @@
 
 import FirebaseAnalytics
 import OrderedCollections
-import PINRemoteImage
 import UIKit
 
 class HomeViewController: UIViewController,
