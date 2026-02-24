@@ -1551,7 +1551,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    self.mediaLoadingIndicator.isHidden = true
+                    DispatchQueue.main.async {
+                        self.mediaLoadingIndicator.isHidden = true
+                    }
                     self.showError(error: error)
                     return
                 }
@@ -1566,7 +1568,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         self.getTranscodedUrlAndInitializePlayer(claim: singleClaim, sourceUrl: sourceUrl)
                     }
                 } else {
-                    self.mediaLoadingIndicator.isHidden = true
+                    DispatchQueue.main.async {
+                        self.mediaLoadingIndicator.isHidden = true
+                    }
                     self.showError(message: "Failed to get media location")
                 }
             }
