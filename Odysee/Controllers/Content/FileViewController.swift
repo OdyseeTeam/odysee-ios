@@ -1536,8 +1536,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        mediaLoadingIndicator.superview?.bringSubviewToFront(mediaLoadingIndicator)
-        mediaLoadingIndicator.isHidden = false
+        DispatchQueue.main.async {
+            self.mediaLoadingIndicator.superview?.bringSubviewToFront(self.mediaLoadingIndicator)
+            self.mediaLoadingIndicator.isHidden = false
+        }
 
         var params = [String: Any]()
         params["uri"] = uri
@@ -1551,7 +1553,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             url: Lbry.lbrytvURL,
             completion: { data, error in
                 guard let data = data, error == nil else {
-                    self.mediaLoadingIndicator.isHidden = true
+                    DispatchQueue.main.async {
+                        self.mediaLoadingIndicator.isHidden = true
+                    }
                     self.showError(error: error)
                     return
                 }
@@ -1566,7 +1570,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         self.getTranscodedUrlAndInitializePlayer(claim: singleClaim, sourceUrl: sourceUrl)
                     }
                 } else {
-                    self.mediaLoadingIndicator.isHidden = true
+                    DispatchQueue.main.async {
+                        self.mediaLoadingIndicator.isHidden = true
+                    }
                     self.showError(message: "Failed to get media location")
                 }
             }
@@ -1606,7 +1612,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         self.showClaimAndCheckFollowing()
                     }
                 } else {
-                    self.mediaLoadingIndicator.isHidden = true
+                    DispatchQueue.main.async {
+                        self.mediaLoadingIndicator.isHidden = true
+                    }
                     self.showError(message: String.localized("Failed to get transcoded media location"))
                 }
                 return
