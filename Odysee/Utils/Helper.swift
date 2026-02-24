@@ -333,7 +333,7 @@ enum Helper {
         }
     }
 
-    static func isCustomBlocked(claimId: String, appDelegate: AppDelegate) -> Bool {
+    static func isCustomBlocked(claimId: String) -> Bool {
         var isBlocked = false
         if let rules = AppDelegate.shared.mainController?.customBlockRulesMap[claimId],
            let locale = AppDelegate.shared.mainController?.currentLocale
@@ -361,7 +361,7 @@ enum Helper {
         return isBlocked
     }
 
-    static func getCustomBlockedMessage(claimId: String, appDelegate: AppDelegate) -> String? {
+    static func getCustomBlockedMessage(claimId: String) -> String? {
         var message: String?
         if let rules = AppDelegate.shared.mainController?.customBlockRulesMap[claimId],
            let locale = AppDelegate.shared.mainController?.currentLocale
