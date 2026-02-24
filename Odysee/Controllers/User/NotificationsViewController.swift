@@ -23,9 +23,9 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         super.viewWillAppear(animated)
         view.isHidden = !Lbryio.isSignedIn()
 
-        AppDelegate.shared.mainController.notificationBadgeIcon.tintColor = Helper.primaryColor
-        AppDelegate.shared.mainController.notificationsViewActive = true
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController?.notificationBadgeIcon.tintColor = Helper.primaryColor
+        AppDelegate.shared.mainController?.notificationsViewActive = true
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
 
         if !Lbryio.isSignedIn() {
             // show the sign in view
@@ -44,7 +44,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
             ]
         )
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
 
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
@@ -52,8 +52,8 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        AppDelegate.shared.mainController.notificationBadgeIcon.tintColor = UIColor.label
-        AppDelegate.shared.mainController.notificationsViewActive = false
+        AppDelegate.shared.mainController?.notificationBadgeIcon.tintColor = UIColor.label
+        AppDelegate.shared.mainController?.notificationsViewActive = false
     }
 
     override func viewDidLoad() {
@@ -85,7 +85,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
         notifications = Lbryio.cachedNotifications
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.updateUnseenCount()
+            AppDelegate.shared.mainController?.updateUnseenCount()
         }
 
         // send remote request
@@ -225,13 +225,13 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(message: message)
+            AppDelegate.shared.mainController?.showError(message: message)
         }
     }
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(error: error)
+            AppDelegate.shared.mainController?.showError(error: error)
         }
     }
 
@@ -265,7 +265,9 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
         if let targetUrl = notification.targetUrl {
             markSingleNotificationRead(id: notification.id)
 
-            if AppDelegate.shared.mainController.handleSpecialUrl(url: targetUrl) {
+            if let controller = AppDelegate.shared.mainController,
+               controller.handleSpecialUrl(url: targetUrl)
+            {
                 navigationController?.popViewController(animated: true)
                 return
             }

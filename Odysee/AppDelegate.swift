@@ -42,13 +42,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         do {
             try AVAudioSession.sharedInstance().setActive(true, options: [])
         } catch {
-            mainController.showMessage(message: "Lazy AVAudioSession activation failed! \(error)")
+            mainController?.showMessage(message: "Lazy AVAudioSession activation failed! \(error)")
         }
         return self.player
     }()
 
-    var mainController: MainViewController {
-        return mainViewController as! MainViewController
+    var mainController: MainViewController? {
+        return mainViewController as? MainViewController
     }
 
     func registerPlayerObserver() {

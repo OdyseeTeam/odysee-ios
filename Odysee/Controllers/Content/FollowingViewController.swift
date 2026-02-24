@@ -70,8 +70,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             ]
         )
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(
             bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
@@ -262,7 +262,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController?.showMessage(message: message)
         }
     }
 

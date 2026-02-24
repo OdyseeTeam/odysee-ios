@@ -60,8 +60,8 @@ class SearchViewController: UIViewController,
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
         searchBar.becomeFirstResponder()
     }
 
@@ -367,7 +367,7 @@ class SearchViewController: UIViewController,
             }
 
             let vc = SFSafariViewController(url: url)
-            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainViewController?.present(vc, animated: true, completion: nil)
         }
     }
 

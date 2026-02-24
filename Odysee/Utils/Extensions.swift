@@ -119,7 +119,7 @@ extension Result {
     func showErrorIfPresent() {
         assert(Thread.isMainThread)
         if case let .failure(error) = self {
-            AppDelegate.shared.mainController.showError(error: error)
+            AppDelegate.shared.mainController?.showError(error: error)
         }
     }
 }

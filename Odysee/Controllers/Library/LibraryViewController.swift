@@ -41,8 +41,8 @@ class LibraryViewController: UIViewController {
             ]
         )
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(
             bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 

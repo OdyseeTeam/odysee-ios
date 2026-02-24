@@ -38,7 +38,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -51,7 +51,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             ]
         )
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
         loadUploads()
     }
 
@@ -160,7 +160,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
             return
         }
 
-        let vc = AppDelegate.shared.mainController.storyboard?
+        let vc = AppDelegate.shared.mainViewController?.storyboard?
             .instantiateViewController(identifier: "file_view_vc") as! FileViewController
         vc.claim = claim
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
@@ -213,11 +213,15 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
     }
 
     func showError(message: String?) {
-        AppDelegate.shared.mainController.showError(message: message)
+        DispatchQueue.main.async {
+            AppDelegate.shared.mainController?.showError(message: message)
+        }
     }
 
     func showError(error: Error?) {
-        AppDelegate.shared.mainController.showError(error: error)
+        DispatchQueue.main.async {
+            AppDelegate.shared.mainController?.showError(error: error)
+        }
     }
 
     @IBAction func newUploadTapped(_ sender: UIButton) {

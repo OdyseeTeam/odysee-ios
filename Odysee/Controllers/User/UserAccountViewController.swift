@@ -38,14 +38,14 @@ class UserAccountViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true, fullscreen: true)
-        AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true, fullscreen: true)
+        AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: true)
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         if AppDelegate.shared.lazyPlayer != nil {
-            AppDelegate.shared.mainController.toggleMiniPlayer(hidden: false)
+            AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: false)
         }
     }
 
@@ -99,9 +99,9 @@ class UserAccountViewController: UIViewController {
     func finishWithWalletSync() async {
         await Wallet.shared.startSync()
 
-        AppDelegate.shared.mainController.checkUploadButton()
-        AppDelegate.shared.mainController.startWalletBalanceTimer()
-        AppDelegate.shared.mainController.checkAndClaimEmailReward(completion: {})
+        AppDelegate.shared.mainController?.checkUploadButton()
+        AppDelegate.shared.mainController?.startWalletBalanceTimer()
+        AppDelegate.shared.mainController?.checkAndClaimEmailReward(completion: {})
 
         if firstRunFlow {
             frDelegate?.requestFinished(showSkip: true, showContinue: true)

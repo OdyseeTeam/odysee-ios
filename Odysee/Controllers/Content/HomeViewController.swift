@@ -67,8 +67,8 @@ class HomeViewController: UIViewController,
             parameters: [AnalyticsParameterScreenName: "Home", AnalyticsParameterScreenClass: "HomeViewController"]
         )
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(
             bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
@@ -247,7 +247,7 @@ class HomeViewController: UIViewController,
                 self.claimSearchLivestreams()
             } else if case let .failure(error) = result {
                 DispatchQueue.main.async {
-                    AppDelegate.shared.mainController.showError(message: error.localizedDescription)
+                    AppDelegate.shared.mainController?.showError(message: error.localizedDescription)
                 }
             }
         }

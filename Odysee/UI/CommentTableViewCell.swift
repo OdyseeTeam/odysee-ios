@@ -185,7 +185,7 @@ class CommentTableViewCell: UITableViewCell {
                 commentId
             )) {
                 let vc = SFSafariViewController(url: url)
-                AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
+                AppDelegate.shared.mainViewController?.present(vc, animated: true, completion: nil)
             }
         }
     }

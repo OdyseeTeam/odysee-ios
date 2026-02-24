@@ -32,7 +32,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
     }
 
     override func viewDidLoad() {
@@ -313,19 +313,19 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController?.showMessage(message: message)
         }
     }
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(message: message)
+            AppDelegate.shared.mainController?.showError(message: message)
         }
     }
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(error: error)
+            AppDelegate.shared.mainController?.showError(error: error)
         }
     }
 }

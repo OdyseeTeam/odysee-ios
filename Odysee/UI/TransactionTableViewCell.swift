@@ -103,7 +103,7 @@ class TransactionTableViewCell: UITableViewCell {
         if let txid = tx?.txid {
             if let url = URL(string: "\(Helper.txLinkPrefix)/\(txid)") {
                 let vc = SFSafariViewController(url: url)
-                AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
+                AppDelegate.shared.mainViewController?.present(vc, animated: true, completion: nil)
             }
         }
     }

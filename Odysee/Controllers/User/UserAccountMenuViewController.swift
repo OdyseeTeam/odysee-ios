@@ -110,8 +110,8 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
     @IBAction func signOutTapped(_ sender: Any) {
         presentingViewController?.dismiss(animated: false, completion: nil)
-        AppDelegate.shared.mainController.stopAllTimers()
-        AppDelegate.shared.mainController.resetUserAndViews()
+        AppDelegate.shared.mainController?.stopAllTimers()
+        AppDelegate.shared.mainController?.resetUserAndViews()
 
         let initVc = storyboard?.instantiateViewController(identifier: "init_vc") as! InitViewController
         if let window = view.window {
@@ -141,7 +141,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         if let url = URL(string: "https://help.odysee.tv/communityguidelines/") {
             let vc = SFSafariViewController(url: url)
             presentingViewController?.dismiss(animated: false, completion: nil)
-            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainViewController?.present(vc, animated: true, completion: nil)
         }
     }
 
@@ -149,7 +149,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         if let url = URL(string: "https://help.odysee.tv/") {
             let vc = SFSafariViewController(url: url)
             presentingViewController?.dismiss(animated: false, completion: nil)
-            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainViewController?.present(vc, animated: true, completion: nil)
         }
     }
 
@@ -380,13 +380,13 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(message: message)
+            AppDelegate.shared.mainController?.showError(message: message)
         }
     }
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(error: error)
+            AppDelegate.shared.mainController?.showError(error: error)
         }
     }
 
