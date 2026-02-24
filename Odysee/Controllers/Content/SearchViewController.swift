@@ -130,16 +130,10 @@ class SearchViewController: UIViewController,
 
     func didResolveWinning(_ result: Result<ResolveResult, Error>) {
         if case let .success(resolve) = result {
-            var winningClaims: [Claim] = []
-            winningClaims.append(contentsOf: resolve.claims.values)
-
-            if winningClaims.count > 0 {
-                winningClaims
-                    .sort(by: {
-                        Decimal(string: $0.meta?.effectiveAmount ?? "0") ?? 0 >
-                            Decimal(string: $1.meta?.effectiveAmount ?? "0") ?? 0
-                    })
-                var winningClaim = winningClaims[0]
+            if var winningClaim = resolve.claims.values.max(by: {
+                Decimal(string: $0.meta?.effectiveAmount ?? "0") ?? 0 <
+                    Decimal(string: $1.meta?.effectiveAmount ?? "0") ?? 0
+            }) {
                 winningClaim.featured = true
 
                 var canShow = true
