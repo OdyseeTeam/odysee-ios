@@ -35,8 +35,8 @@ class YouTubeSyncStatusViewController: UIViewController, UIGestureRecognizerDele
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -258,19 +258,19 @@ class YouTubeSyncStatusViewController: UIViewController, UIGestureRecognizerDele
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(error: error)
+            AppDelegate.shared.mainController?.showError(error: error)
         }
     }
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(message: message)
+            AppDelegate.shared.mainController?.showError(message: message)
         }
     }
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController?.showMessage(message: message)
         }
     }
 

@@ -45,7 +45,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        AppDelegate.shared.mainController.addWalletObserver(key: keyBalanceObserver, observer: self)
+        AppDelegate.shared.mainController?.addWalletObserver(key: keyBalanceObserver, observer: self)
         view.isHidden = !Lbryio.isSignedIn()
 
         if !Lbryio.isSignedIn() {
@@ -70,14 +70,14 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: false)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(
             bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        AppDelegate.shared.mainController.removeWalletObserver(key: keyBalanceObserver)
+        AppDelegate.shared.mainController?.removeWalletObserver(key: keyBalanceObserver)
     }
 
     override func viewDidLoad() {
@@ -324,19 +324,19 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController?.showMessage(message: message)
         }
     }
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(message: message)
+            AppDelegate.shared.mainController?.showError(message: message)
         }
     }
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(error: error)
+            AppDelegate.shared.mainController?.showError(error: error)
         }
     }
 

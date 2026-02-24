@@ -120,7 +120,7 @@ class LivestreamCollectionViewCell: UICollectionViewCell {
 
     @objc func publisherTapped(_ sender: Any) {
         if let channelClaim = currentClaim?.signingChannel {
-            let vc = AppDelegate.shared.mainController.storyboard?
+            let vc = AppDelegate.shared.mainViewController?.storyboard?
                 .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)

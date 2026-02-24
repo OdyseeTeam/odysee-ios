@@ -94,8 +94,8 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
 
         if channelClaim != nil {
             checkFollowing()
@@ -755,7 +755,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
             if let url = URL(string: websiteUrl) {
                 let vc = SFSafariViewController(url: url)
-                AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
+                AppDelegate.shared.mainViewController?.present(vc, animated: true, completion: nil)
             }
         }
     }
@@ -897,7 +897,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
            let url = URL(string: "https://odysee.com/$/report_content?claimId=\(claimId)")
         {
             let vc = SFSafariViewController(url: url)
-            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainViewController?.present(vc, animated: true, completion: nil)
         }
     }
 
@@ -1098,19 +1098,19 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(error: error)
+            AppDelegate.shared.mainController?.showError(error: error)
         }
     }
 
     func showError(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(message: message)
+            AppDelegate.shared.mainController?.showError(message: message)
         }
     }
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController?.showMessage(message: message)
         }
     }
 

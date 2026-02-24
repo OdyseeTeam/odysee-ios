@@ -28,12 +28,12 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        AppDelegate.shared.mainController.addWalletObserver(key: keyBalanceObserver, observer: self)
+        AppDelegate.shared.mainController?.addWalletObserver(key: keyBalanceObserver, observer: self)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        AppDelegate.shared.mainController.removeWalletObserver(key: keyBalanceObserver)
+        AppDelegate.shared.mainController?.removeWalletObserver(key: keyBalanceObserver)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -285,15 +285,21 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     }
 
     func showError(message: String?) {
-        AppDelegate.shared.mainController.showError(message: message)
+        DispatchQueue.main.async {
+            AppDelegate.shared.mainController?.showError(message: message)
+        }
     }
 
     func showError(error: Error?) {
-        AppDelegate.shared.mainController.showError(error: error)
+        DispatchQueue.main.async {
+            AppDelegate.shared.mainController?.showError(error: error)
+        }
     }
 
     func showMessage(message: String?) {
-        AppDelegate.shared.mainController.showMessage(message: message)
+        DispatchQueue.main.async {
+            AppDelegate.shared.mainController?.showMessage(message: message)
+        }
     }
 
     /*

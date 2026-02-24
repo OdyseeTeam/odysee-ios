@@ -839,18 +839,20 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func showError(error: Error?) {
-        AppDelegate.shared.mainController.showError(error: error)
+        DispatchQueue.main.async {
+            AppDelegate.shared.mainController?.showError(error: error)
+        }
     }
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(message: message)
+            AppDelegate.shared.mainController?.showError(message: message)
         }
     }
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController?.showMessage(message: message)
         }
     }
 

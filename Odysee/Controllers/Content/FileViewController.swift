@@ -188,12 +188,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
         if AppDelegate.shared.currentClaim == claim ||
             (playlistItems.count > currentPlaylistIndex &&
                 AppDelegate.shared.currentClaim == playlistItems[currentPlaylistIndex])
         {
-            AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
+            AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: true)
         }
         AppDelegate.shared.currentFileViewController = self
 
@@ -209,7 +209,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             if name.starts(with: "@") {
                 // reposted channel, simply dismiss the view and show a channel view controller instead
                 navigationController?.popViewController(animated: false)
-                let vc = AppDelegate.shared.mainController.storyboard?
+                let vc = AppDelegate.shared.mainViewController?.storyboard?
                     .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
                 vc.channelClaim = claim
                 AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
@@ -237,10 +237,10 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        AppDelegate.shared.mainController.updateMiniPlayer()
+        AppDelegate.shared.mainController?.updateMiniPlayer()
 
         if AppDelegate.shared.lazyPlayer != nil {
-            AppDelegate.shared.mainController.toggleMiniPlayer(hidden: false)
+            AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: false)
         }
     }
 
@@ -911,7 +911,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBAction func contentInfoTapped(_ sender: Any) {
         if let url = URL(string: otherContentWebUrl ?? "") {
             let vc = SFSafariViewController(url: url)
-            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainViewController?.present(vc, animated: true, completion: nil)
         }
     }
 
@@ -1940,7 +1940,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let publisher = isPlaylist ? currentPlaylistClaim()?.signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
             navigationController?.popViewController(animated: false)
-            let vc = AppDelegate.shared.mainController.storyboard?
+            let vc = AppDelegate.shared.mainViewController?.storyboard?
                 .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
@@ -2127,19 +2127,19 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     func showError(error: Error?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(error: error)
+            AppDelegate.shared.mainController?.showError(error: error)
         }
     }
 
     func showError(message: String) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showError(message: message)
+            AppDelegate.shared.mainController?.showError(message: message)
         }
     }
 
     func showMessage(message: String?) {
         DispatchQueue.main.async {
-            AppDelegate.shared.mainController.showMessage(message: message)
+            AppDelegate.shared.mainController?.showMessage(message: message)
         }
     }
 
@@ -2236,7 +2236,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
            let url = URL(string: "https://odysee.com/$/report_content?claimId=\(claimId)")
         {
             let vc = SFSafariViewController(url: url)
-            AppDelegate.shared.mainController.present(vc, animated: true, completion: nil)
+            AppDelegate.shared.mainViewController?.present(vc, animated: true, completion: nil)
         }
     }
 

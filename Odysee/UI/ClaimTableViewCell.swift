@@ -267,7 +267,7 @@ class ClaimTableViewCell: UITableViewCell {
                 AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
 
-            let vc = AppDelegate.shared.mainController.storyboard?
+            let vc = AppDelegate.shared.mainViewController?.storyboard?
                 .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
@@ -286,7 +286,7 @@ class ClaimTableViewCell: UITableViewCell {
                 AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             }
 
-            let vc = AppDelegate.shared.mainController.storyboard?
+            let vc = AppDelegate.shared.mainViewController?.storyboard?
                 .instantiateViewController(withIdentifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)

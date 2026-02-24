@@ -65,8 +65,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func handleLaunchUrl(url: URL) {
-        if AppDelegate.shared.mainViewController != nil, AppDelegate.shared.mainNavigationController != nil {
-            if AppDelegate.shared.mainController.handleSpecialUrl(url: url.absoluteString) {
+        if let controller = AppDelegate.shared.mainController, AppDelegate.shared.mainNavigationController != nil {
+            if controller.handleSpecialUrl(url: url.absoluteString) {
                 return
             }
 

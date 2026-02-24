@@ -25,8 +25,8 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -163,7 +163,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
             return
         }
 
-        let vc = AppDelegate.shared.mainController.storyboard?
+        let vc = AppDelegate.shared.mainViewController?.storyboard?
             .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
         vc.channelClaim = claim
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
@@ -222,11 +222,15 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     }
 
     func showError(message: String?) {
-        AppDelegate.shared.mainController.showError(message: message)
+        DispatchQueue.main.async {
+            AppDelegate.shared.mainController?.showError(message: message)
+        }
     }
 
     func showError(error: Error?) {
-        AppDelegate.shared.mainController.showError(error: error)
+        DispatchQueue.main.async {
+            AppDelegate.shared.mainController?.showError(error: error)
+        }
     }
 
     @IBAction func backTapped(_ sender: Any) {
