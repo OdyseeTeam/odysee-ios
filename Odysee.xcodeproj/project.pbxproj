@@ -59,7 +59,6 @@
 		641AFAE925B606E000218BD9 /* UAButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641AFAE825B606E000218BD9 /* UAButton.swift */; };
 		641B3E2727E0EFCC0089E816 /* CustomBlockRule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641B3E2627E0EFCC0089E816 /* CustomBlockRule.swift */; };
 		641E7EB92608BDB100A79CD3 /* Predefined.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E7EB82608BDB100A79CD3 /* Predefined.swift */; };
-		641E7EC12608BE0C00A79CD3 /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E7EC02608BE0C00A79CD3 /* Language.swift */; };
 		641E7EC62608BE5800A79CD3 /* License.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E7EC52608BE5700A79CD3 /* License.swift */; };
 		642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6AFC257A382900F17355 /* WalletViewController.swift */; };
 		642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */; };
@@ -198,7 +197,6 @@
 		641AFAE825B606E000218BD9 /* UAButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UAButton.swift; sourceTree = "<group>"; };
 		641B3E2627E0EFCC0089E816 /* CustomBlockRule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomBlockRule.swift; sourceTree = "<group>"; };
 		641E7EB82608BDB100A79CD3 /* Predefined.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Predefined.swift; sourceTree = "<group>"; };
-		641E7EC02608BE0C00A79CD3 /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
 		641E7EC52608BE5700A79CD3 /* License.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = License.swift; sourceTree = "<group>"; };
 		641F07DC26A83D4E008CD7C5 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Main.strings"; sourceTree = "<group>"; };
 		641F07DD26A83D4E008CD7C5 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
@@ -382,7 +380,6 @@
 				53593F30287E5D75007FD08E /* CommentsAPIResult.swift */,
 				538C274E2EFB8BE900305361 /* AccountAPIParams.swift */,
 				538C274C2EFB8BC200305361 /* AccountAPIResult.swift */,
-				641E7EC02608BE0C00A79CD3 /* Language.swift */,
 				CC80EC0E2672A80700CA07DA /* Page.swift */,
 				641E7EC52608BE5700A79CD3 /* License.swift */,
 				641B3E2627E0EFCC0089E816 /* CustomBlockRule.swift */,
@@ -900,7 +897,6 @@
 				640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */,
 				CC3A1E7826853D7E00683E28 /* BackendAPIParams.swift in Sources */,
 				641AFAE925B606E000218BD9 /* UAButton.swift in Sources */,
-				641E7EC12608BE0C00A79CD3 /* Language.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				CC97807926549867009F580E /* Log.swift in Sources */,
 				53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */,
