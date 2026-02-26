@@ -97,6 +97,18 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         guidelinesTextView.textColor = .label
         guidelinesTextView.font = .systemFont(ofSize: 12)
 
+        var languageKey = Locale.current.languageCode ?? ContentSources.languageCodeEN
+        if let scriptCode = Locale.current.scriptCode {
+            languageKey.append("-\(scriptCode)")
+        }
+        let regionCode = Locale.current.regionCode ?? ContentSources.regionCodeUS
+        if languageKey != ContentSources.languageCodeEN, regionCode == ContentSources.regionCodeBR {
+            languageKey.append("-\(regionCode)")
+        }
+        if let index = Predefined.supportedLanguages.firstIndex(where: { $0.code == languageKey }) {
+            languagePickerView.selectRow(Int(index), inComponent: 0, animated: true)
+        }
+
         loadChannels()
         loadUploads()
     }
@@ -207,7 +219,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         if currentClaim?.value != nil {
             if let languages = currentClaim?.value?.languages {
                 if languages.count > 0 {
-                    if let index = Predefined.publishLanguages.firstIndex(where: { $0.code == languages[0] }) {
+                    if let index = Predefined.supportedLanguages.firstIndex(where: { $0.code == languages[0] }) {
                         languagePickerView.selectRow(Int(index), inComponent: 0, animated: true)
                     }
                 }
@@ -419,9 +431,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             params["release_time"] = Int(Date().timeIntervalSince1970)
         }
 
-        if let language = Predefined.publishLanguages[languagePickerView.selectedRow(inComponent: 0)].code {
-            params["languages"] = [language]
-        }
+        params["languages"] = [Predefined.supportedLanguages[languagePickerView.selectedRow(inComponent: 0)].code]
 
         let license = Predefined.licenses[licensePickerView.selectedRow(inComponent: 0)]
         params["license"] = license.name
@@ -639,7 +649,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         if pickerView == channelPickerView {
             return channels.count
         } else if pickerView == languagePickerView {
-            return Predefined.publishLanguages.count
+            return Predefined.supportedLanguages.count
         } else if pickerView == licensePickerView {
             return Predefined.licenses.count
         }
@@ -655,7 +665,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
             return channels[row].name
         } else if pickerView == languagePickerView {
-            return Predefined.publishLanguages[row].localizedName
+            return Predefined.supportedLanguages[row].name
         } else if pickerView == licensePickerView {
             return Predefined.licenses[row].localizedName
         }
