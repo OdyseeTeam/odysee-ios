@@ -157,7 +157,7 @@ class Snackbar: NSObject {
         )
     }
 
-    // MARK: Selectors
+    // MARK: - Selectors
 
     @objc private func actionButtonPress() {
         action!()

@@ -615,7 +615,7 @@ class HomeViewController: UIViewController,
         ])
     }
 
-    // MARK: UITableViewDataSourcePrefetching
+    // MARK: - UITableViewDataSourcePrefetching
 
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
         claimsPrefetchController.prefetch(at: indexPaths)
@@ -625,7 +625,7 @@ class HomeViewController: UIViewController,
         claimsPrefetchController.cancelPrefetching(at: indexPaths)
     }
 
-    // MARK: UICollectionViewDataSourcePrefetching
+    // MARK: - UICollectionViewDataSourcePrefetching
 
     func collectionView(_ collectionView: UICollectionView, prefetchItemsAt indexPaths: [IndexPath]) {
         livestreamsPrefetchController.prefetch(at: indexPaths)

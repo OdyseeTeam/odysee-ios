@@ -139,7 +139,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return true
     }
 
-    // MARK: UISceneSession Lifecycle
+    // MARK: - UISceneSession Lifecycle
 
     func application(
         _ application: UIApplication,
