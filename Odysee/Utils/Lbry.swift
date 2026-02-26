@@ -13,7 +13,6 @@ import os
 import UIKit
 
 enum Lbry {
-    static let ttlCLaimSearchValue = 120_000
     // swift-format-ignore
     // Initialized once with static value
     static let lbrytvURL = URL(string: "https://api.na-backend.odysee.com/api/v1/proxy")!
@@ -23,11 +22,6 @@ enum Lbry {
     // swift-format-ignore
     // Initialized once with static value
     static let commentronURL = URL(string: "https://comments.odysee.tv/api/v2")!
-    static let keyShared = "shared"
-    static let sharedPreferenceVersion = "0.1"
-
-    static var walletSyncInProgress = false
-    static var pushWalletSyncQueueCount = 0
 
     static func processResolvedClaims(_ result: inout ResolveResult) {
         // if there was only one value returned, this is a result for the File view
@@ -83,8 +77,8 @@ enum Lbry {
     static var localWalletHash: String?
     static var walletBalance: WalletBalance?
 
-    private static var claimCacheById = NSCache<NSString, Claim>()
-    private static var claimCacheByUrl = NSCache<NSString, Claim>()
+    private static var claimCacheById = NSCache<NSString, Box<Claim>>()
+    private static var claimCacheByUrl = NSCache<NSString, Box<Claim>>()
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
     static var defaultChannelId: String?
@@ -269,11 +263,11 @@ enum Lbry {
     }
 
     static func cachedClaim(url: String) -> Claim? {
-        return claimCacheByUrl.object(forKey: url as NSString)
+        return claimCacheByUrl.object(forKey: url as NSString)?.wrappedValue
     }
 
     static func cachedClaim(id: String) -> Claim? {
-        return claimCacheById.object(forKey: id as NSString)
+        return claimCacheById.object(forKey: id as NSString)?.wrappedValue
     }
 
     static func addClaimToCache(claim: Claim?) {
@@ -281,19 +275,22 @@ enum Lbry {
             return
         }
         assert(claim.claimId != nil)
+
+        let boxed = Box(claim)
+
         if let id = claim.claimId {
-            claimCacheById.setObject(claim, forKey: id as NSString)
+            claimCacheById.setObject(boxed, forKey: id as NSString)
         }
         if let claimUrl = claim.permanentUrl,
            let parsed = LbryUri.tryParse(url: claimUrl, requireProto: false)?.description
         {
-            Lbry.claimCacheByUrl.setObject(claim, forKey: parsed as NSString)
+            Lbry.claimCacheByUrl.setObject(boxed, forKey: parsed as NSString)
         }
         if let shortUrl = claim.shortUrl, !shortUrl.isBlank {
-            Lbry.claimCacheByUrl.setObject(claim, forKey: shortUrl as NSString)
+            Lbry.claimCacheByUrl.setObject(boxed, forKey: shortUrl as NSString)
         }
         if let canonicalUrl = claim.canonicalUrl, !canonicalUrl.isBlank {
-            Lbry.claimCacheByUrl.setObject(claim, forKey: canonicalUrl as NSString)
+            Lbry.claimCacheByUrl.setObject(boxed, forKey: canonicalUrl as NSString)
         }
     }
 
@@ -316,13 +313,13 @@ enum Lbry {
     }
 }
 
-struct LbryApiResponseError: Error {
+struct LbryApiResponseError: LocalizedError {
     let message: String
     init(_ message: String) {
         self.message = message
     }
 
-    var localizedDescription: String {
+    var errorDescription: String? {
         return message
     }
 }

@@ -93,6 +93,8 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
             return
         }
 
+        overrideUserInterfaceStyle = .dark
+
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
         vc.frDelegate = self
         vc.firstRunFlow = true
@@ -262,6 +264,8 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
 
     func nextStep() {
         DispatchQueue.main.async {
+            self.overrideUserInterfaceStyle = .unspecified
+
             let defaults = UserDefaults.standard
             if self.currentStep == FirstRunViewController.stepUserAccount {
                 // step 2 (channel creation)

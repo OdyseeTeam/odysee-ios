@@ -15,6 +15,14 @@ struct UserNewResult: Decodable {
     }
 }
 
+struct UserExistsResult: Decodable {
+    var hasPassword: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case hasPassword = "has_password"
+    }
+}
+
 struct SyncGetResult: Decodable {
     var changed: Bool
     var hash: String?
@@ -24,4 +32,20 @@ struct SyncGetResult: Decodable {
 struct SyncSetResult: Decodable {
     var changed: Bool
     var hash: String?
+}
+
+typealias YtTransferResult = [YtTransferResultElement]
+
+struct YtTransferResultElement: Decodable {
+    var channel: AccountYoutubeChannel?
+    var totalPublishedVideos: Int
+    var totalTransferred: Int
+    var changed: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case channel
+        case totalPublishedVideos = "total_published_videos"
+        case totalTransferred = "total_transferred"
+        case changed
+    }
 }

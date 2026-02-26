@@ -59,8 +59,7 @@ class PublishesViewController: UIViewController, UITableViewDataSource, UITableV
         if newPlaceholderAdded {
             return
         }
-        let newPlaceholder = Claim()
-        newPlaceholder.claimId = "new"
+        let newPlaceholder = Claim(claimId: "new")
         uploads.append(newPlaceholder)
         newPlaceholderAdded = true
     }

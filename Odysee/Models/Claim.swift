@@ -23,7 +23,19 @@ enum StreamType: String, Codable {
     case video
 }
 
-class Claim: Decodable, Equatable, Hashable {
+final class Box<T: Decodable>: Decodable {
+    let wrappedValue: T
+
+    required init(from decoder: Decoder) throws {
+        wrappedValue = try T(from: decoder)
+    }
+
+    init(_ value: T) {
+        wrappedValue = value
+    }
+}
+
+struct Claim: Decodable {
     var address: String?
     var amount: String?
     var canonicalUrl: String?
@@ -38,8 +50,10 @@ class Claim: Decodable, Equatable, Hashable {
     var nout: Int?
     var permanentUrl: String?
     var shortUrl: String?
-    var signingChannel: Claim?
-    var repostedClaim: Claim?
+    var signingChannelRef: Box<Claim>?
+    var repostedClaimRef: Box<Claim>?
+    var signingChannel: Claim? { signingChannelRef?.wrappedValue }
+    var repostedClaim: Claim? { repostedClaimRef?.wrappedValue }
     var timestamp: Int64?
     var txid: String?
     var type: String?
@@ -63,10 +77,11 @@ class Claim: Decodable, Equatable, Hashable {
         case nout
         case permanentUrl = "permanent_url"
         case shortUrl = "short_url"
-        case signingChannel = "signing_channel"
-        case repostedClaim = "reposted_claim"
+        case signingChannelRef = "signing_channel"
+        case repostedClaimRef = "reposted_claim"
         case timestamp
         case txid
+        case type
         case value
         case valueType = "value_type"
     }
@@ -177,14 +192,6 @@ class Claim: Decodable, Equatable, Hashable {
         }
     }
 
-    static func == (lhs: Claim, rhs: Claim) -> Bool {
-        return lhs.claimId == rhs.claimId
-    }
-
-    func hash(into hasher: inout Hasher) {
-        claimId.hash(into: &hasher)
-    }
-
     var outpoint: Outpoint? {
         if let txid = txid, let nout = nout {
             return Outpoint(txid: txid, index: nout)
@@ -194,9 +201,36 @@ class Claim: Decodable, Equatable, Hashable {
     }
 
     var titleOrName: String? {
-        if let value = value, let title = value.title {
+        if let title = value?.title {
             return title
         }
         return name
+    }
+}
+
+extension Claim: Equatable {
+    static func == (lhs: Claim, rhs: Claim) -> Bool {
+        return lhs.claimId == rhs.claimId
+    }
+}
+
+extension Claim: Hashable {
+    func hash(into hasher: inout Hasher) {
+        claimId.hash(into: &hasher)
+    }
+}
+
+extension Claim: Identifiable {
+    var id: String? {
+        return claimId
+    }
+}
+
+extension Claim: Comparable {
+    static func < (lhs: Claim, rhs: Claim) -> Bool {
+        guard let lhs = lhs.titleOrName, let rhs = rhs.titleOrName else {
+            return false
+        }
+        return lhs.localizedCompare(rhs) == .orderedAscending
     }
 }

@@ -14,7 +14,7 @@ actor Wallet {
     static let syncInterval: UInt64 = 300_000_000_000 // 5 minutes
     static let syncRetryInterval: UInt64 = 10_000_000_000 // 10 seconds
 
-    // MARK: Public shared preference properties
+    // MARK: - Public shared preference properties
 
     // Only channelName, channelClaimId; requireProto = true
     typealias Follow = LbryUri
@@ -47,7 +47,7 @@ actor Wallet {
 
     private(set) var defaultChannelId: String?
 
-    // MARK: Sync
+    // MARK: - Sync
 
     private var localWalletHash: String?
     private var remoteWalletHash: String?
@@ -78,7 +78,7 @@ actor Wallet {
                 } catch is CancellationError {
                     return
                 } catch {
-                    if (error as? LbryApiResponseError)?.localizedDescription != "authentication required" {
+                    if error.localizedDescription != "authentication required" {
                         await Helper.showError(error: error)
                     }
 
@@ -204,7 +204,7 @@ actor Wallet {
     }
 }
 
-// MARK: Following
+// MARK: - Following
 
 extension SharedPreference {
     var walletFollowing: Wallet.Following {
@@ -287,20 +287,25 @@ extension Wallet {
     }
 
     /// Defaults to true (disabled) if requested following doesn't exist
-    func isNotificationsDisabled(claim: Claim) -> NotificationsDisabled {
+    static func isNotificationsDisabled(claim: Claim, for following: Following?) -> NotificationsDisabled {
         guard let channelName = claim.name,
               channelName.starts(with: "@"),
               let claimId = claim.claimId,
-              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+              let uri = try? buildFollow(channelName: channelName, claimId: claimId)
         else {
             return true
         }
 
         return following?[uri] ?? true
     }
+
+    /// Defaults to true (disabled) if requested following doesn't exist
+    func isNotificationsDisabled(claim: Claim) -> NotificationsDisabled {
+        return Self.isNotificationsDisabled(claim: claim, for: following)
+    }
 }
 
-// MARK: Blocked
+// MARK: - Blocked
 
 extension Wallet {
     static func buildBlocked(channelName: String, claimId: String) throws -> LbryUri {
@@ -343,7 +348,7 @@ extension Wallet {
     }
 }
 
-// MARK: Default Channel
+// MARK: - Default Channel
 
 extension Wallet {
     func setDefaultChannelId(channelId: String) {

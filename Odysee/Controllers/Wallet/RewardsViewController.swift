@@ -26,7 +26,7 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet var rewardEligibleView: UIView!
 
     lazy var rewardVerification = {
-        let rootView = RewardVerificationView(close: { self.closeTapped(nil) })
+        let rootView = RewardVerificationScreen(close: { self.closeTapped(nil) })
         let vc = UIHostingController(rootView: rootView)
         vc.view.translatesAutoresizingMaskIntoConstraints = false
         return vc

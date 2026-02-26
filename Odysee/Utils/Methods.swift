@@ -189,7 +189,7 @@ extension Method where ParamType: AccountMethodParams {
         let response = try JSONDecoder().decode(LbryioAPIResponse<ResultType>.self, from: data)
 
         guard let result = response.result else {
-            throw LbryioResponseError.error(response.error ?? "unknown api error", respCode)
+            throw LbryioResponseError.error(response.error, respCode)
         }
 
         return result
@@ -214,8 +214,10 @@ enum BackendMethods {
         defaultTransform: Lbry.processPageOfClaims
     )
     static let streamAbandon = Method<StreamAbandonParams, Transaction>(name: "stream_abandon")
+    static let addressList = Method<NilType, AddressListResult>(name: "address_list")
     static let addressUnused = Method<NilType, String>(name: "address_unused")
     static let channelAbandon = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
+    static let channelImport = Method<ChannelImportParams, NilType>(name: "channel_import")
     static let channelSign = Method<ChannelSignParams, ChannelSignResult>(name: "channel_sign")
     static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
     static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
@@ -247,9 +249,18 @@ enum AccountMethods {
 
     struct NilType: Codable, AccountMethodParams {}
 
+    static let userMe = Method<NilType, User>(name: "user/me", method: .GET)
     static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
+    static let userExists = Method<UserExistsParams, UserExistsResult>(name: "user/exists")
+    static let userSignUp = Method<UserSignInUpParams, NilType>(name: "user/signup")
+    static let userSignIn = Method<UserSignInUpParams, User>(name: "user/signin")
     static let userSignOut = Method<NilType, NilType>(name: "user/signout")
+    static let userEmailResendToken = Method<UserEmailResendTokenParams, NilType>(name: "user_email/resend_token")
     static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
     static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
     static let subscriptionNew = Method<SubscriptionNewParams, NilType>(name: "subscription/new")
+    static let ytNew = Method<YtNewParams, String>(name: "yt/new")
+    static let ytTransfer = Method<YtTransferParams, YtTransferResult>(name: "yt/transfer")
+
+    static let ytTransferStatusCheck = Method<NilType, YtTransferResult>(name: "yt/transfer")
 }

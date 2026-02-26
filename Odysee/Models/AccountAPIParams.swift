@@ -17,6 +17,25 @@ struct UserNewParams: Encodable, AccountMethodParams {
     }
 }
 
+struct UserExistsParams: Encodable, AccountMethodParams {
+    var email: String
+}
+
+struct UserSignInUpParams: Encodable, AccountMethodParams {
+    var email: String
+    var password: String
+}
+
+struct UserEmailResendTokenParams: Encodable, AccountMethodParams {
+    var email: String
+    let onlyIfExpired = true
+
+    enum CodingKeys: String, CodingKey {
+        case email
+        case onlyIfExpired = "only_if_expired"
+    }
+}
+
 struct SyncGetParams: Encodable, AccountMethodParams {
     var hash: String
 }
@@ -42,5 +61,31 @@ struct SubscriptionNewParams: Encodable, AccountMethodParams {
         case claimId = "claim_id"
         case channelName = "channel_name"
         case notificationsDisabled = "notifications_disabled"
+    }
+}
+
+struct YtNewParams: Encodable, AccountMethodParams {
+    let type = "sync"
+    let immediateSync = true
+    var channelLanguage: String
+    var desiredLbryChannelName: String
+    let returnUrl = YouTubeSyncScreen.Setup.returnUrl
+
+    enum CodingKeys: String, CodingKey {
+        case type
+        case immediateSync = "immediate_sync"
+        case channelLanguage = "channel_language"
+        case desiredLbryChannelName = "desired_lbry_channel_name"
+        case returnUrl = "return_url"
+    }
+}
+
+struct YtTransferParams: Encodable, AccountMethodParams {
+    var address: String
+    var publicKey: String
+
+    enum CodingKeys: String, CodingKey {
+        case address
+        case publicKey = "public_key"
     }
 }

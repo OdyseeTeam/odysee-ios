@@ -24,8 +24,6 @@ enum Lbryio {
         private enum Key: String {
             case ChannelsAssociated
             case EmailRewardClaimed
-            case YouTubeSyncConnected
-            case YouTubeSyncDone
         }
 
         private static func get(string: Key) -> String? {
@@ -62,29 +60,9 @@ enum Lbryio {
             }
         }
 
-        static var isYouTubeSyncConnected: Bool {
-            get {
-                return get(bool: .YouTubeSyncConnected)
-            }
-            set {
-                set(bool: .YouTubeSyncConnected, value: newValue)
-            }
-        }
-
-        static var isYouTubeSyncDone: Bool {
-            get {
-                return get(bool: .YouTubeSyncDone)
-            }
-            set {
-                set(bool: .YouTubeSyncDone, value: newValue)
-            }
-        }
-
         static func reset() {
             let defaults = UserDefaults.standard
             defaults.removeObject(forKey: Lbryio.Defaults.Key.EmailRewardClaimed.rawValue)
-            defaults.removeObject(forKey: Lbryio.Defaults.Key.YouTubeSyncDone.rawValue)
-            defaults.removeObject(forKey: Lbryio.Defaults.Key.YouTubeSyncConnected.rawValue)
         }
     }
 
@@ -276,7 +254,7 @@ enum Lbryio {
                     }
 
                     if respData?["error"] is NSNull {
-                        completion(nil, LbryioResponseError.error("no error message", respCode))
+                        completion(nil, LbryioResponseError.error(nil, respCode))
                     } else if let error = respData?["error"] as? String {
                         completion(nil, LbryioResponseError.error(error, respCode))
                     } else {
@@ -352,6 +330,17 @@ enum Lbryio {
                 }
             }
         })
+    }
+
+    static func fetchCurrentUser() async throws -> User {
+        let user = try await AccountMethods.userMe.call(params: .init())
+
+        currentUser = user
+        if let id = user.id {
+            Analytics.setDefaultEventParameters(["user_id": id])
+        }
+
+        return user
     }
 
     static func areCommentsEnabled(channelId: String, channelName: String, completion: @escaping (Bool) -> Void) {
@@ -449,65 +438,6 @@ enum Lbryio {
         }
     }
 
-    static func syncSet(
-        oldHash: String,
-        newHash: String,
-        data: String,
-        completion: @escaping (String?, Error?) -> Void
-    ) {
-        var options = [String: String]()
-        options["old_hash"] = oldHash
-        options["new_hash"] = newHash
-        options["data"] = data
-        do {
-            try post(resource: "sync", action: "set", options: options, completion: { data, error in
-                guard let data = data, error == nil else {
-                    completion(nil, error)
-                    return
-                }
-
-                let response = data as? [String: Any]
-                let remoteHash = response?["hash"] as? String
-                completion(remoteHash, nil)
-            })
-        } catch {
-            completion(nil, error)
-        }
-    }
-
-    static func syncGet(
-        hash: String,
-        applySyncChanges: Bool = false,
-        completion: @escaping (WalletSync?, Bool?, Error?) -> Void
-    ) {
-        var options = [String: String]()
-        options["hash"] = hash
-        do {
-            try post(resource: "sync", action: "get", options: options, completion: { data, error in
-                guard let response = data as? [String: Any], error == nil else {
-                    if let error = error as? LbryioResponseError,
-                       case let LbryioResponseError.error(_, code) = error,
-                       code == 404
-                    {
-                        // no wallet found for the user, so it's a new sync
-                        completion(nil, true, nil)
-                        return
-                    }
-                    completion(nil, nil, error)
-                    return
-                }
-
-                var walletSync = WalletSync()
-                walletSync.hash = response["hash"] as? String
-                walletSync.data = response["data"] as? String
-                walletSync.changed = response["changed"] as? Bool
-                completion(walletSync, false, nil)
-            })
-        } catch {
-            completion(nil, nil, error)
-        }
-    }
-
     static func logPublishEvent(_ claimResult: Claim) {
         guard let permanentUrl = claimResult.permanentUrl,
               let claimId = claimResult.claimId,
@@ -565,14 +495,17 @@ enum LbryioRequestError: Error {
     case invalidResponse(_ response: URLResponse)
 }
 
-enum LbryioResponseError: Error {
-    case error(_ message: String, _ code: Int)
+enum LbryioResponseError: LocalizedError {
+    case error(_ message: String?, _ code: Int)
 
-    var localizedDescription: String {
-        guard case let .error(message, _) = self else {
-            return "Account response error"
+    var errorDescription: String? {
+        switch self {
+        case let .error(message, code):
+            guard let message else {
+                return __("No error message (\(code) \(HTTPURLResponse.localizedString(forStatusCode: code)))")
+            }
+
+            return message
         }
-
-        return message
     }
 }

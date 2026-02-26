@@ -16,6 +16,8 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     @IBOutlet var userEmailLabel: UILabel!
     @IBOutlet var signUpLoginContainer: UIView!
 
+    @IBOutlet var signedOutMenuHeight: NSLayoutConstraint!
+    @IBOutlet var signedInMenuHeight: NSLayoutConstraint!
     @IBOutlet var changeDefaultChannelButton: UIButton!
     @IBOutlet var goLiveLabel: UILabel!
     @IBOutlet var channelsLabel: UILabel!
@@ -46,6 +48,9 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         signUpLoginButton.layer.cornerRadius = 16
 
         signUpLoginContainer.isHidden = Lbryio.isSignedIn()
+
+        signedOutMenuHeight.isActive = !Lbryio.isSignedIn()
+        signedInMenuHeight.isActive = Lbryio.isSignedIn()
 
         changeDefaultChannelButton.isHidden = !Lbryio.isSignedIn()
         goLiveLabel.isHidden = !Lbryio.isSignedIn()
@@ -121,13 +126,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @IBAction func youTubeSyncTapped(_ sender: Any) {
-        var vc: UIViewController!
-        if Lbryio.Defaults.isYouTubeSyncConnected {
-            vc = storyboard?
-                .instantiateViewController(identifier: "yt_sync_status_vc") as! YouTubeSyncStatusViewController
-        } else {
-            vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
-        }
+        let vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }

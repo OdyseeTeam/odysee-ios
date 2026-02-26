@@ -8,6 +8,7 @@
 import AVFoundation
 import AVKit
 import FirebaseAnalytics
+import FirebaseCrashlytics
 import ImageScrollView
 import OrderedCollections
 import PerfectMarkdown
@@ -108,7 +109,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet var webViewHeightConstraint: NSLayoutConstraint!
     @IBOutlet var imageViewer: ImageScrollView!
     @IBOutlet var webView: WKWebView!
-    @IBOutlet var dismissFileView: UIView!
     @IBOutlet var playerRateView: UIVisualEffectView!
     @IBOutlet var playerRateButton: UIButton!
     @IBOutlet var jumpBackwardView: UIVisualEffectView!
@@ -768,7 +768,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         mediaViewHeightConstraint.constant = mediaViewHeight
 
         if isTextContent || isImageContent || isOtherContent {
-            dismissFileView.isHidden = true
             contentInfoView.isHidden = false
             closeOtherContentButton.isHidden = false
             contentInfoViewButton.isHidden = true
@@ -1133,12 +1132,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         AppDelegate.shared.lazyPlayer?.pause()
         avpc.player?.play()
-
-        let task = DispatchWorkItem { [weak self] in
-            self?.dismissFileView.isHidden = true
-        }
-        // hide the dismiss file view control 5 seconds after playback starts
-        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 5, execute: task)
     }
 
     func displayRelatedPlaceholders() {
@@ -1148,8 +1141,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         relatedContent = []
         for _ in 1 ... 15 {
-            let placeholder = Claim()
-            placeholder.claimId = "placeholder"
+            let placeholder = Claim(claimId: "placeholder")
             relatedContent.append(placeholder)
         }
         relatedContentListView.reloadData()
@@ -1644,8 +1636,23 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                             self.showClaimAndCheckFollowing()
                         }
                     } else {
-                        self.mediaLoadingIndicator.isHidden = true
-                        self.showError(message: String.localized("Failed to get transcoded media location"))
+                        Crashlytics.crashlytics().recordImmediate(
+                            error: GenericError("Transcoded media redirect (308) had no Location header"),
+                            userInfo: [
+                                "claim_canonicalUrl": claim.canonicalUrl ?? ""
+                            ]
+                        )
+
+                        DispatchQueue.main.async {
+                            let headers: [String: String] = [
+                                "Referer": "https://ios.odysee.com/",
+                            ]
+                            self.initializePlayerWithUrl(
+                                singleClaim: claim,
+                                sourceUrl: sourceUrl,
+                                headers: headers
+                            )
+                        }
                     }
                     return
                 }
@@ -2134,16 +2141,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         DispatchQueue.main.async {
             AppDelegate.shared.mainController.showMessage(message: message)
         }
-    }
-
-    @IBAction func dismissFileViewTapped(_ sender: Any) {
-        let transition = CATransition()
-        transition.duration = 0.2
-        transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-        transition.type = .push
-        transition.subtype = .fromBottom
-        AppDelegate.shared.mainNavigationController?.view.layer.add(transition, forKey: kCATransition)
-        navigationController?.popViewController(animated: false)
     }
 
     var interactiveDismiss: UIPercentDrivenInteractiveTransition?

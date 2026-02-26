@@ -8,7 +8,9 @@
 import Combine
 import FirebaseCrashlytics
 import Foundation
+import OrderedCollections
 import PINRemoteImage
+import SwiftUI
 import UIKit
 
 extension String {
@@ -280,5 +282,41 @@ extension Crashlytics {
     func recordImmediate(error: any Error, userInfo: [String: Any]? = nil) {
         record(error: error, userInfo: userInfo)
         sendUnsentReports()
+    }
+}
+
+// https://stackoverflow.com/a/77735876
+extension View {
+    func apply<V: View>(@ViewBuilder _ block: (Self) -> V) -> V { block(self) }
+}
+
+// swift-format-ignore
+// Localization helper (same as web)
+func __(_ string: String.LocalizationValue) -> String {
+    String(localized: string)
+}
+
+extension OrderedSet {
+    subscript(mutating position: Int) -> Element {
+        get {
+            self[position]
+        }
+        set {
+            update(newValue, at: position)
+        }
+    }
+}
+
+extension ButtonRole {
+    static let closeOrCancel = if #available(iOS 26, *) {
+        close
+    } else {
+        cancel
+    }
+}
+
+extension Text {
+    func wrap() -> some View {
+        fixedSize(horizontal: false, vertical: true)
     }
 }

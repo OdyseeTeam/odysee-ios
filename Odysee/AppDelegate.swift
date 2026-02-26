@@ -81,6 +81,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     @objc func playerDidFinishPlaying(note: NSNotification) {
+        removeRemoteTransportControls()
+        (mainViewController as? MainViewController)?.miniPlayerPlayPauseButton.isUserInteractionEnabled = false
+
         if let currentFileViewController {
             currentFileViewController.playNextPlaylistItem()
         }
@@ -150,7 +153,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         return true
     }
 
-    // MARK: UISceneSession Lifecycle
+    // MARK: - UISceneSession Lifecycle
 
     func application(
         _ application: UIApplication,
@@ -293,16 +296,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             return
         }
 
+        (mainViewController as? MainViewController)?.miniPlayerPlayPauseButton.image = UIImage(
+            systemName: lazyPlayer.rate == 0 ? "play.fill" : "pause.fill"
+        )
+
         let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()
-        var nowPlayingInfo = nowPlayingInfoCenter.nowPlayingInfo ?? [String: Any]()
+
+        guard var nowPlayingInfo = nowPlayingInfoCenter.nowPlayingInfo else {
+            setupRemoteTransportControls()
+            (mainViewController as? MainViewController)?.miniPlayerPlayPauseButton.isUserInteractionEnabled = true
+            return
+        }
+
         nowPlayingInfo[MPNowPlayingInfoPropertyElapsedPlaybackTime] = currentItem.currentTime().seconds
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = currentItem.asset.duration.seconds
         nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = lazyPlayer.rate
         nowPlayingInfoCenter.nowPlayingInfo = nowPlayingInfo
-
-        (mainViewController as? MainViewController)?.miniPlayerPlayPauseButton.image = UIImage(
-            systemName: lazyPlayer.rate == 0 ? "play.fill" : "pause.fill"
-        )
     }
 
     private func makeMediaItem(_ image: UIImage) -> MPMediaItemArtwork {

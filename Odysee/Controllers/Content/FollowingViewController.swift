@@ -7,6 +7,7 @@
 
 import FirebaseAnalytics
 import OrderedCollections
+import SwiftUI
 import UIKit
 
 class FollowingViewController: UIViewController, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,
@@ -26,6 +27,24 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var sortByLabel: UILabel!
     @IBOutlet var contentFromLabel: UILabel!
+
+    lazy var manageFollowing = {
+        let rootView = ManageFollowingScreen(
+            navigator: .init(
+                hide: { [weak self] in
+                    self?.hideManage()
+                }
+            ),
+            model: .init(),
+            openChannel: { [weak self] claim in
+                self?.openChannel(claim)
+            }
+        )
+        let vc = UIHostingController(rootView: rootView)
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
+        vc.view.isHidden = true // Initially hidden
+        return vc
+    }()
 
     var selectedChannelClaim: Claim?
     var suggestedFollows = OrderedSet<Claim>()
@@ -79,7 +98,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         if selectedChannelClaim != nil {
             for i in following.indices {
                 if following[i].claimId == selectedChannelClaim?.claimId {
-                    following[i].selected = true
+                    following[mutating: i].selected = true
                     return
                 }
             }
@@ -90,6 +109,17 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        addChild(manageFollowing)
+        view.addSubview(manageFollowing.view)
+        manageFollowing.didMove(toParent: self)
+        NSLayoutConstraint.activate([
+            manageFollowing.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            manageFollowing.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            manageFollowing.view.topAnchor.constraint(equalTo: view.topAnchor),
+            manageFollowing.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+
         loadingContainer.layer.cornerRadius = 20
         suggestedFollowsView.allowsMultipleSelection = true
         channelListView.allowsMultipleSelection = false
@@ -126,6 +156,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
                 loadSuggestedFollows()
 
+                manageFollowing.rootView.model.update(
+                    following: [],
+                    walletFollowing: [:]
+                )
+
                 return
             }
 
@@ -135,11 +170,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
                 urls: newFollowing.keys.map(\.description)
             ))
 
-            following.append(
-                contentsOf: resolve.claims.values
-                    .sorted {
-                        $0.name ?? "" < $1.name ?? ""
-                    }
+            following.append(contentsOf: resolve.claims.values.sorted())
+
+            manageFollowing.rootView.model.update(
+                following: Array(following),
+                walletFollowing: newFollowing
             )
 
             checkSelectedChannel()
@@ -297,6 +332,15 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         }
     }
 
+    @IBAction func manageTapped(_ sender: Any) {
+        manageFollowing.view.isHidden = false
+        manageFollowing.rootView.navigator.show()
+    }
+
+    private func hideManage() {
+        manageFollowing.view.isHidden = true
+    }
+
     @IBAction func discoverTapped(_ sender: Any) {
         suggestedView.isHidden = false
         mainView.isHidden = true
@@ -340,6 +384,13 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             forKey: kCATransition
         )
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+    }
+
+    func openChannel(_ claim: Claim) {
+        let vc = AppDelegate.shared.mainController.storyboard?
+            .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+        vc.channelClaim = claim
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -403,19 +454,17 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             if !loadingContent, following.count > indexPath.row {
                 let prevSelectedClaimId = selectedChannelClaim?.claimId
 
-                let claim = following[indexPath.row]
-                let selected = claim.selected
+                let selected = following[indexPath.row].selected
 
                 for i in following.indices {
-                    following[i].selected = false
+                    following[mutating: i].selected = false
                 }
 
-                if selected {
-                    claim.selected = false
-                    selectedChannelClaim = nil
+                following[mutating: indexPath.row].selected = !selected
+                selectedChannelClaim = if selected {
+                    nil
                 } else {
-                    claim.selected = true
-                    selectedChannelClaim = claim
+                    following[indexPath.row]
                 }
 
                 if prevSelectedClaimId != selectedChannelClaim?.claimId {
