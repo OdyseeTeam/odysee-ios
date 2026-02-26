@@ -14,7 +14,7 @@ actor Wallet {
     static let syncInterval: UInt64 = 300_000_000_000 // 5 minutes
     static let syncRetryInterval: UInt64 = 10_000_000_000 // 10 seconds
 
-    // MARK: Public shared preference properties
+    // MARK: - Public shared preference properties
 
     // Only channelName, channelClaimId; requireProto = true
     typealias Follow = LbryUri
@@ -47,7 +47,7 @@ actor Wallet {
 
     private(set) var defaultChannelId: String?
 
-    // MARK: Sync
+    // MARK: - Sync
 
     private var localWalletHash: String?
     private var remoteWalletHash: String?
@@ -204,7 +204,7 @@ actor Wallet {
     }
 }
 
-// MARK: Following
+// MARK: - Following
 
 extension SharedPreference {
     var walletFollowing: Wallet.Following {
@@ -305,7 +305,7 @@ extension Wallet {
     }
 }
 
-// MARK: Blocked
+// MARK: - Blocked
 
 extension Wallet {
     static func buildBlocked(channelName: String, claimId: String) throws -> LbryUri {
@@ -348,7 +348,7 @@ extension Wallet {
     }
 }
 
-// MARK: Default Channel
+// MARK: - Default Channel
 
 extension Wallet {
     func setDefaultChannelId(channelId: String) {
