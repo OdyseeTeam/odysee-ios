@@ -1639,7 +1639,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                         Crashlytics.crashlytics().recordImmediate(
                             error: GenericError("Transcoded media redirect (308) had no Location header"),
                             userInfo: [
-                                "claim_canonicalUrl": claim.canonicalUrl
+                                "claim_canonicalUrl": claim.canonicalUrl ?? ""
                             ]
                         )
 
