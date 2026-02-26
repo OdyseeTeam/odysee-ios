@@ -1765,48 +1765,6 @@ Line 2</string>
             </objects>
             <point key="canvasLocation" x="-3366.666666666667" y="-1082.8125"/>
         </scene>
-        <!--Wallet Sync View Controller-->
-        <scene sceneID="GCC-qt-Hl2">
-            <objects>
-                <viewController storyboardIdentifier="wallet_sync_vc" id="4QY-KF-YHE" customClass="WalletSyncViewController" customModule="Odysee" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="kjS-xh-WYx">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="odysee_logo" translatesAutoresizingMaskIntoConstraints="NO" id="e1N-L1-VPt">
-                                <rect key="frame" x="127" y="224" width="160" height="160"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="160" id="0CX-k2-kUq"/>
-                                    <constraint firstAttribute="height" constant="160" id="TMN-w9-iZI"/>
-                                </constraints>
-                            </imageView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Retrieving account details..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DqD-QE-zQz">
-                                <rect key="frame" x="117" y="448" width="180" height="17"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" animating="YES" style="large" translatesAutoresizingMaskIntoConstraints="NO" id="Zxg-rD-u6o">
-                                <rect key="frame" x="188.5" y="497" width="37" height="37"/>
-                                <color key="color" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
-                            </activityIndicatorView>
-                        </subviews>
-                        <viewLayoutGuide key="safeArea" id="g4V-Cy-aLe"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                        <constraints>
-                            <constraint firstItem="Zxg-rD-u6o" firstAttribute="centerX" secondItem="kjS-xh-WYx" secondAttribute="centerX" id="1m3-go-LRT"/>
-                            <constraint firstItem="DqD-QE-zQz" firstAttribute="centerX" secondItem="kjS-xh-WYx" secondAttribute="centerX" id="A4j-r7-3OJ"/>
-                            <constraint firstItem="e1N-L1-VPt" firstAttribute="top" secondItem="g4V-Cy-aLe" secondAttribute="top" constant="128" id="F70-UD-eaU"/>
-                            <constraint firstItem="Zxg-rD-u6o" firstAttribute="top" secondItem="DqD-QE-zQz" secondAttribute="bottom" constant="32" id="HdD-3L-XJI"/>
-                            <constraint firstItem="DqD-QE-zQz" firstAttribute="top" secondItem="e1N-L1-VPt" secondAttribute="bottom" constant="64" id="X6j-QH-Wud"/>
-                            <constraint firstItem="e1N-L1-VPt" firstAttribute="centerX" secondItem="kjS-xh-WYx" secondAttribute="centerX" id="uu4-z9-hQO"/>
-                        </constraints>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="kOF-lx-SUA" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-2625" y="-1083"/>
-        </scene>
         <!--You Tube Sync View Controller-->
         <scene sceneID="6L3-vG-2NY">
             <objects>

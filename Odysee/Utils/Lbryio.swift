@@ -460,65 +460,6 @@ enum Lbryio {
         }
     }
 
-    static func syncSet(
-        oldHash: String,
-        newHash: String,
-        data: String,
-        completion: @escaping (String?, Error?) -> Void
-    ) {
-        var options = [String: String]()
-        options["old_hash"] = oldHash
-        options["new_hash"] = newHash
-        options["data"] = data
-        do {
-            try post(resource: "sync", action: "set", options: options, completion: { data, error in
-                guard let data = data, error == nil else {
-                    completion(nil, error)
-                    return
-                }
-
-                let response = data as? [String: Any]
-                let remoteHash = response?["hash"] as? String
-                completion(remoteHash, nil)
-            })
-        } catch {
-            completion(nil, error)
-        }
-    }
-
-    static func syncGet(
-        hash: String,
-        applySyncChanges: Bool = false,
-        completion: @escaping (WalletSync?, Bool?, Error?) -> Void
-    ) {
-        var options = [String: String]()
-        options["hash"] = hash
-        do {
-            try post(resource: "sync", action: "get", options: options, completion: { data, error in
-                guard let response = data as? [String: Any], error == nil else {
-                    if let error = error as? LbryioResponseError,
-                       case let LbryioResponseError.error(_, code) = error,
-                       code == 404
-                    {
-                        // no wallet found for the user, so it's a new sync
-                        completion(nil, true, nil)
-                        return
-                    }
-                    completion(nil, nil, error)
-                    return
-                }
-
-                var walletSync = WalletSync()
-                walletSync.hash = response["hash"] as? String
-                walletSync.data = response["data"] as? String
-                walletSync.changed = response["changed"] as? Bool
-                completion(walletSync, false, nil)
-            })
-        } catch {
-            completion(nil, nil, error)
-        }
-    }
-
     static func logPublishEvent(_ claimResult: Claim) {
         guard let permanentUrl = claimResult.permanentUrl,
               let claimId = claimResult.claimId,

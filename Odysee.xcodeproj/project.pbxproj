@@ -61,8 +61,6 @@
 		641E7EB92608BDB100A79CD3 /* Predefined.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E7EB82608BDB100A79CD3 /* Predefined.swift */; };
 		641E7EC62608BE5800A79CD3 /* License.swift in Sources */ = {isa = PBXBuildFile; fileRef = 641E7EC52608BE5700A79CD3 /* License.swift */; };
 		642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6AFC257A382900F17355 /* WalletViewController.swift */; };
-		642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */; };
-		642B6B07257A635300F17355 /* WalletSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B06257A635300F17355 /* WalletSync.swift */; };
 		642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B0B257AB9F200F17355 /* WalletBalance.swift */; };
 		642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B10257B4CBC00F17355 /* Transaction.swift */; };
 		642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 642B6B15257B528300F17355 /* TransactionTableViewCell.swift */; };
@@ -215,8 +213,6 @@
 		641F07ED26A83F9B008CD7C5 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Main.strings; sourceTree = "<group>"; };
 		641F07EE26A83FC9008CD7C5 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		642B6AFC257A382900F17355 /* WalletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletViewController.swift; sourceTree = "<group>"; };
-		642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSyncViewController.swift; sourceTree = "<group>"; };
-		642B6B06257A635300F17355 /* WalletSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSync.swift; sourceTree = "<group>"; };
 		642B6B0B257AB9F200F17355 /* WalletBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalance.swift; sourceTree = "<group>"; };
 		642B6B10257B4CBC00F17355 /* Transaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transaction.swift; sourceTree = "<group>"; };
 		642B6B15257B528300F17355 /* TransactionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionTableViewCell.swift; sourceTree = "<group>"; };
@@ -466,7 +462,6 @@
 		64666B09258737BD00DF4608 /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
-				642B6B01257A3A8500F17355 /* WalletSyncViewController.swift */,
 				642B6AFC257A382900F17355 /* WalletViewController.swift */,
 				646D563E2584FAD4002DB12F /* RewardsViewController.swift */,
 				642B6B1A257B698C00F17355 /* TransactionsViewController.swift */,
@@ -501,7 +496,6 @@
 			isa = PBXGroup;
 			children = (
 				641108EB255AA4CF00F0FB8A /* User.swift */,
-				642B6B06257A635300F17355 /* WalletSync.swift */,
 				640BEF2E2587A8FA0019B840 /* LbryNotification.swift */,
 				64D72BB9258C952A00F5C4E3 /* RewardVerified.swift */,
 				64D72BC2258CDEC400F5C4E3 /* Reward.swift */,
@@ -856,13 +850,11 @@
 				642B6B1B257B698C00F17355 /* TransactionsViewController.swift in Sources */,
 				646F1F7625F0D67A00F75F3B /* PublishesViewController.swift in Sources */,
 				6411C0B5255B94DA0018C3D5 /* MainViewController.swift in Sources */,
-				642B6B02257A3A8500F17355 /* WalletSyncViewController.swift in Sources */,
 				CC80EC0F2672A80700CA07DA /* Page.swift in Sources */,
 				64666B032587378400DF4608 /* ChannelEditorViewController.swift in Sources */,
 				538C274F2EFB8BE900305361 /* AccountAPIParams.swift in Sources */,
 				649F023C2717F918009A5698 /* Constants.swift in Sources */,
 				641B3E2727E0EFCC0089E816 /* CustomBlockRule.swift in Sources */,
-				642B6B07257A635300F17355 /* WalletSync.swift in Sources */,
 				646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */,
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
 				641108F1255AF6CE00F0FB8A /* Helper.swift in Sources */,
