@@ -34,7 +34,6 @@ class UserAccountViewController: UIViewController {
 
     var frDelegate: FirstRunDelegate?
     var firstRunFlow = false
-    var finishWalletSyncStarted = false
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -98,12 +97,6 @@ class UserAccountViewController: UIViewController {
     }
 
     func finishWithWalletSync() async {
-        if finishWalletSyncStarted {
-            return
-        }
-
-        finishWalletSyncStarted = true
-
         await Wallet.shared.startSync()
 
         AppDelegate.shared.mainController.checkUploadButton()
