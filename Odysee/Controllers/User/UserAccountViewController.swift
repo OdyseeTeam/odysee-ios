@@ -125,7 +125,10 @@ class UserAccountViewController: UIViewController {
         if popViewController {
             AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
-        guard !Lbryio.Defaults.isYouTubeSyncDone else {
+        guard let channels = Lbryio.currentUser?.youtubeChannels,
+              // Prompt Claim Channel(s) if "Your videos are ready to be transferred."
+              YouTubeSyncScreen.ViewModel.transferEnabled(channels: channels)
+        else {
             return
         }
         let vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController

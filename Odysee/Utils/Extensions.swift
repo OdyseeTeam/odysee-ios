@@ -314,3 +314,9 @@ extension ButtonRole {
         cancel
     }
 }
+
+extension Text {
+    func wrap() -> some View {
+        fixedSize(horizontal: false, vertical: true)
+    }
+}

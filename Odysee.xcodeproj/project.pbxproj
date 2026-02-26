@@ -11,7 +11,8 @@
 		532650E4286EAB1B00F0FF0B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 532650E3286EAB1B00F0FF0B /* Settings.bundle */; };
 		533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */; };
 		534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */; };
-		534B71A4287BE0F200F01D42 /* ChannelSignResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */; };
+		534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */; };
+		534CCCA92F3C74CC00457BBF /* YouTubeSyncViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */; };
 		53593F31287E5D75007FD08E /* CommentsAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentsAPIResult.swift */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
@@ -23,6 +24,7 @@
 		5391E4362EFE36C4008EF30A /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5391E4332EFE36C4008EF30A /* Wallet.swift */; };
 		5391E43A2EFE6C88008EF30A /* SharedPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5391E4392EFE6C88008EF30A /* SharedPreference.swift */; };
 		5391E43D2EFED725008EF30A /* ValueCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 5391E43C2EFED725008EF30A /* ValueCodable */; };
+		539D79872F3DA6DC00E7686E /* AccountYoutubeChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */; };
 		539D79892F3E386000E7686E /* ManageFollowingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79882F3E386000E7686E /* ManageFollowingScreen.swift */; };
 		539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 539D798B2F3E389400E7686E /* CachedAsyncImage */; };
 		539D798E2F3EBDCE00E7686E /* ManageFollowingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */; };
@@ -31,6 +33,8 @@
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
 		53C01F552F28CFFC008ED3F8 /* SignInUpScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */; };
+		53C4FA3F2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */; };
+		53C4FA412F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */; };
 		53D4CFAA2F2B357C00F395A3 /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 53D4CFA92F2B357C00F395A3 /* AsyncExtensions */; };
 		53D4CFAC2F2C5A9000F395A3 /* SignInUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */; };
 		53D59FFA2EF3AAEA0081D800 /* BackendAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FF92EF3AAEA0081D800 /* BackendAPIResult.swift */; };
@@ -99,7 +103,6 @@
 		64A6CA71255DADFB00294E74 /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA70255DADFB00294E74 /* SearchViewController.swift */; };
 		64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA75255DB5B200294E74 /* Lighthouse.swift */; };
 		64A6CA7B255DD34700294E74 /* AppTabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A6CA7A255DD34700294E74 /* AppTabBarController.swift */; };
-		64A8B65125E671AC00F06D74 /* YouTubeSyncStatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64A8B65025E671AC00F06D74 /* YouTubeSyncStatusViewController.swift */; };
 		64BAFBB22609ED5900BD4B9A /* LibraryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64BAFBB12609ED5900BD4B9A /* LibraryViewController.swift */; };
 		64CB288225768A9A00FE48B3 /* Snackbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64CB288125768A9A00FE48B3 /* Snackbar.swift */; };
 		64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */; };
@@ -154,7 +157,8 @@
 		532650E3286EAB1B00F0FF0B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerificationScreen.swift; sourceTree = "<group>"; };
 		534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIParams.swift; sourceTree = "<group>"; };
-		534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelSignResult.swift; sourceTree = "<group>"; };
+		534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncScreen.swift; sourceTree = "<group>"; };
+		534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncViewModel.swift; sourceTree = "<group>"; };
 		53593F30287E5D75007FD08E /* CommentsAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIResult.swift; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
@@ -164,6 +168,7 @@
 		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		5391E4332EFE36C4008EF30A /* Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		5391E4392EFE6C88008EF30A /* SharedPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPreference.swift; sourceTree = "<group>"; };
+		539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountYoutubeChannel.swift; sourceTree = "<group>"; };
 		539D79882F3E386000E7686E /* ManageFollowingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageFollowingScreen.swift; sourceTree = "<group>"; };
 		539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageFollowingViewModel.swift; sourceTree = "<group>"; };
 		539D79922F3ECE7300E7686E /* ChannelListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelListItem.swift; sourceTree = "<group>"; };
@@ -171,6 +176,8 @@
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
 		53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpScreen.swift; sourceTree = "<group>"; };
+		53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubeSyncScreen+Status.swift"; sourceTree = "<group>"; };
+		53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubeSyncScreen+Setup.swift"; sourceTree = "<group>"; };
 		53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpViewModel.swift; sourceTree = "<group>"; };
 		53D59FF92EF3AAEA0081D800 /* BackendAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendAPIResult.swift; sourceTree = "<group>"; };
 		53D59FFB2EF3AE530081D800 /* Methods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Methods.swift; sourceTree = "<group>"; };
@@ -247,7 +254,6 @@
 		64A6CA70255DADFB00294E74 /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
 		64A6CA75255DB5B200294E74 /* Lighthouse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lighthouse.swift; sourceTree = "<group>"; };
 		64A6CA7A255DD34700294E74 /* AppTabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppTabBarController.swift; sourceTree = "<group>"; };
-		64A8B65025E671AC00F06D74 /* YouTubeSyncStatusViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncStatusViewController.swift; sourceTree = "<group>"; };
 		64BAFBB12609ED5900BD4B9A /* LibraryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryViewController.swift; sourceTree = "<group>"; };
 		64CB288125768A9A00FE48B3 /* Snackbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snackbar.swift; sourceTree = "<group>"; };
 		64D0CFEC25728D2A00A89B0A /* FollowingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowingViewController.swift; sourceTree = "<group>"; };
@@ -330,6 +336,9 @@
 				533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */,
 				53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */,
 				539D79882F3E386000E7686E /* ManageFollowingScreen.swift */,
+				534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */,
+				53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */,
+				53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -340,6 +349,7 @@
 				5391E4332EFE36C4008EF30A /* Wallet.swift */,
 				53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */,
 				539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */,
+				534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -380,9 +390,9 @@
 				641E7EC52608BE5700A79CD3 /* License.swift */,
 				641B3E2627E0EFCC0089E816 /* CustomBlockRule.swift */,
 				6402A30227E14C8800113E26 /* OdyseeLocale.swift */,
-				534B71A3287BE0F200F01D42 /* ChannelSignResult.swift */,
 				538C27552EFB8DA300305361 /* AuthToken.swift */,
 				5391E4392EFE6C88008EF30A /* SharedPreference.swift */,
+				539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -476,7 +486,6 @@
 				641614D1258077EF003A2194 /* UserAccountMenuViewController.swift */,
 				6484E1AC2582238900221658 /* NotificationsViewController.swift */,
 				6451659525DEA8B2009FAC39 /* YouTubeSyncViewController.swift */,
-				64A8B65025E671AC00F06D74 /* YouTubeSyncStatusViewController.swift */,
 			);
 			path = User;
 			sourceTree = "<group>";
@@ -816,9 +825,9 @@
 				646D563F2584FAD4002DB12F /* RewardsViewController.swift in Sources */,
 				641327492556EB3400CBB6B8 /* Lbry.swift in Sources */,
 				6451659625DEA8B2009FAC39 /* YouTubeSyncViewController.swift in Sources */,
-				534B71A4287BE0F200F01D42 /* ChannelSignResult.swift in Sources */,
 				646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */,
 				645912222620789E00B2ABA5 /* ChatMessageTableViewCell.swift in Sources */,
+				534CCCA92F3C74CC00457BBF /* YouTubeSyncViewModel.swift in Sources */,
 				CC015768267C1A0B00F96EFE /* ResolveResult.swift in Sources */,
 				64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */,
 				530525AB28125CCE00D92A2E /* Txo.swift in Sources */,
@@ -867,11 +876,12 @@
 				64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */,
 				5391E43A2EFE6C88008EF30A /* SharedPreference.swift in Sources */,
 				64424DDA255895A500F2D247 /* ContentSources.swift in Sources */,
+				539D79872F3DA6DC00E7686E /* AccountYoutubeChannel.swift in Sources */,
 				643382A3258DB119004B562B /* RewardTableViewCell.swift in Sources */,
 				641108EC255AA4CF00F0FB8A /* User.swift in Sources */,
-				64A8B65125E671AC00F06D74 /* YouTubeSyncStatusViewController.swift in Sources */,
 				53D4CFAC2F2C5A9000F395A3 /* SignInUpViewModel.swift in Sources */,
 				CCDDA921265852920006035F /* Multistream.swift in Sources */,
+				53C4FA412F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift in Sources */,
 				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
 				534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */,
@@ -892,6 +902,7 @@
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				CC97807926549867009F580E /* Log.swift in Sources */,
 				53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */,
+				534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
 				53D59FFA2EF3AAEA0081D800 /* BackendAPIResult.swift in Sources */,
 				5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */,
@@ -901,6 +912,7 @@
 				642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */,
 				646E54EA257E565000BEBFBE /* SupportViewController.swift in Sources */,
 				646E54D8257D40DC00BEBFBE /* ChannelViewController.swift in Sources */,
+				53C4FA3F2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift in Sources */,
 				64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

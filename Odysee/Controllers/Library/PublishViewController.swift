@@ -105,6 +105,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         if languageKey != ContentSources.languageCodeEN, regionCode == ContentSources.regionCodeBR {
             languageKey.append("-\(regionCode)")
         }
+        // FIXME: zh{,-Han{s,t}}
         if let index = Predefined.supportedLanguages.firstIndex(where: { $0.code == languageKey }) {
             languagePickerView.selectRow(Int(index), inComponent: 0, animated: true)
         }

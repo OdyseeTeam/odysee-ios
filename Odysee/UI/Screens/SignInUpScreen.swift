@@ -148,7 +148,8 @@ struct SignInUpScreen: View {
 
                                 passwordStep = false
                                 emailVerification = false
-                                email = ""
+                                // NOTE: Removed so it keeps email if user realises a need to switch
+                                //                                email = ""
                                 password = ""
 
                                 // Needs some time to settle change

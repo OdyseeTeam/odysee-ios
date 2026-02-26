@@ -16,7 +16,7 @@ struct QueryItemsCoderTests {
     }
 
     @Test func encode() async throws {
-        let items = try! QueryItemsEncoder().encode(Params(email: "test@example.com", password: "123"))
+        let items = try QueryItemsEncoder().encode(Params(email: "test@example.com", password: "123"))
         var components = URLComponents()
         components.queryItems = items
         #expect(components.percentEncodedQuery == "email=test@example.com&password=123")
@@ -25,7 +25,7 @@ struct QueryItemsCoderTests {
     @Test func decode() async throws {
         var components = URLComponents()
         components.percentEncodedQuery = "email=test@example.com&password=123"
-        let params = try! QueryItemsDecoder().decode(Params.self, from: components.queryItems!)
+        let params = try QueryItemsDecoder().decode(Params.self, from: components.queryItems!)
         #expect(params == Params(email: "test@example.com", password: "123"))
     }
 
@@ -63,14 +63,14 @@ struct QueryItemsCoderTests {
     @Test func decodeEnum_success() async throws {
         var components = URLComponents()
         components.percentEncodedQuery = "success_token=deadbeef"
-        let returnUrl = try! QueryItemsDecoder().decode(ReturnURL.self, from: components.queryItems!)
+        let returnUrl = try QueryItemsDecoder().decode(ReturnURL.self, from: components.queryItems!)
         #expect(returnUrl == .success)
     }
 
     @Test func decodeEnum_error() async throws {
         var components = URLComponents()
         components.percentEncodedQuery = "error=true&error_message=hellorld%20help@odysee.com"
-        let returnUrl = try! QueryItemsDecoder().decode(ReturnURL.self, from: components.queryItems!)
+        let returnUrl = try QueryItemsDecoder().decode(ReturnURL.self, from: components.queryItems!)
         #expect(returnUrl == .error(message: "hellorld help@odysee.com"))
     }
 
@@ -91,7 +91,7 @@ struct QueryItemsCoderTests {
 
      // Nested should never be used, but test to make sure it doesn't break
      @Test func encodeNested() async throws {
-     let items = try! QueryItemsEncoder().encode(NestedParams(id: 0, params: Params(email: "test@example.com", password: "123")))
+     let items = try QueryItemsEncoder().encode(NestedParams(id: 0, params: Params(email: "test@example.com", password: "123")))
      var components = URLComponents()
      components.queryItems = items
      #expect(components.percentEncodedQuery == "id=0&params.email=test@example.com&params.password=123")
@@ -102,8 +102,8 @@ struct QueryItemsCoderTests {
      }
 
      @Test func encodeUnkeyed() async throws {
-     print(try! QueryItemsEncoder().encode([1, 2, 3]))
-     print(try! QueryItemsEncoder().encode(UnkeyedStruct(array: [4, 5, 6])))
+     print(try QueryItemsEncoder().encode([1, 2, 3]))
+     print(try QueryItemsEncoder().encode(UnkeyedStruct(array: [4, 5, 6])))
      }
      */
 
@@ -116,12 +116,12 @@ struct QueryItemsCoderTests {
         components.queryItems = [URLQueryItem(name: "test", value: nil), URLQueryItem(name: "test2", value: "abc")]
         #expect(components.percentEncodedQuery == "test&test2=abc")
 
-        var items = try! QueryItemsEncoder().encode(OptionalParams(maybe: nil))
+        var items = try QueryItemsEncoder().encode(OptionalParams(maybe: nil))
         components = URLComponents()
         components.queryItems = items
         #expect(components.percentEncodedQuery == "")
 
-        items = try! QueryItemsEncoder().encode(OptionalParams(maybe: true))
+        items = try QueryItemsEncoder().encode(OptionalParams(maybe: true))
         components = URLComponents()
         components.queryItems = items
         #expect(components.percentEncodedQuery == "maybe=true")

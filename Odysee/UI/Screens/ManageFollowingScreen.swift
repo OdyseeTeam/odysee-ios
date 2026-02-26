@@ -33,7 +33,7 @@ extension ManageFollowingScreen {
                                 NavigationLink {
                                     EmptyView()
                                 } label: {
-                                    ChannelListItem(channel: follow)
+                                    ChannelListItem(channel: .claim(follow))
                                 }
                             }
                             .tint(Color(UIColor.label))

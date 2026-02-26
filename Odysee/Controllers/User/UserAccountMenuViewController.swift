@@ -126,13 +126,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @IBAction func youTubeSyncTapped(_ sender: Any) {
-        var vc: UIViewController!
-        if Lbryio.Defaults.isYouTubeSyncConnected {
-            vc = storyboard?
-                .instantiateViewController(identifier: "yt_sync_status_vc") as! YouTubeSyncStatusViewController
-        } else {
-            vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
-        }
+        let vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         presentingViewController?.dismiss(animated: false, completion: nil)
     }

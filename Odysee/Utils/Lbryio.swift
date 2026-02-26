@@ -24,8 +24,6 @@ enum Lbryio {
         private enum Key: String {
             case ChannelsAssociated
             case EmailRewardClaimed
-            case YouTubeSyncConnected
-            case YouTubeSyncDone
         }
 
         private static func get(string: Key) -> String? {
@@ -62,29 +60,9 @@ enum Lbryio {
             }
         }
 
-        static var isYouTubeSyncConnected: Bool {
-            get {
-                return get(bool: .YouTubeSyncConnected)
-            }
-            set {
-                set(bool: .YouTubeSyncConnected, value: newValue)
-            }
-        }
-
-        static var isYouTubeSyncDone: Bool {
-            get {
-                return get(bool: .YouTubeSyncDone)
-            }
-            set {
-                set(bool: .YouTubeSyncDone, value: newValue)
-            }
-        }
-
         static func reset() {
             let defaults = UserDefaults.standard
             defaults.removeObject(forKey: Lbryio.Defaults.Key.EmailRewardClaimed.rawValue)
-            defaults.removeObject(forKey: Lbryio.Defaults.Key.YouTubeSyncDone.rawValue)
-            defaults.removeObject(forKey: Lbryio.Defaults.Key.YouTubeSyncConnected.rawValue)
         }
     }
 

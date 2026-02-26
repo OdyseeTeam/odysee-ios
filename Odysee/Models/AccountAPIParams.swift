@@ -63,3 +63,29 @@ struct SubscriptionNewParams: Encodable, AccountMethodParams {
         case notificationsDisabled = "notifications_disabled"
     }
 }
+
+struct YtNewParams: Encodable, AccountMethodParams {
+    let type = "sync"
+    let immediateSync = true
+    var channelLanguage: String
+    var desiredLbryChannelName: String
+    let returnUrl = YouTubeSyncScreen.Setup.returnUrl
+
+    enum CodingKeys: String, CodingKey {
+        case type
+        case immediateSync = "immediate_sync"
+        case channelLanguage = "channel_language"
+        case desiredLbryChannelName = "desired_lbry_channel_name"
+        case returnUrl = "return_url"
+    }
+}
+
+struct YtTransferParams: Encodable, AccountMethodParams {
+    var address: String
+    var publicKey: String
+
+    enum CodingKeys: String, CodingKey {
+        case address
+        case publicKey = "public_key"
+    }
+}
