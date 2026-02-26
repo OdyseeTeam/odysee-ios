@@ -74,7 +74,7 @@ class VideoPickerController: PHPickerViewControllerDelegate {
         }
     }
 
-    // MARK: PHPickerViewControllerDelegate
+    // MARK: - PHPickerViewControllerDelegate
 
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
         didFinishPicking(results.first?.itemProvider)
