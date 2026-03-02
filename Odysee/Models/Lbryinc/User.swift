@@ -25,7 +25,7 @@ struct User: Decodable {
     var manualApprovalUserId: Int64?
     var primaryEmail: String?
     var rewardStatusChangeTrigger: String?
-    var youtubeChannels: [YoutubeChannel]?
+    var youtubeChannels: [AccountYoutubeChannel]?
     var deviceTypes: [String]?
     var pendingDeletion: Bool?
 
@@ -49,29 +49,5 @@ struct User: Decodable {
         case rewardStatusChangeTrigger = "reward_status_change_trigger"
         case youtubeChannels = "youtube_channels"
         case deviceTypes = "device_types"
-    }
-
-    struct YoutubeChannel: Decodable {
-        var ytChannelName: String?
-        var lbryChannelName: String?
-        var channelClaimId: String?
-        var syncStatus: String?
-        var statusToken: String?
-        var transferable: Bool?
-        var transferState: String?
-        var publishToAddress: [String]?
-        var publicKey: String?
-
-        private enum CodingKeys: String, CodingKey {
-            case ytChannelName = "yt_channel_name"
-            case lbryChannelName = "lbry_channel_name"
-            case channelClaimId = "channel_claim_id"
-            case syncStatus = "sync_status"
-            case statusToken = "status_token"
-            case transferable
-            case transferState = "transfer_state"
-            case publishToAddress = "publish_to_address"
-            case publicKey = "public_key"
-        }
     }
 }
