@@ -159,7 +159,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     func checkAndShowYouTubeSync() {
-        guard !Lbryio.Defaults.isYouTubeSyncDone else {
+        guard true // TODO: Prompt Claim Channel(s) if "Your videos are ready to be transferred."
+        else {
             return
         }
         let vc = storyboard?.instantiateViewController(identifier: "yt_sync_vc") as! YouTubeSyncViewController
