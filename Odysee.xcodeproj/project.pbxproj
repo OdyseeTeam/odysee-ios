@@ -22,6 +22,7 @@
 		5391E4362EFE36C4008EF30A /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5391E4332EFE36C4008EF30A /* Wallet.swift */; };
 		5391E43A2EFE6C88008EF30A /* SharedPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5391E4392EFE6C88008EF30A /* SharedPreference.swift */; };
 		5391E43D2EFED725008EF30A /* ValueCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 5391E43C2EFED725008EF30A /* ValueCodable */; };
+		539D79872F3DA6DC00E7686E /* AccountYoutubeChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */; };
 		539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 539D798B2F3E389400E7686E /* CachedAsyncImage */; };
 		539D79932F3ECE7300E7686E /* ChannelListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79922F3ECE7300E7686E /* ChannelListItem.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
@@ -160,6 +161,7 @@
 		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		5391E4332EFE36C4008EF30A /* Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		5391E4392EFE6C88008EF30A /* SharedPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPreference.swift; sourceTree = "<group>"; };
+		539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountYoutubeChannel.swift; sourceTree = "<group>"; };
 		539D79922F3ECE7300E7686E /* ChannelListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelListItem.swift; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -374,6 +376,7 @@
 				6402A30227E14C8800113E26 /* OdyseeLocale.swift */,
 				538C27552EFB8DA300305361 /* AuthToken.swift */,
 				5391E4392EFE6C88008EF30A /* SharedPreference.swift */,
+				539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -855,6 +858,7 @@
 				64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */,
 				5391E43A2EFE6C88008EF30A /* SharedPreference.swift in Sources */,
 				64424DDA255895A500F2D247 /* ContentSources.swift in Sources */,
+				539D79872F3DA6DC00E7686E /* AccountYoutubeChannel.swift in Sources */,
 				643382A3258DB119004B562B /* RewardTableViewCell.swift in Sources */,
 				641108EC255AA4CF00F0FB8A /* User.swift in Sources */,
 				64A8B65125E671AC00F06D74 /* YouTubeSyncStatusViewController.swift in Sources */,
