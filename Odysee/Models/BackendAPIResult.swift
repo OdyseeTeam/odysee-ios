@@ -7,6 +7,17 @@
 
 import Foundation
 
+
+struct ChannelSignResult: Decodable {
+    var signature: String
+    var signingTs: String
+
+    enum CodingKeys: String, CodingKey {
+        case signature
+        case signingTs = "signing_ts"
+    }
+}
+
 typealias SyncHashResult = String
 
 struct SyncApplyResult: Decodable {
