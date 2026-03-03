@@ -49,6 +49,10 @@ struct ChannelAbandonParams: Encodable, BackendMethodParams {
     var blocking: Bool?
 }
 
+struct ChannelImportParams: Encodable, BackendMethodParams {
+    var channelData: String
+}
+
 struct TransactionListParams: Encodable, BackendMethodParams {
     var page: Int?
     var pageSize: Int?

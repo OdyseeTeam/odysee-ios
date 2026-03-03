@@ -7,6 +7,19 @@
 
 import Foundation
 
+struct AddressListResult: Decodable {
+    var items: [Element]
+
+    struct Element: Decodable {
+        var address: String
+        var publicKey: String
+
+        enum CodingKeys: String, CodingKey {
+            case address
+            case publicKey = "pubkey"
+        }
+    }
+}
 
 struct ChannelSignResult: Decodable {
     var signature: String
