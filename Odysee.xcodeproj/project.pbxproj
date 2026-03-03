@@ -12,6 +12,7 @@
 		533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */; };
 		534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */; };
 		534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */; };
+		534CCCA92F3C74CC00457BBF /* YouTubeSyncViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */; };
 		53593F31287E5D75007FD08E /* CommentsAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentsAPIResult.swift */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
@@ -153,6 +154,7 @@
 		533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerificationScreen.swift; sourceTree = "<group>"; };
 		534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIParams.swift; sourceTree = "<group>"; };
 		534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncScreen.swift; sourceTree = "<group>"; };
+		534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncViewModel.swift; sourceTree = "<group>"; };
 		53593F30287E5D75007FD08E /* CommentsAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIResult.swift; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
@@ -335,6 +337,7 @@
 			children = (
 				5391E4332EFE36C4008EF30A /* Wallet.swift */,
 				53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */,
+				534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -812,6 +815,7 @@
 				6451659625DEA8B2009FAC39 /* YouTubeSyncViewController.swift in Sources */,
 				646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */,
 				645912222620789E00B2ABA5 /* ChatMessageTableViewCell.swift in Sources */,
+				534CCCA92F3C74CC00457BBF /* YouTubeSyncViewModel.swift in Sources */,
 				CC015768267C1A0B00F96EFE /* ResolveResult.swift in Sources */,
 				64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */,
 				530525AB28125CCE00D92A2E /* Txo.swift in Sources */,
