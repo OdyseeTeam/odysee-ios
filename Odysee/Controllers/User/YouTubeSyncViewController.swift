@@ -6,13 +6,21 @@
 //
 
 import FirebaseAnalytics
+import SwiftUI
 
 class YouTubeSyncViewController: UIViewController, UIGestureRecognizerDelegate {
+    lazy var youTubeSync = {
+        let rootView = YouTubeSyncScreen()
+        let vc = UIHostingController(rootView: rootView)
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
+        return vc
+    }()
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController.toggleHeaderVisibility(hidden: true, fullscreen: true)
+        AppDelegate.shared.mainController.toggleMiniPlayer(hidden: true)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -27,6 +35,27 @@ class YouTubeSyncViewController: UIViewController, UIGestureRecognizerDelegate {
 
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if AppDelegate.shared.lazyPlayer != nil {
+            AppDelegate.shared.mainController.toggleMiniPlayer(hidden: false)
+        }
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        addChild(youTubeSync)
+        view.addSubview(youTubeSync.view)
+        youTubeSync.didMove(toParent: self)
+        NSLayoutConstraint.activate([
+            youTubeSync.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            youTubeSync.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            youTubeSync.view.topAnchor.constraint(equalTo: view.topAnchor),
+            youTubeSync.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
     }
 
     func finish() {
