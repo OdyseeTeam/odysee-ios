@@ -10,7 +10,15 @@ import SwiftUI
 
 class YouTubeSyncViewController: UIViewController, UIGestureRecognizerDelegate {
     lazy var youTubeSync = {
-        let rootView = YouTubeSyncScreen()
+        let rootView = YouTubeSyncScreen(
+            close: { [weak self] in
+                self?.finish()
+            },
+            viewChannel: { [weak self] name, claimId in
+                self?.viewChannel(name: name, claimId: claimId)
+            },
+            model: .init(channels: Lbryio.currentUser?.youtubeChannels)
+        )
         let vc = UIHostingController(rootView: rootView)
         vc.view.translatesAutoresizingMaskIntoConstraints = false
         return vc
@@ -60,5 +68,14 @@ class YouTubeSyncViewController: UIViewController, UIGestureRecognizerDelegate {
 
     func finish() {
         AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
+    }
+
+    func viewChannel(name: String, claimId: String) {
+        if let lbryUrl = LbryUri.tryParse(url: "lbry://\(name)#\(claimId)", requireProto: false) {
+            let vc = storyboard?
+                .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+            vc.claimUrl = lbryUrl
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+        }
     }
 }

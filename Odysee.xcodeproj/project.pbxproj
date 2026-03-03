@@ -31,6 +31,8 @@
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
 		53C01F552F28CFFC008ED3F8 /* SignInUpScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */; };
+		53C4FA3F2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */; };
+		53C4FA412F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */; };
 		53D4CFAA2F2B357C00F395A3 /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 53D4CFA92F2B357C00F395A3 /* AsyncExtensions */; };
 		53D4CFAC2F2C5A9000F395A3 /* SignInUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */; };
 		53D59FFA2EF3AAEA0081D800 /* BackendAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FF92EF3AAEA0081D800 /* BackendAPIResult.swift */; };
@@ -170,6 +172,8 @@
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
 		53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpScreen.swift; sourceTree = "<group>"; };
+		53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubeSyncScreen+Status.swift"; sourceTree = "<group>"; };
+		53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubeSyncScreen+Setup.swift"; sourceTree = "<group>"; };
 		53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpViewModel.swift; sourceTree = "<group>"; };
 		53D59FF92EF3AAEA0081D800 /* BackendAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendAPIResult.swift; sourceTree = "<group>"; };
 		53D59FFB2EF3AE530081D800 /* Methods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Methods.swift; sourceTree = "<group>"; };
@@ -328,6 +332,8 @@
 				533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */,
 				53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */,
 				534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */,
+				53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */,
+				53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -867,6 +873,7 @@
 				641108EC255AA4CF00F0FB8A /* User.swift in Sources */,
 				53D4CFAC2F2C5A9000F395A3 /* SignInUpViewModel.swift in Sources */,
 				CCDDA921265852920006035F /* Multistream.swift in Sources */,
+				53C4FA412F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift in Sources */,
 				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
 				534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */,
@@ -897,6 +904,7 @@
 				642B6B0C257AB9F200F17355 /* WalletBalance.swift in Sources */,
 				646E54EA257E565000BEBFBE /* SupportViewController.swift in Sources */,
 				646E54D8257D40DC00BEBFBE /* ChannelViewController.swift in Sources */,
+				53C4FA3F2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift in Sources */,
 				64FBE79F25502A290082AF2E /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
