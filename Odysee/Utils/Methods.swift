@@ -214,8 +214,10 @@ enum BackendMethods {
         defaultTransform: Lbry.processPageOfClaims
     )
     static let streamAbandon = Method<StreamAbandonParams, Transaction>(name: "stream_abandon")
+    static let addressList = Method<NilType, AddressListResult>(name: "address_list")
     static let addressUnused = Method<NilType, String>(name: "address_unused")
     static let channelAbandon = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
+    static let channelImport = Method<ChannelImportParams, NilType>(name: "channel_import")
     static let channelSign = Method<ChannelSignParams, ChannelSignResult>(name: "channel_sign")
     static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
     static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
@@ -257,4 +259,8 @@ enum AccountMethods {
     static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
     static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
     static let subscriptionNew = Method<SubscriptionNewParams, NilType>(name: "subscription/new")
+    static let ytNew = Method<YtNewParams, String>(name: "yt/new")
+    static let ytTransfer = Method<YtTransferParams, YtTransferResult>(name: "yt/transfer")
+
+    static let ytTransferStatusCheck = Method<NilType, YtTransferResult>(name: "yt/transfer")
 }
