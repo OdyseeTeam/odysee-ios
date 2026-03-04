@@ -16,6 +16,8 @@ extension ManageFollowingScreen {
         // Local copy used for checking notificationsDisabled
         private var walletFollowing: Wallet.Following?
 
+        private var toRemove: [Claim] = []
+
         init(following: [Claim]? = nil) {
             self.following = following
         }
@@ -25,6 +27,8 @@ extension ManageFollowingScreen {
             defer {
                 inProgress = false
             }
+
+            // FIXME: call removes
 
             self.following = following
             self.walletFollowing = walletFollowing
@@ -60,14 +64,14 @@ extension ManageFollowingScreen {
             return new
         }
 
-        func remove(follow: Claim) async {
-            inProgress = true
-            defer {
-                inProgress = false
-            }
+        func markRemove(follow: Claim) {
+            toRemove.append(follow)
+        }
 
-            await Wallet.shared.removeFollowing(claim: follow)
+        func removeMarked() async {
+            await Wallet.shared.removeFollowingAll(claims: toRemove)
             await Wallet.shared.queuePushSync()
+            toRemove.removeAll()
         }
     }
 }

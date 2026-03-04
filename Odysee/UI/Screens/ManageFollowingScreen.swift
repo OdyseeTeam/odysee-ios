@@ -10,6 +10,11 @@ import SwiftUI
 
 extension ManageFollowingScreen {
     struct Screen: View {
+        // FIXME: batch and operate after exit/debounce (if not some are lost)
+        // TODO: Test fast enable/disable/unfollow with/without web changes
+        // TODO: Maybe show notifications status
+        // FIXME: subscription/delete call
+        // FIXME: subscription/new call with notification status
         @ObservedObject var model: ViewModel
         var openChannel: (Claim) -> Void
 
@@ -33,7 +38,7 @@ extension ManageFollowingScreen {
                                 NavigationLink {
                                     EmptyView()
                                 } label: {
-                                    ChannelListItem(channel: follow)
+                                    ChannelListItem(channel: .claim(follow))
                                 }
                             }
                             .tint(Color(UIColor.label))
@@ -54,7 +59,7 @@ extension ManageFollowingScreen {
                                     }
                                 } label: {
                                     if model.isNotificationsDisabled(follow: follow) {
-                                        Label("Enable Notifications", systemImage: "bell.fill")
+                                        Label("Enable Notifications", systemImage: "bell")
                                     } else {
                                         Label("Disable Notifications", systemImage: "bell.slash")
                                     }
@@ -63,9 +68,7 @@ extension ManageFollowingScreen {
                             }
                             .swipeActions {
                                 Button(role: .destructive) {
-                                    Task {
-                                        await model.remove(follow: follow)
-                                    }
+                                    model.markRemove(follow: follow)
                                 } label: {
                                     Label("Unfollow", systemImage: "heart.slash")
                                 }
@@ -135,9 +138,12 @@ struct ManageFollowingScreen: View {
                 EmptyView()
             }
             .hidden()
-            .onChange(of: navigator.active) {
-                if !$0 {
-                    navigator.hide()
+            .onChange(of: navigator.active) { active in
+                Task {
+                    if !active {
+                        await model.removeMarked()
+                        navigator.hide()
+                    }
                 }
             }
         }
