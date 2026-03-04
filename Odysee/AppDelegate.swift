@@ -53,7 +53,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func registerPlayerObserver() {
         if let lazyPlayer = lazyPlayer, !playerObserverAdded {
-            lazyPlayer.addObserver(self, forKeyPath: "timeControlStatus", options: [.old, .new], context: nil)
             lazyPlayer.currentItem?.addObserver(
                 self,
                 forKeyPath: "playbackLikelyToKeepUp",
@@ -92,19 +91,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         change: [NSKeyValueChangeKey: Any]?,
         context: UnsafeMutableRawPointer?
     ) {
-        if object as AnyObject? === lazyPlayer, currentTimeControlStatus != lazyPlayer?.timeControlStatus {
-            currentTimeControlStatus = lazyPlayer?.timeControlStatus
-            if keyPath == "timeControlStatus", lazyPlayer?.timeControlStatus == .playing {
-                if let currentFileViewController = currentFileViewController {
-                    currentFileViewController.checkTimeToStart()
-                    DispatchQueue.main.async {
-                        self.lazyPlayer?.rate = currentFileViewController.playerRate
-                    }
-                }
-                return
-            }
-        }
-
         if let player = lazyPlayer,
            let item = player.currentItem,
            keyPath == "playbackLikelyToKeepUp",
