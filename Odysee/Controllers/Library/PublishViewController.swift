@@ -97,18 +97,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         guidelinesTextView.textColor = .label
         guidelinesTextView.font = .systemFont(ofSize: 12)
 
-        var languageKey = Locale.current.languageCode ?? ContentSources.languageCodeEN
-        if let scriptCode = Locale.current.scriptCode {
-            languageKey.append("-\(scriptCode)")
-        }
-        let regionCode = Locale.current.regionCode ?? ContentSources.regionCodeUS
-        if languageKey != ContentSources.languageCodeEN, regionCode == ContentSources.regionCodeBR {
-            languageKey.append("-\(regionCode)")
-        }
-        if let index = Predefined.supportedLanguages.firstIndex(where: { $0.code == languageKey }) {
-            languagePickerView.selectRow(Int(index), inComponent: 0, animated: true)
-        }
-
         loadChannels()
         loadUploads()
     }
@@ -177,20 +165,33 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
         channelPickerView.reloadAllComponents()
 
-        Task {
-            let defaultChannelId = await Wallet.shared.defaultChannelId
-            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
-            if channels.count > index {
-                channelPickerView.selectRow(index, inComponent: 0, animated: true)
-                namePrefixLabel.text = String(format: namePrefixFormat, (channels[index].name ?? "") + "/")
-            }
-        }
-
         populateFieldsForEdit()
     }
 
     func populateFieldsForEdit() {
         if currentClaim == nil {
+            // Only set defaults if not editing
+            var languageKey = Locale.current.languageCode ?? ContentSources.languageCodeEN
+            if let scriptCode = Locale.current.scriptCode {
+                languageKey.append("-\(scriptCode)")
+            }
+            let regionCode = Locale.current.regionCode ?? ContentSources.regionCodeUS
+            if languageKey != ContentSources.languageCodeEN, regionCode == ContentSources.regionCodeBR {
+                languageKey.append("-\(regionCode)")
+            }
+            if let index = Predefined.supportedLanguages.firstIndex(where: { $0.code == languageKey }) {
+                languagePickerView.selectRow(Int(index), inComponent: 0, animated: true)
+            }
+
+            Task {
+                let defaultChannelId = await Wallet.shared.defaultChannelId
+                let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+                if channels.count > index {
+                    channelPickerView.selectRow(index, inComponent: 0, animated: true)
+                    namePrefixLabel.text = String(format: namePrefixFormat, (channels[index].name ?? "") + "/")
+                }
+            }
+
             return
         }
 
@@ -213,6 +214,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         if let channelClaimId = currentClaim?.signingChannel?.claimId {
             if let index = channels.firstIndex(where: { $0.claimId == channelClaimId }) {
                 channelPickerView.selectRow(Int(index), inComponent: 0, animated: true)
+                namePrefixLabel.text = String(format: namePrefixFormat, (channels[index].name ?? "") + "/")
             }
         }
 
@@ -364,10 +366,11 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             showError(message: "name is nil and fell through")
             return
         }
-        if uploads.contains(where: { $0.name?.lowercased() == name.lowercased() }) {
+        if !editMode && uploads.contains(where: { $0.name?.lowercased() == name.lowercased() }) {
             showError(message: String(
-                format: String
-                    .localized("You have already uploaded a claim with the name: %@. Please use a different name."),
+                format: String.localized(
+                    "You have already uploaded a claim with the name: %@. Please use a different name."
+                ),
                 name
             ))
             return
@@ -431,7 +434,10 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             params["release_time"] = Int(Date().timeIntervalSince1970)
         }
 
-        params["languages"] = [Predefined.supportedLanguages[languagePickerView.selectedRow(inComponent: 0)].code]
+        let language = Predefined.supportedLanguages[languagePickerView.selectedRow(inComponent: 0)].code
+        if language != "" {
+            params["languages"] = [language]
+        }
 
         let license = Predefined.licenses[licensePickerView.selectedRow(inComponent: 0)]
         params["license"] = license.name

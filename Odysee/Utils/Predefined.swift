@@ -18,7 +18,11 @@ enum Predefined {
         }
     }
 
+    static let nilLanguage: Language = .init(code: "", engName: "", name: "")
+
     static let supportedLanguages: [Language] = [
+        nilLanguage,
+
         .init(code: "af", engName: "Afrikaans", name: "Afrikaans"),
         .init(code: "ar", engName: "Arabic", name: "العربية"),
         .init(code: "bg", engName: "Bulgarian", name: "Български"),
