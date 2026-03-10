@@ -519,8 +519,9 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
     func uploadVideo(params: [String: Any], completion: @escaping ([String: Any]?, Error?) -> Void) -> Progress {
         let progress = Progress(totalUnitCount: 1)
-        videoPickerController.getVideoURL { urlResult in
-            Task {
+        Task {
+            let authToken = await AuthToken.token
+            videoPickerController.getVideoURL { urlResult in
                 guard case let .success(videoUrl) = urlResult else {
                     completion(nil, GenericError("The selected video could not be uploaded."))
                     return
@@ -601,7 +602,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
                     req.httpMethod = "POST"
                     req.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
                     req.setValue(String(contentLength), forHTTPHeaderField: "Content-Length")
-                    req.addValue(await AuthToken.token, forHTTPHeaderField: "X-Lbry-Auth-Token")
+                    req.addValue(authToken, forHTTPHeaderField: "X-Lbry-Auth-Token")
                     req.httpBodyStream = Multistream(streams: [headerStream, fileStream, footerStream])
 
                     let task = URLSession.shared.dataTask(with: req) { data, _, error in
