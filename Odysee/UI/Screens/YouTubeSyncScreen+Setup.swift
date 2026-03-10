@@ -115,6 +115,9 @@ extension YouTubeSyncScreen {
                 channelFocused = true
                 return
             }
+            guard agree else {
+                return
+            }
 
             Task {
                 do {
