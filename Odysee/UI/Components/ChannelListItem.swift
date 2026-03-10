@@ -18,7 +18,9 @@ extension ChannelListItem {
 struct ChannelListItem: View {
     @State private(set) var channel: Channel
     @State private(set) var error: Error?
+    @State private(set) var abandoned: Bool = false
 
+    var showAbandoned: Bool = false
     var otherText: String?
 
     @ScaledMetric private var scale: CGFloat = 1
@@ -61,26 +63,37 @@ struct ChannelListItem: View {
                     }
                 }
             } else if case let .uri(name, claimId) = channel {
-                ProgressView()
-                    .task {
-                        do {
-                            let resolve = try await BackendMethods.resolve.call(params: .init(
-                                urls: [LbryUri.normalize(url: "\(name)#\(claimId)")]
-                            ))
+                if abandoned {
+                    Text(name)
 
-                            guard let claim = resolve.claims.values.first else {
-                                error = GenericError("Claim resolve didn't return any results")
-                                return
+                    Text("This channel may have been unpublished.")
+                        .font(.caption)
+                } else {
+                    ProgressView()
+                        .task {
+                            do {
+                                let resolve = try await BackendMethods.resolve.call(params: .init(
+                                    urls: [LbryUri.normalize(url: "\(name)#\(claimId)")]
+                                ))
+
+                                guard let claim = resolve.claims.values.first else {
+                                    if showAbandoned {
+                                        abandoned = true
+                                    } else {
+                                        error = GenericError("Claim resolve didn't return any results")
+                                    }
+                                    return
+                                }
+
+                                channel = .claim(claim)
+                            } catch {
+                                self.error = error
                             }
-
-                            channel = .claim(claim)
-                        } catch {
-                            self.error = error
                         }
-                    }
+                }
             }
 
-            if let otherText {
+            if let otherText, error == nil, !abandoned {
                 Text(otherText)
             }
         }
