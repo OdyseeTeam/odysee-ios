@@ -196,7 +196,6 @@ extension YouTubeSyncScreen {
                     .refreshable(action: model.refreshStatus)
 
                     if let (total: total, complete: complete) = model.youtubeTransferStatus {
-                        // NOTE(discuss): Inflect singular?
                         Text("\(complete) / \(total) videos transferred")
                     }
 
