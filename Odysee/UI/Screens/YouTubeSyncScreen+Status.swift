@@ -90,6 +90,7 @@ extension YouTubeSyncScreen {
                                                 name: channel.lbryChannelName,
                                                 claimId: channel.channelClaimId
                                             ),
+                                            showAbandoned: true,
                                             otherText: message
                                         )
                                     }
