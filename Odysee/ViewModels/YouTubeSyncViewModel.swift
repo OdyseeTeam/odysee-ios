@@ -156,6 +156,7 @@ extension YouTubeSyncScreen {
 
         private func fetchYoutubeTransferStatus() async throws {
             guard let channels, Self.hasPendingTransfers(channels: channels) else {
+                youtubeTransferStatus = nil
                 return
             }
 
