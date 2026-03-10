@@ -133,7 +133,6 @@ extension YouTubeSyncScreen {
             hasYoutubeChannelsWait = Task {
                 while true {
                     do {
-                        // NOTE(discuss): Will immediately go to channels > 1 => Status when adding 2nd+ channel
                         try await fetchUserChannels()
                     } catch {
                         Helper.showError(error: error)
