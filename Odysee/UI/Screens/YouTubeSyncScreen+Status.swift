@@ -59,19 +59,29 @@ extension YouTubeSyncScreen {
                                         EmptyView()
                                     } label: {
                                         let message = {
-                                            if channel.transferable {
-                                                return __("Ready to transfer")
-                                            }
+                                            let state = {
+                                                if channel.transferable {
+                                                    return __("Ready to transfer")
+                                                }
 
-                                            switch channel.transferState {
-                                            case .notTransferred:
-                                                return channel.syncStatus.rawValue.capitalized
-                                            case .pendingTransfer:
-                                                return __("Transfer in progress")
-                                            case .completedTransfer:
-                                                return __("Completed transfer")
-                                            default:
-                                                return __("Unknown transfer status")
+                                                switch channel.transferState {
+                                                case .notTransferred:
+                                                    return channel.syncStatus.rawValue.capitalized
+                                                case .pendingTransfer:
+                                                    return __("Transfer in progress")
+                                                case .completedTransfer:
+                                                    return __("Completed transfer")
+                                                default:
+                                                    return __("Unknown transfer status")
+                                                }
+                                            }()
+
+                                            if !channel.vip {
+                                                return __(
+                                                    "\(state)\nThis channel is not automatically syncing right now. Reach out to hello@odysee.com to try our self sync tool."
+                                                )
+                                            } else {
+                                                return state
                                             }
                                         }()
 
