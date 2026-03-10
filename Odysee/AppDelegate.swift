@@ -279,8 +279,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
               let currentItem = lazyPlayer.currentItem,
               currentItem.status == .readyToPlay
         else {
+            UIApplication.shared.isIdleTimerDisabled = false
             return
         }
+
+        // Keep screen on when playing
+        UIApplication.shared.isIdleTimerDisabled = lazyPlayer.rate != 0
 
         (mainViewController as? MainViewController)?.miniPlayerPlayPauseButton.image = UIImage(
             systemName: lazyPlayer.rate == 0 ? "play.fill" : "pause.fill"
