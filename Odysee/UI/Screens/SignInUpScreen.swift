@@ -122,7 +122,7 @@ struct SignInUpScreen: View {
                                 Button("Start Over") {
                                     model.stopEmailVerificationWait()
 
-                                    signUp = true
+                                    // Sign in/up state is preserved
                                     passwordStep = false
                                     emailVerification = false
                                     email = ""
@@ -138,22 +138,19 @@ struct SignInUpScreen: View {
                         if !emailVerification {
                             Text(signUp ? "Already have an account?" : "Don't have an account?")
                                 .padding(.bottom, 32)
-                        }
 
-                        Button(signUp ? "Log In" : "Sign Up") {
-                            Task<Void, Never> {
-                                model.stopEmailVerificationWait()
+                            Button(signUp ? "Log In" : "Sign Up") {
+                                Task<Void, Never> {
+                                    signUp = !signUp
 
-                                signUp = !signUp
+                                    passwordStep = false
+                                    // Email is preserved, in case user needs to switch from sign up -> sign in
+                                    password = ""
 
-                                passwordStep = false
-                                emailVerification = false
-                                email = ""
-                                password = ""
-
-                                // Needs some time to settle change
-                                try? await Task.sleep(nanoseconds: 50_000_000)
-                                focusedField = .email
+                                    // Needs some time to settle change
+                                    try? await Task.sleep(nanoseconds: 50_000_000)
+                                    focusedField = .email
+                                }
                             }
                         }
                     }
