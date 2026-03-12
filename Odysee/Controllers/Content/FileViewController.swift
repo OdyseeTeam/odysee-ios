@@ -114,6 +114,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     @IBOutlet var jumpBackwardView: UIVisualEffectView!
     @IBOutlet var jumpForwardView: UIVisualEffectView!
 
+    @IBOutlet var mediaLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet var mediaTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet var mediaTopConstraint: NSLayoutConstraint!
+    @IBOutlet var mediaBottomConstraint: NSLayoutConstraint!
+
+    @IBOutlet var mediaFullscreenLeadingConstraint: NSLayoutConstraint!
+    @IBOutlet var mediaFullscreenTrailingConstraint: NSLayoutConstraint!
+    @IBOutlet var mediaFullscreenTopConstraint: NSLayoutConstraint!
+    @IBOutlet var mediaFullscreenBottomConstraint: NSLayoutConstraint!
+
     var mediaViewHeight: CGFloat = 0
 
     let avpc = TouchInterceptingAVPlayerViewController()
@@ -2596,6 +2606,21 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return true
         }
         return false
+    }
+
+    func phoneDidRotate(orientation: UIInterfaceOrientation) {
+        if true /* TODO: setting to disable */ {
+            if orientation.isLandscape {
+                avpc.perform(NSSelectorFromString("enterFullScreenAnimated:completionHandler:"), with: true, with: nil)
+            } else {
+                avpc.perform(NSSelectorFromString("exitFullScreenAnimated:completionHandler:"), with: true, with: nil)
+            }
+
+//            view.leadingAnchor.constraint(equalTo: avpc.view.leadingAnchor).isActive = orientation.isLandscape
+//            view.trailingAnchor.constraint(equalTo: avpc.view.trailingAnchor).isActive = orientation.isLandscape
+//            view.topAnchor.constraint(equalTo: avpc.view.topAnchor).isActive = orientation.isLandscape
+//            view.bottomAnchor.constraint(equalTo: avpc.view.bottomAnchor).isActive = orientation.isLandscape
+        }
     }
 }
 

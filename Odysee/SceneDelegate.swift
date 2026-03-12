@@ -96,6 +96,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     ) {
         // Handles window resize
         (AppDelegate.shared.mainViewController as? MainViewController)?.snackbar.rotate()
+
+        if UIDevice.current.userInterfaceIdiom == .phone {
+            AppDelegate.shared.currentFileViewController?.phoneDidRotate(orientation: windowScene.interfaceOrientation)
+        }
     }
 
     @available(iOS 26.0, *)
