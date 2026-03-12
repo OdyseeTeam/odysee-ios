@@ -15,7 +15,7 @@ class CommentTableViewCell: UITableViewCell {
 
     @IBOutlet var authorThumbnailView: UIImageView!
     @IBOutlet var authorNameLabel: UILabel!
-    @IBOutlet var commentBodyLabel: UILabel!
+    @IBOutlet var commentBodyTextView: UITextView!
     @IBOutlet var replyCountButton: UIButton!
 
     @IBOutlet var fireReactionContainer: UIView!
@@ -60,6 +60,9 @@ class CommentTableViewCell: UITableViewCell {
     }
 
     func setComment(comment: Comment) {
+        commentBodyTextView.textContainer.lineFragmentPadding = 0
+        commentBodyTextView.textContainerInset = .zero
+
         if let currentComment, comment.commentId != currentComment.commentId {
             authorThumbnailView.image = UIImage(named: "spaceman")
             authorThumbnailView.backgroundColor = Helper.lightPrimaryColor
@@ -80,7 +83,11 @@ class CommentTableViewCell: UITableViewCell {
         )
 
         authorNameLabel.text = comment.channelName
-        commentBodyLabel.text = comment.comment
+        if #available(iOS 16.0, *), let commentText = comment.comment {
+            commentBodyTextView.attributedText = NSAttributedString(Helper.processTimestamps(commentText))
+        } else {
+            commentBodyTextView.text = comment.comment
+        }
         fireReactionLabel.text = String(describing: comment.numLikes ?? 0)
         if fireReactionLabel.text.isEmpty {
             fireReactionLabel.text = "0"
