@@ -9,6 +9,7 @@ import Base58Swift
 import CoreActionSheetPicker
 import FirebaseCrashlytics
 import Foundation
+import RegexBuilder
 import UIKit
 
 enum Helper {
@@ -402,6 +403,73 @@ enum Helper {
     @MainActor
     static func showError(error: Error) {
         (AppDelegate.shared.mainViewController as? MainViewController)?.showError(error: error)
+    }
+
+    @available(iOS 16.0, *)
+    static func processTimestamps(_ str: String) -> AttributedString {
+        str
+            .ranges {
+                Regex {
+                    OneOrMore {
+                        ChoiceOf {
+                            /[0-9]/
+
+                            ":"
+                        }
+                    }
+
+                    // Don't end with :
+                    /[0-9]/
+                }
+            }
+            /// <https://github.com/OdyseeTeam/odysee-frontend/blob/ffb6c71312d33abbdc6cd5e3aad4e589ba657960/ui/util/remark-timestamp.js#L43-L61>
+            .filter { range in
+                do {
+                    let s = String(str[range])
+                    switch s.count {
+                    case 4: // "9:59"
+                        return try /^[0-9]:[0-5][0-9]$/.wholeMatch(in: s) != nil
+                    case 5: // "59:59"
+                        return try /^[0-5][0-9]:[0-5][0-9]$/.wholeMatch(in: s) != nil
+                    case 7: // "9:59:59"
+                        return try /^[0-9]:[0-5][0-9]:[0-5][0-9]$/.wholeMatch(in: s) != nil
+                    case 8: // "99:59:59"
+                        return try /^[0-9][0-9]:[0-5][0-9]:[0-5][0-9]$/.wholeMatch(in: s) != nil
+                    default:
+                        return false
+                    }
+                } catch {
+                    return false
+                }
+            }
+            /// <https://github.com/OdyseeTeam/odysee-frontend/blob/ffb6c71312d33abbdc6cd5e3aad4e589ba657960/ui/util/remark-timestamp.js#L131-L134>
+            .compactMap { range -> ([Int], Range<String.Index>)? in
+                let timestampStrings = str[range].split(separator: ":").reversed().map(String.init)
+
+                let components = timestampStrings.compactMap(Int.init)
+
+                // If any timestamp components fail to parse, ignore
+                guard timestampStrings.count == components.count else {
+                    return nil
+                }
+
+                return (components, range)
+            }
+            .reduce(into: AttributedString(str)) { attr, timestamp in
+                let (components, range) = timestamp
+
+                let seconds = (components.count >= 3 ? components[2] : 0) * 60 * 60
+                    + (components.count >= 2 ? components[1] : 0) * 60
+                    + (components.count >= 1 ? components[0] : 0)
+
+                if let lower = AttributedString.Index(range.lowerBound, within: attr),
+                   let upper = AttributedString.Index(range.upperBound, within: attr),
+                   /// <https://github.com/OdyseeTeam/odysee-frontend/blob/ffb6c71312d33abbdc6cd5e3aad4e589ba657960/ui/util/remark-timestamp.js#L142>
+                   let url = URL(string: "?t=\(seconds)")
+                {
+                    attr[lower ..< upper].link = url
+                }
+            }
     }
 }
 
