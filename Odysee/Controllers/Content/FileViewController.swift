@@ -885,6 +885,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         } else {
             // details
             if #available(iOS 16.0, *), var description = claim?.value?.description {
+                descriptionTextView.delegate = self
                 descriptionTextView.attributedText = NSAttributedString(Helper.processTimestamps(description))
             } else {
                 descriptionTextView.text = claim?.value?.description
@@ -2518,6 +2519,24 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         commentAsChannelLabel.text = String(format: String.localized("Comment as %@"), name)
+    }
+
+    func textView(
+        _ textView: UITextView,
+        shouldInteractWith url: URL,
+        in characterRange: NSRange,
+        interaction: UITextItemInteraction
+    ) -> Bool {
+        if interaction == .invokeDefaultAction,
+           url.absoluteString.hasPrefix("?t="),
+           let seconds = CMTimeValue(url.absoluteString.dropFirst(3)),
+           let player = avpc.player
+        {
+            player.seek(to: CMTime(value: seconds, timescale: 1), toleranceBefore: .zero, toleranceAfter: .zero)
+            return false
+        }
+
+        return true
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
