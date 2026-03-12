@@ -884,7 +884,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             titleAreaIconView.isHidden = true
         } else {
             // details
-            descriptionTextView.text = claim?.value?.description
+            if #available(iOS 16.0, *), var description = claim?.value?.description {
+                descriptionTextView.attributedText = NSAttributedString(Helper.processTimestamps(description))
+            } else {
+                descriptionTextView.text = claim?.value?.description
+            }
         }
     }
 
