@@ -84,6 +84,8 @@ class CommentTableViewCell: UITableViewCell {
 
         authorNameLabel.text = comment.channelName
         if #available(iOS 16.0, *), let commentText = comment.comment {
+            commentBodyTextView.delegate = AppDelegate.shared.currentFileViewController
+
             var attributedComment = Helper.processTimestamps(commentText)
             attributedComment.uiKit.font = .systemFont(ofSize: 13)
             commentBodyTextView.attributedText = NSAttributedString(attributedComment)
