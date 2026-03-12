@@ -8,6 +8,12 @@
 import UIKit
 
 class FileDismissAnimationController: NSObject, UIViewControllerAnimatedTransitioning {
+    let needRestoreHeader: Bool
+
+    init(needRestoreHeader: Bool) {
+        self.needRestoreHeader = needRestoreHeader
+    }
+
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         return 0.5
     }
@@ -41,7 +47,9 @@ class FileDismissAnimationController: NSObject, UIViewControllerAnimatedTransiti
                 translationX: 0,
                 y: transitionContext.containerView.bounds.height
             )
-            AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
+            if self.needRestoreHeader {
+                AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
+            }
             AppDelegate.shared.mainController?.headerArea.alpha = 1
         } completion: { _ in
             transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
