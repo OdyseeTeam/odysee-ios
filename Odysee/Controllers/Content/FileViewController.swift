@@ -185,8 +185,15 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     let availableRates = ["0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x"]
 
+    var needRestoreHeader = false
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
+        // If header is currently not hidden (assume not), then restore on dismiss
+        // Updating on every viewWillAppear is fine, as view will only reappear from miniPlayer, hence correct header
+        // Occasionally (e.g. multiple stacked file_vc) won't animate header reappearing, but will still appear
+        needRestoreHeader = !(AppDelegate.shared.mainController?.headerArea.isHidden ?? false)
 
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
         if AppDelegate.shared.currentClaim == claim ||
@@ -2184,7 +2191,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         to toVC: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
         if interactiveDismiss != nil {
-            return FileDismissAnimationController()
+            return FileDismissAnimationController(needRestoreHeader: needRestoreHeader)
         }
         return nil
     }
