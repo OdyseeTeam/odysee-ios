@@ -201,6 +201,18 @@ class SearchViewController: UIViewController,
         currentMediaTypes = mediaTypes
         currentTimeFilter = timeFilter
         currentSortBy = sortBy
+
+        if let uri = LbryUri.tryParse(url: query.trimmingCharacters(in: .whitespacesAndNewlines), requireProto: true),
+           !uri.channelName.isBlank || !uri.streamName.isBlank
+        {
+            Lbry.apiCall(
+                method: BackendMethods.resolve,
+                params: .init(urls: [uri.description])
+            )
+            .subscribeResult(didResolveResults)
+            return
+        }
+
         Lighthouse.search(
             rawQuery: query,
             size: pageSize,
