@@ -7051,21 +7051,22 @@ Line 2</string>
                                                             <color key="textColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
                                                             <nil key="highlightedColor"/>
                                                         </label>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i5q-Kz-cym">
-                                                            <rect key="frame" x="16" y="12" width="326" height="1"/>
+                                                        <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" editable="NO" textAlignment="natural" translatesAutoresizingMaskIntoConstraints="NO" id="C4T-TW-LdO">
+                                                            <rect key="frame" x="16" y="12" width="326" height="33"/>
+                                                            <color key="textColor" systemColor="labelColor"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
+                                                            <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                                            <dataDetectorType key="dataDetectorTypes" link="YES"/>
+                                                        </textView>
                                                     </subviews>
                                                     <constraints>
                                                         <constraint firstAttribute="trailing" secondItem="tUo-nT-AQC" secondAttribute="trailing" constant="16" id="PJK-th-RKY"/>
+                                                        <constraint firstItem="C4T-TW-LdO" firstAttribute="leading" secondItem="Tdm-6D-KDs" secondAttribute="leading" constant="16" id="Qin-EU-RXS"/>
                                                         <constraint firstItem="tUo-nT-AQC" firstAttribute="top" secondItem="Tdm-6D-KDs" secondAttribute="top" constant="8" id="TKE-AJ-vSl"/>
-                                                        <constraint firstItem="i5q-Kz-cym" firstAttribute="top" secondItem="tUo-nT-AQC" secondAttribute="bottom" constant="4" id="V7p-vS-Ken"/>
                                                         <constraint firstItem="tUo-nT-AQC" firstAttribute="leading" secondItem="Tdm-6D-KDs" secondAttribute="leading" constant="16" id="WwF-Qq-LdC"/>
-                                                        <constraint firstAttribute="trailing" secondItem="i5q-Kz-cym" secondAttribute="trailing" constant="16" id="fJ6-MK-Uya"/>
-                                                        <constraint firstItem="i5q-Kz-cym" firstAttribute="leading" secondItem="Tdm-6D-KDs" secondAttribute="leading" constant="16" id="hL1-fb-APp"/>
-                                                        <constraint firstAttribute="bottom" secondItem="i5q-Kz-cym" secondAttribute="bottom" constant="16" id="hme-2K-8Pt"/>
+                                                        <constraint firstAttribute="bottom" secondItem="C4T-TW-LdO" secondAttribute="bottom" constant="16" id="X0O-em-gtq"/>
+                                                        <constraint firstAttribute="trailing" secondItem="C4T-TW-LdO" secondAttribute="trailing" constant="16" id="dna-qe-0pF"/>
+                                                        <constraint firstItem="C4T-TW-LdO" firstAttribute="top" secondItem="tUo-nT-AQC" secondAttribute="bottom" constant="4" id="t3h-ok-YyF"/>
                                                     </constraints>
                                                 </view>
                                                 <stackView opaque="NO" contentMode="scaleToFill" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="zC3-Dh-Olm" userLabel="Comment Actions View">
@@ -7202,7 +7203,7 @@ Line 2</string>
                                             <outlet property="authorNameLabel" destination="tUo-nT-AQC" id="Let-Ae-cSR"/>
                                             <outlet property="authorThumbnailView" destination="3Pc-Ox-7bE" id="10R-g2-7Bt"/>
                                             <outlet property="blockChannelContainer" destination="3zf-3y-elz" id="qN5-Kn-Ai5"/>
-                                            <outlet property="commentBodyLabel" destination="i5q-Kz-cym" id="iVP-tJ-1rg"/>
+                                            <outlet property="commentBodyTextView" destination="C4T-TW-LdO" id="iVP-tJ-1rg"/>
                                             <outlet property="fireReactionContainer" destination="ak0-t2-bzd" id="QFK-gC-ZZd"/>
                                             <outlet property="fireReactionImage" destination="Oq4-95-IdW" id="Orb-vS-wRC"/>
                                             <outlet property="fireReactionLabel" destination="swc-uj-cgw" id="dRk-N3-zuB"/>
