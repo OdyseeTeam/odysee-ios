@@ -49,5 +49,6 @@ struct User: Decodable {
         case rewardStatusChangeTrigger = "reward_status_change_trigger"
         case youtubeChannels = "youtube_channels"
         case deviceTypes = "device_types"
+        case pendingDeletion = "pending_deletion"
     }
 }
