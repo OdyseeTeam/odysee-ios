@@ -77,8 +77,8 @@ enum Lbry {
     static var localWalletHash: String?
     static var walletBalance: WalletBalance?
 
-    private static var claimCacheById = NSCache<NSString, Box<Claim>>()
-    private static var claimCacheByUrl = NSCache<NSString, Box<Claim>>()
+    private static var claimCacheById = NSCache<NSString, ClaimBox>()
+    private static var claimCacheByUrl = NSCache<NSString, ClaimBox>()
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
     static var defaultChannelId: String?
@@ -276,7 +276,7 @@ enum Lbry {
         }
         assert(claim.claimId != nil)
 
-        let boxed = Box(claim)
+        let boxed = ClaimBox(claim)
 
         if let id = claim.claimId {
             claimCacheById.setObject(boxed, forKey: id as NSString)

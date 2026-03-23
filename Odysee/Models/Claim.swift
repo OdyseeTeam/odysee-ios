@@ -23,14 +23,14 @@ enum StreamType: String, Codable {
     case video
 }
 
-final class Box<T: Decodable>: Decodable {
-    let wrappedValue: T
+final class ClaimBox: Decodable {
+    let wrappedValue: Claim
 
     required init(from decoder: Decoder) throws {
-        wrappedValue = try T(from: decoder)
+        wrappedValue = try Claim(from: decoder)
     }
 
-    init(_ value: T) {
+    init(_ value: Claim) {
         wrappedValue = value
     }
 }
@@ -50,8 +50,8 @@ struct Claim: Decodable {
     var nout: Int?
     var permanentUrl: String?
     var shortUrl: String?
-    var signingChannelRef: Box<Claim>?
-    var repostedClaimRef: Box<Claim>?
+    var signingChannelRef: ClaimBox?
+    var repostedClaimRef: ClaimBox?
     var signingChannel: Claim? { signingChannelRef?.wrappedValue }
     var repostedClaim: Claim? { repostedClaimRef?.wrappedValue }
     var timestamp: Int64?
@@ -59,8 +59,6 @@ struct Claim: Decodable {
     var type: String?
     var value: Metadata?
     var valueType: ClaimType?
-    var selected: Bool = false
-    var featured: Bool = false
 
     private enum CodingKeys: String, CodingKey {
         case address
@@ -206,7 +204,14 @@ struct Claim: Decodable {
         }
         return name
     }
+
+    // MARK: - UI Flags
+
+    var selected: Bool = false
+    var featured: Bool = false
 }
+
+// MARK: - Protocol Conformances
 
 extension Claim: Equatable {
     static func == (lhs: Claim, rhs: Claim) -> Bool {
