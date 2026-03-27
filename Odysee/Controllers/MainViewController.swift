@@ -812,6 +812,22 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
         completionHandler(true)
     }
+    
+    func playerViewController(
+        _ playerViewController: AVPlayerViewController,
+        willBeginFullScreenPresentationWithAnimationCoordinator coordinator: UIViewControllerTransitionCoordinator
+    ) {
+        coordinator.animate(alongsideTransition: nil) { _ in
+            // Force landscape orientation
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                if #available(iOS 16.0, *), UIDevice.current.orientation.isPortrait {
+                    windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
+                }
+            }
+            // Player pauses when expanding to full screen
+            playerViewController.player?.play()
+        }
+    }
 
     func playerViewController(
         _ playerViewController: AVPlayerViewController,
