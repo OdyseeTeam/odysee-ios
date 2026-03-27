@@ -820,7 +820,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         coordinator.animate(alongsideTransition: nil) { _ in
             // Force landscape orientation
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                if #available(iOS 16.0, *), UIDevice.current.orientation.isPortrait {
+                if #available(iOS 16.0, *) {
                     windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
                 }
             }
@@ -834,9 +834,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         willEndFullScreenPresentationWithAnimationCoordinator coordinator: UIViewControllerTransitionCoordinator
     ) {
         coordinator.animate(alongsideTransition: nil) { _ in
-            // Force landscape orientation
+            // Force window portrait orientation if the device is not in landscape orientation
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                if #available(iOS 16.0, *), UIDevice.current.orientation.isPortrait {
+                if #available(iOS 16.0, *), !UIDevice.current.orientation.isLandscape {
                     windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
                 }
             }
