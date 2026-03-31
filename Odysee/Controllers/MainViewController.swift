@@ -824,8 +824,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                     windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
                 }
             }
-            // Player pauses when expanding to full screen
-            playerViewController.player?.play()
         }
     }
 
