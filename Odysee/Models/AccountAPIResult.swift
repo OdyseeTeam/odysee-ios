@@ -7,6 +7,8 @@
 
 import Foundation
 
+typealias FileLastPositionsResult = [String: UInt]
+
 struct UserNewResult: Decodable {
     var authToken: String
 
@@ -32,6 +34,18 @@ struct SyncGetResult: Decodable {
 struct SyncSetResult: Decodable {
     var changed: Bool
     var hash: String?
+}
+
+struct ViewHistory: Decodable {
+    var claimId: String
+    var claimName: String
+    var lastPosition: UInt
+
+    enum CodingKeys: String, CodingKey {
+        case claimId = "claim_id"
+        case claimName = "claim_name"
+        case lastPosition = "last_position"
+    }
 }
 
 typealias YtTransferResult = [YtTransferResultElement]
