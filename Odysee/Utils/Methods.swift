@@ -249,6 +249,7 @@ enum AccountMethods {
 
     struct NilType: Codable, AccountMethodParams {}
 
+    static let fileLastPositions = Method<FileLastPositionsParams, FileLastPositionsResult>(name: "file/last_positions")
     static let userMe = Method<NilType, User>(name: "user/me", method: .GET)
     static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
     static let userExists = Method<UserExistsParams, UserExistsResult>(name: "user/exists")
@@ -259,6 +260,9 @@ enum AccountMethods {
     static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
     static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
     static let subscriptionNew = Method<SubscriptionNewParams, NilType>(name: "subscription/new")
+    static let viewHistory = Method<ViewHistoryParams, Page<ViewHistory>>(name: "user/view_history")
+    static let viewHistoryDelete = Method<ViewHistoryDeleteParams, NilType>(name: "user/view_history/delete")
+    static let viewHistoryDeleteAll = Method<NilType, NilType>(name: "user/view_history/delete")
     static let ytNew = Method<YtNewParams, String>(name: "yt/new")
     static let ytTransfer = Method<YtTransferParams, YtTransferResult>(name: "yt/transfer")
 
