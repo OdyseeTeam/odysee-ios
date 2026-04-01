@@ -6,8 +6,15 @@
 //
 
 import FirebaseAnalytics
+import SwiftUI
 
 class LibraryViewController: UIViewController {
+    lazy var library = {
+        let rootView = LibraryScreen()
+        let vc = UIHostingController(rootView: rootView)
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
+        return vc
+    }()
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -24,6 +31,7 @@ class LibraryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupLibraryView()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -41,5 +49,15 @@ class LibraryViewController: UIViewController {
             bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
     }
 
+    func setupLibraryView() {
+        addChild(library)
+        view.addSubview(library.view)
+        library.didMove(toParent: self)
+        NSLayoutConstraint.activate([
+            library.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            library.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            library.view.topAnchor.constraint(equalTo: view.topAnchor),
+            library.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
     }
 }
