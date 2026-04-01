@@ -28,7 +28,7 @@ extension YouTubeSyncScreen {
 
         @Environment(\.dismiss) var dismiss
 
-        @ObservedObject var model: YouTubeSyncScreen.ViewModel
+        @ObservedObject var model: ViewModel
 
         func makeUIView(context: Context) -> WKWebView {
             let webView = WKWebView()
