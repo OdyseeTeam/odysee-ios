@@ -835,7 +835,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         titleLabel.text = singleClaim.value?.title
 
-        let releaseTime = Double(singleClaim.value?.releaseTime ?? "0") ?? 0
+        let releaseTime = if let releaseTime = singleClaim.value?.releaseTime,
+                             let releaseTimestamp = Double(releaseTime)
+        {
+            releaseTimestamp
+        } else {
+            Double(singleClaim.timestamp ?? 0)
+        }
         let date: Date = NSDate(timeIntervalSince1970: releaseTime) as Date // TODO: Timezone check / conversion?
 
         timeAgoLabel.text = Helper.fullRelativeDateFormatter.localizedString(for: date, relativeTo: Date())

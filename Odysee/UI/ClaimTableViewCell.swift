@@ -159,9 +159,12 @@ class ClaimTableViewCell: UITableViewCell {
             }
         }
 
-        var releaseTime = Double(actualClaim.value?.releaseTime ?? "0") ?? 0
-        if releaseTime == 0 {
-            releaseTime = Double(actualClaim.timestamp ?? 0)
+        let releaseTime = if let releaseTime = actualClaim.value?.releaseTime,
+                             let releaseTimestamp = Double(releaseTime)
+        {
+            releaseTimestamp
+        } else {
+            Double(actualClaim.timestamp ?? 0)
         }
         let confirmations = actualClaim.confirmations ?? 0
 
