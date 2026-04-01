@@ -844,7 +844,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         var thumbnailUrl: URL?
         publisherImageView.rounded()
         livestreamerImageView.rounded()
-        if singleClaim.signingChannel != nil {
+        if (singleClaim.isChannelSignatureValid ?? false) && singleClaim.signingChannel != nil {
             if !isLivestream {
                 publisherTitleLabel.text = singleClaim.signingChannel?.value?.title
                 publisherNameLabel.text = singleClaim.signingChannel?.name
