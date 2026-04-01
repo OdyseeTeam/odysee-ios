@@ -812,7 +812,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
         completionHandler(true)
     }
-    
+
     func playerViewController(
         _ playerViewController: AVPlayerViewController,
         willBeginFullScreenPresentationWithAnimationCoordinator coordinator: UIViewControllerTransitionCoordinator
