@@ -170,6 +170,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var isOtherContent = false
     var membersOnly = false
     var avpcInitialised = false
+    var lastPosition: UInt = 0
 
     var loadingChannels = false
     var postingChat = false
@@ -236,6 +237,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+
+        AppDelegate.shared.savePlaybackPosition()
 
         AppDelegate.shared.mainController?.updateMiniPlayer()
 
@@ -1090,6 +1093,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         avpc.player = currentPlayer
 
+        if lastPosition > 0 {
+            avpc.player?.seek(
+                to: CMTime(seconds: Double(lastPosition), preferredTimescale: 1),
+                toleranceBefore: .zero, toleranceAfter: .zero
+            )
+        }
+
         playerStartedObserver = currentPlayer?.observe(\.rate, options: .new) { [self] _, _ in
             playerStartedObserver = nil
 
@@ -1169,7 +1179,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         playerConnected = true
     }
 
-    func logFileView(url: String, timeToStart: Int64) {
+    func logFileView(url: String, timeToStart: Int64, position: Int? = nil) {
         if loggingInProgress {
             return
         }
@@ -1187,6 +1197,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         options["outpoint"] = "\(txid):\(nout)"
         if timeToStart > 0 {
             options["time_to_start"] = String(timeToStart)
+        }
+        if let position {
+            options["last_timestamp"] = String(position)
         }
 
         do {
@@ -1552,20 +1565,35 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     return
                 }
 
-                if let result = data["result"] as? [String: Any] {
-                    if let streamingUrl = result["streaming_url"] as? String,
-                       let encodedUrl = streamingUrl.addingPercentEncoding(
-                           withAllowedCharacters: .urlFragmentAllowed
-                       ),
-                       let sourceUrl = URL(string: encodedUrl)
-                    {
-                        self.getTranscodedUrlAndInitializePlayer(claim: singleClaim, sourceUrl: sourceUrl)
+                // Wait for last positions to succeed/fail, so it's available when playback begins
+                Task {
+                    do {
+                        if let claimId = singleClaim.claimId,
+                           let lastPosition = try await AccountMethods.fileLastPositions.call(params: .init(
+                               claimIds: [claimId]
+                           ))[claimId]
+                        {
+                            self.lastPosition = lastPosition
+                        }
+                    } catch {
+                        Helper.showError(error: error)
                     }
-                } else {
-                    DispatchQueue.main.async {
-                        self.mediaLoadingIndicator.isHidden = true
+
+                    if let result = data["result"] as? [String: Any] {
+                        if let streamingUrl = result["streaming_url"] as? String,
+                           let encodedUrl = streamingUrl.addingPercentEncoding(
+                               withAllowedCharacters: .urlFragmentAllowed
+                           ),
+                           let sourceUrl = URL(string: encodedUrl)
+                        {
+                            self.getTranscodedUrlAndInitializePlayer(claim: singleClaim, sourceUrl: sourceUrl)
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.mediaLoadingIndicator.isHidden = true
+                        }
+                        self.showError(message: "Failed to get media location")
                     }
-                    self.showError(message: "Failed to get media location")
                 }
             }
         )

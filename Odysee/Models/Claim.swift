@@ -209,6 +209,7 @@ struct Claim: Decodable {
 
     var selected: Bool = false
     var featured: Bool = false
+    var lastPosition: UInt = 0
 }
 
 // MARK: - Protocol Conformances

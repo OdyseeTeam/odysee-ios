@@ -298,6 +298,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = currentItem.asset.duration.seconds
         nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = lazyPlayer.rate
         nowPlayingInfoCenter.nowPlayingInfo = nowPlayingInfo
+
+        // Has extra events on:
+        // - Begin seeking (indistinguishable from pause event)
+        // - Resume playback (indistinguishable from end seeking event)
+        savePlaybackPosition()
     }
 
     private func makeMediaItem(_ image: UIImage) -> MPMediaItemArtwork {
@@ -376,6 +381,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 // Set the metadata
                 MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
             }
+        }
+    }
+
+    // FIXME: Add save every 30s while playing
+    // (2026-04-01): Not really needed as it will always occur on viewWillDisappear
+    // miniplayer close triggers save due to pausing
+    //
+    // This isn't 100% reliable, just will save position most times
+    func savePlaybackPosition() {
+        if let time = lazyPlayer?.currentTime().seconds,
+           let claimUrl = currentFileViewController?.claim?.permanentUrl
+        {
+            currentFileViewController?.logFileView(url: claimUrl, timeToStart: 0, position: Int(time))
         }
     }
 
