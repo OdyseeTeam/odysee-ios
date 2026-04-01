@@ -8,20 +8,6 @@
 import SwiftUI
 import WebKit
 
-extension Optional {
-    /// Use this to expose an `Optional` as a `Binding<Bool>`
-    var bool: Bool {
-        get {
-            self != nil
-        }
-        set {
-            if newValue == false {
-                self = nil
-            }
-        }
-    }
-}
-
 extension YouTubeSyncScreen {
     struct WebView: UIViewRepresentable {
         typealias UIViewType = WKWebView

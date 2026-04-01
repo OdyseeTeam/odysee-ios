@@ -50,6 +50,20 @@ extension Optional where Wrapped == String {
     }
 }
 
+extension Optional {
+    /// Use this to expose an `Optional` as a `Binding<Bool>`
+    var bool: Bool {
+        get {
+            self != nil
+        }
+        set {
+            if newValue == false {
+                self = nil
+            }
+        }
+    }
+}
+
 extension UIImageView {
     func load(url: URL) {
         pin_setImage(from: url)
