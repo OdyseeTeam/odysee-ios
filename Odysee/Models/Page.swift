@@ -23,7 +23,7 @@ struct Page<Item: Decodable>: Decodable {
         if let page = try container.decodeIfPresent(Int.self, forKey: .page),
            let totalPages = try container.decodeIfPresent(Int.self, forKey: .totalPages)
         {
-            isLastPage = page == totalPages
+            isLastPage = page >= totalPages
         } else if let hasMore = try container.decodeIfPresent(Bool.self, forKey: .hasMore) {
             isLastPage = !hasMore
         } else {
