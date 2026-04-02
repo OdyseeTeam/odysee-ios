@@ -905,6 +905,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
                 var attributedDescription = Helper.processTimestamps(description)
                 attributedDescription.uiKit.font = .systemFont(ofSize: 13)
+                attributedDescription.uiKit.foregroundColor = .label
                 descriptionTextView.attributedText = NSAttributedString(attributedDescription)
             } else {
                 descriptionTextView.text = claim?.value?.description

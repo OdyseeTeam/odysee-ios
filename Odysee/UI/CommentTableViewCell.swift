@@ -88,6 +88,7 @@ class CommentTableViewCell: UITableViewCell {
 
             var attributedComment = Helper.processTimestamps(commentText)
             attributedComment.uiKit.font = .systemFont(ofSize: 13)
+            attributedComment.uiKit.foregroundColor = .label
             commentBodyTextView.attributedText = NSAttributedString(attributedComment)
         } else {
             commentBodyTextView.text = comment.comment
