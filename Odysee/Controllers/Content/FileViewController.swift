@@ -1222,8 +1222,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             try Lbryio.post(resource: "file", action: "view", options: options, completion: { _, _ in
                 // no need to check for errors here
                 self.loggingInProgress = false
+
+                if !self.fileViewLogged {
+                    self.claimDailyView()
+                }
+
                 self.fileViewLogged = true
-                self.claimDailyView()
             })
         } catch {
             // pass
