@@ -10,6 +10,9 @@ import SwiftUI
 
 extension ManageFollowingScreen {
     struct Screen: View {
+        // TODO: Test fast enable/disable/unfollow with/without web changes
+        // FIXME: subscription/delete call
+        // FIXME: subscription/new call with notification status
         @ObservedObject var model: ViewModel
 
         @State private var search: String = ""
@@ -65,9 +68,7 @@ extension ManageFollowingScreen {
                             }
                             .swipeActions {
                                 Button(role: .destructive) {
-                                    Task {
-                                        await model.remove(follow: follow)
-                                    }
+                                    model.markRemove(follow: follow)
                                 } label: {
                                     Label("Unfollow", systemImage: "heart.slash")
                                 }
@@ -136,9 +137,12 @@ struct ManageFollowingScreen: View {
                 EmptyView()
             }
             .hidden()
-            .onChange(of: navigator.active) {
-                if !$0 {
-                    navigator.hide()
+            .onChange(of: navigator.active) { active in
+                Task {
+                    if !active {
+                        await model.removeMarked()
+                        navigator.hide()
+                    }
                 }
             }
         }

@@ -260,17 +260,28 @@ extension Wallet {
     }
 
     func removeFollowing(claim: Claim) async {
+        await removeFollowingAll(claims: [claim])
+    }
+
+    func removeFollowingAll(claims: [Claim]) async {
         guard let sharedPreference = try? await pullSync(updateState: false),
-              var newFollowing = try? sharedPreference.walletFollowing,
-              let channelName = claim.name,
-              channelName.starts(with: "@"),
-              let claimId = claim.claimId,
-              let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+              var newFollowing = try? sharedPreference.walletFollowing
         else {
             return
         }
 
-        newFollowing.removeValue(forKey: uri)
+        for claim in claims {
+            guard let channelName = claim.name,
+                  channelName.starts(with: "@"),
+                  let claimId = claim.claimId,
+                  let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+            else {
+                return
+            }
+
+            newFollowing.removeValue(forKey: uri)
+        }
+
         following = newFollowing
     }
 
