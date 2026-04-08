@@ -170,7 +170,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var isOtherContent = false
     var membersOnly = false
     var avpcInitialised = false
-    var lastPosition: UInt = 0
+    var lastPosition: CMTime?
 
     var loadingChannels = false
     var postingChat = false
@@ -187,6 +187,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     let availableRates = ["0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x"]
 
     var needRestoreHeader = false
+
+    /// If last position is within 15 seconds of end, play from start
+    static let minimumLastPositionBeforeEnd: Double = 15
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -1109,13 +1112,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         avpc.player = currentPlayer
 
-        if lastPosition > 0 {
-            avpc.player?.seek(
-                to: CMTime(seconds: Double(lastPosition), preferredTimescale: 1),
-                toleranceBefore: .zero, toleranceAfter: .zero
-            )
-        }
-
         playerStartedObserver = currentPlayer?.observe(\.rate, options: .new) { [self] _, _ in
             playerStartedObserver = nil
 
@@ -1144,8 +1140,17 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
 
         Task {
-            _ = try? await asset.load(.duration)
+            let duration = try? await asset.load(.duration)
             mediaLoadingIndicator.isHidden = true
+
+            if let lastPosition, let duration,
+               (duration - lastPosition).seconds > Self.minimumLastPositionBeforeEnd
+            {
+                await avpc.player?.seek(
+                    to: lastPosition,
+                    toleranceBefore: .zero, toleranceAfter: .zero
+                )
+            }
         }
 
         AppDelegate.shared.lazyPlayer?.pause()
@@ -1200,6 +1205,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        let claim = isPlaylist ? currentPlaylistClaim() : claim
         guard let claimId = claim?.claimId, let txid = claim?.txid, let nout = claim?.nout else {
             showError(message: "couldn't get claim info")
             return
@@ -1587,13 +1593,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
                 // Wait for last positions to succeed/fail, so it's available when playback begins
                 Task {
+                    self.lastPosition = nil
                     do {
                         if let claimId = singleClaim.claimId,
                            let lastPosition = try await AccountMethods.fileLastPositions.call(params: .init(
                                claimIds: [claimId]
                            ))[claimId]
                         {
-                            self.lastPosition = lastPosition
+                            self.lastPosition = CMTime(seconds: Double(lastPosition), preferredTimescale: 1)
                         }
                     } catch {
                         Helper.showError(error: error)
