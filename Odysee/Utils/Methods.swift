@@ -260,6 +260,7 @@ enum AccountMethods {
     static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
     static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
     static let subscriptionNew = Method<SubscriptionNewParams, NilType>(name: "subscription/new")
+    static let subscriptionDelete = Method<SubscriptionDeleteParams, NilType>(name: "subscription/delete")
     static let viewHistory = Method<ViewHistoryParams, Page<ViewHistory>>(name: "user/view_history")
     static let viewHistoryDelete = Method<ViewHistoryDeleteParams, NilType>(name: "user/view_history/delete")
     static let viewHistoryDeleteAll = Method<NilType, NilType>(name: "user/view_history/delete")
