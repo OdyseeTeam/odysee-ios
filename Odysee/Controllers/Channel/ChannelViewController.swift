@@ -352,6 +352,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             }
 
             Lbryio.areCommentsEnabled(
+                claimId: claimId,
                 channelId: claimId,
                 channelName: name,
                 completion: { enabled in
