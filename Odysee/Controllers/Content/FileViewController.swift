@@ -1593,6 +1593,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
                 // Wait for last positions to succeed/fail, so it's available when playback begins
                 Task {
+                    self.lastPosition = nil
                     do {
                         if let claimId = singleClaim.claimId,
                            let lastPosition = try await AccountMethods.fileLastPositions.call(params: .init(
