@@ -343,11 +343,16 @@ enum Lbryio {
         return user
     }
 
-    static func areCommentsEnabled(channelId: String, channelName: String, completion: @escaping (Bool) -> Void) {
+    static func areCommentsEnabled(
+        claimId: String,
+        channelId: String?,
+        channelName: String?,
+        completion: @escaping (Bool) -> Void
+    ) {
         Lbry.commentApiCall(
             method: CommentsMethods.list,
             params: .init(
-                claimId: channelId,
+                claimId: claimId,
                 channelId: channelId,
                 channelName: channelName,
                 page: 1,

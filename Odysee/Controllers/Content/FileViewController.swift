@@ -832,10 +832,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             avpcInitialised = true
         }
 
-        if let channelId = claim?.signingChannel?.claimId, let name = claim?.signingChannel?.name {
+        if let claimId = claim?.claimId {
             Lbryio.areCommentsEnabled(
-                channelId: channelId,
-                channelName: name,
+                claimId: claimId,
+                channelId: claim?.signingChannel?.claimId,
+                channelName: claim?.signingChannel?.name,
                 completion: { enabled in
                     self.commentsDisabledChecked = true
                     self.checkCommentsDisabled(commentsDisabled: !enabled, currentClaim: singleClaim)
