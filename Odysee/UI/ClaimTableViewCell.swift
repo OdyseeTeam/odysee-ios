@@ -139,7 +139,9 @@ class ClaimTableViewCell: UITableViewCell {
 
         titleLabel.textColor = actualClaim.featured ? UIColor.white : nil
         titleLabel.text = actualClaim.value?.title
-        publisherLabel.text = isChannel ? actualClaim.name : actualClaim.signingChannel?.titleOrName
+
+        publisherLabel.text = isChannel ? actualClaim.name : (actualClaim.signingChannel?.titleOrName ?? "Anonymous")
+        publisherLabel.textColor = isChannel || actualClaim.signingChannel?.titleOrName != nil ? .tintColor : .label
 
         // load thumbnail url
         let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
