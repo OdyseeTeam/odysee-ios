@@ -19,7 +19,7 @@ extension ManageFollowingScreen {
         }
 
         var body: some View {
-            ZStack {
+            Group {
                 if let following = model.following, let filteredFollowing {
                     if following.isEmpty {
                         Text("No followed channels.")
@@ -42,7 +42,7 @@ extension ManageFollowingScreen {
                             .swipeActions(edge: .leading) {
                                 Button {
                                     Task {
-                                        let disabled = await model.toggleNotificationsDisabled(follow: follow)
+                                        let disabled = model.markToggleNotificationsDisabled(follow: follow)
 
                                         if disabled {
                                             Helper.showMessage(
@@ -65,9 +65,7 @@ extension ManageFollowingScreen {
                             }
                             .swipeActions {
                                 Button(role: .destructive) {
-                                    Task {
-                                        await model.remove(follow: follow)
-                                    }
+                                    model.markRemove(follow: follow)
                                 } label: {
                                     Label("Unfollow", systemImage: "heart.slash")
                                 }
@@ -85,16 +83,6 @@ extension ManageFollowingScreen {
                     ProgressView()
                         .controlSize(.large)
                 }
-
-                ProgressView()
-                    .controlSize(.large)
-                    .apply {
-                        if model.inProgress {
-                            $0
-                        } else {
-                            $0.hidden()
-                        }
-                    }
             }
             .refreshable {
                 do {
@@ -129,20 +117,40 @@ struct ManageFollowingScreen: View {
     @ObservedObject var model: ViewModel
 
     var body: some View {
-        NavigationView {
-            NavigationLink(isActive: $navigator.active) {
-                Screen(model: model)
-            } label: {
-                EmptyView()
-            }
-            .hidden()
-            .onChange(of: navigator.active) {
-                if !$0 {
-                    navigator.hide()
+        ZStack {
+            NavigationView {
+                NavigationLink(isActive: $navigator.active) {
+                    Screen(model: model)
+                } label: {
+                    EmptyView()
+                }
+                .hidden()
+                .onChange(of: navigator.active) { active in
+                    Task {
+                        if !active {
+                            do {
+                                try await model.updateMarkedNotificationsDisabled_and_removeMarked()
+                            } catch {
+                                Helper.showError(error: error)
+                            }
+
+                            navigator.hide()
+                        }
+                    }
                 }
             }
+            .navigationViewStyle(.stack)
+
+            ProgressView()
+                .controlSize(.large)
+                .apply {
+                    if model.inProgress {
+                        $0
+                    } else {
+                        $0.hidden()
+                    }
+                }
         }
-        .navigationViewStyle(.stack)
     }
 }
 
