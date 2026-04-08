@@ -77,6 +77,14 @@ struct SubscriptionNewParams: Encodable, AccountMethodParams {
     }
 }
 
+struct SubscriptionDeleteParams: Encodable, AccountMethodParams {
+    var claimId: String
+
+    enum CodingKeys: String, CodingKey {
+        case claimId = "claim_id"
+    }
+}
+
 struct ViewHistoryParams: Encodable, AccountMethodParams {
     var page: Int?
     var pageSize: Int?
