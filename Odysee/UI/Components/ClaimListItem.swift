@@ -126,7 +126,9 @@ struct ClaimListItem: View {
                     .fontWeight(.semibold)
                     .lineLimit(3)
 
-                if let channelClaim = claim.signingChannel {
+                if let channelClaim = claim.signingChannel,
+                   let publisher = channelClaim.titleOrName
+                {
                     Button {
                         let currentVc = UIApplication.currentViewController()
                         if let channelVc = currentVc as? ChannelViewController {
@@ -143,10 +145,13 @@ struct ClaimListItem: View {
                         vc.channelClaim = channelClaim
                         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                     } label: {
-                        Text(channelClaim.titleOrName ?? "")
+                        Text(publisher)
                             .font(.system(size: secondarySize))
                             .lineLimit(1)
                     }
+                } else {
+                    Text("Anonymous")
+                        .font(.system(size: secondarySize))
                 }
 
                 Group {
