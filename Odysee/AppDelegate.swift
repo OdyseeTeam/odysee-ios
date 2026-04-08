@@ -395,7 +395,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // This isn't 100% reliable, just will save position most times
     func savePlaybackPosition() {
         if let time = lazyPlayer?.currentTime().seconds,
-           let claimUrl = currentFileViewController?.claim?.permanentUrl
+           let vc = currentFileViewController,
+           let claimUrl = vc.isPlaylist ? vc.currentPlaylistClaim()?.permanentUrl : vc.claim?.permanentUrl
         {
             currentFileViewController?.logFileView(url: claimUrl, timeToStart: 0, position: Int(time))
         }
