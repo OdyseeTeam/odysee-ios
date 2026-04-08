@@ -36,6 +36,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     var currentTimeControlStatus: AVPlayer.TimeControlStatus?
     var remoteCommands = [CommandCenterCommands: Any]()
 
+    var didShowLoopNotification = false
+
     // One-time only lazily activate the Audio Session when playing a file.
     // This prevents the app from taking over the audio stream on launch.
     lazy var lazyPlayer: AVPlayer? = {
@@ -80,11 +82,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     }
 
     @objc func playerDidFinishPlaying(note: NSNotification) {
-        removeRemoteTransportControls()
-        (mainViewController as? MainViewController)?.miniPlayerPlayPauseButton.isUserInteractionEnabled = false
+        if UserDefaults.standard.bool(forKey: "LoopVideos") {
+            if !didShowLoopNotification {
+                Helper.showMessage(message: "Looping this video — go to Settings to disable")
+                didShowLoopNotification = true
+            }
 
-        if let currentFileViewController {
-            currentFileViewController.playNextPlaylistItem()
+            // TODO: Consider using AVQueuePlayer/AVPlayerLooper
+            lazyPlayer?.seek(to: .zero)
+            lazyPlayer?.play()
+        } else {
+            removeRemoteTransportControls()
+            (mainViewController as? MainViewController)?.miniPlayerPlayPauseButton.isUserInteractionEnabled = false
+
+            if let currentFileViewController {
+                currentFileViewController.playNextPlaylistItem()
+            }
         }
     }
 
