@@ -1206,6 +1206,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
+        let claim = isPlaylist ? currentPlaylistClaim() : claim
         guard let claimId = claim?.claimId, let txid = claim?.txid, let nout = claim?.nout else {
             showError(message: "couldn't get claim info")
             return
