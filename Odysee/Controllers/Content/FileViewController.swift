@@ -749,7 +749,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         descriptionDivider.isHidden = true
 
         var contentType: String?
-        if let mediaType = claim?.value?.source?.mediaType {
+        if let mediaType = singleClaim.value?.source?.mediaType {
             isTextContent = mediaType.starts(with: "text/")
             isImageContent = mediaType.starts(with: "image/")
             isOtherContent = !isTextContent && !isImageContent && !mediaType.starts(with: "video") && !mediaType
@@ -832,11 +832,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             avpcInitialised = true
         }
 
-        if let claimId = claim?.claimId {
+        if let claimId = singleClaim.claimId {
             Lbryio.areCommentsEnabled(
                 claimId: claimId,
-                channelId: claim?.signingChannel?.claimId,
-                channelName: claim?.signingChannel?.name,
+                channelId: singleClaim.signingChannel?.claimId,
+                channelName: singleClaim.signingChannel?.name,
                 completion: { enabled in
                     self.commentsDisabledChecked = true
                     self.checkCommentsDisabled(commentsDisabled: !enabled, currentClaim: singleClaim)
@@ -901,7 +901,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             titleAreaIconView.isHidden = true
         } else {
             // details
-            if #available(iOS 16.0, *), let description = claim?.value?.description {
+            if #available(iOS 16.0, *), let description = singleClaim.value?.description {
                 descriptionTextView.delegate = self
 
                 var attributedDescription = Helper.processTimestamps(description)
@@ -909,7 +909,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 attributedDescription.uiKit.foregroundColor = .label
                 descriptionTextView.attributedText = NSAttributedString(attributedDescription)
             } else {
-                descriptionTextView.text = claim?.value?.description
+                descriptionTextView.text = singleClaim.value?.description
             }
         }
     }
