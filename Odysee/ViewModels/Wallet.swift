@@ -271,6 +271,44 @@ extension Wallet {
         }
 
         newFollowing.removeValue(forKey: uri)
+
+        following = newFollowing
+    }
+
+    func updateNotificationsDisabledAll_and_removeFollowingAll(
+        toUpdate: [Claim: NotificationsDisabled],
+        toRemove: [Claim]
+    ) async {
+        guard let sharedPreference = try? await pullSync(updateState: false),
+              var newFollowing = try? sharedPreference.walletFollowing
+        else {
+            return
+        }
+
+        for (claim, notificationsDisabled) in toUpdate {
+            guard let channelName = claim.name,
+                  channelName.starts(with: "@"),
+                  let claimId = claim.claimId,
+                  let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+            else {
+                return
+            }
+
+            newFollowing[uri] = notificationsDisabled
+        }
+
+        for claim in toRemove {
+            guard let channelName = claim.name,
+                  channelName.starts(with: "@"),
+                  let claimId = claim.claimId,
+                  let uri = try? Self.buildFollow(channelName: channelName, claimId: claimId)
+            else {
+                return
+            }
+
+            newFollowing.removeValue(forKey: uri)
+        }
+
         following = newFollowing
     }
 
