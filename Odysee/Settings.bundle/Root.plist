@@ -26,6 +26,16 @@
 				<integer>1</integer>
 			</array>
 		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Loop Videos</string>
+			<key>Key</key>
+			<string>LoopVideos</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
 	</array>
 </dict>
 </plist>
