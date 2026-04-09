@@ -101,6 +101,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         loadBlockedOutpoints()
         loadFilteredOutpoints()
         loadLocaleAndCustomBlockedRules()
+        updateMiniPlayer()
 
         if Lbryio.isSignedIn() {
             // check if the user is pending_delete
@@ -595,6 +596,8 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             playerLayer.videoGravity = .resizeAspectFill
             _ = mediaViewLayer.sublayers?.popLast()
             mediaViewLayer.addSublayer(playerLayer)
+
+            toggleMiniPlayer(hidden: false)
         }
     }
 
