@@ -197,10 +197,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         needRestoreHeader = !(AppDelegate.shared.mainController?.headerArea.isHidden ?? false)
 
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
-        if AppDelegate.shared.currentClaim == claim ||
-            (playlistItems.count > currentPlaylistIndex &&
-                AppDelegate.shared.currentClaim == playlistItems[currentPlaylistIndex])
-        {
+        if AppDelegate.shared.currentClaim == claim || AppDelegate.shared.currentClaim == currentPlaylistClaim() {
             AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: true)
         }
         AppDelegate.shared.currentFileViewController = self

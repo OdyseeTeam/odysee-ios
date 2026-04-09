@@ -44,9 +44,22 @@ class UserAccountViewController: UIViewController {
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        if AppDelegate.shared.lazyPlayer != nil {
-            AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: false)
+
+        guard AppDelegate.shared.lazyPlayer != nil else {
+            return
         }
+
+        if UIApplication.currentViewController() == AppDelegate.shared.currentFileViewController {
+            // Back destination can be file_vc itself
+            guard let claim = AppDelegate.shared.currentClaim,
+                  let vc = AppDelegate.shared.currentFileViewController,
+                  claim != vc.claim && claim != vc.currentPlaylistClaim()
+            else {
+                return
+            }
+        }
+
+        AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: false)
     }
 
     override func viewDidAppear(_ animated: Bool) {
