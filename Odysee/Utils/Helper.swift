@@ -229,7 +229,7 @@ enum Helper {
         return transition
     }
 
-    static func miniPlayerBottomWithoutTabBar() -> CGFloat {
+    static var miniPlayerBottomWithoutTabBar: CGFloat {
         if let window = UIApplication.shared.windows.filter(\.isKeyWindow).first {
             let safeAreaFrame = window.safeAreaLayoutGuide.layoutFrame
             return CGFloat(window.frame.maxY - safeAreaFrame.maxY + 2)
@@ -237,8 +237,8 @@ enum Helper {
         return 0
     }
 
-    static func miniPlayerBottomWithTabBar(appDelegate: AppDelegate) -> CGFloat {
-        return (AppDelegate.shared.mainTabViewController?.tabBar.frame.size.height ?? 0) + 2
+    static var miniPlayerBottomWithTabBar: CGFloat {
+        (AppDelegate.shared.mainTabViewController?.tabBar.frame.size.height ?? 0) + 2
     }
 
     static func makeid() -> String {

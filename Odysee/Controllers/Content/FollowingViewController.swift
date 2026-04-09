@@ -71,8 +71,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         )
 
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
-        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(
-            bottom: Helper.miniPlayerBottomWithTabBar(appDelegate: AppDelegate.shared))
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithTabBar)
     }
 
     func checkSelectedChannel() {
