@@ -25,7 +25,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
         AppDelegate.shared.mainController?.notificationBadgeIcon.tintColor = Helper.primaryColor
         AppDelegate.shared.mainController?.notificationsViewActive = true
-        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar())
+        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar)
 
         if !Lbryio.isSignedIn() {
             // show the sign in view
