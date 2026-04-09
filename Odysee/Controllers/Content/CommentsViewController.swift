@@ -14,6 +14,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     @IBOutlet var noCommentsLabel: UILabel!
     @IBOutlet var postCommentAreaView: UIView!
     @IBOutlet var postCommentAreaHeightConstraint: NSLayoutConstraint!
+    @IBOutlet var postCommentAreaHiddenConstraint: NSLayoutConstraint!
     @IBOutlet var commentAsThumbnailView: UIImageView!
     @IBOutlet var commentAsChannelLabel: UILabel!
     @IBOutlet var commentLimitLabel: UILabel!
@@ -51,9 +52,16 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
+        postCommentAreaView.translatesAutoresizingMaskIntoConstraints = false
         if !Lbryio.isSignedIn() || commentsDisabled {
             postCommentAreaView.isHidden = true
-            postCommentAreaHeightConstraint.constant = 0
+            postCommentAreaHeightConstraint.isActive = false
+            postCommentAreaHiddenConstraint.isActive = true
+        } else {
+            postCommentAreaView.isHidden = false
+            postCommentAreaHeightConstraint.isActive = true
+            postCommentAreaHiddenConstraint.isActive = false
         }
 
         if Lbryio.isSignedIn() {
