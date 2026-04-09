@@ -6879,7 +6879,8 @@ Line 2</string>
                                         <constraint firstItem="tpD-MK-VUz" firstAttribute="leading" secondItem="U3v-g1-P45" secondAttribute="trailing" constant="16" id="WfJ-os-oTG"/>
                                         <constraint firstItem="U3v-g1-P45" firstAttribute="leading" secondItem="8ii-hy-A2Y" secondAttribute="leading" constant="16" id="abO-i7-cre"/>
                                         <constraint firstItem="tpD-MK-VUz" firstAttribute="top" secondItem="8ii-hy-A2Y" secondAttribute="top" id="fp1-Um-jIh"/>
-                                        <constraint firstAttribute="height" constant="142" id="ulf-cF-2jh" userLabel="Post Comment Area Height Constraint"/>
+                                        <constraint firstAttribute="height" priority="999" constant="142" id="ulf-cF-2jh" userLabel="Post Comment Area Height Constraint"/>
+                                        <constraint firstAttribute="height" id="vmg-dG-1ki" userLabel="Post Comment Area Hidden Constraint"/>
                                     </constraints>
                                     <directionalEdgeInsets key="directionalLayoutMargins" top="0.0" leading="0.0" bottom="16" trailing="0.0"/>
                                 </view>
@@ -7163,6 +7164,7 @@ Line 2</string>
                         <outlet property="loadingContainer" destination="fKY-o2-fSU" id="CtI-g5-OgP"/>
                         <outlet property="noCommentsLabel" destination="GEL-6m-rWy" id="kNZ-CY-y6u"/>
                         <outlet property="postCommentAreaHeightConstraint" destination="ulf-cF-2jh" id="GTR-WK-hpo"/>
+                        <outlet property="postCommentAreaHiddenConstraint" destination="vmg-dG-1ki" id="ypP-DY-x8A"/>
                         <outlet property="postCommentAreaView" destination="8ii-hy-A2Y" id="DBt-e3-9sz"/>
                         <outlet property="replyToCommentLabel" destination="fy7-hE-6JR" id="3Js-sJ-R1r"/>
                         <outlet property="replyToContainerView" destination="Lgf-Jn-yN6" id="y6m-5S-nde"/>
