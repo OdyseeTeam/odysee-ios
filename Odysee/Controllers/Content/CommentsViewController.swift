@@ -452,6 +452,12 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @IBAction func channelDriverTapped(_ sender: Any) {
+        if !Lbryio.isSignedIn() {
+            let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
+            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+            return
+        }
+
         if UIApplication.currentViewController() is FileViewController {
             AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
