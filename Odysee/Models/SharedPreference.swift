@@ -13,6 +13,7 @@ struct SharedPreference: Codable {
     var following: [Following]
     var blocked: [LbryUri]
     var defaultChannelId: String?
+    var unpublishedCollections: CollectionGroup
 
     var otherValues: [String: Value]
     var otherSettings: [String: Value]
@@ -37,6 +38,8 @@ struct SharedPreference: Codable {
         subscriptions = []
         following = []
         blocked = []
+        unpublishedCollections = [:]
+
         otherValues = [:]
         otherSettings = [:]
     }
@@ -50,6 +53,7 @@ struct SharedPreference: Codable {
             static let subscriptions = Value(stringValue: "subscriptions")
             static let following = Value(stringValue: "following")
             static let blocked = Value(stringValue: "blocked")
+            static let unpublishedCollections = Value(stringValue: "unpublishedCollections")
             static let settings = Value(stringValue: "settings")
 
             var stringValue: String
@@ -113,6 +117,7 @@ struct SharedPreference: Codable {
             otherSettings[key.stringValue] = try settings.decode(Value.self, forKey: key)
         }
 
+        unpublishedCollections = try value.decode(CollectionGroup.self, forKey: .unpublishedCollections)
         subscriptions = try value.decode([LbryUri].self, forKey: .subscriptions)
         following = try value.decode([Following].self, forKey: .following)
         blocked = try value.decode([LbryUri].self, forKey: .blocked)
@@ -136,6 +141,7 @@ struct SharedPreference: Codable {
         try value.encode(subscriptions, forKey: .subscriptions)
         try value.encode(following, forKey: .following)
         try value.encode(blocked, forKey: .blocked)
+        try value.encode(unpublishedCollections, forKey: .unpublishedCollections)
         try settings.encode(defaultChannelId, forKey: .defaultChannelId)
     }
 }

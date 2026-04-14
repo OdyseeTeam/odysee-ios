@@ -219,6 +219,7 @@ enum BackendMethods {
     static let channelAbandon = Method<ChannelAbandonParams, Transaction>(name: "channel_abandon")
     static let channelImport = Method<ChannelImportParams, NilType>(name: "channel_import")
     static let channelSign = Method<ChannelSignParams, ChannelSignResult>(name: "channel_sign")
+    static let collectionList = Method<CollectionListParams, Page<Claim>>(name: "collection_list")
     static let transactionList = Method<TransactionListParams, Page<Transaction>>(name: "transaction_list")
     static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
     static let syncHash = Method<NilType, SyncHashResult>(name: "sync_hash")

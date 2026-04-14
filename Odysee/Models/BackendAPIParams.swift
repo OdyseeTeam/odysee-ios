@@ -68,6 +68,11 @@ struct ChannelSignParams: Encodable, BackendMethodParams {
     var hexdata: String
 }
 
+struct CollectionListParams: Encodable, BackendMethodParams {
+    var resolve: Bool
+    // TODO:
+}
+
 struct SyncApplyParams: Encodable, BackendMethodParams {
     let password: String = ""
     var data: String?

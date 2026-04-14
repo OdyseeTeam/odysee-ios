@@ -45,6 +45,19 @@ actor Wallet {
     private(set) var sBlocked: AsyncShareSequence<AsyncBufferedChannel<[LbryUri]?>>
     private let blockedQueue = AsyncBufferedChannel<[LbryUri]?>()
 
+    private(set) var unpublishedCollections = SharedPreference.CollectionGroup() {
+        didSet {
+            if unpublishedCollections != oldValue {
+                unpublishedCollectionsQueue.send(unpublishedCollections)
+            }
+        }
+    }
+
+    private(set) var sUnpublishedCollections: AsyncShareSequence<AsyncBufferedChannel<
+        SharedPreference.CollectionGroup
+    >>
+    private let unpublishedCollectionsQueue = AsyncBufferedChannel<SharedPreference.CollectionGroup>()
+
     private(set) var defaultChannelId: String?
 
     // MARK: - Sync
@@ -58,6 +71,7 @@ actor Wallet {
     private init() {
         sFollowing = followingQueue.share()
         sBlocked = blockedQueue.share()
+        sUnpublishedCollections = unpublishedCollectionsQueue.share()
 
         Task {
             await startSync()
@@ -151,6 +165,8 @@ actor Wallet {
 
             blocked = sharedPreference.blocked
 
+            unpublishedCollections = sharedPreference.unpublishedCollections
+
             defaultChannelId = sharedPreference.defaultChannelId
         }
 
@@ -187,6 +203,8 @@ actor Wallet {
         if let blocked {
             sharedPreference.blocked = blocked
         }
+
+        // TODO:
 
         sharedPreference.defaultChannelId = defaultChannelId
 
