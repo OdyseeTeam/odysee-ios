@@ -13,6 +13,10 @@ struct PlaylistListItem: View {
 
     @State private var thumbnailUrl: URL?
 
+    @ScaledMetric private var titleSize: CGFloat = 14
+    @ScaledMetric private var secondarySize: CGFloat = 12
+    @ScaledMetric private var smallestSize: CGFloat = 11
+
     static let imageWidth: Double = 160
 
     var body: some View {
@@ -42,6 +46,27 @@ struct PlaylistListItem: View {
             .task {
                 thumbnailUrl = if let url = collection.thumbnail?.url {
                     url
+                } else if collection.isPublic {
+                    await {
+                        do {
+                            guard let claimId = collection.items.claimIds?.first else {
+                                return nil
+                            }
+
+                            let claimSearch = try await BackendMethods.claimSearch.call(params: .init(
+                                claimIds: [claimId],
+                            ))
+
+                            if let thumbnail = claimSearch.items.first?.value?.thumbnail?.url {
+                                return URL(string: thumbnail)
+                            } else {
+                                return nil
+                            }
+                        } catch {
+                            Helper.showError(error: error)
+                            return nil
+                        }
+                    }()
                 } else {
                     await {
                         do {
@@ -66,15 +91,48 @@ struct PlaylistListItem: View {
                 }
             }
 
-            let count = collection.itemCount ?? collection.items.uris.count
-            Text("\(Image(systemName: "play.square.stack")) \(count)")
+            VStack(alignment: .leading, spacing: 4) {
+                Text(collection.titleOrName)
+                    .font(.system(size: titleSize))
+                    .fontWeight(.semibold)
+                    .lineLimit(3)
+
+                if collection.isPublic,
+                   let publisher = collection.originalClaim?.signingChannel?.titleOrName
+                {
+                    Text(publisher)
+                        .font(.system(size: secondarySize))
+                        .lineLimit(1)
+                        // TODO: Accessibility test
+                        .accessibilityLabel(Text("Created by \(publisher)"))
+                }
+
+                Spacer()
+
+                HStack {
+                    let count = collection.itemCount ?? collection.items.uris.count
+                    Text("\(Image(systemName: "play.square.stack")) \(count)")
+
+                    if collection.isPublic {
+                        Text("\(Image(systemName: "eye")) Public")
+                    } else {
+                        Text("\(Image(systemName: "lock")) Private")
+                    }
+                }
+
+                let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
+                // TODO: Timezone check / conversion?
+                Text("Updated \(date.formatted(.relative(presentation: .numeric)))")
+            }
+            .font(.system(size: smallestSize))
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
     }
 }
 
-#Preview {
+@available(iOS 17, *)
+#Preview(traits: .sizeThatFitsLayout) {
     PlaylistListItem(collection: .init(
         id: "A",
         items: .init(uris: [

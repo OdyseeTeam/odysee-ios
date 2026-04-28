@@ -19,6 +19,7 @@ struct LibraryScreen: View {
     @AppStorage("library#selectedTab") private var selectedTab: Tab = .publishes
     @StateObject private var publishesModel: PublishesScreen.ViewModel = .init()
     @StateObject private var watchHistoryModel: WatchHistoryScreen.ViewModel = .init()
+    @StateObject private var playlistsModel: PlaylistsScreen.ViewModel = .init()
 
     var body: some View {
         NavigationView {
@@ -37,10 +38,11 @@ struct LibraryScreen: View {
                 case .watchHistory:
                     WatchHistoryScreen(model: watchHistoryModel)
                 case .playlists:
-                    PlaylistsScreen()
+                    PlaylistsScreen(model: playlistsModel)
                 }
             }
         }
+        .navigationViewStyle(.stack)
     }
 }
 

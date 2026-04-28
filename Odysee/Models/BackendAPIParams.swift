@@ -70,7 +70,8 @@ struct ChannelSignParams: Encodable, BackendMethodParams {
 
 struct CollectionListParams: Encodable, BackendMethodParams {
     var resolve: Bool
-    // TODO:
+    var page: Int?
+    var pageSize: Int?
 }
 
 struct SyncApplyParams: Encodable, BackendMethodParams {

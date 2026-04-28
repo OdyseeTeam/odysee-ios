@@ -90,6 +90,15 @@ extension SharedPreference {
                 var container = encoder.singleValueContainer()
                 try container.encode(uris)
             }
+
+            // MARK: - Collection Items from Claim
+
+            var claimIds: [String]?
+
+            init(claimIds: [String]?) {
+                uris = []
+                self.claimIds = claimIds
+            }
         }
 
         struct Thumbnail: Codable {
@@ -98,6 +107,70 @@ extension SharedPreference {
 
         enum CollectionType: String, Codable {
             case playlist
+        }
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case items
+            case name
+            case title
+            case description
+            case tags
+            case thumbnail
+            case type
+            case createdAt
+            case updatedAt
+            case itemCount
+            case sourceId
+        }
+
+        // MARK: - Helpers
+
+        var titleOrName: String {
+            title ?? name
+        }
+
+        var count: Int {
+            itemCount ?? items.uris.count
+        }
+
+        // MARK: - Representing public playlists
+
+        /// Preserves for ``SharedPreference/Collection/asClaim``
+        var originalClaim: Claim?
+
+        var isPublic: Bool {
+            originalClaim != nil
+        }
+
+        init(
+            id: String,
+            items: Items,
+            name: String,
+            title: String? = nil,
+            description: String? = nil,
+            tags: [String]? = nil,
+            thumbnail: Thumbnail? = nil,
+            type: CollectionType,
+            createdAt: Int? = nil,
+            updatedAt: Int,
+            itemCount: Int? = nil,
+            sourceId: String? = nil,
+            originalClaim: Claim? = nil
+        ) {
+            self.id = id
+            self.items = items
+            self.name = name
+            self.title = title
+            self.description = description
+            self.tags = tags
+            self.thumbnail = thumbnail
+            self.type = type
+            self.createdAt = createdAt
+            self.updatedAt = updatedAt
+            self.itemCount = itemCount
+            self.sourceId = sourceId
+            self.originalClaim = originalClaim
         }
     }
 }
@@ -116,13 +189,53 @@ extension SharedPreference.Collection: Identifiable {}
 
 extension SharedPreference.Collection {
     var asClaim: Claim {
-        Claim(
+        originalClaim ?? Claim(
             claimId: id,
             value: .init(
-                title: title ?? name, // FIXME:
+                title: titleOrName,
                 claims: items.uris.compactMap(\.streamClaimId),
             ),
             valueType: .collection,
+        )
+    }
+}
+
+// MARK: - Claim as Collection
+
+extension Claim {
+    var asCollection: SharedPreference.Collection? {
+        guard let claimId, let titleOrName else {
+            return nil
+        }
+
+        let releaseTime = if let releaseTime = value?.releaseTime,
+                             let releaseTimestamp = Int(releaseTime)
+        {
+            releaseTimestamp
+        } else {
+            Int(timestamp ?? 0)
+        }
+
+        let thumbnail: SharedPreference.Collection.Thumbnail? = if let thumbnail = value?.thumbnail?.url {
+            .init(url: URL(string: thumbnail))
+        } else {
+            nil
+        }
+
+        return SharedPreference.Collection(
+            id: claimId,
+            // Only used for claim_search for thumbnail, if needed
+            items: .init(claimIds: value?.claims),
+            name: titleOrName,
+            title: value?.title,
+            description: value?.description,
+            tags: value?.tags,
+            thumbnail: thumbnail,
+            type: .playlist,
+            createdAt: releaseTime,
+            updatedAt: releaseTime,
+            itemCount: value?.claims?.count ?? 0,
+            originalClaim: self
         )
     }
 }
