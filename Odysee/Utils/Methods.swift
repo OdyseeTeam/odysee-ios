@@ -66,7 +66,7 @@ extension Method where ParamType: BackendMethodParams {
             guard var result = response.result else {
                 if name == BackendMethods.sharedPreferenceGet.name,
                    response.error?.message != "authentication required",
-                   var result = SharedPreferenceGetResult(shared: SharedPreference()) as? ResultType
+                   var result = SharedPreferenceGetResult(shared: nil) as? ResultType
                 {
                     try defaultTransform?(&result)
                     try transform?(&result)

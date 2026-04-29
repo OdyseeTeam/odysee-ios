@@ -13,7 +13,6 @@ extension SharedPreference {
 
     /// https://github.com/OdyseeTeam/odysee-frontend/blob/3f320e22446261ff22475641a555c6b316d68e4f/flow-typed/Collections.js#L1-L21
     struct Collection: Codable {
-        /// Not UUID to match CollectionGroup key, because [it's unsupported]( https://github.com/swiftlang/swift-corelibs-foundation/issues/3614#issuecomment-1118348969)
         var id: String
         var items: Items
         var name: String
@@ -145,7 +144,7 @@ extension SharedPreference {
 
         init(
             id: String,
-            items: Items,
+            items: Items = .init(uris: []),
             name: String,
             title: String? = nil,
             description: String? = nil,

@@ -7,8 +7,10 @@
 
 import SwiftUI
 
+// FIXME: (project level): "No content" shows during load (gate on wallet load somehoe)
+
 struct PlaylistsScreen: View {
-    @ObservedObject var model: ViewModel
+    @StateObject var model: ViewModel = .init()
 
     // FIXME: Localize
     private enum SortBy: String, CaseIterable, Identifiable {
@@ -31,11 +33,14 @@ struct PlaylistsScreen: View {
     }
 
     @State private var sortBy: SortBy = .name
-    @State private var sortAsc: Bool = true
+    @State private var sortAsc = true
 
     @State private var filterBy: FilterBy = .all
 
-    @State private var search: String = ""
+    @State private var search = ""
+
+    @State private var showingNewPlaylist = false
+    @State private var newPlaylistTitle = ""
 
     var collections: [SharedPreference.Collection] {
         if model.refreshing {
@@ -67,7 +72,7 @@ struct PlaylistsScreen: View {
         return searched.sorted {
             let result = switch sortBy {
             case .name:
-                $0.titleOrName < $1.titleOrName
+                $0.titleOrName.localizedCompare($1.titleOrName) == .orderedAscending
             case .updated:
                 $0.updatedAt < $1.updatedAt
             case .videoCount:
@@ -83,41 +88,60 @@ struct PlaylistsScreen: View {
             ZStack {
                 List {
                     Group {
-                        if !model.refreshing && collections.isEmpty {
-                            Image("spaceman_sad")
-                                .resizable()
-                                .scaledToFit()
-                                // Image is roughly a square
-                                .frame(
-                                    maxWidth: .infinity,
-                                    maxHeight: min(metrics.size.height / 2, metrics.size.width / 2),
-                                    alignment: .center
-                                )
-                                .accessibilityHidden(true)
+                        if !model.refreshing {
+                            Text("Default Playlists")
+                                .font(.title3)
+                                .padding(.horizontal)
 
-                            Text("Nothing here")
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            ForEach(model.builtinCollections) { collection in
+                                PlaylistListItem(collection: collection)
+                            }
+
+                            if collections.isEmpty {
+                                VStack(spacing: 16) {
+                                    Image("spaceman_sad")
+                                        .resizable()
+                                        .scaledToFit()
+                                        // Image is roughly a square
+                                        .frame(
+                                            maxWidth: .infinity,
+                                            maxHeight: min(metrics.size.height / 2, metrics.size.width / 3),
+                                            alignment: .center
+                                        )
+                                        .accessibilityHidden(true)
+
+                                    Text("You can add videos to your Playlists")
+
+                                    Text(
+                                        "Do you want to find some content to save for later, or create a brand new playlist?"
+                                    )
+                                    .font(.footnote)
+                                    .multilineTextAlignment(.center)
+
+                                    HStack {
+                                        Button("Explore!") {
+                                            AppDelegate.shared.mainTabViewController?.selectedIndex = 0
+                                        }
+
+                                        Spacer()
+
+                                        Button("New Playlist") {
+                                            showingNewPlaylist = true
+                                        }
+                                        .buttonStyle(.borderedProminent)
+                                    }
+                                }
+                                .padding(.leading)
+                                .buttonStyle(.borderless)
+                            } else {
+                                Text("Your Playlists")
+                                    .font(.title3)
+                                    .padding(.horizontal)
+                            }
                         }
 
                         ForEach(collections) { collection in
-                            // UIKit action, but disclosure using empty NavigationLink
-                            Button {
-                                let vc = AppDelegate.shared.mainViewController?.storyboard?
-                                    .instantiateViewController(identifier: "file_view_vc") as! FileViewController
-                                vc.claim = collection.asClaim
-
-                                AppDelegate.shared.mainNavigationController?.view.layer.add(
-                                    Helper.buildFileViewTransition(),
-                                    forKey: kCATransition
-                                )
-                                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
-                            } label: {
-                                NavigationLink {
-                                    EmptyView()
-                                } label: {
-                                    PlaylistListItem(collection: collection)
-                                }
-                            }
+                            PlaylistListItem(collection: collection)
                         }
                     }
                     .listRowSeparator(.hidden)
@@ -165,6 +189,12 @@ struct PlaylistsScreen: View {
                             }
                         }
                     }
+
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("New Playlist", systemImage: "plus") {
+                            showingNewPlaylist = true
+                        }
+                    }
                 }
                 .searchable(text: $search)
                 .apply {
@@ -172,6 +202,49 @@ struct PlaylistsScreen: View {
                         $0.searchToolbarBehavior(.minimize)
                     } else {
                         $0
+                    }
+                }
+                .apply {
+                    if #available(iOS 16, *) {
+                        $0.alert("Create a Playlist", isPresented: $showingNewPlaylist) {
+                            TextField("New Playlist Title", text: $newPlaylistTitle)
+
+                            Button("Confirm", role: .confirmOrNil) {
+                                Task {
+                                    await model.createNewPlaylist(title: newPlaylistTitle)
+                                }
+                            }
+                            Button("Cancel", role: .cancel) {}
+                        } message: {
+                            Text(
+                                "You will be able to add content to this playlist using the Save button while viewing content."
+                            )
+                        }
+                    } else {
+                        $0.sheet(isPresented: $showingNewPlaylist) {
+                            VStack(spacing: 16) {
+                                Text("Create a Playlist")
+                                    .font(.title3)
+                                    .padding(.bottom)
+
+                                Text(
+                                    "You will be able to add content to this playlist using the Save button while viewing content."
+                                )
+
+                                TextField("New Playlist Title", text: $newPlaylistTitle)
+                                    .padding(.horizontal)
+
+                                Button("Confirm") {
+                                    Task {
+                                        await model.createNewPlaylist(title: newPlaylistTitle)
+                                    }
+
+                                    showingNewPlaylist = false
+                                }
+                                .padding(.top)
+                            }
+                            .padding()
+                        }
                     }
                 }
 
@@ -190,5 +263,5 @@ struct PlaylistsScreen: View {
 }
 
 #Preview {
-    PlaylistsScreen(model: .init())
+    PlaylistsScreen()
 }

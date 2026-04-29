@@ -326,4 +326,10 @@ extension ButtonRole {
     } else {
         cancel
     }
+
+    static let confirmOrNil: Self? = if #available(iOS 26, *) {
+        confirm
+    } else {
+        nil
+    }
 }

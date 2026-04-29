@@ -15,11 +15,22 @@ extension PlaylistsScreen {
         @Published private(set) var inProgress = false
         @Published private(set) var refreshing = false
 
-        @Published private(set) var unpublishedCollections = [SharedPreference.Collection]()
+        @Published private(set) var builtinCollections = [SharedPreference.Collection]()
+
+        // FIXME: Not properly cleared on switching account
         @Published private(set) var publishedCollections = [SharedPreference.Collection]()
         @Published private(set) var savedCollections = [SharedPreference.Collection]()
+        @Published private(set) var unpublishedCollections = [SharedPreference.Collection]()
 
         init() {
+            Task<Void, Never> {
+                builtinCollections = Array(await Wallet.shared.builtinCollections.values)
+
+                for await newBuiltinCollections in await Wallet.shared.sBuiltinCollections {
+                    builtinCollections = Array(newBuiltinCollections.values)
+                }
+            }
+
             Task<Void, Never> {
                 await {
                     inProgress = true
@@ -60,12 +71,30 @@ extension PlaylistsScreen {
                 refreshing = false
             }
 
+            builtinCollections = Array(await Wallet.shared.builtinCollections.values)
+            unpublishedCollections = Array(await Wallet.shared.unpublishedCollections.values)
+
             do {
                 try await collectionListAll()
                 try await collectionClaimSearch(await Wallet.shared.savedCollectionIds)
             } catch {
                 Helper.showError(error: error)
             }
+        }
+
+        func createNewPlaylist(title: String) async {
+            let now = Int(Date().timeIntervalSince1970)
+
+            await Wallet.shared.addOrSetUnpublished(collection: .init(
+                id: UUID().uuidString,
+                name: title,
+                title: title,
+                type: .playlist,
+                createdAt: now,
+                updatedAt: now,
+            ))
+
+            await Wallet.shared.queuePushSync()
         }
 
         private func collectionListAll() async throws {
