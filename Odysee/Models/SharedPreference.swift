@@ -14,6 +14,7 @@ struct SharedPreference: Codable {
     var blocked: [LbryUri]
     var defaultChannelId: String?
     var unpublishedCollections: CollectionGroup
+    var savedCollectionIds: [String]
 
     var otherValues: [String: Value]
     var otherSettings: [String: Value]
@@ -39,6 +40,7 @@ struct SharedPreference: Codable {
         following = []
         blocked = []
         unpublishedCollections = [:]
+        savedCollectionIds = []
 
         otherValues = [:]
         otherSettings = [:]
@@ -54,6 +56,7 @@ struct SharedPreference: Codable {
             static let following = Value(stringValue: "following")
             static let blocked = Value(stringValue: "blocked")
             static let unpublishedCollections = Value(stringValue: "unpublishedCollections")
+            static let savedCollectionIds = Value(stringValue: "savedCollectionIds")
             static let settings = Value(stringValue: "settings")
 
             var stringValue: String
@@ -117,10 +120,11 @@ struct SharedPreference: Codable {
             otherSettings[key.stringValue] = try settings.decode(Value.self, forKey: key)
         }
 
-        unpublishedCollections = try value.decode(CollectionGroup.self, forKey: .unpublishedCollections)
         subscriptions = try value.decode([LbryUri].self, forKey: .subscriptions)
         following = try value.decode([Following].self, forKey: .following)
         blocked = try value.decode([LbryUri].self, forKey: .blocked)
+        unpublishedCollections = try value.decode(CollectionGroup.self, forKey: .unpublishedCollections)
+        savedCollectionIds = try value.decode([String].self, forKey: .savedCollectionIds)
         defaultChannelId = try settings.decodeIfPresent(String.self, forKey: .defaultChannelId)
     }
 
@@ -142,6 +146,7 @@ struct SharedPreference: Codable {
         try value.encode(following, forKey: .following)
         try value.encode(blocked, forKey: .blocked)
         try value.encode(unpublishedCollections, forKey: .unpublishedCollections)
+        try value.encode(savedCollectionIds, forKey: .savedCollectionIds)
         try settings.encode(defaultChannelId, forKey: .defaultChannelId)
     }
 }

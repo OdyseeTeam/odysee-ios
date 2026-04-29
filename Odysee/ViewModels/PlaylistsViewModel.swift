@@ -11,13 +11,13 @@ extension PlaylistsScreen {
     @MainActor
     class ViewModel: ObservableObject {
         static let pageSize = 50
-        private var page = 1
 
         @Published private(set) var inProgress = false
         @Published private(set) var refreshing = false
 
         @Published private(set) var unpublishedCollections = [SharedPreference.Collection]()
         @Published private(set) var publishedCollections = [SharedPreference.Collection]()
+        @Published private(set) var savedCollections = [SharedPreference.Collection]()
 
         init() {
             Task<Void, Never> {
@@ -40,6 +40,18 @@ extension PlaylistsScreen {
                     unpublishedCollections = Array(newUnpublishedCollections.values)
                 }
             }
+
+            Task<Void, Never> {
+                do {
+                    try await collectionClaimSearch(await Wallet.shared.savedCollectionIds)
+
+                    for await newSavedCollectionIds in await Wallet.shared.sSavedCollectionIds {
+                        try await collectionClaimSearch(newSavedCollectionIds)
+                    }
+                } catch {
+                    Helper.showError(error: error)
+                }
+            }
         }
 
         @Sendable func refresh() async {
@@ -48,18 +60,19 @@ extension PlaylistsScreen {
                 refreshing = false
             }
 
-            publishedCollections.removeAll(keepingCapacity: true)
-
             do {
                 try await collectionListAll()
+                try await collectionClaimSearch(await Wallet.shared.savedCollectionIds)
             } catch {
                 Helper.showError(error: error)
             }
         }
 
         private func collectionListAll() async throws {
+            publishedCollections.removeAll(keepingCapacity: true)
+
             // Limit in case of failure to break
-            for _ in 0 ... 999 {
+            for page in 0 ... 999 {
                 let published = try await BackendMethods.collectionList.call(params: .init(
                     resolve: true,
                     page: page,
@@ -71,7 +84,29 @@ extension PlaylistsScreen {
                 if published.isLastPage {
                     break
                 }
-                page += 1
+            }
+        }
+
+        private func collectionClaimSearch(_ claimIds: [String]) async throws {
+            guard claimIds.count > 0 else {
+                return
+            }
+
+            savedCollections.removeAll(keepingCapacity: true)
+
+            // Limit in case of failure to break
+            for page in 0 ... 999 {
+                let claimSearch = try await BackendMethods.claimSearch.call(params: .init(
+                    page: page,
+                    pageSize: Self.pageSize,
+                    claimIds: claimIds
+                ))
+
+                savedCollections.append(contentsOf: claimSearch.items.compactMap(\.asCollection))
+
+                if claimSearch.isLastPage {
+                    break
+                }
             }
         }
     }
