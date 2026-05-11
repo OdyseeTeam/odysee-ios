@@ -208,10 +208,10 @@ actor Wallet {
 
             blocked = sharedPreference.blocked
 
-            builtinCollections = sharedPreference.builtinCollections
-            editedCollections = sharedPreference.editedCollections
+            builtinCollections = sharedPreference.builtinCollections.withOrigin(.builtin)
+            editedCollections = sharedPreference.editedCollections.withOrigin(.edited)
             savedCollectionIds = sharedPreference.savedCollectionIds
-            unpublishedCollections = sharedPreference.unpublishedCollections
+            unpublishedCollections = sharedPreference.unpublishedCollections.withOrigin(.unpublished)
 
             defaultChannelId = sharedPreference.defaultChannelId
         }
@@ -426,15 +426,30 @@ extension Wallet {
 // MARK: - Playlists
 
 extension Wallet {
+    func addOrSetBuiltin(collection: SharedPreference.Collection) {
+        addOrSetCollection(group: &builtinCollections, collection: collection)
+    }
+
+    func addOrSetEdited(collection: SharedPreference.Collection) {
+        addOrSetCollection(group: &editedCollections, collection: collection)
+    }
+
     func addOrSetUnpublished(collection: SharedPreference.Collection) {
         addOrSetCollection(group: &unpublishedCollections, collection: collection)
     }
 
+    /// Adds/updates collection in CollectionGroup
+    ///
+    /// Updates collection itemCount and updatedAt
     private func addOrSetCollection(
         group: inout SharedPreference.CollectionGroup,
         collection: SharedPreference.Collection
     ) {
-        group[collection.id] = collection
+        var collection = collection
+        collection.itemCount = collection.items.uris.count
+        collection.updatedAt = Int(Date().timeIntervalSince1970)
+
+        group[collection.collectionId] = collection
     }
 }
 

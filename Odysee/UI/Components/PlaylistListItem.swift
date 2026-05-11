@@ -19,6 +19,8 @@ struct PlaylistListItem: View {
 
     static let imageWidth: Double = 160
 
+    @State private var updatedAt: String = ""
+
     var body: some View {
         NavigationLink {
             PlaylistDetailScreen(collection: collection)
@@ -49,7 +51,7 @@ struct PlaylistListItem: View {
                 .task {
                     thumbnailUrl = if let url = collection.thumbnail?.url {
                         url
-                    } else if collection.isPublic {
+                    } else if collection.isPublic, collection.items.claimIds != nil {
                         await {
                             do {
                                 guard let claimId = collection.items.claimIds?.first else {
@@ -144,9 +146,12 @@ struct PlaylistListItem: View {
                         }
                     }
 
-                    let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
-                    // TODO: Timezone check / conversion?
-                    Text("Updated \(date.formatted(.relative(presentation: .numeric)))")
+                    Text("Updated \(updatedAt)")
+                        .onAppear {
+                            // TODO: Timezone check / conversion?
+                            let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
+                            updatedAt = date.formatted(.relative(presentation: .numeric))
+                        }
                 }
                 .font(.system(size: smallestSize))
             }

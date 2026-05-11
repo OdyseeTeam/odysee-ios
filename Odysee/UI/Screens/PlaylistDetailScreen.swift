@@ -10,7 +10,14 @@ import SwiftUI
 struct PlaylistDetailScreen: View {
     @StateObject private var model: ViewModel = .init()
 
-    var collection: SharedPreference.Collection
+    @State var collection: SharedPreference.Collection
+
+    @Environment(\.editMode) private var editMode
+    private var isEditing: Bool {
+        editMode?.wrappedValue.isEditing == true
+    }
+
+    @State private var editingDetails = false
 
     var body: some View {
         GeometryReader { _ in
@@ -18,7 +25,7 @@ struct PlaylistDetailScreen: View {
                 List {
                     Group {
                         if !model.refreshing {
-                            VStack {
+                            VStack(alignment: .leading) {
                                 if collection.isPublic,
                                    let publisher = collection.originalClaim?.signingChannel?.titleOrName
                                 {
@@ -29,7 +36,9 @@ struct PlaylistDetailScreen: View {
                                 }
 
                                 if let description = collection.description {
-                                    Text(description)
+                                    Text(
+                                        (try? AttributedString(markdown: description)) ?? AttributedString(description)
+                                    )
                                 }
 
                                 Spacer(minLength: 0)
@@ -47,6 +56,7 @@ struct PlaylistDetailScreen: View {
 
                                 let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
                                 // TODO: Timezone check / conversion?
+                                // FIXME: onAppear
                                 Text("Updated \(date.formatted(.relative(presentation: .numeric)))")
                             }
 
@@ -72,17 +82,17 @@ struct PlaylistDetailScreen: View {
                             }
                         }
                         .onMove(perform: model.move)
-//                        .onDelete { deleteOffsets in
-//                            Task<Void, Never> {
-//                                await model.delete(firstFromOffset: deleteOffsets)
-//                            }
-//                        }
+                        .onDelete(perform: model.delete)
                     }
                     .listRowSeparator(.hidden)
                     .listRowInsets(.init())
                 }
                 .listStyle(.plain)
-                .navigationTitle(collection.titleOrName)
+                .navigationTitle(
+                    isEditing ?
+                        "Editing \(collection.titleOrName)" :
+                        collection.titleOrName
+                )
                 .task {
                     do {
                         try await model.loadClaims(collection: collection)
@@ -90,9 +100,36 @@ struct PlaylistDetailScreen: View {
                         Helper.showError(error: error)
                     }
                 }
-//                .refreshable(action: model.refresh)
                 .toolbar {
-                    EditButton()
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        if collection.origin != .saved {
+                            EditButton()
+                        }
+
+                        if isEditing {
+                            Button("Details") {
+                                editingDetails = true
+                            }
+                        }
+
+                        Menu("More", systemImage: "ellipsis") {
+                            Button("Copy") {}
+                        }
+                    }
+                }
+                .onChange(of: isEditing) { editing in
+                    if !editing {
+                        Task {
+                            await model.saveChanges(collection: collection)
+                        }
+                    }
+                }
+                .sheet(isPresented: $editingDetails) {
+                    PlaylistDetailForm(collection: collection) {
+                        collection = $0
+                    }
+                    .environment(\.editMode, editMode)
+                    .interactiveDismissDisabled()
                 }
 
                 ProgressView()

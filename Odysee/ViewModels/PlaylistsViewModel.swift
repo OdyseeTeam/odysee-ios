@@ -16,13 +16,27 @@ extension PlaylistsScreen {
         @Published private(set) var refreshing = false
 
         @Published private(set) var builtinCollections = [SharedPreference.Collection]()
-
-        // FIXME: Not properly cleared on switching account
-        @Published private(set) var publishedCollections = [SharedPreference.Collection]()
-        @Published private(set) var savedCollections = [SharedPreference.Collection]()
+        @Published private(set) var editedCollections = [SharedPreference.Collection]()
         @Published private(set) var unpublishedCollections = [SharedPreference.Collection]()
 
+        // FIXME: Not properly cleared on switching account
+        @Published private(set) var publishedCollections = SharedPreference.CollectionGroup()
+        @Published private(set) var savedCollections = [SharedPreference.Collection]()
+
         init() {
+            Task<Void, Never> {
+                inProgress = true
+                defer {
+                    inProgress = false
+                }
+
+                do {
+                    try await collectionListAll()
+                } catch {
+                    Helper.showError(error: error)
+                }
+            }
+
             Task<Void, Never> {
                 builtinCollections = Array(await Wallet.shared.builtinCollections.values)
 
@@ -32,20 +46,15 @@ extension PlaylistsScreen {
             }
 
             Task<Void, Never> {
-                await {
-                    inProgress = true
-                    defer {
-                        inProgress = false
-                    }
+                editedCollections = Array(await Wallet.shared.editedCollections.values)
 
-                    do {
-                        try await collectionListAll()
-                    } catch {
-                        Helper.showError(error: error)
-                    }
+                for await newEditedCollections in await Wallet.shared.sEditedCollections {
+                    editedCollections = Array(newEditedCollections.values)
+                }
+            }
 
-                    unpublishedCollections = Array(await Wallet.shared.unpublishedCollections.values)
-                }()
+            Task<Void, Never> {
+                unpublishedCollections = Array(await Wallet.shared.unpublishedCollections.values)
 
                 for await newUnpublishedCollections in await Wallet.shared.sUnpublishedCollections {
                     unpublishedCollections = Array(newUnpublishedCollections.values)
@@ -71,10 +80,12 @@ extension PlaylistsScreen {
                 refreshing = false
             }
 
-            builtinCollections = Array(await Wallet.shared.builtinCollections.values)
-            unpublishedCollections = Array(await Wallet.shared.unpublishedCollections.values)
-
             do {
+                try await Wallet.shared.pullSync()
+
+                builtinCollections = Array(await Wallet.shared.builtinCollections.values)
+                unpublishedCollections = Array(await Wallet.shared.unpublishedCollections.values)
+
                 try await collectionListAll()
                 try await collectionClaimSearch(await Wallet.shared.savedCollectionIds)
             } catch {
@@ -108,7 +119,15 @@ extension PlaylistsScreen {
                     pageSize: Self.pageSize
                 ))
 
-                publishedCollections.append(contentsOf: published.items.compactMap(\.asCollection))
+                publishedCollections.merge(published.items.compactMap {
+                    guard let claimId = $0.claimId,
+                          let collection = $0.asCollection(origin: .claim)
+                    else {
+                        return nil
+                    }
+
+                    return (claimId, collection)
+                }, uniquingKeysWith: { _, last in last })
 
                 if published.isLastPage {
                     break
@@ -131,7 +150,9 @@ extension PlaylistsScreen {
                     claimIds: claimIds
                 ))
 
-                savedCollections.append(contentsOf: claimSearch.items.compactMap(\.asCollection))
+                savedCollections.append(contentsOf: claimSearch.items.compactMap {
+                    $0.asCollection(origin: .saved)
+                })
 
                 if claimSearch.isLastPage {
                     break

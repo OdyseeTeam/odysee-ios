@@ -47,16 +47,31 @@ struct PlaylistsScreen: View {
             return []
         }
 
+        var published = model.publishedCollections
+
+        for var edited in model.editedCollections {
+            if let original = published[edited.collectionId] {
+                edited.originalClaim = original.originalClaim
+                published[edited.collectionId] = edited
+            }
+        }
+        let publishedCollections = Array(published.values)
+
+        let editedCollections = model.editedCollections.map {
+            var collection = $0
+            collection.originalClaim = published[collection.collectionId]?.originalClaim
+            return collection
+        }
+
         let all: [SharedPreference.Collection] = switch filterBy {
         case .all:
-            model.unpublishedCollections + model.publishedCollections + model.savedCollections
+            model.unpublishedCollections + publishedCollections + model.savedCollections
         case .private:
             model.unpublishedCollections
         case .public:
-            model.publishedCollections
-        // FIXME: What's this
+            publishedCollections
         case .edited:
-            []
+            editedCollections
         case .saved:
             model.savedCollections
         }
@@ -98,41 +113,47 @@ struct PlaylistsScreen: View {
                             }
 
                             if collections.isEmpty {
-                                VStack(spacing: 16) {
-                                    Image("spaceman_sad")
-                                        .resizable()
-                                        .scaledToFit()
-                                        // Image is roughly a square
-                                        .frame(
-                                            maxWidth: .infinity,
-                                            maxHeight: min(metrics.size.height / 2, metrics.size.width / 3),
-                                            alignment: .center
+                                if filterBy == .all {
+                                    VStack(spacing: 16) {
+                                        Image("spaceman_sad")
+                                            .resizable()
+                                            .scaledToFit()
+                                            // Image is roughly a square
+                                            .frame(
+                                                maxWidth: .infinity,
+                                                maxHeight: min(metrics.size.height / 2, metrics.size.width / 3),
+                                                alignment: .center
+                                            )
+                                            .accessibilityHidden(true)
+
+                                        Text("You can add videos to your Playlists")
+
+                                        Text(
+                                            "Do you want to find some content to save for later, or create a brand new playlist?"
                                         )
-                                        .accessibilityHidden(true)
+                                        .font(.footnote)
+                                        .multilineTextAlignment(.center)
 
-                                    Text("You can add videos to your Playlists")
+                                        HStack {
+                                            Button("Explore!") {
+                                                AppDelegate.shared.mainTabViewController?.selectedIndex = 0
+                                            }
 
-                                    Text(
-                                        "Do you want to find some content to save for later, or create a brand new playlist?"
-                                    )
-                                    .font(.footnote)
-                                    .multilineTextAlignment(.center)
+                                            Spacer()
 
-                                    HStack {
-                                        Button("Explore!") {
-                                            AppDelegate.shared.mainTabViewController?.selectedIndex = 0
+                                            Button("New Playlist") {
+                                                showingNewPlaylist = true
+                                            }
+                                            .buttonStyle(.borderedProminent)
                                         }
-
-                                        Spacer()
-
-                                        Button("New Playlist") {
-                                            showingNewPlaylist = true
-                                        }
-                                        .buttonStyle(.borderedProminent)
                                     }
+                                    .padding(.leading)
+                                    .buttonStyle(.borderless)
+                                } else {
+                                    Text("No matching playlists")
+                                        .italic()
+                                        .frame(maxWidth: .infinity, alignment: .center)
                                 }
-                                .padding(.leading)
-                                .buttonStyle(.borderless)
                             } else {
                                 Text("Your Playlists")
                                     .font(.title3)

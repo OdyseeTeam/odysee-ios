@@ -12,10 +12,13 @@
 		530525AB28125CCE00D92A2E /* Txo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 530525AA28125CCE00D92A2E /* Txo.swift */; };
 		5314A01E2F69066A008E858C /* ClaimListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5314A01D2F69066A008E858C /* ClaimListItem.swift */; };
 		532650E4286EAB1B00F0FF0B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 532650E3286EAB1B00F0FF0B /* Settings.bundle */; };
+		532CCA3D2FB1CA0000D1E8D2 /* TagsSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532CCA3C2FB1CA0000D1E8D2 /* TagsSearch.swift */; };
 		533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */; };
 		534457BA2F87732F00E81A7E /* SharedPreference+Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457B92F87732F00E81A7E /* SharedPreference+Following.swift */; };
 		534457BC2F87741700E81A7E /* SharedPreference+Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */; };
 		534457BE2F87E4E900E81A7E /* PlaylistsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457BD2F87E4E900E81A7E /* PlaylistsScreen.swift */; };
+		53486A5C2FADB7510028717C /* PlaylistDetailForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53486A5B2FADB7510028717C /* PlaylistDetailForm.swift */; };
+		53486A602FAEDF8F0028717C /* ThumbnailPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53486A5F2FAEDF8F0028717C /* ThumbnailPicker.swift */; };
 		534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */; };
 		534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */; };
 		534CCCA92F3C74CC00457BBF /* YouTubeSyncViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */; };
@@ -168,10 +171,13 @@
 		530525AA28125CCE00D92A2E /* Txo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Txo.swift; sourceTree = "<group>"; };
 		5314A01D2F69066A008E858C /* ClaimListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimListItem.swift; sourceTree = "<group>"; };
 		532650E3286EAB1B00F0FF0B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		532CCA3C2FB1CA0000D1E8D2 /* TagsSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsSearch.swift; sourceTree = "<group>"; };
 		533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerificationScreen.swift; sourceTree = "<group>"; };
 		534457B92F87732F00E81A7E /* SharedPreference+Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Following.swift"; sourceTree = "<group>"; };
 		534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Playlist.swift"; sourceTree = "<group>"; };
 		534457BD2F87E4E900E81A7E /* PlaylistsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsScreen.swift; sourceTree = "<group>"; };
+		53486A5B2FADB7510028717C /* PlaylistDetailForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailForm.swift; sourceTree = "<group>"; };
+		53486A5F2FAEDF8F0028717C /* ThumbnailPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailPicker.swift; sourceTree = "<group>"; };
 		534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIParams.swift; sourceTree = "<group>"; };
 		534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncScreen.swift; sourceTree = "<group>"; };
 		534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncViewModel.swift; sourceTree = "<group>"; };
@@ -386,7 +392,10 @@
 			children = (
 				539D79922F3ECE7300E7686E /* ChannelListItem.swift */,
 				5314A01D2F69066A008E858C /* ClaimListItem.swift */,
+				53486A5F2FAEDF8F0028717C /* ThumbnailPicker.swift */,
 				53AE21362F8DE086009939B2 /* PlaylistListItem.swift */,
+				53486A5B2FADB7510028717C /* PlaylistDetailForm.swift */,
+				532CCA3C2FB1CA0000D1E8D2 /* TagsSearch.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -847,6 +856,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				532CCA3D2FB1CA0000D1E8D2 /* TagsSearch.swift in Sources */,
 				64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */,
 				538C27562EFB8DA300305361 /* AuthToken.swift in Sources */,
 				642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */,
@@ -870,6 +880,7 @@
 				64FF820F2604FB0B009B7A3B /* FirstRunDelegate.swift in Sources */,
 				648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */,
 				CCDDA9172655C1340006035F /* FileDismissAnimationController.swift in Sources */,
+				53486A602FAEDF8F0028717C /* ThumbnailPicker.swift in Sources */,
 				64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */,
 				648F70D726307BF900885A2F /* GoLiveViewController.swift in Sources */,
 				CC0B2B0D266D0E72002490BB /* Lock.swift in Sources */,
@@ -899,6 +910,7 @@
 				649F023C2717F918009A5698 /* Constants.swift in Sources */,
 				641B3E2727E0EFCC0089E816 /* CustomBlockRule.swift in Sources */,
 				646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */,
+				53486A5C2FADB7510028717C /* PlaylistDetailForm.swift in Sources */,
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
 				5377EA832F7B666E00C8E03E /* LibraryScreen.swift in Sources */,
 				641108F1255AF6CE00F0FB8A /* Helper.swift in Sources */,

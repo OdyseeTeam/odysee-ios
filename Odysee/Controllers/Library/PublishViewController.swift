@@ -313,28 +313,25 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
         thumbnailUploadInProgress = true
         uploadingIndicator.isHidden = false
-        thumbnailImageView.image = image
-
-        Helper.uploadImage(image: image, completion: { imageUrl, error in
-            guard let imageUrl = imageUrl, error == nil else {
-                DispatchQueue.main.async {
-                    self.uploadingIndicator.isHidden = true
-                }
-
-                self.thumbnailUploadInProgress = false
-                self.showError(error: error)
-                return
-            }
+        defer {
+            thumbnailUploadInProgress = false
+            uploadingIndicator.isHidden = true
 
             if generated {
-                self.thumbnailGenerated = true
+                thumbnailGenerated = true
             }
-            DispatchQueue.main.async {
-                self.uploadingIndicator.isHidden = true
+        }
+
+        thumbnailImageView.image = image
+
+        Task {
+            do {
+                let imageUrl = try await Helper.uploadImage(image: image)
+                currentThumbnailUrl = imageUrl
+            } catch {
+                showError(error: error)
             }
-            self.thumbnailUploadInProgress = false
-            self.currentThumbnailUrl = imageUrl
-        })
+        }
     }
 
     @IBAction func cancelTapped(_ sender: UIButton) {

@@ -248,7 +248,12 @@ enum Helper {
         return String((0 ..< 24).map { _ in chars.randomElement()! })
     }
 
-    static func uploadImage(image: UIImage, completion: @escaping (String?, Error?) -> Void) {
+    private struct ThumbnailUploadResult: Decodable {
+        var type: String
+        var url: String
+    }
+
+    static func uploadImage(image: UIImage) async throws -> String {
         var mimeType: String?
         var imageData: Data?
         var filename: String?
@@ -262,8 +267,7 @@ enum Helper {
             filename = "image.png"
         }
         guard let mimeType, let imageData, let filename else {
-            completion(nil, GenericError("The selected image could not be uploaded"))
-            return
+            throw GenericError("The selected image could not be uploaded")
         }
 
         let name = makeid()
@@ -271,20 +275,19 @@ enum Helper {
         var fieldData = "--\(boundary)\r\n"
         fieldData.append("Content-Disposition: form-data; name=\"upload\"\r\n\r\n\(name)\r\n")
 
-        let data = NSMutableData()
-        data.append("--\(boundary)\r\n".data)
-        data
-            .append(
-                "Content-Disposition: form-data; name=\"file-input\"; filename=\"\(filename)\"\r\n"
-                    .data
-            )
-        data.append("Content-Type: \(mimeType)\r\n\r\n".data)
-        data.append(imageData)
-        data.append("\r\n".data)
+        let bodyData = NSMutableData()
+        bodyData.append("--\(boundary)\r\n".data)
+        bodyData.append(
+            "Content-Disposition: form-data; name=\"file-input\"; filename=\"\(filename)\"\r\n"
+                .data
+        )
+        bodyData.append("Content-Type: \(mimeType)\r\n\r\n".data)
+        bodyData.append(imageData)
+        bodyData.append("\r\n".data)
 
         let reqBody = NSMutableData()
         reqBody.append(fieldData.data)
-        reqBody.append(data as Data)
+        reqBody.append(bodyData as Data)
         reqBody.append("--\(boundary)--\r\n".data)
 
         var req = URLRequest(url: thumbUploadURL)
@@ -293,27 +296,19 @@ enum Helper {
         req.setValue(String(reqBody.count), forHTTPHeaderField: "Content-Length")
         req.httpBody = reqBody as Data
 
-        let task = URLSession.shared.dataTask(with: req) { data, _, error in
-            guard let data = data, error == nil else {
-                completion(nil, error)
-                return
+        let (data, _) = try await URLSession.shared.data(for: req)
+
+        do {
+            let respData = try JSONDecoder().decode(ThumbnailUploadResult.self, from: data)
+
+            guard respData.type == "success" else {
+                throw GenericError("The image upload failed. Please try again.")
             }
 
-            do {
-                let respData = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-                if let respType = respData?["type"] as? String {
-                    if respType == "success", let serveUrl = respData?["url"] as? String {
-                        completion(serveUrl, nil)
-                        return
-                    }
-                }
-            } catch {
-                // failure condition
-            }
-
-            completion(nil, GenericError("The image upload failed. Please try again."))
+            return respData.url
+        } catch {
+            throw GenericError("The image upload failed. Please try again.")
         }
-        task.resume()
     }
 
     static func claimContainsTag(claim: Claim, tag: String) -> Bool {

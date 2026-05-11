@@ -38,7 +38,9 @@ extension PlaylistDetailScreen {
                     claimIds: playlistClaims,
                 ))
 
-                claims.append(contentsOf: claimSearch.items)
+                claims.append(contentsOf: claimSearch.items.sorted(
+                    like: playlistClaims, keyPath: \.claimId, transform: \.self
+                ))
 
                 if claimSearch.isLastPage {
                     break
@@ -47,9 +49,38 @@ extension PlaylistDetailScreen {
         }
 
         func move(from source: IndexSet, to destination: Int) {
-            // FIXME: Need sync behaviour like manage following
-            // "Easier" since this is all SwiftUI so just add isActive to PlaylistListItem link?
             claims.move(fromOffsets: source, toOffset: destination)
+        }
+
+        func delete(at offsets: IndexSet) {
+            claims.remove(atOffsets: offsets)
+        }
+
+        func saveChanges(collection: SharedPreference.Collection) async {
+            var collection = collection
+            collection.items.uris = claims.compactMap {
+                guard let url = $0.permanentUrl else {
+                    return nil
+                }
+
+                return LbryUri.tryParse(url: url, requireProto: true)
+            }
+
+            switch collection.origin {
+            case .builtin:
+                await Wallet.shared.addOrSetBuiltin(collection: collection)
+            case .edited,
+                 .claim:
+                await Wallet.shared.addOrSetEdited(collection: collection)
+            case .saved:
+                break // FIXME: Ensure this path never gets hit
+            case .unpublished:
+                await Wallet.shared.addOrSetUnpublished(collection: collection)
+            case .none:
+                break
+            }
+
+            await Wallet.shared.queuePushSync()
         }
     }
 }

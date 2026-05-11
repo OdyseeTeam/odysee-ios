@@ -46,6 +46,7 @@ struct SharedPreference: Codable {
                 id: "watchlater",
                 name: "Watch Later",
                 type: .playlist,
+                // FIXME: createdAt for all collections
                 updatedAt: Int(Date().timeIntervalSince1970)
             ),
             "favorites": .init(

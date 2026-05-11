@@ -64,6 +64,16 @@ extension Optional {
     }
 }
 
+extension Binding {
+    func orElse<T>(_ other: T) -> Binding<T> where Value == T? {
+        .init {
+            self.wrappedValue ?? other
+        } set: {
+            self.wrappedValue = $0
+        }
+    }
+}
+
 extension UIImageView {
     func load(url: URL) {
         pin_setImage(from: url)

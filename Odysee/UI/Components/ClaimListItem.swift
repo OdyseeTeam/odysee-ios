@@ -161,6 +161,7 @@ struct ClaimListItem: View {
 
                     if releaseTime > 0 && confirmations > 0 {
                         let date = Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
+                        // FIXME: onAppear
                         Text(date.formatted(.relative(presentation: .numeric)))
                     } else {
                         Text("Pending")

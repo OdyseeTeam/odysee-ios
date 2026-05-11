@@ -343,33 +343,28 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             thumbnailImageView.backgroundColor = UIColor.clear
         }
 
-        // TODO: Upload the image data
         imageUploadInProgress = true
         uploadingIndicator.isHidden = false
-        Helper.uploadImage(image: image, completion: { imageUrl, error in
-            guard let imageUrl = imageUrl, error == nil else {
-                DispatchQueue.main.async {
-                    self.uploadingIndicator.isHidden = true
+        defer {
+            imageUploadInProgress = false
+            uploadingIndicator.isHidden = true
+        }
+
+        Task {
+            do {
+                let imageUrl = try await Helper.uploadImage(image: image)
+
+                if selectingCover {
+                    currentCoverUrl = imageUrl
+                } else if selectingThumbnail {
+                    currentThumbnailUrl = imageUrl
                 }
-                self.imageUploadInProgress = false
-                self.showError(error: error)
-                return
+                selectingCover = false
+                selectingThumbnail = false
+            } catch {
+                showError(error: error)
             }
-
-            self.imageUploadInProgress = false
-            DispatchQueue.main.async {
-                self.uploadingIndicator.isHidden = true
-            }
-
-            if self.selectingCover {
-                self.currentCoverUrl = imageUrl
-            } else if self.selectingThumbnail {
-                self.currentThumbnailUrl = imageUrl
-            }
-
-            self.selectingCover = false
-            self.selectingThumbnail = false
-        })
+        }
     }
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {

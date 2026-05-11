@@ -13,12 +13,12 @@ extension SharedPreference {
 
     /// https://github.com/OdyseeTeam/odysee-frontend/blob/3f320e22446261ff22475641a555c6b316d68e4f/flow-typed/Collections.js#L1-L21
     struct Collection: Codable {
-        var id: String
+        var collectionId: String
         var items: Items
         var name: String
         var title: String?
         var description: String?
-        var tags: [String]?
+        var tags: [String]? // FIXME: { name: "" }
         var thumbnail: Thumbnail?
         var type: CollectionType
         var createdAt: Int?
@@ -37,7 +37,7 @@ extension SharedPreference {
         /// [[4]](https://projectlombok.org/features/ToString#:~:text=and%20members%20of%20the%20same%20rank%20are%20printed%20in%20the%20same%20order%20they%20appear%20in%20the%20source%20file.)
         ///
         /// This struct attempts to decode such items, and present both types of items under the ``uris`` field.
-        struct Items: Codable {
+        struct Items: Codable, Equatable {
             var uris: [LbryUri]
 
             init(uris: [LbryUri]) {
@@ -100,7 +100,7 @@ extension SharedPreference {
             }
         }
 
-        struct Thumbnail: Codable {
+        struct Thumbnail: Codable, Equatable {
             var url: URL?
         }
 
@@ -109,7 +109,7 @@ extension SharedPreference {
         }
 
         enum CodingKeys: String, CodingKey {
-            case id
+            case collectionId = "id"
             case items
             case name
             case title
@@ -123,7 +123,20 @@ extension SharedPreference {
             case sourceId
         }
 
-        // MARK: - Helpers
+        // MARK: Metadata
+
+        // FIXME: Check if these make sense along with public playlists (created by others)
+        enum Origin: String {
+            case builtin
+            case edited
+            case saved
+            case unpublished
+            case claim
+        }
+
+        var origin: Origin?
+
+        // MARK: Helpers
 
         var titleOrName: String {
             title ?? name
@@ -133,7 +146,7 @@ extension SharedPreference {
             itemCount ?? items.uris.count
         }
 
-        // MARK: - Representing public playlists
+        // MARK: Representing public playlists
 
         /// Preserves for ``SharedPreference/Collection/asClaim``
         var originalClaim: Claim?
@@ -155,9 +168,10 @@ extension SharedPreference {
             updatedAt: Int,
             itemCount: Int? = nil,
             sourceId: String? = nil,
-            originalClaim: Claim? = nil
+            originalClaim: Claim? = nil,
+            origin: Origin? = nil
         ) {
-            self.id = id
+            collectionId = id
             self.items = items
             self.name = name
             self.title = title
@@ -170,26 +184,40 @@ extension SharedPreference {
             self.itemCount = itemCount
             self.sourceId = sourceId
             self.originalClaim = originalClaim
+
+            self.origin = origin
+        }
+    }
+}
+
+// MARK: - Setting Metadata
+
+extension SharedPreference.CollectionGroup {
+    func withOrigin(_ origin: SharedPreference.Collection.Origin) -> Self {
+        reduce(into: [:]) { result, element in
+            var collection = element.value
+            collection.origin = origin
+            result[element.key] = collection
         }
     }
 }
 
 // MARK: - Protocol Conformances
 
-extension SharedPreference.Collection: Equatable {
-    static func == (lhs: SharedPreference.Collection, rhs: SharedPreference.Collection) -> Bool {
-        return lhs.id == rhs.id
+extension SharedPreference.Collection: Equatable {}
+
+extension SharedPreference.Collection: Identifiable {
+    var id: String {
+        (origin?.rawValue ?? "") + collectionId
     }
 }
-
-extension SharedPreference.Collection: Identifiable {}
 
 // MARK: - Collection as Claim
 
 extension SharedPreference.Collection {
     var asClaim: Claim {
         originalClaim ?? Claim(
-            claimId: id,
+            claimId: collectionId,
             value: .init(
                 title: titleOrName,
                 claims: items.uris.compactMap(\.streamClaimId),
@@ -202,7 +230,7 @@ extension SharedPreference.Collection {
 // MARK: - Claim as Collection
 
 extension Claim {
-    var asCollection: SharedPreference.Collection? {
+    func asCollection(origin: SharedPreference.Collection.Origin) -> SharedPreference.Collection? {
         guard let claimId, let titleOrName else {
             return nil
         }
@@ -234,7 +262,9 @@ extension Claim {
             createdAt: releaseTime,
             updatedAt: releaseTime,
             itemCount: value?.claims?.count ?? 0,
-            originalClaim: self
+            originalClaim: self,
+
+            origin: origin
         )
     }
 }
