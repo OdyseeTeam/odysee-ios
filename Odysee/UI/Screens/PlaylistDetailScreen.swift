@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import WrappingHStack
 
 struct PlaylistDetailScreen: View {
     @StateObject private var model: ViewModel = .init()
@@ -28,10 +29,16 @@ struct PlaylistDetailScreen: View {
                         if !model.refreshing {
                             VStack(alignment: .leading, spacing: 8) {
                                 if collection.isPublic,
-                                   let publisher = collection.originalClaim?.signingChannel?.titleOrName
+                                   let channel = collection.originalClaim?.signingChannel,
+                                   let publisher = channel.titleOrName
                                 {
-                                    Text(publisher)
-                                        .accessibilityLabel("Created by \(publisher)")
+                                    Button {
+                                        Helper.openChannelVc(channel)
+                                    } label: {
+                                        Text(publisher)
+                                            .accessibilityLabel("Created by \(publisher)")
+                                    }
+                                    .buttonStyle(.borderless)
                                 }
 
                                 if let description = collection.description {
@@ -40,7 +47,7 @@ struct PlaylistDetailScreen: View {
                                     )
                                 }
 
-                                HStack {
+                                WrappingHStack(spacing: .dynamic(minSpacing: 0), lineSpacing: 8) {
                                     let count = collection.itemCount ?? collection.items.uris.count
                                     Text("\(Image(systemName: "play.square.stack")) \(count)")
 
@@ -56,30 +63,21 @@ struct PlaylistDetailScreen: View {
                                     // FIXME: onAppear
                                     let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
                                     Text("Updated \(date.formatted(.relative(presentation: .numeric)))")
+                                        .fixedSize(horizontal: false, vertical: true)
                                 }
                             }
                             .padding(.horizontal)
+                            .padding(.bottom, 32)
 
-                            if model.claims.isEmpty {
+                            if !model.inProgress && model.claims.isEmpty {
                                 Text("Nothing here")
-                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    .italic()
+                                    .frame(maxWidth: .infinity)
                             }
                         }
 
                         ForEach(model.claims) { claim in
-                            Button {
-                                let vc = AppDelegate.shared.mainViewController?.storyboard?
-                                    .instantiateViewController(identifier: "file_view_vc") as! FileViewController
-                                vc.claim = claim
-
-                                AppDelegate.shared.mainNavigationController?.view.layer.add(
-                                    Helper.buildFileViewTransition(),
-                                    forKey: kCATransition
-                                )
-                                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
-                            } label: {
-                                ClaimListItem(claim: claim)
-                            }
+                            ClaimListItem(claim: claim)
                         }
                         .onMove(perform: model.move)
                         .onDelete(perform: model.delete)
@@ -89,10 +87,12 @@ struct PlaylistDetailScreen: View {
                 }
                 .listStyle(.plain)
                 .navigationTitle(
+                    // TODO: Try to use Binding for rename action
                     isEditing ?
                         "Editing \(collection.titleOrName)" :
                         collection.titleOrName
                 )
+                .navigationBarTitleDisplayMode(.inline)
                 .task {
                     do {
                         try await model.loadClaims(collection: collection)
@@ -147,13 +147,16 @@ struct PlaylistDetailScreen: View {
 }
 
 #Preview {
-    PlaylistDetailScreen(collection: .init(
-        id: "A",
-        items: .init(uris: [
-            LbryUri.tryParse(url: "lbry://@Odysee#8/FutureofOdyseeVideo#0", requireProto: true) ?? LbryUri(),
-        ]),
-        name: "named",
-        type: .playlist,
-        updatedAt: 1_776_134_690,
-    ))
+    NavigationView {
+        PlaylistDetailScreen(collection: .init(
+            id: "A",
+            items: .init(uris: [
+                LbryUri.tryParse(url: "lbry://@Odysee#8/FutureofOdyseeVideo#0", requireProto: true) ?? LbryUri(),
+            ]),
+            name: "named",
+            description: "A playlist",
+            type: .playlist,
+            updatedAt: 1_776_134_690,
+        ))
+    }
 }

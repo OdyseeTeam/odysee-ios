@@ -139,7 +139,13 @@ extension SharedPreference {
         // MARK: Helpers
 
         var titleOrName: String {
-            title ?? name
+            get {
+                title ?? name
+            }
+            set {
+                title = newValue
+                name = newValue
+            }
         }
 
         var count: Int {

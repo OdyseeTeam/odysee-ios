@@ -21,12 +21,7 @@ struct PlaylistDetailForm: View {
             Form {
                 // FIXME: VoiceOver with field title in two places?
                 Section("Title") {
-                    TextField("Title", text: .init {
-                        collection.titleOrName
-                    } set: {
-                        collection.title = $0
-                        collection.name = $0
-                    })
+                    TextField("Title", text: $collection.titleOrName)
                 }
 
                 if #available(iOS 16, *) {
@@ -53,6 +48,7 @@ struct PlaylistDetailForm: View {
                     .font(.caption)
                 }
 
+                // FIXME: (form/details) updated seems to update even with cancel
                 TagsFormSection(tags: $collection.tags.orElse([]))
             }
             .toolbar {

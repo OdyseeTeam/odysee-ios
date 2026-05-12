@@ -20,160 +20,151 @@ struct ClaimListItem: View {
     static let imageWidth: Double = 160
 
     var body: some View {
-        HStack(alignment: .top, spacing: 16) {
-            Group {
-                if let url = claim.value?.thumbnail?.url.flatMap(URL.init)?
-                    .makeImageURL(spec: ClaimTableViewCell.thumbImageSpec)
-                {
-                    CachedAsyncImage(url: url) { phase in
-                        if let image = phase.image {
-                            image
-                                .resizable()
-                                .scaledToFill()
-                        } else if phase.error != nil {
-                            Color.clear
-                        } else {
-                            ProgressView()
-                        }
-                    }
-                } else {
-                    Image("spaceman")
-                        .resizable()
-                        .scaledToFit()
-                }
-            }
-            .frame(width: Self.imageWidth, height: 90)
-            .clipped()
-            .background(Color("light_primary"))
-            .overlay(alignment: .bottomTrailing) {
+        Button {
+            Helper.openFileVc(claim)
+        } label: {
+            HStack(alignment: .top, spacing: 16) {
                 Group {
-                    switch claim.valueType ?? .stream {
-                    case .channel:
-                        Text("\(Image(systemName: "at"))")
-                    case .stream:
-                        if let duration = claim.value?.video?.duration ?? claim.value?.audio?.duration {
-                            let durationText = if duration < 60 {
-                                String(format: "00:%02d", duration)
+                    if let url = claim.value?.thumbnail?.url.flatMap(URL.init)?
+                        .makeImageURL(spec: ClaimTableViewCell.thumbImageSpec)
+                    {
+                        CachedAsyncImage(url: url) { phase in
+                            if let image = phase.image {
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            } else if phase.error != nil {
+                                Color.clear
                             } else {
-                                Helper.durationFormatter.string(from: TimeInterval(duration)) ?? ""
+                                ProgressView()
                             }
-
-                            Text("\(durationText) \(Image(systemName: "video"))")
-                        } else {
-                            if claim.valueType == .stream && claim.value?.source == nil {
-                                // Livestream
-                                Text("\(Image(systemName: "web.camera"))")
-                                // FIXME: add datetime
-                            } else {
-                                let typeImage = switch claim.value?.source?.mediaType?.split(separator: "/").first {
-                                case "image":
-                                    Image(systemName: "photo")
-                                case "audio":
-                                    Image(systemName: "headphones")
-                                case "video":
-                                    Image(systemName: "video")
-                                case "text":
-                                    Image(systemName: "text.document")
-                                default:
-                                    Image(systemName: "arrow.down")
+                        }
+                    } else {
+                        Image("spaceman")
+                            .resizable()
+                            .scaledToFit()
+                    }
+                }
+                .frame(width: Self.imageWidth, height: 90)
+                .clipped()
+                .background(Color("light_primary"))
+                .overlay(alignment: .bottomTrailing) {
+                    Group {
+                        switch claim.valueType ?? .stream {
+                        case .channel:
+                            Text("\(Image(systemName: "at"))")
+                        case .stream:
+                            if let duration = claim.value?.video?.duration ?? claim.value?.audio?.duration {
+                                let durationText = if duration < 60 {
+                                    String(format: "00:%02d", duration)
+                                } else {
+                                    Helper.durationFormatter.string(from: TimeInterval(duration)) ?? ""
                                 }
 
-                                Text("\(typeImage)")
+                                Text("\(durationText) \(Image(systemName: "video"))")
+                            } else {
+                                if claim.valueType == .stream && claim.value?.source == nil {
+                                    // Livestream
+                                    Text("\(Image(systemName: "web.camera"))")
+                                    // FIXME: add datetime
+                                } else {
+                                    let typeImage = switch claim.value?.source?.mediaType?.split(separator: "/").first {
+                                    case "image":
+                                        Image(systemName: "photo")
+                                    case "audio":
+                                        Image(systemName: "headphones")
+                                    case "video":
+                                        Image(systemName: "video")
+                                    case "text":
+                                        Image(systemName: "text.document")
+                                    default:
+                                        Image(systemName: "arrow.down")
+                                    }
+
+                                    Text("\(typeImage)")
+                                }
+                            }
+                        case .repost:
+                            // TODO: arrow.trianglehead.2.clockwise.rotate.90 on iOS 18+
+                            Text("\(Image(systemName: "arrow.triangle.2.circlepath"))")
+                        case .collection:
+                            let playlistImage = Image(systemName: "play.square.stack")
+
+                            if let count = claim.value?.claims?.count {
+                                Text("\(playlistImage) \(count)")
+                            } else {
+                                Text("\(playlistImage)")
                             }
                         }
-                    case .repost:
-                        // TODO: arrow.trianglehead.2.clockwise.rotate.90 on iOS 18+
-                        Text("\(Image(systemName: "arrow.triangle.2.circlepath"))")
-                    case .collection:
-                        let playlistImage = Image(systemName: "play.square.stack")
-
-                        if let count = claim.value?.claims?.count {
-                            Text("\(playlistImage) \(count)")
-                        } else {
-                            Text("\(playlistImage)")
-                        }
                     }
+                    .font(.system(size: secondarySize))
+                    .foregroundStyle(.white)
+                    .padding(2)
+                    .background(.black)
+                    .padding(.bottom.union(.trailing), 4)
                 }
-                .font(.system(size: secondarySize))
-                .foregroundStyle(.white)
-                .padding(2)
-                .background(.black)
-                .padding(.bottom.union(.trailing), 4)
-            }
-            .overlay(alignment: .bottomLeading) {
-                if let duration = claim.value?.video?.duration ?? claim.value?.audio?.duration,
-                   duration > 0 && claim.lastPosition > 0
-                {
-                    Rectangle()
-                        .fill(LinearGradient(
-                            gradient: Gradient(colors: [
-                                .accentColor,
-                                Color("primary_alt")
-                            ]),
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        ))
-                        .frame(
-                            width: min(1, Double(claim.lastPosition) / Double(duration)) * Self.imageWidth,
-                            height: 4
-                        )
-                }
-            }
-
-            VStack(alignment: .leading, spacing: 4) {
-                Text(claim.titleOrName ?? "")
-                    .font(.system(size: titleSize))
-                    .fontWeight(.semibold)
-                    .lineLimit(3)
-
-                if let channelClaim = claim.signingChannel {
-                    Button {
-                        let currentVc = UIApplication.currentViewController()
-                        if let channelVc = currentVc as? ChannelViewController {
-                            if channelVc.channelClaim?.claimId == channelClaim.claimId {
-                                // if we already have the channel page open, don't do anything
-                                return
-                            }
-                        } else if currentVc is FileViewController {
-                            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
-                        }
-
-                        let vc = AppDelegate.shared.mainViewController?.storyboard?
-                            .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
-                        vc.channelClaim = channelClaim
-                        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
-                    } label: {
-                        Text(channelClaim.titleOrName ?? "")
-                            .font(.system(size: secondarySize))
-                            .lineLimit(1)
-                    }
-                }
-
-                Group {
-                    let releaseTime = if let releaseTime = claim.value?.releaseTime,
-                                         let releaseTimestamp = Double(releaseTime)
+                .overlay(alignment: .bottomLeading) {
+                    if let duration = claim.value?.video?.duration ?? claim.value?.audio?.duration,
+                       duration > 0 && claim.lastPosition > 0
                     {
-                        releaseTimestamp
-                    } else {
-                        Double(claim.timestamp ?? 0)
-                    }
-                    let confirmations = claim.confirmations ?? 0
-
-                    if releaseTime > 0 && confirmations > 0 {
-                        let date = Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
-                        // FIXME: onAppear
-                        Text(date.formatted(.relative(presentation: .numeric)))
-                    } else {
-                        Text("Pending")
+                        Rectangle()
+                            .fill(LinearGradient(
+                                gradient: Gradient(colors: [
+                                    .accentColor,
+                                    Color("primary_alt")
+                                ]),
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
+                            .frame(
+                                width: min(1, Double(claim.lastPosition) / Double(duration)) * Self.imageWidth,
+                                height: 4
+                            )
                     }
                 }
-                .font(.system(size: smallestSize))
-            }
 
-            Spacer()
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(claim.titleOrName ?? "")
+                        .font(.system(size: titleSize))
+                        .fontWeight(.semibold)
+                        .lineLimit(3)
+
+                    if let channel = claim.signingChannel {
+                        Button {
+                            Helper.openChannelVc(channel)
+                        } label: {
+                            Text(channel.titleOrName ?? "")
+                                .font(.system(size: secondarySize))
+                                .lineLimit(1)
+                        }
+                    }
+
+                    Group {
+                        let releaseTime = if let releaseTime = claim.value?.releaseTime,
+                                             let releaseTimestamp = Double(releaseTime)
+                        {
+                            releaseTimestamp
+                        } else {
+                            Double(claim.timestamp ?? 0)
+                        }
+                        let confirmations = claim.confirmations ?? 0
+
+                        if releaseTime > 0 && confirmations > 0 {
+                            let date = Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
+                            // FIXME: onAppear
+                            Text(date.formatted(.relative(presentation: .numeric)))
+                        } else {
+                            Text("Pending")
+                        }
+                    }
+                    .font(.system(size: smallestSize))
+                }
+
+                Spacer()
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
     }
 }
 

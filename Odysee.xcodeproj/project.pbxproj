@@ -25,6 +25,7 @@
 		53593F31287E5D75007FD08E /* CommentsAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentsAPIResult.swift */; };
 		5359CABD2FB2D5ED0035D0D6 /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABC2FB2D5ED0035D0D6 /* Tags.swift */; };
 		5359CAC02FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */; };
+		5359CAC32FB37C840035D0D6 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 5359CAC22FB37C840035D0D6 /* WrappingHStack */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5377EA832F7B666E00C8E03E /* LibraryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA822F7B666E00C8E03E /* LibraryScreen.swift */; };
 		5377EA852F7B6C3300C8E03E /* PublishesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */; };
@@ -329,6 +330,7 @@
 				CCFB0B4F26653E0900696E0C /* OrderedCollections in Frameworks */,
 				6459121D2620745D00B2ABA5 /* Starscream in Frameworks */,
 				B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */,
+				5359CAC32FB37C840035D0D6 /* WrappingHStack in Frameworks */,
 				6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */,
 				64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */,
 				539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */,
@@ -692,6 +694,7 @@
 				5391E43C2EFED725008EF30A /* ValueCodable */,
 				53D4CFA92F2B357C00F395A3 /* AsyncExtensions */,
 				539D798B2F3E389400E7686E /* CachedAsyncImage */,
+				5359CAC22FB37C840035D0D6 /* WrappingHStack */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -784,6 +787,7 @@
 				5391E43B2EFED725008EF30A /* XCRemoteSwiftPackageReference "ValueCodable" */,
 				53D4CFA82F2B357C00F395A3 /* XCRemoteSwiftPackageReference "AsyncExtensions" */,
 				539D798A2F3E389400E7686E /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
+				5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -1353,6 +1357,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dkk/WrappingHStack";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.11;
+			};
+		};
 		5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/OdyseeTeam/ActionSheetPicker-3.0";
@@ -1452,6 +1464,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5359CAC22FB37C840035D0D6 /* WrappingHStack */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */;
+			productName = WrappingHStack;
+		};
 		5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */;

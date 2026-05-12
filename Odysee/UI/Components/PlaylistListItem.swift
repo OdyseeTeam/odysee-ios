@@ -107,15 +107,7 @@ struct PlaylistListItem: View {
                             Spacer()
 
                             Button("Play", systemImage: "play.circle") {
-                                let vc = AppDelegate.shared.mainViewController?.storyboard?
-                                    .instantiateViewController(identifier: "file_view_vc") as! FileViewController
-                                vc.claim = collection.asClaim
-
-                                AppDelegate.shared.mainNavigationController?.view.layer.add(
-                                    Helper.buildFileViewTransition(),
-                                    forKey: kCATransition
-                                )
-                                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+                                Helper.openFileVc(collection.asClaim)
                             }
                             .font(.system(size: 24))
                             .labelStyle(.iconOnly)
@@ -124,13 +116,19 @@ struct PlaylistListItem: View {
                     }
 
                     if collection.isPublic,
-                       let publisher = collection.originalClaim?.signingChannel?.titleOrName
+                       let channel = collection.originalClaim?.signingChannel,
+                       let publisher = channel.titleOrName
                     {
-                        // FIXME: Button
-                        Text(publisher)
-                            .font(.system(size: secondarySize))
-                            .lineLimit(1)
-                            .accessibilityLabel("Created by \(publisher)")
+                        // FIXME: Accesibility
+                        Button {
+                            Helper.openChannelVc(channel)
+                        } label: {
+                            Text(publisher)
+                                .font(.system(size: secondarySize))
+                                .lineLimit(1)
+                                .accessibilityLabel("Created by \(publisher)")
+                        }
+                        .buttonStyle(.borderless)
                     }
 
                     Spacer(minLength: 0)

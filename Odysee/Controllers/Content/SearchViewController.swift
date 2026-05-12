@@ -507,13 +507,7 @@ class SearchViewController: UIViewController,
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
         } else {
             // file claim
-            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-            vc.claim = claim
-            AppDelegate.shared.mainNavigationController?.view.layer.add(
-                Helper.buildFileViewTransition(),
-                forKey: kCATransition
-            )
-            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+            Helper.openFileVc(cell.currentClaim)
         }
     }
 

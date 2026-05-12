@@ -28,6 +28,11 @@ extension PlaylistDetailScreen {
                 return
             }
 
+            inProgress = true
+            defer {
+                inProgress = false
+            }
+
             claims.removeAll(keepingCapacity: true)
 
             // Limit in case of failure to break
@@ -57,6 +62,11 @@ extension PlaylistDetailScreen {
         }
 
         func saveChanges(collection: SharedPreference.Collection) async {
+            inProgress = true
+            defer {
+                inProgress = false
+            }
+
             var collection = collection
             collection.items.uris = claims.compactMap {
                 guard let url = $0.permanentUrl else {
