@@ -12,20 +12,20 @@ extension SharedPreference {
     typealias CollectionGroup = [String: Collection]
 
     /// https://github.com/OdyseeTeam/odysee-frontend/blob/3f320e22446261ff22475641a555c6b316d68e4f/flow-typed/Collections.js#L1-L21
-    struct Collection: Codable {
-        var collectionId: String
-        var items: Items
-        var name: String
-        var title: String?
-        var description: String?
-        var tags: [String]? // FIXME: { name: "" }
-        var thumbnail: Thumbnail?
-        var type: CollectionType
-        var createdAt: Int?
-        var updatedAt: Int
-        var itemCount: Int?
+    public struct Collection: Codable {
+        public var collectionId: String
+        public var items: Items
+        public var name: String
+        public var title: String?
+        public var description: String?
+        @Tags public var tags: [String]? // FIXME: { name: "" }
+        public var thumbnail: Thumbnail?
+        public var type: CollectionType
+        public var createdAt: Int?
+        public var updatedAt: Int
+        public var itemCount: Int?
         /// if copied, claimId of original collection
-        var sourceId: String?
+        public var sourceId: String?
 
         /// The array of items in the playlist
         ///
@@ -37,14 +37,14 @@ extension SharedPreference {
         /// [[4]](https://projectlombok.org/features/ToString#:~:text=and%20members%20of%20the%20same%20rank%20are%20printed%20in%20the%20same%20order%20they%20appear%20in%20the%20source%20file.)
         ///
         /// This struct attempts to decode such items, and present both types of items under the ``uris`` field.
-        struct Items: Codable, Equatable {
+        public struct Items: Codable, Equatable {
             var uris: [LbryUri]
 
-            init(uris: [LbryUri]) {
+            public init(uris: [LbryUri]) {
                 self.uris = uris
             }
 
-            init(from decoder: any Decoder) throws {
+            public init(from decoder: any Decoder) throws {
                 var container = try decoder.unkeyedContainer()
 
                 var uris = [LbryUri]()
@@ -85,7 +85,7 @@ extension SharedPreference {
                 self.uris = uris
             }
 
-            func encode(to encoder: any Encoder) throws {
+            public func encode(to encoder: any Encoder) throws {
                 var container = encoder.singleValueContainer()
                 try container.encode(uris)
             }
@@ -100,11 +100,11 @@ extension SharedPreference {
             }
         }
 
-        struct Thumbnail: Codable, Equatable {
+        public struct Thumbnail: Codable, Equatable {
             var url: URL?
         }
 
-        enum CollectionType: String, Codable {
+        public enum CollectionType: String, Codable {
             case playlist
         }
 
@@ -126,7 +126,7 @@ extension SharedPreference {
         // MARK: Metadata
 
         // FIXME: Check if these make sense along with public playlists (created by others)
-        enum Origin: String {
+        public enum Origin: String {
             case builtin
             case edited
             case saved
@@ -155,7 +155,7 @@ extension SharedPreference {
             originalClaim != nil
         }
 
-        init(
+        public init(
             id: String,
             items: Items = .init(uris: []),
             name: String,
@@ -176,7 +176,7 @@ extension SharedPreference {
             self.name = name
             self.title = title
             self.description = description
-            self.tags = tags
+            _tags = Tags(tags)
             self.thumbnail = thumbnail
             self.type = type
             self.createdAt = createdAt
@@ -207,7 +207,7 @@ extension SharedPreference.CollectionGroup {
 extension SharedPreference.Collection: Equatable {}
 
 extension SharedPreference.Collection: Identifiable {
-    var id: String {
+    public var id: String {
         (origin?.rawValue ?? "") + collectionId
     }
 }

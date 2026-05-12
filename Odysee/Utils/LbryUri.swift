@@ -8,7 +8,7 @@
 import Foundation
 import RegexBuilder
 
-struct LbryUri: CustomStringConvertible {
+public struct LbryUri: CustomStringConvertible {
     static let protoDefault = "lbry://"
     static let lbryTvBaseUrl = "https://lbry.tv/"
     static let odyseeBaseUrl = "https://odysee.com/"
@@ -89,7 +89,7 @@ struct LbryUri: CustomStringConvertible {
     var contentName: String?
     var queryString: String?
 
-    var description: String {
+    public var description: String {
         return build(includeProto: true, protoDefault: LbryUri.protoDefault, vanity: false)
     }
 
@@ -444,27 +444,27 @@ struct LbryUri: CustomStringConvertible {
 }
 
 extension LbryUri: Codable {
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let url = try container.decode(String.self)
 
         self = try LbryUri.parse(url: url, requireProto: true)
     }
 
-    func encode(to encoder: any Encoder) throws {
+    public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(description)
     }
 }
 
 extension LbryUri: Equatable {
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.description == rhs.description
     }
 }
 
 extension LbryUri: Hashable {
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(description)
     }
 }

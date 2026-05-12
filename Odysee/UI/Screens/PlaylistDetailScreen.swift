@@ -19,20 +19,19 @@ struct PlaylistDetailScreen: View {
 
     @State private var editingDetails = false
 
+    // FIXME: Accessbility
     var body: some View {
         GeometryReader { _ in
             ZStack {
                 List {
                     Group {
                         if !model.refreshing {
-                            VStack(alignment: .leading) {
+                            VStack(alignment: .leading, spacing: 8) {
                                 if collection.isPublic,
                                    let publisher = collection.originalClaim?.signingChannel?.titleOrName
                                 {
                                     Text(publisher)
-                                        .font(.title3)
-                                        // TODO: Accessibility test
-                                        .accessibilityLabel(Text("Created by \(publisher)"))
+                                        .accessibilityLabel("Created by \(publisher)")
                                 }
 
                                 if let description = collection.description {
@@ -40,8 +39,6 @@ struct PlaylistDetailScreen: View {
                                         (try? AttributedString(markdown: description)) ?? AttributedString(description)
                                     )
                                 }
-
-                                Spacer(minLength: 0)
 
                                 HStack {
                                     let count = collection.itemCount ?? collection.items.uris.count
@@ -52,13 +49,16 @@ struct PlaylistDetailScreen: View {
                                     } else {
                                         Text("\(Image(systemName: "lock")) Private")
                                     }
-                                }
 
-                                let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
-                                // TODO: Timezone check / conversion?
-                                // FIXME: onAppear
-                                Text("Updated \(date.formatted(.relative(presentation: .numeric)))")
+                                    Spacer()
+
+                                    // TODO: Timezone check / conversion?
+                                    // FIXME: onAppear
+                                    let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
+                                    Text("Updated \(date.formatted(.relative(presentation: .numeric)))")
+                                }
                             }
+                            .padding(.horizontal)
 
                             if model.claims.isEmpty {
                                 Text("Nothing here")

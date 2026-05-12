@@ -17,7 +17,7 @@ extension String {
         return !contains { !$0.isWhitespace && !$0.isNewline }
     }
 
-    var data: Data {
+    public var data: Data {
         return Data(utf8)
     }
 

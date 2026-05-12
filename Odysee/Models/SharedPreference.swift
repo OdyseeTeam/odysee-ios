@@ -8,7 +8,7 @@
 import Foundation
 import ValueCodable
 
-struct SharedPreference: Codable {
+public struct SharedPreference: Codable {
     var subscriptions: [LbryUri]
     var following: [Following]
     var blocked: [LbryUri]
@@ -114,7 +114,7 @@ struct SharedPreference: Codable {
     static let type = "object"
     static let version = "0.1"
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         guard try container.decode(String.self, forKey: .version) == Self.version else {
             throw DecodingError.dataCorrupted(.init(
@@ -150,7 +150,7 @@ struct SharedPreference: Codable {
         defaultChannelId = try settings.decodeIfPresent(String.self, forKey: .defaultChannelId)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         var value = container.nestedContainer(keyedBy: CodingKeys.Value.self, forKey: .value)
         var settings = value.nestedContainer(keyedBy: CodingKeys.Value.Settings.self, forKey: .settings)

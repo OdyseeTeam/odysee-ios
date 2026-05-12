@@ -35,7 +35,7 @@ final class ClaimBox: Decodable {
     }
 }
 
-struct Claim: Decodable {
+public struct Claim: Decodable {
     var address: String?
     var amount: String?
     var canonicalUrl: String?
@@ -215,25 +215,25 @@ struct Claim: Decodable {
 // MARK: - Protocol Conformances
 
 extension Claim: Equatable {
-    static func == (lhs: Claim, rhs: Claim) -> Bool {
+    public static func == (lhs: Claim, rhs: Claim) -> Bool {
         return lhs.claimId == rhs.claimId
     }
 }
 
 extension Claim: Hashable {
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         claimId.hash(into: &hasher)
     }
 }
 
 extension Claim: Identifiable {
-    var id: String? {
+    public var id: String? {
         return claimId
     }
 }
 
 extension Claim: Comparable {
-    static func < (lhs: Claim, rhs: Claim) -> Bool {
+    public static func < (lhs: Claim, rhs: Claim) -> Bool {
         guard let lhs = lhs.titleOrName, let rhs = rhs.titleOrName else {
             return false
         }

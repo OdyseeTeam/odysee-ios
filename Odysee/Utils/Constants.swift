@@ -89,6 +89,29 @@ enum Constants {
 
     static let MembersOnly = "c:members-only"
 
+    static let InternalTagPrefix = "c:"
+    enum ControlTags: String, CustomStringConvertible, Identifiable, CaseIterable {
+        var id: String {
+            rawValue
+        }
+
+        case disableSupport = "disable-support"
+        case disableReactionsVideo = "c:disable-reactions-video"
+        case disableSlimesVideo = "c:disable-slimes-video"
+
+        var description: String {
+            switch self {
+            case .disableSupport: __("Disable Tipping and Boosting")
+            case .disableReactionsVideo: __("Disable Likes/Dislikes - Content")
+            case .disableSlimesVideo: __("Disable Dislikes - Content")
+            }
+        }
+
+        static var All: [String] {
+            allCases.map(\.rawValue)
+        }
+    }
+
     static let KnownTags = [
         "activism",
         "adventure",

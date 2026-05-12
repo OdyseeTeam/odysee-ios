@@ -126,11 +126,11 @@ struct PlaylistListItem: View {
                     if collection.isPublic,
                        let publisher = collection.originalClaim?.signingChannel?.titleOrName
                     {
+                        // FIXME: Button
                         Text(publisher)
                             .font(.system(size: secondarySize))
                             .lineLimit(1)
-                            // TODO: Accessibility test
-                            .accessibilityLabel(Text("Created by \(publisher)"))
+                            .accessibilityLabel("Created by \(publisher)")
                     }
 
                     Spacer(minLength: 0)

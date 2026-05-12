@@ -53,7 +53,7 @@ struct PlaylistDetailForm: View {
                     .font(.caption)
                 }
 
-                TagsSearch()
+                TagsFormSection(tags: $collection.tags.orElse([]))
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
