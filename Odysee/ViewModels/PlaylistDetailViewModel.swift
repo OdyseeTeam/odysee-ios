@@ -17,8 +17,18 @@ extension PlaylistDetailScreen {
 
         @Published private(set) var claims: [Claim]
 
+        @Published private(set) var walletSavedCollectionIds: [String] = []
+
         init(claims: [Claim] = []) {
             self.claims = claims
+
+            Task<Void, Never> {
+                walletSavedCollectionIds = await Wallet.shared.savedCollectionIds
+
+                for await newSavedCollectionIds in await Wallet.shared.sSavedCollectionIds {
+                    walletSavedCollectionIds = newSavedCollectionIds
+                }
+            }
         }
 
         func loadClaims(collection: SharedPreference.Collection) async throws {
@@ -61,7 +71,36 @@ extension PlaylistDetailScreen {
             claims.remove(atOffsets: offsets)
         }
 
-        func saveChanges(collection: SharedPreference.Collection) async {
+        func copy(collection: SharedPreference.Collection, title: String) async {
+            let now = Int(Date().timeIntervalSince1970)
+
+            await Wallet.shared.addOrSetUnpublished(collection: .init(
+                id: UUID().uuidString,
+                items: .init(uris: claims.compactMap {
+                    guard let url = $0.permanentUrl else {
+                        return nil
+                    }
+
+                    return LbryUri.tryParse(url: url, requireProto: true)
+                }),
+                name: title,
+                title: title,
+                description: collection.description,
+                tags: collection.tags,
+                thumbnail: collection.thumbnail,
+                type: .playlist,
+                createdAt: now,
+                updatedAt: now,
+                itemCount: collection.itemCount,
+                sourceId: collection.originalClaim?.claimId,
+
+                origin: .unpublished
+            ))
+
+            await Wallet.shared.queuePushSync()
+        }
+
+        func saveChanges(collection: SharedPreference.Collection) async -> SharedPreference.Collection {
             inProgress = true
             defer {
                 inProgress = false
@@ -76,21 +115,24 @@ extension PlaylistDetailScreen {
                 return LbryUri.tryParse(url: url, requireProto: true)
             }
 
-            switch collection.origin {
+            collection = switch collection.origin {
             case .builtin:
-                await Wallet.shared.addOrSetBuiltin(collection: collection)
+                await Wallet.shared.setBuiltin(collection: collection)
             case .edited,
-                 .claim:
+                 .published:
                 await Wallet.shared.addOrSetEdited(collection: collection)
-            case .saved:
-                break // FIXME: Ensure this path never gets hit
+            case .saved,
+                 .claim:
+                collection // FIXME: Ensure this path never gets hit
             case .unpublished:
                 await Wallet.shared.addOrSetUnpublished(collection: collection)
             case .none:
-                break
+                collection
             }
 
             await Wallet.shared.queuePushSync()
+
+            return collection
         }
     }
 }

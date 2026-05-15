@@ -18,7 +18,7 @@ extension SharedPreference {
         public var name: String
         public var title: String?
         public var description: String?
-        @Tags public var tags: [String]? // FIXME: { name: "" }
+        @Tags public var tags: [String]?
         public var thumbnail: Thumbnail?
         public var type: CollectionType
         public var createdAt: Int?
@@ -125,12 +125,12 @@ extension SharedPreference {
 
         // MARK: Metadata
 
-        // FIXME: Check if these make sense along with public playlists (created by others)
         public enum Origin: String {
             case builtin
             case edited
             case saved
             case unpublished
+            case published
             case claim
         }
 
@@ -149,7 +149,7 @@ extension SharedPreference {
         }
 
         var count: Int {
-            itemCount ?? items.uris.count
+            items.claimIds?.count ?? items.uris.count
         }
 
         // MARK: Representing public playlists

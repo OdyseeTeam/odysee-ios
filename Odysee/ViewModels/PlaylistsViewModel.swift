@@ -19,7 +19,6 @@ extension PlaylistsScreen {
         @Published private(set) var editedCollections = [SharedPreference.Collection]()
         @Published private(set) var unpublishedCollections = [SharedPreference.Collection]()
 
-        // FIXME: Not properly cleared on switching account
         @Published private(set) var publishedCollections = SharedPreference.CollectionGroup()
         @Published private(set) var savedCollections = [SharedPreference.Collection]()
 
@@ -108,6 +107,35 @@ extension PlaylistsScreen {
             await Wallet.shared.queuePushSync()
         }
 
+        func delete(collection: SharedPreference.Collection) {
+            Task {
+                inProgress = true
+                defer {
+                    inProgress = false
+                }
+
+                // FIXME: Handle other cases/ensure they don't get hit
+                switch collection.origin {
+                case .builtin:
+                    break
+                case .edited:
+                    break
+                case .saved:
+                    break
+                case .unpublished:
+                    await Wallet.shared.removeUnpublished(collection: collection)
+                case .published:
+                    break
+                case .claim:
+                    break
+                case .none:
+                    break
+                }
+
+                await Wallet.shared.queuePushSync()
+            }
+        }
+
         private func collectionListAll() async throws {
             publishedCollections.removeAll(keepingCapacity: true)
 
@@ -121,7 +149,7 @@ extension PlaylistsScreen {
 
                 publishedCollections.merge(published.items.compactMap {
                     guard let claimId = $0.claimId,
-                          let collection = $0.asCollection(origin: .claim)
+                          let collection = $0.asCollection(origin: .published)
                     else {
                         return nil
                     }
@@ -136,11 +164,11 @@ extension PlaylistsScreen {
         }
 
         private func collectionClaimSearch(_ claimIds: [String]) async throws {
+            savedCollections.removeAll(keepingCapacity: true)
+
             guard claimIds.count > 0 else {
                 return
             }
-
-            savedCollections.removeAll(keepingCapacity: true)
 
             // Limit in case of failure to break
             for page in 0 ... 999 {

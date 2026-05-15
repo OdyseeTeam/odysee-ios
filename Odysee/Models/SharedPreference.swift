@@ -38,6 +38,8 @@ public struct SharedPreference: Codable {
     }
 
     init() {
+        let now = Int(Date().timeIntervalSince1970)
+
         subscriptions = []
         following = []
         blocked = []
@@ -46,14 +48,15 @@ public struct SharedPreference: Codable {
                 id: "watchlater",
                 name: "Watch Later",
                 type: .playlist,
-                // FIXME: createdAt for all collections
-                updatedAt: Int(Date().timeIntervalSince1970)
+                createdAt: now,
+                updatedAt: now
             ),
             "favorites": .init(
                 id: "favorites",
                 name: "Favorites",
                 type: .playlist,
-                updatedAt: Int(Date().timeIntervalSince1970)
+                createdAt: now,
+                updatedAt: now
             ),
         ]
         editedCollections = [:]

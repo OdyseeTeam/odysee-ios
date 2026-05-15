@@ -426,30 +426,70 @@ extension Wallet {
 // MARK: - Playlists
 
 extension Wallet {
-    func addOrSetBuiltin(collection: SharedPreference.Collection) {
-        addOrSetCollection(group: &builtinCollections, collection: collection)
+    static func isCollectionSaved(collection: SharedPreference.Collection, for saved: [String]) -> Bool {
+        saved.contains(collection.collectionId)
     }
 
-    func addOrSetEdited(collection: SharedPreference.Collection) {
-        addOrSetCollection(group: &editedCollections, collection: collection)
+    func addSavedCollection(collection: SharedPreference.Collection) {
+        guard collection.origin == .claim else {
+            return
+        }
+
+        savedCollectionIds.append(collection.collectionId)
     }
 
-    func addOrSetUnpublished(collection: SharedPreference.Collection) {
-        addOrSetCollection(group: &unpublishedCollections, collection: collection)
+    func setBuiltin(collection: SharedPreference.Collection) -> SharedPreference.Collection {
+        guard builtinCollections[collection.collectionId] != nil else {
+            // FIXME: Message?
+            return collection
+        }
+
+        return addOrSetCollection(group: &builtinCollections, collection: collection)
     }
 
-    /// Adds/updates collection in CollectionGroup
-    ///
+    func addOrSetEdited(collection: SharedPreference.Collection) -> SharedPreference.Collection {
+        return addOrSetCollection(group: &editedCollections, collection: collection)
+    }
+
+    @discardableResult
+    func addOrSetUnpublished(collection: SharedPreference.Collection) -> SharedPreference.Collection {
+        return addOrSetCollection(group: &unpublishedCollections, collection: collection)
+    }
+
+    /// Adds/updates collection in CollectionGroup\
     /// Updates collection itemCount and updatedAt
     private func addOrSetCollection(
         group: inout SharedPreference.CollectionGroup,
         collection: SharedPreference.Collection
-    ) {
+    ) -> SharedPreference.Collection {
         var collection = collection
         collection.itemCount = collection.items.uris.count
         collection.updatedAt = Int(Date().timeIntervalSince1970)
 
         group[collection.collectionId] = collection
+
+        return collection
+    }
+
+    func removeSavedCollection(collection: SharedPreference.Collection) {
+        savedCollectionIds.removeAll { $0 == collection.collectionId }
+    }
+
+    // FIXME: removes published, edited
+    // TODO: Option: Delete publish but keep private playlist
+//    func removeEdited(collection: SharedPreference.Collection) {
+//        removeCollection(group: &edi, collection: collection)
+//    }
+
+    func removeUnpublished(collection: SharedPreference.Collection) {
+        removeCollection(group: &unpublishedCollections, collection: collection)
+    }
+
+    private func removeCollection(
+        group: inout SharedPreference.CollectionGroup,
+        collection: SharedPreference.Collection
+    ) {
+        group.removeValue(forKey: collection.collectionId)
     }
 }
 

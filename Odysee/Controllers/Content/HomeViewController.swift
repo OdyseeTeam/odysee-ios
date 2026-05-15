@@ -365,6 +365,14 @@ class HomeViewController: UIViewController,
         Helper.openFileVc(cell.currentClaim)
     }
 
+    func tableView(
+        _ tableView: UITableView,
+        contextMenuConfigurationForRowAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        (tableView.cellForRow(at: indexPath) as? ClaimTableViewCell)?.menu
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return livestreams.count
     }

@@ -7,8 +7,6 @@
 
 import SwiftUI
 
-// FIXME: (project level): "No content" shows during load (gate on wallet load somehoe)
-
 struct PlaylistsScreen: View {
     @StateObject var model: ViewModel = .init()
 
@@ -41,6 +39,16 @@ struct PlaylistsScreen: View {
 
     @State private var showingNewPlaylist = false
     @State private var newPlaylistTitle = ""
+
+    @State private var toDelete: SharedPreference.Collection?
+
+    var deleteConfirmText: String {
+        if let title = toDelete?.titleOrName {
+            __("Are you sure you'd like to delete \"\(title)\"?")
+        } else {
+            __("Are you sure you'd like to delete this playlist?")
+        }
+    }
 
     var collections: [SharedPreference.Collection] {
         if model.refreshing {
@@ -109,7 +117,14 @@ struct PlaylistsScreen: View {
                                 .padding(.horizontal)
 
                             ForEach(model.builtinCollections) { collection in
-                                PlaylistListItem(collection: collection)
+                                PlaylistListItem(collection: collection, delete: model.delete)
+                                    .swipeActions {
+                                        Button("Delete", systemImage: "trash") {
+                                            toDelete = collection
+                                        }
+                                        // TODO: Make this an accessible destructive action, but without prematurely removing from the list
+                                        .tint(.red)
+                                    }
                             }
 
                             if collections.isEmpty {
@@ -162,7 +177,14 @@ struct PlaylistsScreen: View {
                         }
 
                         ForEach(collections) { collection in
-                            PlaylistListItem(collection: collection)
+                            PlaylistListItem(collection: collection, delete: model.delete)
+                                .swipeActions {
+                                    Button("Delete", systemImage: "trash") {
+                                        toDelete = collection
+                                    }
+                                    // TODO: Make this an accessible destructive action, but without prematurely removing from the list
+                                    .tint(.red)
+                                }
                         }
                     }
                     .listRowSeparator(.hidden)
@@ -226,6 +248,7 @@ struct PlaylistsScreen: View {
                     }
                 }
                 .apply {
+                    // TODO: Navigate to new playlist (NavigationView)
                     if #available(iOS 16, *) {
                         $0.alert("Create a Playlist", isPresented: $showingNewPlaylist) {
                             TextField("New Playlist Title", text: $newPlaylistTitle)
@@ -265,6 +288,19 @@ struct PlaylistsScreen: View {
                                 .padding(.top)
                             }
                             .padding()
+                        }
+                    }
+                }
+                .confirmationDialog(
+                    // FIXME: Saved should say unsave
+                    deleteConfirmText,
+                    isPresented: $toDelete.bool,
+                    titleVisibility: .visible
+                ) {
+                    Button("Delete", role: .destructive) {
+                        // Capture before confirmationDialog clears toDelete binding
+                        if let toDelete {
+                            model.delete(collection: toDelete)
                         }
                     }
                 }

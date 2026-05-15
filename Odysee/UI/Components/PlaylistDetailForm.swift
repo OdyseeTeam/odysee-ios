@@ -11,7 +11,23 @@ import SwiftUI
 struct PlaylistDetailForm: View {
     @State var collection: SharedPreference.Collection
 
-    var save: (SharedPreference.Collection) -> Void
+    enum Mode: Equatable {
+        case publishing
+        case edit(save: (SharedPreference.Collection) -> Void)
+
+        /// Ignores value of `save`, just used for checking mode
+        static func == (lhs: PlaylistDetailForm.Mode, rhs: PlaylistDetailForm.Mode) -> Bool {
+            switch (lhs, rhs) {
+            case (.publishing, .publishing),
+                 (.edit, .edit):
+                true
+            default:
+                false
+            }
+        }
+    }
+
+    var mode: Mode
 
     @Environment(\.presentationMode) var presentationMode
     @Environment(\.editMode) var editMode
@@ -19,7 +35,19 @@ struct PlaylistDetailForm: View {
     var body: some View {
         NavigationView {
             Form {
-                // FIXME: VoiceOver with field title in two places?
+                if mode == .publishing {
+                    Section("Channel") {}
+
+                    Section("Name") {
+                        HStack {
+                            // FIXME: Don't wrap
+                            Text("odysee.com/@ktprograms/")
+                                .font(.caption) // FIXME: slightly larger
+                            TextField("Name", text: .constant(""))
+                        }
+                    }
+                }
+
                 Section("Title") {
                     TextField("Title", text: $collection.titleOrName)
                 }
@@ -48,14 +76,19 @@ struct PlaylistDetailForm: View {
                     .font(.caption)
                 }
 
-                // FIXME: (form/details) updated seems to update even with cancel
                 TagsFormSection(tags: $collection.tags.orElse([]))
             }
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button("Save") {
-                        save(collection)
-                        dismiss()
+                    switch mode {
+                    case .publishing:
+                        Button("Publish") {}
+                            .buttonStyle(.borderedProminent)
+                    case let .edit(save):
+                        Button("Save") {
+                            save(collection)
+                            dismiss()
+                        }
                     }
                 }
 
@@ -81,5 +114,5 @@ struct PlaylistDetailForm: View {
         name: "named",
         type: .playlist,
         updatedAt: 1_776_134_690,
-    ), save: { _ in })
+    ), mode: .edit(save: { _ in }))
 }

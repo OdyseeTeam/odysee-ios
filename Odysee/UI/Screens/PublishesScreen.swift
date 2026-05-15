@@ -57,7 +57,7 @@ struct PublishesScreen: View {
                         ForEach(model.claims) { claim in
                             ClaimListItem(claim: claim)
                                 .swipeActions(edge: .leading) {
-                                    Button {
+                                    Button("Edit", systemImage: "pencil") {
                                         let vc = AppDelegate.shared.mainViewController?.storyboard?
                                             .instantiateViewController(
                                                 identifier: "publish_vc"
@@ -67,16 +67,12 @@ struct PublishesScreen: View {
                                             vc,
                                             animated: true
                                         )
-                                    } label: {
-                                        Label("Edit", systemImage: "pencil")
                                     }
                                     .tint(.blue)
                                 }
                                 .swipeActions {
-                                    Button {
+                                    Button("Delete", systemImage: "trash") {
                                         toDelete = claim
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
                                     }
                                     // TODO: Make this an accessible destructive action, but without prematurely removing from the list
                                     .tint(.red)
@@ -102,8 +98,10 @@ struct PublishesScreen: View {
                         } else {
                             Color.clear
                                 .onAppear {
-                                    Task<Void, Never> {
-                                        await model.loadPage()
+                                    if !model.refreshing {
+                                        Task<Void, Never> {
+                                            await model.loadPage()
+                                        }
                                     }
                                 }
                         }

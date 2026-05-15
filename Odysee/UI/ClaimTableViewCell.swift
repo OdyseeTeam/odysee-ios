@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 08/11/2020.
 //
 
+import SwiftUI
 import UIKit
 
 class ClaimTableViewCell: UITableViewCell {
@@ -280,6 +281,62 @@ class ClaimTableViewCell: UITableViewCell {
                 .instantiateViewController(withIdentifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
+    var menu: UIContextMenuConfiguration? {
+        var elements: [UIMenuElement] = []
+
+        if currentClaim?.valueType == ClaimType.collection,
+           let collection = currentClaim?.asCollection(origin: .claim)
+        {
+            elements.append(UIAction(title: __("View Playlist Details"), image: .init(systemName: "eye")) { _ in
+                /// Workaround for having a back destination\
+                /// Not needed once this menu is in SwiftUI
+                struct PlaylistDetailScreenWrapper: View {
+                    let collection: SharedPreference.Collection
+
+                    @Environment(\.dismiss) private var dismiss
+                    @State private var isActive: Bool = false
+
+                    var body: some View {
+                        NavigationView {
+                            NavigationLink(isActive: $isActive) {
+                                PlaylistDetailScreen(collection: collection, onCopy: {
+                                    Helper.showMessage(
+                                        message: "Playlist copied. You can find it in Library -> Playlists"
+                                    )
+                                })
+                            } label: {
+                                ProgressView()
+                                    .controlSize(.large)
+                            }
+                            .onAppear {
+                                isActive = true
+                            }
+                            .onChange(of: isActive) { active in
+                                if !active {
+                                    dismiss()
+                                }
+                            }
+                        }
+                    }
+                }
+
+                let vc = UIHostingController(rootView: PlaylistDetailScreenWrapper(collection: collection))
+                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+            })
+        } else if currentClaim?.valueType == ClaimType.stream {
+            elements.append(UIAction(title: __("Add to Playlist"), image: .init(systemName: "plus")) { _ in
+            })
+        }
+
+        guard elements.count > 0 else {
+            return nil
+        }
+
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            return UIMenu(title: "", children: elements)
         }
     }
 }

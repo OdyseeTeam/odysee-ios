@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// Acts as an `Array<String>` but can decode from an array of JSON objects with key `name`
+/// Acts as an `Array<String>` but can decode from an array of JSON objects with key `name`\
 /// Holds `Optional` as property wrapper properties can't be optional
 @propertyWrapper
 public struct Tags: Codable, Equatable {

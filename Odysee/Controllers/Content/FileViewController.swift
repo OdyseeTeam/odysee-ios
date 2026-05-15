@@ -1472,8 +1472,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         loadingRelated = true
         loadingRelatedView.isHidden = false
 
-        // FIXME: Show no content message otherwise
-        // Actual FIXME: Don't come to file_vc with empty playlist
         if let playlistClaims, playlistClaims.count > 0 {
             Lbry.apiCall(
                 method: BackendMethods.claimSearch,
@@ -1898,6 +1896,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if tableView == chatListView {
             tableView.deselectRow(at: indexPath, animated: true)
         }
+    }
+
+    func tableView(
+        _ tableView: UITableView,
+        contextMenuConfigurationForRowAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        (tableView.cellForRow(at: indexPath) as? ClaimTableViewCell)?.menu
     }
 
     @IBAction func closeTapped(_ sender: UIButton) {

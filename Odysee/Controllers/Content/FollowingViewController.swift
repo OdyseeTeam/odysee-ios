@@ -330,6 +330,14 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         Helper.openFileVc(cell.currentClaim)
     }
 
+    func tableView(
+        _ tableView: UITableView,
+        contextMenuConfigurationForRowAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        (tableView.cellForRow(at: indexPath) as? ClaimTableViewCell)?.menu
+    }
+
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == suggestedFollowsView {
             return suggestedFollows.count

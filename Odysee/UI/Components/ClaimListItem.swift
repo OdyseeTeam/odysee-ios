@@ -8,7 +8,7 @@
 import CachedAsyncImage
 import SwiftUI
 
-/// Displays last playback position (progress bar), if present in `claim`
+/// Displays last playback position (progress bar), if present in `claim`\
 /// It's up to the caller ViewModel to fetch last playback position, if desired
 struct ClaimListItem: View {
     var claim: Claim
@@ -18,6 +18,8 @@ struct ClaimListItem: View {
     @ScaledMetric private var smallestSize: CGFloat = 11
 
     static let imageWidth: Double = 160
+
+    @State private var releasedAt: String = ""
 
     var body: some View {
         Button {
@@ -139,25 +141,26 @@ struct ClaimListItem: View {
                         }
                     }
 
-                    Group {
-                        let releaseTime = if let releaseTime = claim.value?.releaseTime,
-                                             let releaseTimestamp = Double(releaseTime)
-                        {
-                            releaseTimestamp
-                        } else {
-                            Double(claim.timestamp ?? 0)
-                        }
-                        let confirmations = claim.confirmations ?? 0
+                    Text(releasedAt)
+                        .font(.system(size: smallestSize))
+                        .onAppear {
+                            let releaseTime = if let releaseTime = claim.value?.releaseTime,
+                                                 let releaseTimestamp = Double(releaseTime)
+                            {
+                                releaseTimestamp
+                            } else {
+                                Double(claim.timestamp ?? 0)
+                            }
+                            let confirmations = claim.confirmations ?? 0
 
-                        if releaseTime > 0 && confirmations > 0 {
-                            let date = Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
-                            // FIXME: onAppear
-                            Text(date.formatted(.relative(presentation: .numeric)))
-                        } else {
-                            Text("Pending")
+                            if releaseTime > 0 && confirmations > 0 {
+                                let date =
+                                    Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
+                                releasedAt = date.formatted(.relative(presentation: .numeric))
+                            } else {
+                                releasedAt = __("Pending")
+                            }
                         }
-                    }
-                    .font(.system(size: smallestSize))
                 }
 
                 Spacer()

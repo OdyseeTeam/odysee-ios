@@ -11,6 +11,8 @@ import SwiftUI
 struct PlaylistListItem: View {
     var collection: SharedPreference.Collection
 
+    var delete: (SharedPreference.Collection) -> Void
+
     @State private var thumbnailUrl: URL?
 
     @ScaledMetric private var titleSize: CGFloat = 14
@@ -23,7 +25,7 @@ struct PlaylistListItem: View {
 
     var body: some View {
         NavigationLink {
-            PlaylistDetailScreen(collection: collection)
+            PlaylistDetailScreen(collection: collection, delete: delete)
         } label: {
             HStack(alignment: .top, spacing: 16) {
                 Group {
@@ -134,8 +136,7 @@ struct PlaylistListItem: View {
                     Spacer(minLength: 0)
 
                     HStack {
-                        let count = collection.itemCount ?? collection.items.uris.count
-                        Text("\(Image(systemName: "play.square.stack")) \(count)")
+                        Text("\(Image(systemName: "play.square.stack")) \(collection.count)")
 
                         if collection.isPublic {
                             Text("\(Image(systemName: "eye")) Public")
@@ -169,5 +170,5 @@ struct PlaylistListItem: View {
         name: "named",
         type: .playlist,
         updatedAt: 1_776_134_690,
-    ))
+    ), delete: { _ in })
 }

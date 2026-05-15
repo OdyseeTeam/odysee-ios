@@ -30,6 +30,7 @@ struct ThumbnailPicker: View {
                     .frame(width: imageWidth)
                     .padding()
                     .background(Color("light_primary"))
+                    .accessibilityHidden(true)
             case .loading:
                 ProgressView()
             case .failure:
