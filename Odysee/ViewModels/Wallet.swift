@@ -23,27 +23,9 @@ actor Wallet {
 
     typealias Following = [LbryUri: NotificationsDisabled]
 
-    private(set) var following: Following? {
-        didSet {
-            if following != oldValue {
-                followingQueue.send(following)
-            }
-        }
-    }
+    @SharePublished private(set) var following: Following?
 
-    private(set) var sFollowing: AsyncShareSequence<AsyncBufferedChannel<Following?>>
-    private let followingQueue = AsyncBufferedChannel<Following?>()
-
-    private(set) var blocked: [LbryUri]? {
-        didSet {
-            if blocked != oldValue {
-                blockedQueue.send(blocked)
-            }
-        }
-    }
-
-    private(set) var sBlocked: AsyncShareSequence<AsyncBufferedChannel<[LbryUri]?>>
-    private let blockedQueue = AsyncBufferedChannel<[LbryUri]?>()
+    @SharePublished private(set) var blocked: [LbryUri]?
 
     private(set) var defaultChannelId: String?
 
@@ -56,9 +38,6 @@ actor Wallet {
     private let pushQueue = AsyncBufferedChannel<Void>()
 
     private init() {
-        sFollowing = followingQueue.share()
-        sBlocked = blockedQueue.share()
-
         Task {
             await startSync()
             await monitorPushQueue()
