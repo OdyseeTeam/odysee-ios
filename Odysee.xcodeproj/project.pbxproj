@@ -17,6 +17,7 @@
 		534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */; };
 		534CCCA92F3C74CC00457BBF /* YouTubeSyncViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */; };
 		53593F31287E5D75007FD08E /* CommentsAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentsAPIResult.swift */; };
+		535BD0412FBD4A9100E4FE19 /* SharePublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535BD0402FBD4A9100E4FE19 /* SharePublished.swift */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5377EA832F7B666E00C8E03E /* LibraryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA822F7B666E00C8E03E /* LibraryScreen.swift */; };
 		5377EA852F7B6C3300C8E03E /* PublishesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */; };
@@ -168,6 +169,7 @@
 		534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncScreen.swift; sourceTree = "<group>"; };
 		534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncViewModel.swift; sourceTree = "<group>"; };
 		53593F30287E5D75007FD08E /* CommentsAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIResult.swift; sourceTree = "<group>"; };
+		535BD0402FBD4A9100E4FE19 /* SharePublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePublished.swift; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5377EA822F7B666E00C8E03E /* LibraryScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryScreen.swift; sourceTree = "<group>"; };
 		5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishesScreen.swift; sourceTree = "<group>"; };
@@ -433,6 +435,7 @@
 				5385091F28E13D28009A7AAB /* MembershipPerk.swift */,
 				53D59FFB2EF3AE530081D800 /* Methods.swift */,
 				53D59FFD2EF3B3150081D800 /* QueryItemsCoder.swift */,
+				535BD0402FBD4A9100E4FE19 /* SharePublished.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -921,6 +924,7 @@
 				641AFAE925B606E000218BD9 /* UAButton.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				CC97807926549867009F580E /* Log.swift in Sources */,
+				535BD0412FBD4A9100E4FE19 /* SharePublished.swift in Sources */,
 				53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */,
 				534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
