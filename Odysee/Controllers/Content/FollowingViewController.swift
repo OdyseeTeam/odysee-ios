@@ -103,7 +103,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         Task {
             await update(await Wallet.shared.following)
 
-            for await newFollowing in await Wallet.shared.sFollowing {
+            for await newFollowing in await Wallet.shared.$following {
                 await update(newFollowing)
             }
         }

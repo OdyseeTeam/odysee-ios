@@ -26,6 +26,7 @@
 		5359CABD2FB2D5ED0035D0D6 /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABC2FB2D5ED0035D0D6 /* Tags.swift */; };
 		5359CAC02FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */; };
 		5359CAC32FB37C840035D0D6 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 5359CAC22FB37C840035D0D6 /* WrappingHStack */; };
+		535BD0412FBD4A9100E4FE19 /* SharePublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535BD0402FBD4A9100E4FE19 /* SharePublished.swift */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5377EA832F7B666E00C8E03E /* LibraryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA822F7B666E00C8E03E /* LibraryScreen.swift */; };
 		5377EA852F7B6C3300C8E03E /* PublishesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */; };
@@ -188,6 +189,7 @@
 		53593F30287E5D75007FD08E /* CommentsAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIResult.swift; sourceTree = "<group>"; };
 		5359CABC2FB2D5ED0035D0D6 /* Tags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tags.swift; sourceTree = "<group>"; };
 		5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+PlaylistTest.swift"; sourceTree = "<group>"; };
+		535BD0402FBD4A9100E4FE19 /* SharePublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePublished.swift; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5377EA822F7B666E00C8E03E /* LibraryScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryScreen.swift; sourceTree = "<group>"; };
 		5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishesScreen.swift; sourceTree = "<group>"; };
@@ -467,6 +469,7 @@
 				5385091F28E13D28009A7AAB /* MembershipPerk.swift */,
 				53D59FFB2EF3AE530081D800 /* Methods.swift */,
 				53D59FFD2EF3B3150081D800 /* QueryItemsCoder.swift */,
+				535BD0402FBD4A9100E4FE19 /* SharePublished.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -968,6 +971,7 @@
 				53B7E2032FA2507F001CCFD6 /* PlaylistDetailViewModel.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				CC97807926549867009F580E /* Log.swift in Sources */,
+				535BD0412FBD4A9100E4FE19 /* SharePublished.swift in Sources */,
 				53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */,
 				534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,

@@ -25,7 +25,7 @@ extension PlaylistDetailScreen {
             Task<Void, Never> {
                 walletSavedCollectionIds = await Wallet.shared.savedCollectionIds
 
-                for await newSavedCollectionIds in await Wallet.shared.sSavedCollectionIds {
+                for await newSavedCollectionIds in await Wallet.shared.$savedCollectionIds {
                     walletSavedCollectionIds = newSavedCollectionIds
                 }
             }

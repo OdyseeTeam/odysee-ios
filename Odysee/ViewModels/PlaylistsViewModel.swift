@@ -39,7 +39,7 @@ extension PlaylistsScreen {
             Task<Void, Never> {
                 builtinCollections = Array(await Wallet.shared.builtinCollections.values)
 
-                for await newBuiltinCollections in await Wallet.shared.sBuiltinCollections {
+                for await newBuiltinCollections in await Wallet.shared.$builtinCollections {
                     builtinCollections = Array(newBuiltinCollections.values)
                 }
             }
@@ -47,7 +47,7 @@ extension PlaylistsScreen {
             Task<Void, Never> {
                 editedCollections = Array(await Wallet.shared.editedCollections.values)
 
-                for await newEditedCollections in await Wallet.shared.sEditedCollections {
+                for await newEditedCollections in await Wallet.shared.$editedCollections {
                     editedCollections = Array(newEditedCollections.values)
                 }
             }
@@ -55,7 +55,7 @@ extension PlaylistsScreen {
             Task<Void, Never> {
                 unpublishedCollections = Array(await Wallet.shared.unpublishedCollections.values)
 
-                for await newUnpublishedCollections in await Wallet.shared.sUnpublishedCollections {
+                for await newUnpublishedCollections in await Wallet.shared.$unpublishedCollections {
                     unpublishedCollections = Array(newUnpublishedCollections.values)
                 }
             }
@@ -64,7 +64,7 @@ extension PlaylistsScreen {
                 do {
                     try await collectionClaimSearch(await Wallet.shared.savedCollectionIds)
 
-                    for await newSavedCollectionIds in await Wallet.shared.sSavedCollectionIds {
+                    for await newSavedCollectionIds in await Wallet.shared.$savedCollectionIds {
                         try await collectionClaimSearch(newSavedCollectionIds)
                     }
                 } catch {

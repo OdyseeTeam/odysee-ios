@@ -292,7 +292,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 updateCommentAsChannel(index)
             }
 
-            for await blocked in await Wallet.shared.sBlocked {
+            for await blocked in await Wallet.shared.$blocked {
                 guard let blocked = blocked?.map(\.claimId) else {
                     continue
                 }

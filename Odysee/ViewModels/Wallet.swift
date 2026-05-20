@@ -23,77 +23,14 @@ actor Wallet {
 
     typealias Following = [LbryUri: NotificationsDisabled]
 
-    private(set) var following: Following? {
-        didSet {
-            if following != oldValue {
-                followingQueue.send(following)
-            }
-        }
-    }
+    @SharePublished private(set) var following: Following?
 
-    private(set) var sFollowing: AsyncShareSequence<AsyncBufferedChannel<Following?>>
-    private let followingQueue = AsyncBufferedChannel<Following?>()
+    @SharePublished private(set) var blocked: [LbryUri]?
 
-    private(set) var blocked: [LbryUri]? {
-        didSet {
-            if blocked != oldValue {
-                blockedQueue.send(blocked)
-            }
-        }
-    }
-
-    private(set) var sBlocked: AsyncShareSequence<AsyncBufferedChannel<[LbryUri]?>>
-    private let blockedQueue = AsyncBufferedChannel<[LbryUri]?>()
-
-    private(set) var builtinCollections = SharedPreference.CollectionGroup() {
-        didSet {
-            if builtinCollections != oldValue {
-                builtinCollectionsQueue.send(builtinCollections)
-            }
-        }
-    }
-
-    private(set) var sBuiltinCollections: AsyncShareSequence<AsyncBufferedChannel<
-        SharedPreference.CollectionGroup
-    >>
-    private let builtinCollectionsQueue = AsyncBufferedChannel<SharedPreference.CollectionGroup>()
-
-    private(set) var editedCollections = SharedPreference.CollectionGroup() {
-        didSet {
-            if editedCollections != oldValue {
-                editedCollectionsQueue.send(editedCollections)
-            }
-        }
-    }
-
-    private(set) var sEditedCollections: AsyncShareSequence<AsyncBufferedChannel<
-        SharedPreference.CollectionGroup
-    >>
-    private let editedCollectionsQueue = AsyncBufferedChannel<SharedPreference.CollectionGroup>()
-
-    private(set) var savedCollectionIds = [String]() {
-        didSet {
-            if savedCollectionIds != oldValue {
-                savedCollectionIdsQueue.send(savedCollectionIds)
-            }
-        }
-    }
-
-    private(set) var sSavedCollectionIds: AsyncShareSequence<AsyncBufferedChannel<[String]>>
-    private let savedCollectionIdsQueue = AsyncBufferedChannel<[String]>()
-
-    private(set) var unpublishedCollections = SharedPreference.CollectionGroup() {
-        didSet {
-            if unpublishedCollections != oldValue {
-                unpublishedCollectionsQueue.send(unpublishedCollections)
-            }
-        }
-    }
-
-    private(set) var sUnpublishedCollections: AsyncShareSequence<AsyncBufferedChannel<
-        SharedPreference.CollectionGroup
-    >>
-    private let unpublishedCollectionsQueue = AsyncBufferedChannel<SharedPreference.CollectionGroup>()
+    @SharePublished private(set) var builtinCollections = SharedPreference.CollectionGroup()
+    @SharePublished private(set) var editedCollections = SharedPreference.CollectionGroup()
+    @SharePublished private(set) var savedCollectionIds = [String]()
+    @SharePublished private(set) var unpublishedCollections = SharedPreference.CollectionGroup()
 
     private(set) var defaultChannelId: String?
 
@@ -106,13 +43,6 @@ actor Wallet {
     private let pushQueue = AsyncBufferedChannel<Void>()
 
     private init() {
-        sFollowing = followingQueue.share()
-        sBlocked = blockedQueue.share()
-        sBuiltinCollections = builtinCollectionsQueue.share()
-        sEditedCollections = editedCollectionsQueue.share()
-        sSavedCollectionIds = savedCollectionIdsQueue.share()
-        sUnpublishedCollections = unpublishedCollectionsQueue.share()
-
         Task {
             await startSync()
             await monitorPushQueue()

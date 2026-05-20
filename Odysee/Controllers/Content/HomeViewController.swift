@@ -116,7 +116,7 @@ class HomeViewController: UIViewController,
         }
 
         Task {
-            for await blocked in await Wallet.shared.sBlocked {
+            for await blocked in await Wallet.shared.$blocked {
                 guard let blocked = blocked?.map(\.claimId) else {
                     continue
                 }
