@@ -1582,6 +1582,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         var request = URLRequest(url: sourceUrl)
         request.httpMethod = "HEAD"
         request.setValue("https://ios.odysee.com/", forHTTPHeaderField: "Referer")
+        if let userId = Lbryio.currentUser?.id {
+            request.setValue(String(userId), forHTTPHeaderField: "X-Odysee-User-Id")
+        }
         let dataTask = session.dataTask(with: request) { result in
             guard case let .success(data) = result,
                   let response = data.response as? HTTPURLResponse,
