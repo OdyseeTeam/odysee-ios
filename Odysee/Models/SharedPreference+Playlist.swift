@@ -193,6 +193,10 @@ extension SharedPreference {
 
             self.origin = origin
         }
+
+        // MARK: Fields for Publishing
+
+        var publishChannel: Claim?
     }
 }
 
@@ -272,5 +276,13 @@ extension Claim {
 
             origin: origin
         )
+    }
+}
+
+// MARK: - Collection Logic
+
+extension SharedPreference.Collection {
+    var isEditable: Bool {
+        [.builtin, .edited, .unpublished, .published].contains(origin)
     }
 }

@@ -121,12 +121,11 @@ extension PlaylistDetailScreen {
             case .edited,
                  .published:
                 await Wallet.shared.addOrSetEdited(collection: collection)
-            case .saved,
-                 .claim:
-                collection // FIXME: Ensure this path never gets hit
             case .unpublished:
                 await Wallet.shared.addOrSetUnpublished(collection: collection)
-            case .none:
+            case .saved,
+                 .claim,
+                 .none:
                 collection
             }
 

@@ -440,7 +440,6 @@ extension Wallet {
 
     func setBuiltin(collection: SharedPreference.Collection) -> SharedPreference.Collection {
         guard builtinCollections[collection.collectionId] != nil else {
-            // FIXME: Message?
             return collection
         }
 

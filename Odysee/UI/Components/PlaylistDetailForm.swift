@@ -36,15 +36,27 @@ struct PlaylistDetailForm: View {
         NavigationView {
             Form {
                 if mode == .publishing {
-                    Section("Channel") {}
-
                     Section("Name") {
+                        ChannelPicker(channel: $collection.publishChannel.orElse(Claim.anonymous))
+
                         HStack {
-                            // FIXME: Don't wrap
-                            Text("odysee.com/@ktprograms/")
-                                .font(.caption) // FIXME: slightly larger
-                            TextField("Name", text: .constant(""))
+                            let slug = if collection.publishChannel != Claim.anonymous,
+                                          let name = collection.publishChannel?.name
+                            {
+                                name + "/"
+                            } else {
+                                ""
+                            }
+                            Text("odysee.com/\(slug)")
+                                .font(.caption)
+                            TextField("name", text: $collection.name)
+                                .autocorrectionDisabled()
+                                .textInputAutocapitalization(.never)
                         }
+
+                        // FIXME: If Editing
+                        Text("This won't be able to be changed in the future.")
+                            .font(.footnote)
                     }
                 }
 

@@ -240,3 +240,12 @@ extension Claim: Comparable {
         return lhs.localizedCompare(rhs) == .orderedAscending
     }
 }
+
+// MARK: - Predefined Anonymous (all equal due to "anonymous" claimId)
+
+extension Claim {
+    static let anonymous = Claim(
+        claimId: "anonymous",
+        name: "Anonymous"
+    )
+}

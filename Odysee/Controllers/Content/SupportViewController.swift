@@ -60,11 +60,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     }
 
     func addAnonymousPlaceholder() {
-        let anonymousClaim = Claim(
-            claimId: "anonymous",
-            name: "Anonymous"
-        )
-        channels.append(anonymousClaim)
+        channels.append(Claim.anonymous)
     }
 
     func loadChannels() {

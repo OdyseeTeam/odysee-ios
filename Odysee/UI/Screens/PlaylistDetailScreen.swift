@@ -83,7 +83,6 @@ struct PlaylistDetailScreen: View {
                             }
                             .padding(.horizontal)
                             .padding(.bottom, 32)
-                            // FIXME: Long multiline channel text not leading
 
                             if !model.inProgress && model.claims.isEmpty {
                                 Text("Nothing here")
@@ -119,7 +118,7 @@ struct PlaylistDetailScreen: View {
                 }
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
-                        if [.builtin, .edited, .unpublished, .published].contains(collection.origin) {
+                        if collection.isEditable {
                             EditButton()
                         }
 
