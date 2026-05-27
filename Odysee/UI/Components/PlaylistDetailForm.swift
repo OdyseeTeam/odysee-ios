@@ -11,20 +11,9 @@ import SwiftUI
 struct PlaylistDetailForm: View {
     @State var collection: SharedPreference.Collection
 
-    enum Mode: Equatable {
-        case publishing
+    enum Mode {
+        case publishing(publish: (SharedPreference.Collection) async -> Void)
         case edit(save: (SharedPreference.Collection) -> Void)
-
-        /// Ignores value of `save`, just used for checking mode
-        static func == (lhs: PlaylistDetailForm.Mode, rhs: PlaylistDetailForm.Mode) -> Bool {
-            switch (lhs, rhs) {
-            case (.publishing, .publishing),
-                 (.edit, .edit):
-                true
-            default:
-                false
-            }
-        }
     }
 
     var mode: Mode
@@ -35,7 +24,7 @@ struct PlaylistDetailForm: View {
     var body: some View {
         NavigationView {
             Form {
-                if mode == .publishing {
+                if case .publishing = mode {
                     Section("Name") {
                         ChannelPicker(channel: $collection.publishChannel.orElse(Claim.anonymous))
 
@@ -61,6 +50,8 @@ struct PlaylistDetailForm: View {
                 }
 
                 Section("Title") {
+                    // FIXME: only local editing sets both title and name
+                    // FIXME: On publish use only title or empty?
                     TextField("Title", text: $collection.titleOrName)
                 }
 
@@ -93,9 +84,14 @@ struct PlaylistDetailForm: View {
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     switch mode {
-                    case .publishing:
-                        Button("Publish") {}
-                            .buttonStyle(.borderedProminent)
+                    case let .publishing(publish):
+                        Button("Publish") {
+                            Task {
+                                await publish(collection)
+                                dismiss()
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
                     case let .edit(save):
                         Button("Save") {
                             save(collection)

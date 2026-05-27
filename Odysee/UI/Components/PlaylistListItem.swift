@@ -11,8 +11,6 @@ import SwiftUI
 struct PlaylistListItem: View {
     var collection: SharedPreference.Collection
 
-    var delete: (SharedPreference.Collection) -> Void
-
     @State private var thumbnailUrl: URL?
 
     @ScaledMetric private var titleSize: CGFloat = 14
@@ -23,9 +21,14 @@ struct PlaylistListItem: View {
 
     @State private var updatedAt: String = ""
 
+    // Only if from PlaylistsScreen
+    // FIXME: Make sure others don't crash due to nonexistent
+    @EnvironmentObject private var playlistsModel: PlaylistsScreen.ViewModel
+
     var body: some View {
         NavigationLink {
-            PlaylistDetailScreen(collection: collection, delete: delete)
+            PlaylistDetailScreen(collection: collection)
+                .environmentObject(playlistsModel)
         } label: {
             HStack(alignment: .top, spacing: 16) {
                 Group {
@@ -100,7 +103,12 @@ struct PlaylistListItem: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text(collection.titleOrName)
+                        if collection.origin == .edited {
+                            Image(systemName: "icloud.and.arrow.up")
+                                .tint(.primary)
+                        }
+
+                        Text("\(collection.titleOrName)")
                             .font(.system(size: titleSize))
                             .fontWeight(.semibold)
                             .lineLimit(3)
@@ -145,12 +153,17 @@ struct PlaylistListItem: View {
                         }
                     }
 
-                    Text("Updated \(updatedAt)")
-                        .onAppear {
-                            // TODO: Timezone check / conversion?
-                            let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
-                            updatedAt = date.formatted(.relative(presentation: .numeric))
-                        }
+                    if collection.updatedAt > 0 {
+                        Text("Updated \(updatedAt)")
+                            .onAppear {
+                                // TODO: Timezone check / conversion?
+                                let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
+                                    .addingTimeInterval(-1)
+                                updatedAt = date.formatted(.relative(presentation: .numeric))
+                            }
+                    } else {
+                        Text("Pending")
+                    }
                 }
                 .font(.system(size: smallestSize))
             }
@@ -170,5 +183,5 @@ struct PlaylistListItem: View {
         name: "named",
         type: .playlist,
         updatedAt: 1_776_134_690,
-    ), delete: { _ in })
+    ))
 }

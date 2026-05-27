@@ -74,6 +74,19 @@ struct CollectionListParams: Encodable, BackendMethodParams {
     var pageSize: Int?
 }
 
+struct CollectionCreateParams: Encodable, BackendMethodParams {
+    var name: String
+    let bid: String = Helper.minimumDepositString
+    /// claim ids to be included in the collection
+    var claims: [String]
+    var title: String?
+    var description: String?
+    var tags: [String]?
+    var thumbnailUrl: String?
+    var channelId: String?
+    var blocking: Bool
+}
+
 struct SyncApplyParams: Encodable, BackendMethodParams {
     let password: String = ""
     var data: String?

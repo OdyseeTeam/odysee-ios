@@ -76,6 +76,10 @@ class Snackbar: NSObject {
         snackbarView.addSubview(txt)
 
         show()
+
+        // FIXME: Snackbar VoiceOver announce
+        // FIXME: Accessibility error vs message
+        // UIAccessibility.post(notification: .screenChanged, argument: snackbarView)
     }
 
     /// Show snackbar with text and button

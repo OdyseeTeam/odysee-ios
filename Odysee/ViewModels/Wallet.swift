@@ -426,8 +426,9 @@ extension Wallet {
 // MARK: - Playlists
 
 extension Wallet {
+    /// Checks if a collection **not from `.saved`** is present in the saved collections.
     static func isCollectionSaved(collection: SharedPreference.Collection, for saved: [String]) -> Bool {
-        saved.contains(collection.collectionId)
+        collection.origin != .saved && saved.contains(collection.collectionId)
     }
 
     func addSavedCollection(collection: SharedPreference.Collection) {
@@ -447,6 +448,9 @@ extension Wallet {
     }
 
     func addOrSetEdited(collection: SharedPreference.Collection) -> SharedPreference.Collection {
+        var collection = collection
+        // Because collection may come from published, make sure it's stored as edited
+        collection.origin = .edited
         return addOrSetCollection(group: &editedCollections, collection: collection)
     }
 
@@ -474,11 +478,12 @@ extension Wallet {
         savedCollectionIds.removeAll { $0 == collection.collectionId }
     }
 
-    // FIXME: removes published, edited
-    // TODO: Option: Delete publish but keep private playlist
-//    func removeEdited(collection: SharedPreference.Collection) {
-//        removeCollection(group: &edi, collection: collection)
-//    }
+    // FIXME: Option to Delete publish but keep private playlist
+    func removeEdited(collection: SharedPreference.Collection) {
+        removeCollection(group: &editedCollections, collection: collection)
+
+        // TODO: Remove publish (abandon?)
+    }
 
     func removeUnpublished(collection: SharedPreference.Collection) {
         removeCollection(group: &unpublishedCollections, collection: collection)

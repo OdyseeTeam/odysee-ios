@@ -7,24 +7,6 @@
 
 import SwiftUI
 
-extension PlaylistListItem {
-    func deleteAction(@Binding toDelete: SharedPreference.Collection?) -> some View {
-        swipeActions {
-            Button {
-                toDelete = collection
-            } label: {
-                if collection.origin == .saved {
-                    Label("Unsave", systemImage: "minus.square")
-                } else {
-                    Label("Delete", systemImage: "trash")
-                }
-            }
-            // TODO: Make this an accessible destructive action, but without prematurely removing from the list
-            .tint(.red)
-        }
-    }
-}
-
 struct PlaylistsScreen: View {
     @StateObject var model: ViewModel = .init()
 
@@ -143,8 +125,7 @@ struct PlaylistsScreen: View {
                                 .padding(.horizontal)
 
                             ForEach(model.builtinCollections) { collection in
-                                PlaylistListItem(collection: collection, delete: model.delete)
-                                    .deleteAction($toDelete: $toDelete)
+                                PlaylistListItem(collection: collection)
                             }
 
                             if collections.isEmpty {
@@ -197,8 +178,20 @@ struct PlaylistsScreen: View {
                         }
 
                         ForEach(collections) { collection in
-                            PlaylistListItem(collection: collection, delete: model.delete)
-                                .deleteAction($toDelete: $toDelete)
+                            PlaylistListItem(collection: collection)
+                                .swipeActions {
+                                    Button {
+                                        toDelete = collection
+                                    } label: {
+                                        if collection.origin == .saved {
+                                            Label("Unsave", systemImage: "minus.square")
+                                        } else {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                                    // TODO: Make this an accessible destructive action, but without prematurely removing from the list
+                                    .tint(.red)
+                                }
                         }
                     }
                     .listRowSeparator(.hidden)
@@ -308,13 +301,17 @@ struct PlaylistsScreen: View {
                 .confirmationDialog(
                     toDelete?.origin == .saved ? unsaveConfirmText : deleteConfirmText,
                     isPresented: $toDelete.bool,
-                    titleVisibility: .visible
-                ) {
-                    Button("Delete", role: .destructive) {
-                        // Capture before confirmationDialog clears toDelete binding
-                        if let toDelete {
-                            model.delete(collection: toDelete)
+                    titleVisibility: .visible,
+                    presenting: toDelete
+                ) { toDelete in
+                    if [.edited, .published].contains(toDelete.origin) {
+                        Button("Delete (keep private playlist)", role: .destructive) {
+                            model.delete(collection: toDelete, publishedKeepPrivate: true)
                         }
+                    }
+
+                    Button(toDelete.origin == .saved ? "Unsave" : "Delete", role: .destructive) {
+                        model.delete(collection: toDelete)
                     }
                 }
 
@@ -329,6 +326,7 @@ struct PlaylistsScreen: View {
                     }
             }
         }
+        .environmentObject(model)
     }
 }
 

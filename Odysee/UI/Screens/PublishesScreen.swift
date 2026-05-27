@@ -81,14 +81,12 @@ struct PublishesScreen: View {
                         .confirmationDialog(
                             deleteConfirmText,
                             isPresented: $toDelete.bool,
-                            titleVisibility: .visible
-                        ) {
+                            titleVisibility: .visible,
+                            presenting: toDelete
+                        ) { toDelete in
                             Button("Delete", role: .destructive) {
-                                // Capture before confirmationDialog clears toDelete binding
-                                if let toDelete {
-                                    Task<Void, Never> {
-                                        await model.delete(claim: toDelete)
-                                    }
+                                Task<Void, Never> {
+                                    await model.delete(claim: toDelete)
                                 }
                             }
                         }

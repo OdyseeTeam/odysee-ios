@@ -10,10 +10,10 @@ import WrappingHStack
 
 struct PlaylistDetailScreen: View {
     @StateObject private var model: ViewModel = .init()
+    @EnvironmentObject private var playlistsModel: PlaylistsScreen.ViewModel
 
     @State var collection: SharedPreference.Collection
 
-    var delete: ((SharedPreference.Collection) -> Void)?
     var onCopy: (() -> Void)?
 
     @Environment(\.editMode) private var editMode
@@ -75,10 +75,15 @@ struct PlaylistDetailScreen: View {
 
                                     Spacer()
 
-                                    // TODO: Timezone check / conversion?
-                                    let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
-                                    Text("Updated \(date.formatted(.relative(presentation: .numeric)))")
-                                        .fixedSize(horizontal: false, vertical: true)
+                                    if collection.updatedAt > 0 {
+                                        // TODO: Timezone check / conversion?
+                                        let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
+                                            .addingTimeInterval(-1)
+                                        Text("Updated \(date.formatted(.relative(presentation: .numeric)))")
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    } else {
+                                        Text("Pending")
+                                    }
                                 }
                             }
                             .padding(.horizontal)
@@ -133,7 +138,7 @@ struct PlaylistDetailScreen: View {
                                     collection: collection,
                                     for: model.walletSavedCollectionIds
                                 ) {
-                                    Button("Unsave", systemImage: "minus.square") {
+                                    Button("Unsave", systemImage: "minus.square", role: .destructive) {
                                         Task {
                                             await Wallet.shared.removeSavedCollection(collection: collection)
 
@@ -157,8 +162,6 @@ struct PlaylistDetailScreen: View {
                                     }
                                 }
 
-                                // FIXME: Test is it edited or published
-                                // FIXME: collection.isPublishable
                                 if [.unpublished, .edited].contains(collection.origin), collection.count > 0 {
                                     Button("Publish", systemImage: "icloud.and.arrow.up") {
                                         publishing = true
@@ -169,9 +172,15 @@ struct PlaylistDetailScreen: View {
                                     showingCopy = true
                                 }
 
-                                if delete != nil && collection.origin == .unpublished {
-                                    Button("Delete", systemImage: "trash", role: .destructive) {
+                                if collection.isDeletable {
+                                    Button(role: .destructive) {
                                         showingDelete = true
+                                    } label: {
+                                        if collection.origin == .saved {
+                                            Label("Unsave", systemImage: "minus.square")
+                                        } else {
+                                            Label("Delete", systemImage: "trash")
+                                        }
                                     }
                                 }
                             }
@@ -185,6 +194,7 @@ struct PlaylistDetailScreen: View {
                                 collection = await model.saveChanges(collection: collection)
 
                                 let date = Date(timeIntervalSince1970: Double(collection.updatedAt))
+                                    .addingTimeInterval(-1)
                                 updatedAt = date.formatted(.relative(presentation: .numeric))
                             }
                         }
@@ -202,8 +212,15 @@ struct PlaylistDetailScreen: View {
                     .interactiveDismissDisabled()
                 }
                 .sheet(isPresented: $publishing) {
-                    PlaylistDetailForm(collection: collection, mode: .publishing)
-                        .interactiveDismissDisabled()
+                    PlaylistDetailForm(collection: collection, mode: .publishing(publish: { collection in
+                        await model.publish(collection: collection)
+                        do {
+                            try await playlistsModel.collectionListAll()
+                        } catch {
+                            Helper.showError(error: error)
+                        }
+                    }))
+                    .interactiveDismissDisabled()
                 }
                 .apply {
                     if #available(iOS 16, *) {
@@ -242,19 +259,23 @@ struct PlaylistDetailScreen: View {
                         }
                     }
                 }
-                .apply {
-                    if let delete {
-                        $0.confirmationDialog(
-                            "Are you sure you'd like to delete \"\(collection.titleOrName)\"?",
-                            isPresented: $showingDelete,
-                            titleVisibility: .visible
-                        ) {
-                            Button("Delete", role: .destructive) {
-                                delete(collection)
-                            }
+                .confirmationDialog(
+                    collection.origin == .saved ?
+                        "Are you sure you'd like to unsave \"\(collection.titleOrName)\"?" :
+                        "Are you sure you'd like to delete \"\(collection.titleOrName)\"?",
+                    isPresented: $showingDelete,
+                    titleVisibility: .visible
+                ) {
+                    if [.edited, .published].contains(collection.origin) {
+                        Button("Delete (keep private playlist)", role: .destructive) {
+                            playlistsModel.delete(collection: collection, publishedKeepPrivate: true)
+                            dismiss()
                         }
-                    } else {
-                        $0
+                    }
+
+                    Button(collection.origin == .saved ? "Unsave" : "Delete", role: .destructive) {
+                        playlistsModel.delete(collection: collection)
+                        dismiss()
                     }
                 }
 
@@ -294,6 +315,6 @@ struct PlaylistDetailScreen: View {
             description: "A playlist",
             type: .playlist,
             updatedAt: 1_776_134_690,
-        ), delete: { _ in })
+        ))
     }
 }

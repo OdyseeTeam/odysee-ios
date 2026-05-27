@@ -107,36 +107,69 @@ extension PlaylistsScreen {
             await Wallet.shared.queuePushSync()
         }
 
-        func delete(collection: SharedPreference.Collection) {
+        func delete(collection: SharedPreference.Collection, publishedKeepPrivate: Bool = false) {
             Task {
                 inProgress = true
                 defer {
                     inProgress = false
                 }
 
-                // FIXME: Handle other cases/ensure they don't get hit
                 switch collection.origin {
-                case .builtin:
-                    break
-                case .edited:
-                    break
                 case .saved:
-                    break
+                    await Wallet.shared.removeSavedCollection(collection: collection)
                 case .unpublished:
                     await Wallet.shared.removeUnpublished(collection: collection)
+                case .edited:
+                    await Wallet.shared.removeEdited(collection: collection)
+                    fallthrough
                 case .published:
-                    break
-                case .claim:
-                    break
-                case .none:
+                    do {
+                        _ = try await BackendMethods.streamAbandon.call(params: .init(
+                            claimId: collection.collectionId,
+                            blocking: true
+                        ))
+
+                        try await collectionListAll()
+                    } catch {
+                        Helper.showError(message: "Error removing uploaded playlist: \(error.localizedDescription)")
+                    }
+                case .builtin,
+                     .claim,
+                     .none:
                     break
                 }
 
+                if publishedKeepPrivate {
+                    var collection = collection
+
+                    // FIXME: Items not preserved
+                    collection.collectionId = UUID().uuidString
+                    collection.originalClaim = nil
+                    collection.origin = .unpublished
+
+                    if let claimIds = collection.items.claimIds {
+                        let claimSearch = try await BackendMethods.claimSearch.call(params: .init(
+                            page: 1,
+                            pageSize: 999,
+                            claimIds: claimIds,
+                        ))
+
+                        collection.items.uris = claimSearch.items
+                            .sorted(like: claimIds, keyPath: \.claimId, transform: \.self)
+                            .compactMap(\.permanentUrl)
+                            .compactMap { LbryUri.tryParse(url: $0, requireProto: true) }
+                    }
+
+                    await Wallet.shared.addOrSetUnpublished(collection: collection)
+                }
+
                 await Wallet.shared.queuePushSync()
+
+                Helper.showMessage(message: "Playlist removed")
             }
         }
 
-        private func collectionListAll() async throws {
+        func collectionListAll() async throws {
             publishedCollections.removeAll(keepingCapacity: true)
 
             // Limit in case of failure to break

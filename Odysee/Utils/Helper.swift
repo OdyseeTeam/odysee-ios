@@ -385,7 +385,6 @@ enum Helper {
         return message
     }
 
-    // FIXME: Snackbar VoiceOver announce
     @MainActor
     static func showMessage(message: String?) {
         (AppDelegate.shared.mainViewController as? MainViewController)?.showMessage(message: message)

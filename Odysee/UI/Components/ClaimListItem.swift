@@ -154,8 +154,8 @@ struct ClaimListItem: View {
                             let confirmations = claim.confirmations ?? 0
 
                             if releaseTime > 0 && confirmations > 0 {
-                                let date =
-                                    Date(timeIntervalSince1970: releaseTime) // TODO: Timezone check / conversion?
+                                // TODO: Timezone check / conversion?
+                                let date = Date(timeIntervalSince1970: releaseTime).addingTimeInterval(-1)
                                 releasedAt = date.formatted(.relative(presentation: .numeric))
                             } else {
                                 releasedAt = __("Pending")

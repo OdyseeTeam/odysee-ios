@@ -285,4 +285,8 @@ extension SharedPreference.Collection {
     var isEditable: Bool {
         [.builtin, .edited, .unpublished, .published].contains(origin)
     }
+
+    var isDeletable: Bool {
+        [.edited, .saved, .unpublished, .published].contains(origin)
+    }
 }
