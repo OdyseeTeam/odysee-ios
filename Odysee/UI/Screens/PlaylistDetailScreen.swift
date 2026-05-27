@@ -35,6 +35,8 @@ struct PlaylistDetailScreen: View {
     @State private var showingCopy = false
     @State private var newPlaylistTitle = ""
 
+    @State private var showingCancelUpdates = false
+
     @State private var showingDelete = false
 
     // FIXME: Accessbility
@@ -85,6 +87,20 @@ struct PlaylistDetailScreen: View {
                                         Text("Pending")
                                     }
                                 }
+
+                                if collection.origin == .edited {
+                                    WrappingHStack(spacing: .dynamic(minSpacing: 0), lineSpacing: 8) {
+                                        Button("Publish Updates", systemImage: "icloud.and.arrow.up") {
+                                            publishing = true
+                                        }
+
+                                        Button("Clear Updates", systemImage: "arrow.triangle.2.circlepath") {
+                                            showingCancelUpdates = true
+                                        }
+                                    }
+                                    .buttonStyle(.borderless)
+                                    .padding(.top)
+                                }
                             }
                             .padding(.horizontal)
                             .padding(.bottom, 32)
@@ -123,7 +139,7 @@ struct PlaylistDetailScreen: View {
                 }
                 .toolbar {
                     ToolbarItemGroup(placement: .topBarTrailing) {
-                        if collection.isEditable {
+                        if collection.canEdit {
                             EditButton()
                         }
 
@@ -162,17 +178,18 @@ struct PlaylistDetailScreen: View {
                                     }
                                 }
 
-                                if [.unpublished, .edited].contains(collection.origin), collection.count > 0 {
+                                if collection.origin == .unpublished {
                                     Button("Publish", systemImage: "icloud.and.arrow.up") {
                                         publishing = true
                                     }
                                 }
 
                                 Button("Copy", systemImage: "square.on.square") {
+                                    newPlaylistTitle = "\(collection.titleOrName) (copy)"
                                     showingCopy = true
                                 }
 
-                                if collection.isDeletable {
+                                if collection.canDelete {
                                     Button(role: .destructive) {
                                         showingDelete = true
                                     } label: {
@@ -245,7 +262,7 @@ struct PlaylistDetailScreen: View {
                                     "The copied playlist will be private and you will be able to edit its contents at any time."
                                 )
 
-                                TextField("New Playlist Title", text: $newPlaylistTitle)
+                                TextField("New Playlist Title", text: $newPlaylistTitle,)
                                     .padding(.horizontal)
 
                                 Button("Confirm") {
@@ -260,13 +277,32 @@ struct PlaylistDetailScreen: View {
                     }
                 }
                 .confirmationDialog(
+                    "Clear all local edits from this published playlist?",
+                    isPresented: $showingCancelUpdates,
+                    titleVisibility: .visible
+                ) {
+                    Button("Clear Updates", role: .destructive) {
+                        Task {
+                            await Wallet.shared.removeEdited(collection: collection)
+
+                            await Wallet.shared.queuePushSync()
+
+                            Helper.showMessage(message: "Updates cleared")
+                            // NOTE: View dismisses due to list item with NavigationLink being removed
+                            // TODO: Stay in the view with proper programmatic navigation
+                        }
+                    }
+                } message: {
+                    Text("You won't be able to undo this action later.")
+                }
+                .confirmationDialog(
                     collection.origin == .saved ?
                         "Are you sure you'd like to unsave \"\(collection.titleOrName)\"?" :
                         "Are you sure you'd like to delete \"\(collection.titleOrName)\"?",
                     isPresented: $showingDelete,
                     titleVisibility: .visible
                 ) {
-                    if [.edited, .published].contains(collection.origin) {
+                    if collection.isPublished {
                         Button("Delete (keep private playlist)", role: .destructive) {
                             playlistsModel.delete(collection: collection, publishedKeepPrivate: true)
                             dismiss()

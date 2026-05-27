@@ -74,7 +74,6 @@ extension PlaylistDetailScreen {
         func copy(collection: SharedPreference.Collection, title: String) async {
             let now = Int(Date().timeIntervalSince1970)
 
-            // FIXME: originalclaim nil?
             await Wallet.shared.addOrSetUnpublished(collection: .init(
                 id: UUID().uuidString,
                 items: .init(uris: claims.compactMap {
@@ -137,19 +136,31 @@ extension PlaylistDetailScreen {
 
         func publish(collection: SharedPreference.Collection) async {
             do {
-                _ = try await BackendMethods.collectionCreate.call(params: .init(
-                    name: collection.name, // FIXME: sanitize
-                    claims: collection.items.uris.compactMap(\.streamClaimId),
-                    title: collection.title,
-                    description: collection.description,
-                    tags: collection.tags,
-                    thumbnailUrl: collection.thumbnail?.url?.absoluteString,
-                    channelId: collection.publishChannel?.claimId,
-                    blocking: true
-                ))
+                if collection.origin == .unpublished {
+                    _ = try await BackendMethods.collectionCreate.call(params: .init(
+                        name: collection.name,
+                        claims: collection.items.uris.compactMap(\.streamClaimId),
+                        title: collection.title,
+                        description: collection.description,
+                        tags: collection.tags,
+                        thumbnailUrl: collection.thumbnail?.url?.absoluteString,
+                        channelId: collection.publishChannel?.claimId
+                    ))
 
-                // FIXME: Test, document, remove edited?
-                await Wallet.shared.removeUnpublished(collection: collection)
+                    await Wallet.shared.removeUnpublished(collection: collection)
+                } else {
+                    _ = try await BackendMethods.collectionUpdate.call(params: .init(
+                        claimId: collection.collectionId,
+                        claims: collection.items.uris.compactMap(\.streamClaimId),
+                        title: collection.title,
+                        description: collection.description,
+                        tags: collection.tags,
+                        thumbnailUrl: collection.thumbnail?.url?.absoluteString,
+                        channelId: collection.publishChannel?.claimId
+                    ))
+
+                    await Wallet.shared.removeEdited(collection: collection)
+                }
 
                 await Wallet.shared.queuePushSync()
             } catch {

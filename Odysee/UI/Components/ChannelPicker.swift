@@ -20,6 +20,7 @@ struct ChannelPicker: View {
                         .tag($0)
                 }
             }
+            .pickerStyle(.menu)
         } else {
             ProgressView()
                 .onAppear {

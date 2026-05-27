@@ -84,7 +84,21 @@ struct CollectionCreateParams: Encodable, BackendMethodParams {
     var tags: [String]?
     var thumbnailUrl: String?
     var channelId: String?
-    var blocking: Bool
+    let blocking: Bool = true
+}
+
+struct CollectionUpdateParams: Encodable, BackendMethodParams {
+    var claimId: String
+    let bid: String = Helper.minimumDepositString
+    /// claim ids to be included in the collection
+    var claims: [String]
+    var title: String?
+    var description: String?
+    var tags: [String]?
+    var thumbnailUrl: String?
+    var channelId: String?
+    let replace: Bool = true
+    let blocking: Bool = true
 }
 
 struct SyncApplyParams: Encodable, BackendMethodParams {

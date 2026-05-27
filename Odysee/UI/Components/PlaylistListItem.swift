@@ -21,7 +21,7 @@ struct PlaylistListItem: View {
 
     @State private var updatedAt: String = ""
 
-    // Only if from PlaylistsScreen
+    /// Only present if in PlaylistsScreen
     // FIXME: Make sure others don't crash due to nonexistent
     @EnvironmentObject private var playlistsModel: PlaylistsScreen.ViewModel
 

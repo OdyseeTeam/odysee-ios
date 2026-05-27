@@ -304,7 +304,7 @@ struct PlaylistsScreen: View {
                     titleVisibility: .visible,
                     presenting: toDelete
                 ) { toDelete in
-                    if [.edited, .published].contains(toDelete.origin) {
+                    if toDelete.isPublished {
                         Button("Delete (keep private playlist)", role: .destructive) {
                             model.delete(collection: toDelete, publishedKeepPrivate: true)
                         }

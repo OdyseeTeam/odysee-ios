@@ -408,11 +408,8 @@ extension Wallet {
         savedCollectionIds.removeAll { $0 == collection.collectionId }
     }
 
-    // FIXME: Option to Delete publish but keep private playlist
     func removeEdited(collection: SharedPreference.Collection) {
         removeCollection(group: &editedCollections, collection: collection)
-
-        // TODO: Remove publish (abandon?)
     }
 
     func removeUnpublished(collection: SharedPreference.Collection) {

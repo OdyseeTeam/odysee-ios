@@ -18,13 +18,36 @@ struct PlaylistDetailForm: View {
 
     var mode: Mode
 
-    @Environment(\.presentationMode) var presentationMode
-    @Environment(\.editMode) var editMode
+    private var publishing: Bool {
+        if case .publishing = mode {
+            true
+        } else {
+            false
+        }
+    }
+
+    @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.editMode) private var editMode
+
+    private func sanitize(_ value: String) -> String {
+        let range = NSMakeRange(0, value.count)
+        return LbryUri.regexInvalidUri.stringByReplacingMatches(
+            in: value,
+            options: [],
+            range: range,
+            withTemplate: "-"
+        )
+    }
+
+    private func trim() {
+        collection.name = collection.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        collection.title = collection.title?.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     var body: some View {
         NavigationView {
             Form {
-                if case .publishing = mode {
+                if publishing || collection.isPublished {
                     Section("Name") {
                         ChannelPicker(channel: $collection.publishChannel.orElse(Claim.anonymous))
 
@@ -38,21 +61,32 @@ struct PlaylistDetailForm: View {
                             }
                             Text("odysee.com/\(slug)")
                                 .font(.caption)
-                            TextField("name", text: $collection.name)
-                                .autocorrectionDisabled()
-                                .textInputAutocapitalization(.never)
+                            TextField("name", text: Binding {
+                                sanitize(collection.name)
+                            } set: {
+                                collection.name = sanitize($0)
+                            })
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
                         }
 
-                        // FIXME: If Editing
-                        Text("This won't be able to be changed in the future.")
-                            .font(.footnote)
+                        Text(
+                            publishing ?
+                                "This won't be able to be changed in the future." :
+                                "This field cannot be changed."
+                        )
+                        .font(.footnote)
                     }
+                    .disabled(!publishing)
                 }
 
                 Section("Title") {
-                    // FIXME: only local editing sets both title and name
-                    // FIXME: On publish use only title or empty?
-                    TextField("Title", text: $collection.titleOrName)
+                    TextField(
+                        "Title",
+                        text: publishing || collection.isPublished ?
+                            $collection.title.orElse(collection.name) :
+                            $collection.titleOrName
+                    )
                 }
 
                 if #available(iOS 16, *) {
@@ -85,8 +119,9 @@ struct PlaylistDetailForm: View {
                 ToolbarItem(placement: .primaryAction) {
                     switch mode {
                     case let .publishing(publish):
-                        Button("Publish") {
+                        Button(collection.origin == .edited ? "Update" : "Publish") {
                             Task {
+                                trim()
                                 await publish(collection)
                                 dismiss()
                             }
@@ -94,6 +129,7 @@ struct PlaylistDetailForm: View {
                         .buttonStyle(.borderedProminent)
                     case let .edit(save):
                         Button("Save") {
+                            trim()
                             save(collection)
                             dismiss()
                         }

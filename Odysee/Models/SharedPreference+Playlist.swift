@@ -106,6 +106,9 @@ extension SharedPreference {
 
         public enum CollectionType: String, Codable {
             case playlist
+            /// 'COL_TYPES.COLLECTION', I believe, is the placeholder for mixed-type collection.
+            /// <https://github.com/OdyseeTeam/odysee-frontend/blob/c605de2a2f461d61fcc4745dd1008510ef1e3737/ui/util/collections.ts#L51>
+            case collection
         }
 
         enum CodingKeys: String, CodingKey {
@@ -156,10 +159,6 @@ extension SharedPreference {
 
         /// Preserves for ``SharedPreference/Collection/asClaim``
         var originalClaim: Claim?
-
-        var isPublic: Bool {
-            originalClaim != nil
-        }
 
         public init(
             id: String,
@@ -241,7 +240,7 @@ extension SharedPreference.Collection {
 
 extension Claim {
     func asCollection(origin: SharedPreference.Collection.Origin) -> SharedPreference.Collection? {
-        guard let claimId, let titleOrName else {
+        guard let claimId, let name else {
             return nil
         }
 
@@ -263,7 +262,7 @@ extension Claim {
             id: claimId,
             // Only used for claim_search for thumbnail, if needed
             items: .init(claimIds: value?.claims),
-            name: titleOrName,
+            name: name,
             title: value?.title,
             description: value?.description,
             tags: value?.tags,
@@ -282,11 +281,19 @@ extension Claim {
 // MARK: - Collection Logic
 
 extension SharedPreference.Collection {
-    var isEditable: Bool {
+    var isPublic: Bool {
+        originalClaim != nil
+    }
+
+    var canEdit: Bool {
         [.builtin, .edited, .unpublished, .published].contains(origin)
     }
 
-    var isDeletable: Bool {
+    var canDelete: Bool {
         [.edited, .saved, .unpublished, .published].contains(origin)
+    }
+
+    var isPublished: Bool {
+        [.edited, .published].contains(origin)
     }
 }

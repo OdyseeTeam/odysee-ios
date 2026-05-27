@@ -90,6 +90,7 @@ struct ClaimListItem: View {
                             // TODO: arrow.trianglehead.2.clockwise.rotate.90 on iOS 18+
                             Text("\(Image(systemName: "arrow.triangle.2.circlepath"))")
                         case .collection:
+                            // FIXME: play.square.stack replace with list.and.film on iOS <16.1
                             let playlistImage = Image(systemName: "play.square.stack")
 
                             if let count = claim.value?.claims?.count {

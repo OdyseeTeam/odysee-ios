@@ -142,7 +142,6 @@ extension PlaylistsScreen {
                 if publishedKeepPrivate {
                     var collection = collection
 
-                    // FIXME: Items not preserved
                     collection.collectionId = UUID().uuidString
                     collection.originalClaim = nil
                     collection.origin = .unpublished
