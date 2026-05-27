@@ -75,7 +75,7 @@ struct PublishesScreen: View {
                                     vc.currentClaim = claim
                                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                                 } label: {
-                                    Label("Edit", systemImage: "pencil")
+                                    Label("Edit", systemImage: Icons.edit)
                                 }
                                 .tint(.blue)
                             }
@@ -83,7 +83,7 @@ struct PublishesScreen: View {
                                 Button {
                                     toDelete = claim
                                 } label: {
-                                    Label("Delete", systemImage: "trash")
+                                    Label("Delete", systemImage: Icons.delete)
                                 }
                                 // TODO: Make this an accessible destructive action, but without prematurely removing from the list
                                 .tint(.red)

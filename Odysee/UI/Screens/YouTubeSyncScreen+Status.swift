@@ -102,17 +102,17 @@ extension YouTubeSyncScreen {
                                             "\(channel.lbryChannelName) is not eligible to be synced, reach out to hello@odysee.com for access to the self sync tool."
                                         )
                                     } else {
-                                        Text(Image(systemName: "checkmark.circle"))
+                                        Text(Image(systemName: Icons.youtubeSyncCompleted))
                                             .accessibilityLabel("Completed")
                                             + Text(" Claim your handle \(channel.lbryChannelName)")
 
-                                        Text(Image(systemName: "checkmark.circle"))
+                                        Text(Image(systemName: Icons.youtubeSyncCompleted))
                                             .accessibilityLabel("Completed")
                                             + Text(" Agree to sync")
 
                                         HStack(alignment: .firstTextBaseline, spacing: 0) {
                                             if !channel.reviewed {
-                                                Text(Image(systemName: "circle"))
+                                                Text(Image(systemName: Icons.youtubeSyncIncomplete))
                                                     .accessibilityHidden(true)
 
                                                 Text(" ")
@@ -130,14 +130,14 @@ extension YouTubeSyncScreen {
                                                     ProgressView()
                                                         .accessibilityHidden(true)
                                                 } else {
-                                                    Image(systemName: "checkmark.circle")
+                                                    Image(systemName: Icons.youtubeSyncCompleted)
                                                         .accessibilityLabel("Completed")
                                                 }
 
                                                 Text(" ")
                                                 Text("Wait for your videos to be synced")
                                             } else {
-                                                Text(Image(systemName: "circle"))
+                                                Text(Image(systemName: Icons.youtubeSyncIncomplete))
                                                     .accessibilityHidden(true)
 
                                                 Text(" ")
@@ -158,7 +158,7 @@ extension YouTubeSyncScreen {
                                         .font(.caption)
 
                                         HStack(spacing: 0) {
-                                            Text(Image(systemName: "circle"))
+                                            Text(Image(systemName: Icons.youtubeSyncIncomplete))
                                                 .apply {
                                                     if !ViewModel.isYoutubeTransferComplete(channels: channels) {
                                                         $0
