@@ -71,7 +71,7 @@ class ClaimTableViewCell: UITableViewCell {
         countStackView.isHidden = false
         durationView.isHidden = true
         countImageView.isHidden = viewerCount == 0
-        countImageView.image = UIImage(systemName: "eye.fill")
+        countImageView.image = UIImage(systemName: Icons.livestreamViewers)
         if viewerCount > 0 {
             countLabel.text = String(viewerCount)
         } else {
@@ -201,7 +201,7 @@ class ClaimTableViewCell: UITableViewCell {
             countLabel.text = "LIVE"
         } else if let playlistCount = actualClaim.value?.claims?.count {
             countStackView.isHidden = false
-            countImageView.image = UIImage(systemName: "play.square.stack")
+            countImageView.image = UIImage(systemName: Icons.claimCollection)
             countLabel.text = "\(playlistCount)"
         }
 
@@ -238,8 +238,7 @@ class ClaimTableViewCell: UITableViewCell {
         contentView.addSubview(reposterOverlay)
         reposterOverlay.isHidden = true
 
-        // TODO: arrow.trianglehead.2.clockwise.rotate.90 on iOS 18+
-        let imageView = UIImageView(image: UIImage(systemName: "arrow.triangle.2.circlepath"))
+        let imageView = UIImageView(image: UIImage(systemName: Icons.claimRepost))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.tintColor = .white
         reposterOverlay.addArrangedSubview(imageView)

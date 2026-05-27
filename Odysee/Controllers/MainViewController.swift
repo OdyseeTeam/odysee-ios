@@ -249,10 +249,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         if let lazyPlayer = AppDelegate.shared.lazyPlayer {
             if lazyPlayer.rate == 0 {
                 lazyPlayer.play()
-                miniPlayerPlayPauseButton.image = UIImage(systemName: "pause.fill")
+                miniPlayerPlayPauseButton.image = UIImage(systemName: Icons.pause)
             } else {
                 lazyPlayer.pause()
-                miniPlayerPlayPauseButton.image = UIImage(systemName: "play.fill")
+                miniPlayerPlayPauseButton.image = UIImage(systemName: Icons.play)
             }
         }
     }

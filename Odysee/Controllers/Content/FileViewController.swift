@@ -2070,24 +2070,24 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     // show unfollow and bell icons
                     self.followLabel.isHidden = true
                     self.bellView.isHidden = false
-                    self.followUnfollowIconView.image = UIImage(systemName: "heart.slash.fill")
+                    self.followUnfollowIconView.image = UIImage(systemName: Icons.unfollow)
                     self.followUnfollowIconView.tintColor = UIColor.label
 
                     self.streamerFollowLabel.isHidden = true
                     self.streamerBellView.isHidden = false
-                    self.streamerFollowUnfollowIconView.image = UIImage(systemName: "heart.slash.fill")
+                    self.streamerFollowUnfollowIconView.image = UIImage(systemName: Icons.unfollow)
                     self.streamerFollowUnfollowIconView.tintColor = UIColor.label
                 }
             } else {
                 await MainActor.run {
                     self.followLabel.isHidden = false
                     self.bellView.isHidden = true
-                    self.followUnfollowIconView.image = UIImage(systemName: "heart")
+                    self.followUnfollowIconView.image = UIImage(systemName: Icons.follow)
                     self.followUnfollowIconView.tintColor = UIColor.systemRed
 
                     self.streamerFollowLabel.isHidden = false
                     self.streamerBellView.isHidden = true
-                    self.streamerFollowUnfollowIconView.image = UIImage(systemName: "heart")
+                    self.streamerFollowUnfollowIconView.image = UIImage(systemName: Icons.follow)
                     self.streamerFollowUnfollowIconView.tintColor = UIColor.systemRed
                 }
             }
@@ -2297,11 +2297,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if descriptionArea.isHidden {
             descriptionArea.isHidden = descriptionTextView.text.isBlank
             descriptionDivider.isHidden = descriptionTextView.text.isBlank
-            titleAreaIconView.image = UIImage(systemName: descriptionArea.isHidden ? "chevron.down" : "chevron.up")
+            titleAreaIconView.image = UIImage(systemName: descriptionArea.isHidden ? Icons.expand : Icons.shrink)
         } else {
             descriptionArea.isHidden = true
             descriptionDivider.isHidden = true
-            titleAreaIconView.image = UIImage(systemName: "chevron.down")
+            titleAreaIconView.image = UIImage(systemName: Icons.expand)
         }
     }
 
