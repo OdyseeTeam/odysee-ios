@@ -72,7 +72,7 @@ class ClaimTableViewCell: UITableViewCell {
         countStackView.isHidden = false
         durationView.isHidden = true
         countImageView.isHidden = viewerCount == 0
-        countImageView.image = UIImage(systemName: "eye.fill")
+        countImageView.image = UIImage(systemName: Icons.livestreamViewers)
         if viewerCount > 0 {
             countLabel.text = String(viewerCount)
         } else {
@@ -198,7 +198,7 @@ class ClaimTableViewCell: UITableViewCell {
             countLabel.text = "LIVE"
         } else if let playlistCount = actualClaim.value?.claims?.count {
             countStackView.isHidden = false
-            countImageView.image = UIImage(systemName: "play.square.stack")
+            countImageView.image = UIImage(systemName: Icons.claimCollection)
             countLabel.text = "\(playlistCount)"
         }
 
@@ -235,8 +235,7 @@ class ClaimTableViewCell: UITableViewCell {
         contentView.addSubview(reposterOverlay)
         reposterOverlay.isHidden = true
 
-        // TODO: arrow.trianglehead.2.clockwise.rotate.90 on iOS 18+
-        let imageView = UIImageView(image: UIImage(systemName: "arrow.triangle.2.circlepath"))
+        let imageView = UIImageView(image: UIImage(systemName: Icons.claimRepost))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.tintColor = .white
         reposterOverlay.addArrangedSubview(imageView)
@@ -290,7 +289,10 @@ class ClaimTableViewCell: UITableViewCell {
         if currentClaim?.valueType == ClaimType.collection,
            let collection = currentClaim?.asCollection(origin: .claim)
         {
-            elements.append(UIAction(title: __("View Playlist Details"), image: .init(systemName: "eye")) { _ in
+            elements.append(UIAction(
+                title: __("View Playlist Details"),
+                image: .init(systemName: Icons.playlistShowDetails)
+            ) { _ in
                 /// Workaround for having a back destination\
                 /// Not needed once this menu is in SwiftUI
                 struct PlaylistDetailScreenWrapper: View {
@@ -327,7 +329,8 @@ class ClaimTableViewCell: UITableViewCell {
                 AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
             })
         } else if currentClaim?.valueType == ClaimType.stream {
-            elements.append(UIAction(title: __("Add to Playlist"), image: .init(systemName: "plus")) { _ in
+            elements.append(UIAction(title: __("Add to Playlist"), image: .init(systemName: Icons.add)) { _ in
+                // FIXME: Implement
             })
         }
 

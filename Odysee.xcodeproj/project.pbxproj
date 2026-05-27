@@ -47,6 +47,7 @@
 		53AE21392F99B59B009939B2 /* PlaylistsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53B25D482FC5779500D91F8B /* ChannelPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B25D472FC5779500D91F8B /* ChannelPicker.swift */; };
+		53B25D4A2FC733F400D91F8B /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B25D492FC733F400D91F8B /* Icons.swift */; };
 		53B7E2012FA24B27001CCFD6 /* PlaylistDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B7E2002FA24B26001CCFD6 /* PlaylistDetailScreen.swift */; };
 		53B7E2032FA2507F001CCFD6 /* PlaylistDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B7E2022FA2507F001CCFD6 /* PlaylistDetailViewModel.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
@@ -207,6 +208,7 @@
 		53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsViewModel.swift; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53B25D472FC5779500D91F8B /* ChannelPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelPicker.swift; sourceTree = "<group>"; };
+		53B25D492FC733F400D91F8B /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
 		53B7E2002FA24B26001CCFD6 /* PlaylistDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailScreen.swift; sourceTree = "<group>"; };
 		53B7E2022FA2507F001CCFD6 /* PlaylistDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailViewModel.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -494,6 +496,7 @@
 				647EB3F125F54EB1003AA76B /* UIStackCardView.swift */,
 				645912212620789E00B2ABA5 /* ChatMessageTableViewCell.swift */,
 				53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */,
+				53B25D492FC733F400D91F8B /* Icons.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -964,6 +967,7 @@
 				641682D825ACBA7800BCDC3A /* CommentsViewController.swift in Sources */,
 				5391E4362EFE36C4008EF30A /* Wallet.swift in Sources */,
 				64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */,
+				53B25D4A2FC733F400D91F8B /* Icons.swift in Sources */,
 				5301F1C72F6A7F3A0033B54D /* WatchHistoryViewModel.swift in Sources */,
 				640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */,
 				CC3A1E7826853D7E00683E28 /* BackendAPIParams.swift in Sources */,

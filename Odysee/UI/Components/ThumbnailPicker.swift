@@ -40,7 +40,7 @@ struct ThumbnailPicker: View {
         .frame(width: imageWidth, height: imageWidth * 9 / 16, alignment: .center)
         .overlay(alignment: .bottom) {
             PhotosPicker(selection: $viewModel.imageSelection, matching: .images, photoLibrary: .shared()) {
-                Image(systemName: "pencil.circle.fill")
+                Image(systemName: Icons.editOverlay)
                     .symbolRenderingMode(.multicolor)
                     .font(.system(size: 30))
                     .foregroundColor(.black.opacity(0.5))

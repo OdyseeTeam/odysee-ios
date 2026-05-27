@@ -287,7 +287,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UIApplication.shared.isIdleTimerDisabled = lazyPlayer.rate != 0
 
         (mainViewController as? MainViewController)?.miniPlayerPlayPauseButton.image = UIImage(
-            systemName: lazyPlayer.rate == 0 ? "play.fill" : "pause.fill"
+            systemName: lazyPlayer.rate == 0 ? Icons.play : Icons.pause
         )
 
         let nowPlayingInfoCenter = MPNowPlayingInfoCenter.default()

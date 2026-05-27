@@ -172,7 +172,7 @@ struct SignInUpScreen: View {
             }
 
             if showClose {
-                Button("Close", systemImage: "xmark", role: .closeOrCancel, action: close)
+                Button("Close", systemImage: Icons.closeCancelSkip, role: .closeOrCancel, action: close)
                     .labelStyle(.iconOnly)
                     .padding(.trailing)
                     .padding(.top)

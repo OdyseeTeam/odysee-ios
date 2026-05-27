@@ -780,14 +780,14 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     // show unfollow and bell icons
                     self.followLabel.isHidden = true
                     self.bellView.isHidden = false
-                    self.followUnfollowIconView.image = UIImage(systemName: "heart.slash.fill")
+                    self.followUnfollowIconView.image = UIImage(systemName: Icons.unfollow)
                     self.followUnfollowIconView.tintColor = UIColor.label
                 }
             } else {
                 await MainActor.run {
                     self.followLabel.isHidden = false
                     self.bellView.isHidden = true
-                    self.followUnfollowIconView.image = UIImage(systemName: "heart")
+                    self.followUnfollowIconView.image = UIImage(systemName: Icons.follow)
                     self.followUnfollowIconView.tintColor = UIColor.systemRed
                 }
             }
@@ -801,9 +801,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
         Task {
             let (image, message) = if await Wallet.shared.isNotificationsDisabled(claim: channelClaim) {
-                ("bell.fill", "You will not receive notifications for this channel")
+                (Icons.enableNotifications, "You will not receive notifications for this channel")
             } else {
-                ("bell.slash.fill", "You will receive all notifications")
+                (Icons.disableNotifications, "You will receive all notifications")
             }
             await MainActor.run {
                 self.bellIconView.image = UIImage(systemName: image)

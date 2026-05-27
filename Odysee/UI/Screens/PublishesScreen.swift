@@ -57,7 +57,7 @@ struct PublishesScreen: View {
                         ForEach(model.claims) { claim in
                             ClaimListItem(claim: claim)
                                 .swipeActions(edge: .leading) {
-                                    Button("Edit", systemImage: "pencil") {
+                                    Button("Edit", systemImage: Icons.edit) {
                                         let vc = AppDelegate.shared.mainViewController?.storyboard?
                                             .instantiateViewController(
                                                 identifier: "publish_vc"
@@ -71,7 +71,7 @@ struct PublishesScreen: View {
                                     .tint(.blue)
                                 }
                                 .swipeActions {
-                                    Button("Delete", systemImage: "trash") {
+                                    Button("Delete", systemImage: Icons.delete) {
                                         toDelete = claim
                                     }
                                     // TODO: Make this an accessible destructive action, but without prematurely removing from the list

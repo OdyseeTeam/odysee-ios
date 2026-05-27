@@ -49,7 +49,7 @@ struct RewardVerificationScreen: View {
                 Spacer(minLength: 50)
 
                 HStack(alignment: .firstTextBaseline) {
-                    Image(systemName: "questionmark.circle")
+                    Image(systemName: Icons.rewardVerificationHelp)
                         .font(.headline)
 
                     VStack(alignment: .leading) {
@@ -78,7 +78,7 @@ struct RewardVerificationScreen: View {
                 .padding(.vertical)
 
                 HStack(alignment: .firstTextBaseline) {
-                    Image(systemName: "multiply")
+                    Image(systemName: Icons.closeCancelSkip)
                         .font(.headline)
 
                     VStack(alignment: .leading) {

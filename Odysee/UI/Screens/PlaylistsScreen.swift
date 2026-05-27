@@ -184,9 +184,9 @@ struct PlaylistsScreen: View {
                                         toDelete = collection
                                     } label: {
                                         if collection.origin == .saved {
-                                            Label("Unsave", systemImage: "minus.square")
+                                            Label("Unsave", systemImage: Icons.playlistUnsave)
                                         } else {
-                                            Label("Delete", systemImage: "trash")
+                                            Label("Delete", systemImage: Icons.delete)
                                         }
                                     }
                                     // TODO: Make this an accessible destructive action, but without prematurely removing from the list
@@ -201,7 +201,7 @@ struct PlaylistsScreen: View {
                 .refreshable(action: model.refresh)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
-                        Menu("Sort", systemImage: "arrow.up.arrow.down") {
+                        Menu("Sort", systemImage: Icons.sort) {
                             let pickerSelection = Binding<SortBy> {
                                 sortBy
                             } set: {
@@ -217,7 +217,7 @@ struct PlaylistsScreen: View {
                                         if type == sortBy {
                                             Label(
                                                 type.rawValue.capitalized,
-                                                systemImage: sortAsc ? "chevron.up" : "chevron.down"
+                                                systemImage: sortAsc ? Icons.ascending : Icons.descending
                                             )
                                         } else {
                                             Text(type.rawValue.capitalized)
@@ -230,7 +230,7 @@ struct PlaylistsScreen: View {
                     }
 
                     ToolbarItem(placement: .topBarLeading) {
-                        Menu("Filter", systemImage: "line.3.horizontal.decrease") {
+                        Menu("Filter", systemImage: Icons.filter) {
                             Picker("Filter By", selection: $filterBy) {
                                 ForEach(FilterBy.allCases) { type in
                                     Text(type.rawValue.capitalized)
@@ -241,7 +241,7 @@ struct PlaylistsScreen: View {
                     }
 
                     ToolbarItem(placement: .topBarLeading) {
-                        Button("New Playlist", systemImage: "plus") {
+                        Button("New Playlist", systemImage: Icons.add) {
                             showingNewPlaylist = true
                         }
                     }

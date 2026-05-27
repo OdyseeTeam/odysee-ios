@@ -54,7 +54,7 @@ struct ClaimListItem: View {
                     Group {
                         switch claim.valueType ?? .stream {
                         case .channel:
-                            Text("\(Image(systemName: "at"))")
+                            Text("\(Image(systemName: Icons.claimChannel))")
                         case .stream:
                             if let duration = claim.value?.video?.duration ?? claim.value?.audio?.duration {
                                 let durationText = if duration < 60 {
@@ -63,35 +63,33 @@ struct ClaimListItem: View {
                                     Helper.durationFormatter.string(from: TimeInterval(duration)) ?? ""
                                 }
 
-                                Text("\(durationText) \(Image(systemName: "video"))")
+                                Text("\(durationText) \(Image(systemName: Icons.claimVideo))")
                             } else {
                                 if claim.valueType == .stream && claim.value?.source == nil {
                                     // Livestream
-                                    Text("\(Image(systemName: "web.camera"))")
+                                    Text("\(Image(systemName: Icons.claimLivestream))")
                                     // FIXME: add datetime
                                 } else {
                                     let typeImage = switch claim.value?.source?.mediaType?.split(separator: "/").first {
                                     case "image":
-                                        Image(systemName: "photo")
+                                        Image(systemName: Icons.claimImage)
                                     case "audio":
-                                        Image(systemName: "headphones")
+                                        Image(systemName: Icons.claimAudio)
                                     case "video":
-                                        Image(systemName: "video")
+                                        Image(systemName: Icons.claimVideo)
                                     case "text":
-                                        Image(systemName: "text.document")
+                                        Image(systemName: Icons.claimDocument)
                                     default:
-                                        Image(systemName: "arrow.down")
+                                        Image(systemName: Icons.claimOther)
                                     }
 
                                     Text("\(typeImage)")
                                 }
                             }
                         case .repost:
-                            // TODO: arrow.trianglehead.2.clockwise.rotate.90 on iOS 18+
-                            Text("\(Image(systemName: "arrow.triangle.2.circlepath"))")
+                            Text("\(Image(systemName: Icons.claimRepost))")
                         case .collection:
-                            // FIXME: play.square.stack replace with list.and.film on iOS <16.1
-                            let playlistImage = Image(systemName: "play.square.stack")
+                            let playlistImage = Image(systemName: Icons.claimCollection)
 
                             if let count = claim.value?.claims?.count {
                                 Text("\(playlistImage) \(count)")

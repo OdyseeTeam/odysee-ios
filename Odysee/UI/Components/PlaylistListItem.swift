@@ -104,7 +104,7 @@ struct PlaylistListItem: View {
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         if collection.origin == .edited {
-                            Image(systemName: "icloud.and.arrow.up")
+                            Image(systemName: Icons.publish)
                                 .tint(.primary)
                         }
 
@@ -116,7 +116,7 @@ struct PlaylistListItem: View {
                         if collection.count > 0 {
                             Spacer()
 
-                            Button("Play", systemImage: "play.circle") {
+                            Button("Play", systemImage: Icons.playlistPlay) {
                                 Helper.openFileVc(collection.asClaim)
                             }
                             .font(.system(size: 24))
@@ -144,12 +144,12 @@ struct PlaylistListItem: View {
                     Spacer(minLength: 0)
 
                     HStack {
-                        Text("\(Image(systemName: "play.square.stack")) \(collection.count)")
+                        Text("\(Image(systemName: Icons.claimCollection)) \(collection.count)")
 
                         if collection.isPublic {
-                            Text("\(Image(systemName: "eye")) Public")
+                            Text("\(Image(systemName: Icons.public)) Public")
                         } else {
-                            Text("\(Image(systemName: "lock")) Private")
+                            Text("\(Image(systemName: Icons.private)) Private")
                         }
                     }
 

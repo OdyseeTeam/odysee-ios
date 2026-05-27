@@ -8,6 +8,7 @@
 import SwiftUI
 import WrappingHStack
 
+// FIXME: Add button to play playlist from here
 struct PlaylistDetailScreen: View {
     @StateObject private var model: ViewModel = .init()
     @EnvironmentObject private var playlistsModel: PlaylistsScreen.ViewModel
@@ -67,12 +68,12 @@ struct PlaylistDetailScreen: View {
                                 }
 
                                 WrappingHStack(spacing: .dynamic(minSpacing: 0), lineSpacing: 8) {
-                                    Text("\(Image(systemName: "play.square.stack")) \(collection.count)")
+                                    Text("\(Image(systemName: Icons.claimCollection)) \(collection.count)")
 
                                     if collection.isPublic {
-                                        Text("\(Image(systemName: "eye")) Public")
+                                        Text("\(Image(systemName: Icons.public)) Public")
                                     } else {
-                                        Text("\(Image(systemName: "lock")) Private")
+                                        Text("\(Image(systemName: Icons.private)) Private")
                                     }
 
                                     Spacer()
@@ -90,11 +91,11 @@ struct PlaylistDetailScreen: View {
 
                                 if collection.origin == .edited {
                                     WrappingHStack(spacing: .dynamic(minSpacing: 0), lineSpacing: 8) {
-                                        Button("Publish Updates", systemImage: "icloud.and.arrow.up") {
+                                        Button("Publish Updates", systemImage: Icons.publish) {
                                             publishing = true
                                         }
 
-                                        Button("Clear Updates", systemImage: "arrow.triangle.2.circlepath") {
+                                        Button("Clear Updates", systemImage: Icons.playlistClearUpdates) {
                                             showingCancelUpdates = true
                                         }
                                     }
@@ -149,12 +150,12 @@ struct PlaylistDetailScreen: View {
                                 wasEditingDetails = true
                             }
                         } else {
-                            Menu("More", systemImage: "ellipsis") {
+                            Menu("More", systemImage: Icons.more) {
                                 if Wallet.isCollectionSaved(
                                     collection: collection,
                                     for: model.walletSavedCollectionIds
                                 ) {
-                                    Button("Unsave", systemImage: "minus.square", role: .destructive) {
+                                    Button("Unsave", systemImage: Icons.playlistUnsave, role: .destructive) {
                                         Task {
                                             await Wallet.shared.removeSavedCollection(collection: collection)
 
@@ -164,7 +165,7 @@ struct PlaylistDetailScreen: View {
                                         }
                                     }
                                 } else if collection.origin == .claim {
-                                    Button("Save", systemImage: "plus.square") {
+                                    Button("Save", systemImage: Icons.playlistSave) {
                                         Task {
                                             await Wallet.shared.addSavedCollection(collection: collection)
 
@@ -179,12 +180,12 @@ struct PlaylistDetailScreen: View {
                                 }
 
                                 if collection.origin == .unpublished {
-                                    Button("Publish", systemImage: "icloud.and.arrow.up") {
+                                    Button("Publish", systemImage: Icons.publish) {
                                         publishing = true
                                     }
                                 }
 
-                                Button("Copy", systemImage: "square.on.square") {
+                                Button("Copy", systemImage: Icons.copy) {
                                     newPlaylistTitle = "\(collection.titleOrName) (copy)"
                                     showingCopy = true
                                 }
@@ -194,9 +195,9 @@ struct PlaylistDetailScreen: View {
                                         showingDelete = true
                                     } label: {
                                         if collection.origin == .saved {
-                                            Label("Unsave", systemImage: "minus.square")
+                                            Label("Unsave", systemImage: Icons.playlistUnsave)
                                         } else {
-                                            Label("Delete", systemImage: "trash")
+                                            Label("Delete", systemImage: Icons.delete)
                                         }
                                     }
                                 }

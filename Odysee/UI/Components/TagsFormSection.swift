@@ -54,7 +54,7 @@ struct TagsFormSection: View {
                     } label: {
                         HStack {
                             Spacer()
-                            Image(systemName: "xmark")
+                            Image(systemName: Icons.remove)
                         }
                     }
                     .accessibilityHint("Remove")
@@ -76,7 +76,7 @@ struct TagsFormSection: View {
                     } label: {
                         HStack {
                             Spacer()
-                            Image(systemName: "plus")
+                            Image(systemName: Icons.add)
                         }
                     }
                     .disabled(tag.starts(with: Constants.InternalTagPrefix) || tags.contains(tag))
