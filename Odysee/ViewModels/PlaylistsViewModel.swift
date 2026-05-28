@@ -136,6 +136,7 @@ extension PlaylistsScreen {
                         try await collectionListAll()
                     } catch {
                         Helper.showError(message: "Error removing uploaded playlist: \(error.localizedDescription)")
+                        return
                     }
                 case .builtin,
                      .claim,
@@ -143,7 +144,7 @@ extension PlaylistsScreen {
                     break
                 }
 
-                if publishedKeepPrivate {
+                if publishedKeepPrivate && collection.isPublished {
                     var collection = collection
 
                     collection.collectionId = UUID().uuidString
@@ -180,7 +181,7 @@ extension PlaylistsScreen {
             var collections = SharedPreference.CollectionGroup()
 
             // Limit in case of failure to break
-            for page in 0 ... 999 {
+            for page in 1 ... 999 {
                 let published = try await BackendMethods.collectionList.call(params: .init(
                     resolve: true,
                     page: page,
@@ -213,7 +214,7 @@ extension PlaylistsScreen {
             }
 
             // Limit in case of failure to break
-            for page in 0 ... 999 {
+            for page in 1 ... 999 {
                 let claimSearch = try await BackendMethods.claimSearch.call(params: .init(
                     page: page,
                     pageSize: Self.pageSize,

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PlaylistsScreen: View {
-    @StateObject var model: ViewModel = .init()
+    @StateObject private var model: ViewModel = .init()
 
     // FIXME: Localize
     private enum SortBy: String, CaseIterable, Identifiable {
@@ -101,16 +101,18 @@ struct PlaylistsScreen: View {
         }
 
         return searched.sorted {
+            let compare: (Int, Int) -> Bool = sortAsc ? (<) : (>)
+
             let result = switch sortBy {
             case .name:
-                $0.titleOrName.localizedCompare($1.titleOrName) == .orderedAscending
+                $0.titleOrName.localizedCompare($1.titleOrName) == (sortAsc ? .orderedAscending : .orderedDescending)
             case .updated:
-                $0.updatedAt < $1.updatedAt
+                compare($0.updatedAt, $1.updatedAt)
             case .videoCount:
-                $0.count < $1.count
+                compare($0.count, $1.count)
             }
 
-            return sortAsc ? result : !result
+            return result
         }
     }
 

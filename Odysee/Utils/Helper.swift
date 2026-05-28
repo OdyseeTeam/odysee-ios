@@ -250,10 +250,10 @@ enum Helper {
 
     private struct ThumbnailUploadResult: Decodable {
         var type: String
-        var url: String
+        var url: URL
     }
 
-    static func uploadImage(image: UIImage) async throws -> String {
+    static func uploadImage(image: UIImage) async throws -> URL {
         var mimeType: String?
         var imageData: Data?
         var filename: String?

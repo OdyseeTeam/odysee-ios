@@ -42,6 +42,9 @@ struct ChannelPicker: View {
                             self.channels = channels + [Claim.anonymous]
                         } catch {
                             Helper.showError(message: __("Error loading channels: \(error.localizedDescription)"))
+
+                            channel = Claim.anonymous
+                            channels = [channel]
                         }
                     }
                 }

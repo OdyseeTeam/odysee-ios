@@ -235,7 +235,7 @@ extension SharedPreference.Collection {
 
         claim.claimId = collectionId
         claim.value?.title = titleOrName
-        claim.value?.claims = items.uris.compactMap(\.streamClaimId)
+        claim.value?.claims = items.claimIds ?? items.uris.compactMap(\.streamClaimId)
         claim.valueType = .collection
 
         return claim

@@ -30,7 +30,7 @@ struct PlaylistDetailForm: View {
     @Environment(\.editMode) private var editMode
 
     private func sanitize(_ value: String) -> String {
-        let range = NSMakeRange(0, value.count)
+        let range = NSRange(value.startIndex..., in: value)
         return LbryUri.regexInvalidUri.stringByReplacingMatches(
             in: value,
             options: [],
@@ -92,8 +92,8 @@ struct PlaylistDetailForm: View {
                 if #available(iOS 16, *) {
                     Section("Thumbnail (Optional)") {
                         ZStack {
-                            ThumbnailPicker(imageWidth: 320) { urlString in
-                                collection.thumbnail = .init(url: URL(string: urlString))
+                            ThumbnailPicker(imageWidth: 320, defaultImage: collection.thumbnail?.url) { url in
+                                collection.thumbnail = .init(url: url)
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .center)

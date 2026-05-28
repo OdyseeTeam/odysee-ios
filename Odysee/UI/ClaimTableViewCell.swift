@@ -352,7 +352,7 @@ class ClaimTableViewCell: UITableViewCell {
 
                                             do {
                                                 // Limit in case of failure to break
-                                                for page in 0 ... 999 {
+                                                for page in 1 ... 999 {
                                                     let claimSearch = try await BackendMethods.claimSearch
                                                         .call(params: .init(
                                                             page: page,
@@ -360,9 +360,7 @@ class ClaimTableViewCell: UITableViewCell {
                                                             claimIds: claimIds,
                                                         ))
 
-                                                    claims.append(contentsOf: claimSearch.items.sorted(
-                                                        like: claimIds, keyPath: \.claimId, transform: \.self
-                                                    ))
+                                                    claims.append(contentsOf: claimSearch.items)
 
                                                     if claimSearch.isLastPage {
                                                         break
@@ -376,6 +374,7 @@ class ClaimTableViewCell: UITableViewCell {
                                             }
 
                                             uris = claims
+                                                .sorted(like: claimIds, keyPath: \.claimId, transform: \.self)
                                                 .compactMap(\.permanentUrl)
                                                 .compactMap { LbryUri.tryParse(url: $0, requireProto: true) }
                                         }

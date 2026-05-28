@@ -82,6 +82,10 @@ actor Wallet {
 
         following = nil
         blocked = nil
+        builtinCollections = [:]
+        editedCollections = [:]
+        savedCollectionIds = []
+        unpublishedCollections = [:]
         defaultChannelId = nil
     }
 
@@ -362,7 +366,7 @@ extension Wallet {
     }
 
     func addSavedCollection(collection: SharedPreference.Collection) {
-        guard collection.origin == .claim else {
+        guard collection.origin == .claim, !savedCollectionIds.contains(collection.collectionId) else {
             return
         }
 

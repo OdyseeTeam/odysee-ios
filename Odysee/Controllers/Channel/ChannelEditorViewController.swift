@@ -343,16 +343,16 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             thumbnailImageView.backgroundColor = UIColor.clear
         }
 
-        imageUploadInProgress = true
-        uploadingIndicator.isHidden = false
-        defer {
-            imageUploadInProgress = false
-            uploadingIndicator.isHidden = true
-        }
-
         Task {
+            imageUploadInProgress = true
+            uploadingIndicator.isHidden = false
+            defer {
+                imageUploadInProgress = false
+                uploadingIndicator.isHidden = true
+            }
+
             do {
-                let imageUrl = try await Helper.uploadImage(image: image)
+                let imageUrl = try await Helper.uploadImage(image: image).absoluteString
 
                 if selectingCover {
                     currentCoverUrl = imageUrl

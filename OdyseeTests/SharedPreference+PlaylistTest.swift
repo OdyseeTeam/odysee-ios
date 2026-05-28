@@ -69,16 +69,20 @@ struct SharedPreference_PlaylistTest {
     }
 
     @Test func `Encode Tags`() throws {
+        let testTags = ["a", "b", "c"]
+
         let collection = SharedPreference.Collection(
             id: "abc",
             name: "abc",
-            tags: ["a", "b", "c"],
+            tags: testTags,
             type: .playlist,
             updatedAt: 0
         )
 
-        let json = try #require(try String(data: JSONEncoder().encode(collection), encoding: .utf8))
+        let data = try JSONEncoder().encode(collection)
+        let object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let tags = try #require(object["tags"] as? [[String: String]])
 
-        #expect(json.contains(#""tags":[{"name":"a"},{"name":"b"},{"name":"c"}]"#))
+        #expect(tags.compactMap(\.["name"]).elementsEqual(testTags))
     }
 }

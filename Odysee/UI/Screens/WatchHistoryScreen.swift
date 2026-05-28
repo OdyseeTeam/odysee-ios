@@ -97,6 +97,7 @@ struct WatchHistoryScreen: View {
 }
 
 #Preview {
+    // FIXME: @StateObject must be private
     WatchHistoryScreen(model: .init(claims: [
         .init(
             name: "claim",

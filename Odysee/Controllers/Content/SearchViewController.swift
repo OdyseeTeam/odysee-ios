@@ -107,7 +107,7 @@ class SearchViewController: UIViewController,
         }
 
         var sanitisedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        let range = NSMakeRange(0, sanitisedQuery.count)
+        let range = NSRange(sanitisedQuery.startIndex..., in: sanitisedQuery)
         sanitisedQuery = LbryUri.regexInvalidUri.stringByReplacingMatches(
             in: sanitisedQuery,
             options: [],

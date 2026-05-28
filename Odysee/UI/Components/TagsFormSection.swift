@@ -7,10 +7,6 @@
 
 import SwiftUI
 
-extension String: @retroactive Identifiable {
-    public var id: String { self }
-}
-
 struct TagsFormSection: View {
     var limit: Int = 5
 
@@ -32,7 +28,7 @@ struct TagsFormSection: View {
         let searched = if searchTag.isBlank {
             toSearch
         } else {
-            [searchTag] + toSearch.filter { $0.contains(searchTag) }
+            [searchTag] + toSearch.filter { $0 != searchTag && $0.contains(searchTag) }
         }
 
         return searched.prefix(limit)
@@ -45,7 +41,7 @@ struct TagsFormSection: View {
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityHeading(.h2)
 
-            ForEach(displayedTags) { tag in
+            ForEach(displayedTags, id: \.self) { tag in
                 HStack {
                     Text(tag)
 
@@ -67,7 +63,7 @@ struct TagsFormSection: View {
                 .textInputAutocapitalization(.never)
                 .onSubmit(submit)
 
-            ForEach(searchedTags) { tag in
+            ForEach(searchedTags, id: \.self) { tag in
                 HStack {
                     Text(tag)
 

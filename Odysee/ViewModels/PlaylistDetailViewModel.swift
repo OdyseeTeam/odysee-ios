@@ -46,21 +46,21 @@ extension PlaylistDetailScreen {
             claims.removeAll(keepingCapacity: true)
 
             // Limit in case of failure to break
-            for page in 0 ... 999 {
+            for page in 1 ... 999 {
                 let claimSearch = try await BackendMethods.claimSearch.call(params: .init(
                     page: page,
                     pageSize: Self.pageSize,
                     claimIds: playlistClaims,
                 ))
 
-                claims.append(contentsOf: claimSearch.items.sorted(
-                    like: playlistClaims, keyPath: \.claimId, transform: \.self
-                ))
+                claims.append(contentsOf: claimSearch.items)
 
                 if claimSearch.isLastPage {
                     break
                 }
             }
+
+            claims = claims.sorted(like: playlistClaims, keyPath: \.claimId, transform: \.self)
         }
 
         func move(from source: IndexSet, to destination: Int) {

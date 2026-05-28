@@ -5,32 +5,52 @@
 //  Created by Keith Toh on 09/05/2026.
 //
 
+import CachedAsyncImage
 import CoreTransferable
 import Foundation
 import PhotosUI
 import SwiftUI
 
+// FIXME: Disable Save when picking/uploading in progress
 @available(iOS 16, *)
 struct ThumbnailPicker: View {
-    @StateObject var viewModel: ViewModel = .init()
-
     var imageWidth: Double
 
-    var action: (String) -> Void
+    var defaultImage: URL?
+
+    typealias Action = (URL) -> Void
+    var action: Action
+
+    @StateObject private var model: ViewModel = .init()
+
+    private var placeholder: some View {
+        Image("spaceman")
+            .resizable().scaledToFit()
+            .frame(width: imageWidth)
+            .padding()
+            .background(Color("light_primary"))
+            .accessibilityHidden(true)
+    }
 
     var body: some View {
         Group {
-            switch viewModel.imageState {
+            switch model.imageState {
             case let .success(thumbnailImage):
-                let _ = action(thumbnailImage.urlString)
                 thumbnailImage.image.resizable().scaledToFit()
             case .empty:
-                Image("spaceman")
-                    .resizable().scaledToFit()
-                    .frame(width: imageWidth)
-                    .padding()
-                    .background(Color("light_primary"))
-                    .accessibilityHidden(true)
+                if let defaultImage {
+                    CachedAsyncImage(url: defaultImage) { phase in
+                        if let image = phase.image {
+                            image.resizable().scaledToFit()
+                        } else if phase.error != nil {
+                            placeholder
+                        } else {
+                            ProgressView()
+                        }
+                    }
+                } else {
+                    placeholder
+                }
             case .loading:
                 ProgressView()
             case .failure:
@@ -39,12 +59,15 @@ struct ThumbnailPicker: View {
         }
         .frame(width: imageWidth, height: imageWidth * 9 / 16, alignment: .center)
         .overlay(alignment: .bottom) {
-            PhotosPicker(selection: $viewModel.imageSelection, matching: .images, photoLibrary: .shared()) {
+            PhotosPicker(selection: $model.imageSelection, matching: .images, photoLibrary: .shared()) {
                 Image(systemName: Icons.editOverlay)
                     .symbolRenderingMode(.multicolor)
                     .font(.system(size: 30))
                     .foregroundColor(.black.opacity(0.5))
             }
+        }
+        .onAppear {
+            model.action = action
         }
     }
 
@@ -61,7 +84,7 @@ struct ThumbnailPicker: View {
 
     struct ThumbnailImage: Transferable {
         let image: Image
-        let urlString: String
+        let url: URL
 
         static var transferRepresentation: some TransferRepresentation {
             DataRepresentation(importedContentType: .image) { data in
@@ -72,13 +95,15 @@ struct ThumbnailPicker: View {
                 let imageUrl = try await Helper.uploadImage(image: uiImage)
 
                 let image = Image(uiImage: uiImage)
-                return ThumbnailImage(image: image, urlString: imageUrl)
+                return ThumbnailImage(image: image, url: imageUrl)
             }
         }
     }
 
     @MainActor
     class ViewModel: ObservableObject {
+        var action: Action?
+
         @Published private(set) var inProgress: Bool = false
 
         @Published private(set) var imageState: ImageState = .empty
@@ -100,6 +125,7 @@ struct ThumbnailPicker: View {
 
                             if let image {
                                 imageState = .success(image)
+                                action?(image.url)
                             } else {
                                 imageState = .empty
                             }

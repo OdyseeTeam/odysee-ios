@@ -307,22 +307,22 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
             return
         }
 
-        thumbnailUploadInProgress = true
-        uploadingIndicator.isHidden = false
-        defer {
-            thumbnailUploadInProgress = false
-            uploadingIndicator.isHidden = true
-
-            if generated {
-                thumbnailGenerated = true
-            }
-        }
-
-        thumbnailImageView.image = image
-
         Task {
+            thumbnailUploadInProgress = true
+            uploadingIndicator.isHidden = false
+            defer {
+                thumbnailUploadInProgress = false
+                uploadingIndicator.isHidden = true
+
+                if generated {
+                    thumbnailGenerated = true
+                }
+            }
+
+            thumbnailImageView.image = image
+
             do {
-                let imageUrl = try await Helper.uploadImage(image: image)
+                let imageUrl = try await Helper.uploadImage(image: image).absoluteString
                 currentThumbnailUrl = imageUrl
             } catch {
                 showError(error: error)
