@@ -284,7 +284,7 @@ class ClaimTableViewCell: UITableViewCell {
     }
 
     var menu: UIContextMenuConfiguration? {
-        var elements: [UIMenuElement] = []
+        var elements = [UIMenuElement]()
 
         if currentClaim?.valueType == ClaimType.collection,
            let collection = currentClaim?.asCollection(origin: .claim)
@@ -328,10 +328,153 @@ class ClaimTableViewCell: UITableViewCell {
                 let vc = UIHostingController(rootView: PlaylistDetailScreenWrapper(collection: collection))
                 AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
             })
-        } else if currentClaim?.valueType == ClaimType.stream {
-            elements.append(UIAction(title: __("Add to Playlist"), image: .init(systemName: Icons.add)) { _ in
-                // FIXME: Implement
-            })
+        } else if currentClaim?.valueType == ClaimType.stream,
+                  ["audio", "video"].contains(currentClaim?.value?.streamType)
+        {
+            elements.append(UIMenu(
+                title: __("Add to Playlist"), image: .init(systemName: Icons.add),
+                children: [
+                    UIDeferredMenuElement.uncached { completion in
+                        Task {
+                            @MainActor func handler(_ collection: SharedPreference.Collection) -> UIActionHandler {
+                                { _ in
+                                    Task {
+                                        guard let permanentUrl = self.currentClaim?.permanentUrl,
+                                              let uri = LbryUri.tryParse(url: permanentUrl, requireProto: true)
+                                        else {
+                                            Helper.showError(message: "Error getting claim details")
+                                            return
+                                        }
+
+                                        var uris = collection.items.uris
+                                        if let claimIds = collection.items.claimIds {
+                                            var claims = [Claim]()
+
+                                            do {
+                                                // Limit in case of failure to break
+                                                for page in 0 ... 999 {
+                                                    let claimSearch = try await BackendMethods.claimSearch
+                                                        .call(params: .init(
+                                                            page: page,
+                                                            pageSize: PlaylistDetailScreen.ViewModel.pageSize,
+                                                            claimIds: claimIds,
+                                                        ))
+
+                                                    claims.append(contentsOf: claimSearch.items.sorted(
+                                                        like: claimIds, keyPath: \.claimId, transform: \.self
+                                                    ))
+
+                                                    if claimSearch.isLastPage {
+                                                        break
+                                                    }
+                                                }
+                                            } catch {
+                                                Helper.showError(
+                                                    message: "Error loading playlist claims, please try again later: \(error)"
+                                                )
+                                                return
+                                            }
+
+                                            uris = claims
+                                                .compactMap(\.permanentUrl)
+                                                .compactMap { LbryUri.tryParse(url: $0, requireProto: true) }
+                                        }
+
+                                        uris.append(uri)
+
+                                        var collection = collection
+                                        collection.items.uris = uris
+
+                                        await PlaylistDetailScreen.ViewModel.saveCollection(collection)
+                                        await Wallet.shared.queuePushSync()
+
+                                        Helper.showMessage(message: "Added to \(collection.titleOrName)")
+                                    }
+                                }
+                            }
+
+                            var actions = [UIMenuElement]()
+
+                            let builtinMenu = UIMenu(
+                                title: "", options: .displayInline,
+                                children: await Wallet.shared.builtinCollections.values.map {
+                                    UIAction(title: $0.titleOrName, handler: handler($0))
+                                }
+                            )
+
+                            actions.append(builtinMenu)
+
+                            actions.append(UIMenu(title: "", options: .displayInline, children: [
+                                UIAction(title: __("New Playlist")) { _ in
+                                    let alert = UIAlertController(
+                                        title: __("Create a Playlist"),
+                                        message: nil,
+                                        preferredStyle: .alert
+                                    )
+
+                                    alert.addTextField { textField in
+                                        textField.placeholder = __("New Playlist Title")
+                                    }
+
+                                    alert.addAction(UIAlertAction(title: __("Confirm"), style: .default) { _ in
+                                        Task {
+                                            guard let permanentUrl = self.currentClaim?.permanentUrl,
+                                                  let uri = LbryUri.tryParse(url: permanentUrl, requireProto: true)
+                                            else {
+                                                Helper.showError(message: "Error getting claim details")
+                                                return
+                                            }
+
+                                            guard let title = alert.textFields?.first?.text else {
+                                                Helper
+                                                    .showError(message: "Couldn't get playlist title, please try again")
+                                                return
+                                            }
+
+                                            var collection = PlaylistsScreen.ViewModel.newPlaylist(title: title)
+                                            collection.items.uris = [uri]
+
+                                            await PlaylistDetailScreen.ViewModel.saveCollection(collection)
+                                            await Wallet.shared.queuePushSync()
+
+                                            Helper.showMessage(message: "Added to \(collection.titleOrName)")
+                                        }
+                                    })
+
+                                    UIApplication.currentViewController()?.present(alert, animated: true)
+                                }
+                            ]))
+
+                            var playlists = await Wallet.shared.unpublishedCollections.items
+                            do {
+                                var published = try await PlaylistsScreen.ViewModel.collectionListAll()
+
+                                for var edited in await Wallet.shared.editedCollections.items {
+                                    if let original = published[edited.collectionId] {
+                                        edited.originalClaim = original.originalClaim
+                                        published[edited.collectionId] = edited
+                                    }
+                                }
+
+                                playlists.append(contentsOf: published.items)
+                            } catch {
+                                Helper.showError(
+                                    message: "Error fetching public playlists: \(error.localizedDescription)"
+                                )
+                            }
+                            playlists.sort {
+                                $0.updatedAt > $1.updatedAt
+                            }
+
+                            actions.append(contentsOf: playlists.map {
+                                UIAction(title: $0.titleOrName, handler: handler($0))
+                            })
+
+                            completion(actions)
+                        }
+                    }
+                ]
+            ))
         }
 
         guard elements.count > 0 else {

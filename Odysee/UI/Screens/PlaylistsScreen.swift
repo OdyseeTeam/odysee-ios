@@ -71,7 +71,7 @@ struct PlaylistsScreen: View {
                 published[edited.collectionId] = edited
             }
         }
-        let publishedCollections = Array(published.values)
+        let publishedCollections = published.items
 
         let editedCollections = model.editedCollections.map {
             var collection = $0
@@ -268,7 +268,8 @@ struct PlaylistsScreen: View {
                             Button("Cancel", role: .cancel) {}
                         } message: {
                             Text(
-                                "You will be able to add content to this playlist using the Save button while viewing content."
+                                // FIXME: "You will be able to add content to this playlist using the Save button while viewing content."
+                                "You will be able to add content to this playlist by long-pressing on videos (home/search results/recommended)"
                             )
                         }
                     } else {
@@ -279,7 +280,8 @@ struct PlaylistsScreen: View {
                                     .padding(.bottom)
 
                                 Text(
-                                    "You will be able to add content to this playlist using the Save button while viewing content."
+                                    // FIXME: "You will be able to add content to this playlist using the Save button while viewing content."
+                                    "You will be able to add content to this playlist by long-pressing on videos (home/search results/recommended)"
                                 )
 
                                 TextField("New Playlist Title", text: $newPlaylistTitle)

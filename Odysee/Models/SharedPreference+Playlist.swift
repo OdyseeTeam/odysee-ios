@@ -199,6 +199,12 @@ extension SharedPreference {
     }
 }
 
+extension SharedPreference.CollectionGroup {
+    var items: [SharedPreference.Collection] {
+        Array(values)
+    }
+}
+
 // MARK: - Setting Metadata
 
 extension SharedPreference.CollectionGroup {
@@ -225,14 +231,14 @@ extension SharedPreference.Collection: Identifiable {
 
 extension SharedPreference.Collection {
     var asClaim: Claim {
-        originalClaim ?? Claim(
-            claimId: collectionId,
-            value: .init(
-                title: titleOrName,
-                claims: items.uris.compactMap(\.streamClaimId),
-            ),
-            valueType: .collection,
-        )
+        var claim = originalClaim ?? Claim(value: .init())
+
+        claim.claimId = collectionId
+        claim.value?.title = titleOrName
+        claim.value?.claims = items.uris.compactMap(\.streamClaimId)
+        claim.valueType = .collection
+
+        return claim
     }
 }
 

@@ -8,7 +8,7 @@
 import SwiftUI
 import WrappingHStack
 
-// FIXME: Add button to play playlist from here
+// TODO: Add button to play playlist from this screen
 struct PlaylistDetailScreen: View {
     @StateObject private var model: ViewModel = .init()
     @EnvironmentObject private var playlistsModel: PlaylistsScreen.ViewModel
@@ -233,6 +233,7 @@ struct PlaylistDetailScreen: View {
                     PlaylistDetailForm(collection: collection, mode: .publishing(publish: { collection in
                         await model.publish(collection: collection)
                         do {
+                            // Reload so the published collection is visible in the list
                             try await playlistsModel.collectionListAll()
                         } catch {
                             Helper.showError(error: error)

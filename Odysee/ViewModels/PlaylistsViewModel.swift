@@ -37,26 +37,26 @@ extension PlaylistsScreen {
             }
 
             Task<Void, Never> {
-                builtinCollections = Array(await Wallet.shared.builtinCollections.values)
+                builtinCollections = await Wallet.shared.builtinCollections.items
 
                 for await newBuiltinCollections in await Wallet.shared.$builtinCollections {
-                    builtinCollections = Array(newBuiltinCollections.values)
+                    builtinCollections = newBuiltinCollections.items
                 }
             }
 
             Task<Void, Never> {
-                editedCollections = Array(await Wallet.shared.editedCollections.values)
+                editedCollections = await Wallet.shared.editedCollections.items
 
                 for await newEditedCollections in await Wallet.shared.$editedCollections {
-                    editedCollections = Array(newEditedCollections.values)
+                    editedCollections = newEditedCollections.items
                 }
             }
 
             Task<Void, Never> {
-                unpublishedCollections = Array(await Wallet.shared.unpublishedCollections.values)
+                unpublishedCollections = await Wallet.shared.unpublishedCollections.items
 
                 for await newUnpublishedCollections in await Wallet.shared.$unpublishedCollections {
-                    unpublishedCollections = Array(newUnpublishedCollections.values)
+                    unpublishedCollections = newUnpublishedCollections.items
                 }
             }
 
@@ -82,8 +82,8 @@ extension PlaylistsScreen {
             do {
                 try await Wallet.shared.pullSync()
 
-                builtinCollections = Array(await Wallet.shared.builtinCollections.values)
-                unpublishedCollections = Array(await Wallet.shared.unpublishedCollections.values)
+                builtinCollections = await Wallet.shared.builtinCollections.items
+                unpublishedCollections = await Wallet.shared.unpublishedCollections.items
 
                 try await collectionListAll()
                 try await collectionClaimSearch(await Wallet.shared.savedCollectionIds)
@@ -93,18 +93,22 @@ extension PlaylistsScreen {
         }
 
         func createNewPlaylist(title: String) async {
-            let now = Int(Date().timeIntervalSince1970)
+            await Wallet.shared.addOrSetUnpublished(collection: Self.newPlaylist(title: title))
 
-            await Wallet.shared.addOrSetUnpublished(collection: .init(
+            await Wallet.shared.queuePushSync()
+        }
+
+        static func newPlaylist(title: String) -> SharedPreference.Collection {
+            let now = Int(Date().timeIntervalSince1970)
+            return .init(
                 id: UUID().uuidString,
                 name: title,
                 title: title,
                 type: .playlist,
                 createdAt: now,
                 updatedAt: now,
-            ))
-
-            await Wallet.shared.queuePushSync()
+                origin: .unpublished,
+            )
         }
 
         func delete(collection: SharedPreference.Collection, publishedKeepPrivate: Bool = false) {
@@ -169,7 +173,11 @@ extension PlaylistsScreen {
         }
 
         func collectionListAll() async throws {
-            publishedCollections.removeAll(keepingCapacity: true)
+            publishedCollections = try await Self.collectionListAll()
+        }
+
+        static func collectionListAll() async throws -> SharedPreference.CollectionGroup {
+            var collections = SharedPreference.CollectionGroup()
 
             // Limit in case of failure to break
             for page in 0 ... 999 {
@@ -179,7 +187,7 @@ extension PlaylistsScreen {
                     pageSize: Self.pageSize
                 ))
 
-                publishedCollections.merge(published.items.compactMap {
+                collections.merge(published.items.compactMap {
                     guard let claimId = $0.claimId,
                           let collection = $0.asCollection(origin: .published)
                     else {
@@ -193,6 +201,8 @@ extension PlaylistsScreen {
                     break
                 }
             }
+
+            return collections
         }
 
         private func collectionClaimSearch(_ claimIds: [String]) async throws {

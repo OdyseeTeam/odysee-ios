@@ -115,7 +115,16 @@ extension PlaylistDetailScreen {
                 return LbryUri.tryParse(url: url, requireProto: true)
             }
 
-            collection = switch collection.origin {
+            collection = await Self.saveCollection(collection)
+
+            await Wallet.shared.queuePushSync()
+
+            return collection
+        }
+
+        @discardableResult nonisolated
+        static func saveCollection(_ collection: SharedPreference.Collection) async -> SharedPreference.Collection {
+            return switch collection.origin {
             case .builtin:
                 await Wallet.shared.setBuiltin(collection: collection)
             case .edited,
@@ -128,10 +137,6 @@ extension PlaylistDetailScreen {
                  .none:
                 collection
             }
-
-            await Wallet.shared.queuePushSync()
-
-            return collection
         }
 
         func publish(collection: SharedPreference.Collection) async {
