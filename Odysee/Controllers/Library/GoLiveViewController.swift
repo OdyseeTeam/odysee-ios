@@ -580,26 +580,23 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             return
         }
 
-        thumbnailUploadInProgress = true
-        uploadingIndicator.isHidden = false
-        thumbnailImageView.image = image
-
-        Helper.uploadImage(image: image, completion: { imageUrl, error in
-            guard let imageUrl = imageUrl, error == nil else {
-                DispatchQueue.main.async {
-                    self.uploadingIndicator.isHidden = true
-                }
-
-                self.thumbnailUploadInProgress = false
-                self.showError(error: error)
-                return
+        Task {
+            thumbnailUploadInProgress = true
+            uploadingIndicator.isHidden = false
+            defer {
+                thumbnailUploadInProgress = false
+                uploadingIndicator.isHidden = true
             }
-            DispatchQueue.main.async {
-                self.uploadingIndicator.isHidden = true
+
+            thumbnailImageView.image = image
+
+            do {
+                let imageUrl = try await Helper.uploadImage(image: image).absoluteString
+                currentThumbnailUrl = imageUrl
+            } catch {
+                showError(error: error)
             }
-            self.thumbnailUploadInProgress = false
-            self.currentThumbnailUrl = imageUrl
-        })
+        }
     }
 
     func showError(message: String?) {
