@@ -60,11 +60,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
     }
 
     func addAnonymousPlaceholder() {
-        let anonymousClaim = Claim(
-            claimId: "anonymous",
-            name: "Anonymous"
-        )
-        channels.append(anonymousClaim)
+        channels.append(Claim.anonymous)
     }
 
     func loadChannels() {
@@ -99,7 +95,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         channels.removeAll(keepingCapacity: true)
         addAnonymousPlaceholder()
         channels.append(contentsOf: page.items)
-        Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
+        Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
         loadingSendSupportView.isHidden = true
         tipButton.isEnabled = true
         channelPickerView.reloadAllComponents()
@@ -226,7 +222,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         params["claim_id"] = claimId
         params["amount"] = Helper.sdkAmountFormatter.string(from: amount as NSDecimalNumber)
         params["tip"] = true
-        if selectedClaim.claimId != "anonymous" {
+        if selectedClaim.claimId != Claim.anonymous.claimId {
             params["channel_id"] = selectedClaim.claimId
         }
 
