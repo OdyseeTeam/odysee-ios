@@ -8,35 +8,45 @@
 import Foundation
 import ValueCodable
 
-struct SharedPreference: Codable {
+public struct SharedPreference: Codable {
     var subscriptions: [LbryUri]
     var following: [Following]
     var blocked: [LbryUri]
     var defaultChannelId: String?
+    var builtinCollections: CollectionGroup
+    var editedCollections: CollectionGroup
+    var savedCollectionIds: [String]
+    var unpublishedCollections: CollectionGroup
 
     var otherValues: [String: Value]
     var otherSettings: [String: Value]
 
-    struct Following: Codable {
-        var notificationsDisabled: Bool
-        var uri: LbryUri
-
-        init(notificationsDisabled: Bool, uri: LbryUri) {
-            self.notificationsDisabled = notificationsDisabled
-            self.uri = uri
-        }
-
-        init(from decoder: any Decoder) throws {
-            let container = try decoder.container(keyedBy: SharedPreference.Following.CodingKeys.self)
-            notificationsDisabled = try container.decodeIfPresent(Bool.self, forKey: .notificationsDisabled) ?? true
-            uri = try container.decode(LbryUri.self, forKey: .uri)
-        }
-    }
-
     init() {
+        let now = Int(Date().timeIntervalSince1970)
+
         subscriptions = []
         following = []
         blocked = []
+        builtinCollections = [
+            "watchlater": .init(
+                id: "watchlater",
+                name: "Watch Later",
+                type: .playlist,
+                createdAt: now,
+                updatedAt: now
+            ),
+            "favorites": .init(
+                id: "favorites",
+                name: "Favorites",
+                type: .playlist,
+                createdAt: now,
+                updatedAt: now
+            ),
+        ]
+        editedCollections = [:]
+        savedCollectionIds = []
+        unpublishedCollections = [:]
+
         otherValues = [:]
         otherSettings = [:]
     }
@@ -50,6 +60,10 @@ struct SharedPreference: Codable {
             static let subscriptions = Value(stringValue: "subscriptions")
             static let following = Value(stringValue: "following")
             static let blocked = Value(stringValue: "blocked")
+            static let builtinCollections = Value(stringValue: "builtinCollections")
+            static let editedCollections = Value(stringValue: "editedCollections")
+            static let savedCollectionIds = Value(stringValue: "savedCollectionIds")
+            static let unpublishedCollections = Value(stringValue: "unpublishedCollections")
             static let settings = Value(stringValue: "settings")
 
             var stringValue: String
@@ -87,7 +101,7 @@ struct SharedPreference: Codable {
     static let type = "object"
     static let version = "0.1"
 
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         guard try container.decode(String.self, forKey: .version) == Self.version else {
             throw DecodingError.dataCorrupted(.init(
@@ -116,10 +130,14 @@ struct SharedPreference: Codable {
         subscriptions = try value.decode([LbryUri].self, forKey: .subscriptions)
         following = try value.decode([Following].self, forKey: .following)
         blocked = try value.decode([LbryUri].self, forKey: .blocked)
+        builtinCollections = try value.decode(CollectionGroup.self, forKey: .builtinCollections)
+        editedCollections = try value.decode(CollectionGroup.self, forKey: .editedCollections)
+        savedCollectionIds = try value.decode([String].self, forKey: .savedCollectionIds)
+        unpublishedCollections = try value.decode(CollectionGroup.self, forKey: .unpublishedCollections)
         defaultChannelId = try settings.decodeIfPresent(String.self, forKey: .defaultChannelId)
     }
 
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         var value = container.nestedContainer(keyedBy: CodingKeys.Value.self, forKey: .value)
         var settings = value.nestedContainer(keyedBy: CodingKeys.Value.Settings.self, forKey: .settings)
@@ -136,6 +154,10 @@ struct SharedPreference: Codable {
         try value.encode(subscriptions, forKey: .subscriptions)
         try value.encode(following, forKey: .following)
         try value.encode(blocked, forKey: .blocked)
+        try value.encode(builtinCollections, forKey: .builtinCollections)
+        try value.encode(editedCollections, forKey: .editedCollections)
+        try value.encode(savedCollectionIds, forKey: .savedCollectionIds)
+        try value.encode(unpublishedCollections, forKey: .unpublishedCollections)
         try settings.encode(defaultChannelId, forKey: .defaultChannelId)
     }
 }
