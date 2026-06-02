@@ -55,39 +55,28 @@ struct PublishesScreen: View {
                         }
 
                         ForEach(model.claims) { claim in
-                            Button {
-                                let vc = AppDelegate.shared.mainViewController?.storyboard?
-                                    .instantiateViewController(identifier: "file_view_vc") as! FileViewController
-                                vc.claim = claim
-
-                                AppDelegate.shared.mainNavigationController?.view.layer.add(
-                                    Helper.buildFileViewTransition(),
-                                    forKey: kCATransition
-                                )
-                                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
-                            } label: {
-                                ClaimListItem(claim: claim)
-                            }
-                            .swipeActions(edge: .leading) {
-                                Button {
-                                    let vc = AppDelegate.shared.mainViewController?.storyboard?
-                                        .instantiateViewController(identifier: "publish_vc") as! PublishViewController
-                                    vc.currentClaim = claim
-                                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
-                                } label: {
-                                    Label("Edit", systemImage: Icons.edit)
+                            ClaimListItem(claim: claim)
+                                .swipeActions(edge: .leading) {
+                                    Button("Edit", systemImage: Icons.edit) {
+                                        let vc = AppDelegate.shared.mainViewController?.storyboard?
+                                            .instantiateViewController(
+                                                identifier: "publish_vc"
+                                            ) as! PublishViewController
+                                        vc.currentClaim = claim
+                                        AppDelegate.shared.mainNavigationController?.pushViewController(
+                                            vc,
+                                            animated: true
+                                        )
+                                    }
+                                    .tint(.blue)
                                 }
-                                .tint(.blue)
-                            }
-                            .swipeActions {
-                                Button {
-                                    toDelete = claim
-                                } label: {
-                                    Label("Delete", systemImage: Icons.delete)
+                                .swipeActions {
+                                    Button("Delete", systemImage: Icons.delete) {
+                                        toDelete = claim
+                                    }
+                                    // TODO: Make this an accessible destructive action, but without prematurely removing from the list
+                                    .tint(.red)
                                 }
-                                // TODO: Make this an accessible destructive action, but without prematurely removing from the list
-                                .tint(.red)
-                            }
                         }
                         .confirmationDialog(
                             deleteConfirmText,

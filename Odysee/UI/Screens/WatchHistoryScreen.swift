@@ -53,19 +53,7 @@ struct WatchHistoryScreen: View {
                         }
 
                         ForEach(model.claims) { claim in
-                            Button {
-                                let vc = AppDelegate.shared.mainViewController?.storyboard?
-                                    .instantiateViewController(identifier: "file_view_vc") as! FileViewController
-                                vc.claim = claim
-
-                                AppDelegate.shared.mainNavigationController?.view.layer.add(
-                                    Helper.buildFileViewTransition(),
-                                    forKey: kCATransition
-                                )
-                                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
-                            } label: {
-                                ClaimListItem(claim: claim)
-                            }
+                            ClaimListItem(claim: claim)
                         }
                         .onDelete { deleteOffsets in
                             Task<Void, Never> {
