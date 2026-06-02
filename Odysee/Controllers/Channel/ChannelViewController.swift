@@ -636,14 +636,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         if tableView == contentListView, let cell = tableView.cellForRow(at: indexPath) as? ClaimTableViewCell {
-            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-            vc.claim = cell.currentClaim
-
-            AppDelegate.shared.mainNavigationController?.view.layer.add(
-                Helper.buildFileViewTransition(),
-                forKey: kCATransition
-            )
-            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+            Helper.openFileVc(cell.currentClaim)
         }
     }
 
@@ -769,14 +762,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                 claim
             }
 
-            let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
-            vc.claim = actualClaim
-
-            AppDelegate.shared.mainNavigationController?.view.layer.add(
-                Helper.buildFileViewTransition(),
-                forKey: kCATransition
-            )
-            AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+            Helper.openFileVc(actualClaim)
         }
     }
 

@@ -471,6 +471,37 @@ enum Helper {
                 }
             }
     }
+
+    @MainActor
+    static func openFileVc(_ claim: Claim?) {
+        let vc = AppDelegate.shared.mainViewController?.storyboard?
+            .instantiateViewController(identifier: "file_view_vc") as! FileViewController
+        vc.claim = claim
+
+        AppDelegate.shared.mainNavigationController?.view.layer.add(
+            Helper.buildFileViewTransition(),
+            forKey: kCATransition
+        )
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+    }
+
+    @MainActor
+    static func openChannelVc(_ channel: Claim) {
+        let currentVc = UIApplication.currentViewController()
+        if let channelVc = currentVc as? ChannelViewController {
+            if channelVc.channelClaim?.claimId == channel.claimId {
+                // if we already have the channel page open, don't do anything
+                return
+            }
+        } else if currentVc is FileViewController {
+            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
+        }
+
+        let vc = AppDelegate.shared.mainViewController?.storyboard?
+            .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+        vc.channelClaim = channel
+        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+    }
 }
 
 struct GenericError: LocalizedError {
