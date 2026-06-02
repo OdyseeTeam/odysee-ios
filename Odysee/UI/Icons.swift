@@ -42,6 +42,7 @@ enum Icons {
     static let livestreamViewers = "eye.fill"
 
     static let edit = "pencil"
+    static let editOverlay = "pencil.circle.fill"
 
     static let publish = "icloud.and.arrow.up"
 
