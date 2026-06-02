@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WatchHistoryScreen: View {
-    @ObservedObject var model: ViewModel
+    @StateObject var model: ViewModel = .init()
 
     @State private var showingConfirmClear = false
 
@@ -93,10 +93,11 @@ struct WatchHistoryScreen: View {
 }
 
 #Preview {
-    WatchHistoryScreen(model: .init())
+    WatchHistoryScreen()
 }
 
 #Preview {
+    // FIXME: @StateObject must be private
     WatchHistoryScreen(model: .init(claims: [
         .init(
             name: "claim",
