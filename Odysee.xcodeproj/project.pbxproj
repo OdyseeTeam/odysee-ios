@@ -12,6 +12,7 @@
 		530525AB28125CCE00D92A2E /* Txo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 530525AA28125CCE00D92A2E /* Txo.swift */; };
 		5314A01E2F69066A008E858C /* ClaimListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5314A01D2F69066A008E858C /* ClaimListItem.swift */; };
 		532650E4286EAB1B00F0FF0B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 532650E3286EAB1B00F0FF0B /* Settings.bundle */; };
+		532CCA3D2FB1CA0000D1E8D2 /* TagsFormSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532CCA3C2FB1CA0000D1E8D2 /* TagsFormSection.swift */; };
 		533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */; };
 		534457BA2F87732F00E81A7E /* SharedPreference+Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457B92F87732F00E81A7E /* SharedPreference+Following.swift */; };
 		534457BC2F87741700E81A7E /* SharedPreference+Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */; };
@@ -170,6 +171,7 @@
 		530525AA28125CCE00D92A2E /* Txo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Txo.swift; sourceTree = "<group>"; };
 		5314A01D2F69066A008E858C /* ClaimListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimListItem.swift; sourceTree = "<group>"; };
 		532650E3286EAB1B00F0FF0B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
+		532CCA3C2FB1CA0000D1E8D2 /* TagsFormSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsFormSection.swift; sourceTree = "<group>"; };
 		533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerificationScreen.swift; sourceTree = "<group>"; };
 		534457B92F87732F00E81A7E /* SharedPreference+Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Following.swift"; sourceTree = "<group>"; };
 		534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Playlist.swift"; sourceTree = "<group>"; };
@@ -388,6 +390,7 @@
 			children = (
 				539D79922F3ECE7300E7686E /* ChannelListItem.swift */,
 				5314A01D2F69066A008E858C /* ClaimListItem.swift */,
+				532CCA3C2FB1CA0000D1E8D2 /* TagsFormSection.swift */,
 				53B25D472FC5779500D91F8B /* ChannelPicker.swift */,
 			);
 			path = Components;
@@ -853,6 +856,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				532CCA3D2FB1CA0000D1E8D2 /* TagsFormSection.swift in Sources */,
 				64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */,
 				538C27562EFB8DA300305361 /* AuthToken.swift in Sources */,
 				642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */,

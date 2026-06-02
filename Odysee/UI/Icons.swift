@@ -45,6 +45,9 @@ enum Icons {
 
     static let publish = "icloud.and.arrow.up"
 
+    static let remove = "xmark"
+    static let add = "plus"
+
     static let delete = "trash"
 
     static let rewardVerificationHelp = "questionmark.circle"
