@@ -8,7 +8,7 @@
 import CachedAsyncImage
 import SwiftUI
 
-/// Displays last playback position (progress bar), if present in `claim`
+/// Displays last playback position (progress bar), if present in `claim`\
 /// It's up to the caller ViewModel to fetch last playback position, if desired
 struct ClaimListItem: View {
     var claim: Claim
