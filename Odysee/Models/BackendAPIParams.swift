@@ -29,7 +29,6 @@ struct ClaimListParams: Encodable, BackendMethodParams {
 struct ClaimSearchParams: Encodable, BackendMethodParams {
     var claimType: [ClaimType]?
     var streamTypes: [StreamType]?
-    var noTotals: Bool? = true // server defaults to false, but we dont need totals.
     var page: Int?
     var pageSize: Int?
     var releaseTime: [String]?
