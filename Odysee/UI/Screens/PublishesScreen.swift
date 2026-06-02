@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PublishesScreen: View {
-    @ObservedObject var model: ViewModel
+    @StateObject private var model: ViewModel = .init()
 
     @State private var toDelete: Claim?
 
@@ -125,5 +125,5 @@ struct PublishesScreen: View {
 }
 
 #Preview {
-    PublishesScreen(model: .init())
+    PublishesScreen()
 }

@@ -16,8 +16,6 @@ struct LibraryScreen: View {
     }
 
     @AppStorage("library#selectedTab") private var selectedTab: Tab = .publishes
-    @StateObject private var publishesModel: PublishesScreen.ViewModel = .init()
-    @StateObject private var watchHistoryModel: WatchHistoryScreen.ViewModel = .init()
 
     var body: some View {
         Picker("Tab", selection: $selectedTab) {
@@ -29,9 +27,9 @@ struct LibraryScreen: View {
 
         switch selectedTab {
         case .publishes:
-            PublishesScreen(model: publishesModel)
+            PublishesScreen()
         case .watchHistory:
-            WatchHistoryScreen(model: watchHistoryModel)
+            WatchHistoryScreen()
         }
     }
 }
