@@ -68,6 +68,39 @@ struct ChannelSignParams: Encodable, BackendMethodParams {
     var hexdata: String
 }
 
+struct CollectionListParams: Encodable, BackendMethodParams {
+    let resolve: Bool = true
+    var page: Int?
+    var pageSize: Int?
+}
+
+struct CollectionCreateParams: Encodable, BackendMethodParams {
+    var name: String
+    let bid: String = Helper.minimumDepositString
+    /// claim ids to be included in the collection
+    var claims: [String]
+    var title: String?
+    var description: String?
+    var tags: [String]?
+    var thumbnailUrl: String?
+    var channelId: String?
+    let blocking: Bool = true
+}
+
+struct CollectionUpdateParams: Encodable, BackendMethodParams {
+    var claimId: String
+    let bid: String = Helper.minimumDepositString
+    /// claim ids to be included in the collection
+    var claims: [String]
+    var title: String?
+    var description: String?
+    var tags: [String]?
+    var thumbnailUrl: String?
+    var channelId: String?
+    let replace: Bool = true
+    let blocking: Bool = true
+}
+
 struct SyncApplyParams: Encodable, BackendMethodParams {
     let password: String = ""
     var data: String?
