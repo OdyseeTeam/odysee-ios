@@ -1476,7 +1476,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         loadingRelated = true
         loadingRelatedView.isHidden = false
 
-        if let playlistClaims {
+        if let playlistClaims, playlistClaims.count > 0 {
             Lbry.apiCall(
                 method: BackendMethods.claimSearch,
                 params: .init(
