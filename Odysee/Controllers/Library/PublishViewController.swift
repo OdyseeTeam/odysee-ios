@@ -106,11 +106,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     }
 
     func addAnonymousPlaceholder() {
-        let anonymousClaim = Claim(
-            claimId: "anonymous",
-            name: "Anonymous"
-        )
-        channels.append(anonymousClaim)
+        channels.append(Claim.anonymous)
     }
 
     func loadUploads() {
@@ -162,7 +158,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         channels.removeAll(keepingCapacity: true)
         addAnonymousPlaceholder()
         channels.append(contentsOf: page.items)
-        Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
+        Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
         channelPickerView.reloadAllComponents()
 
         populateFieldsForEdit()
@@ -506,7 +502,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
             let channel = channels[row]
             let name = channel.name ?? ""
-            if name.lowercased() == "anonymous" {
+            if name.lowercased() == Claim.anonymous.claimId {
                 namePrefixLabel.text = String(format: namePrefixFormat, "")
             } else {
                 namePrefixLabel.text = String(format: namePrefixFormat, name + "/")

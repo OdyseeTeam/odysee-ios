@@ -2428,7 +2428,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
-        Lbry.ownChannels = channels.filter { $0.claimId != "anonymous" }
+        Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
         Task {
             let defaultChannelId = await Wallet.shared.defaultChannelId
             let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
