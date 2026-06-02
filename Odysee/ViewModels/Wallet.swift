@@ -123,7 +123,10 @@ actor Wallet {
             return try await pullSync(updateState: updateState)
         }
 
-        let sharedPreference = try await BackendMethods.sharedPreferenceGet.call(params: .init()).shared
+        let sharedPreferenceGet = try await BackendMethods.sharedPreferenceGet.call(params: .init())
+
+        let needPush = sharedPreferenceGet.shared == nil
+        let sharedPreference = sharedPreferenceGet.shared ?? SharedPreference()
 
         if updateState {
             following = try sharedPreference.walletFollowing
@@ -131,6 +134,10 @@ actor Wallet {
             blocked = sharedPreference.blocked
 
             defaultChannelId = sharedPreference.defaultChannelId
+        }
+
+        if needPush {
+            try await pushSync(sharedPreference: sharedPreference)
         }
 
         return sharedPreference
@@ -150,8 +157,12 @@ actor Wallet {
         }
     }
 
-    private func pushSync() async throws {
-        var sharedPreference = try await pullSync(updateState: false)
+    private func pushSync(sharedPreference: SharedPreference? = nil) async throws {
+        var sharedPreference = if let sharedPreference {
+            sharedPreference
+        } else {
+            try await pullSync(updateState: false)
+        }
 
         if let following {
             sharedPreference.following = following.map {

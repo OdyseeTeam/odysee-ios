@@ -39,5 +39,5 @@ struct SyncApplyResult: Decodable {
 }
 
 struct SharedPreferenceGetResult: Decodable {
-    var shared: SharedPreference
+    var shared: SharedPreference?
 }
