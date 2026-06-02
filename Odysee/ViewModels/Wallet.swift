@@ -27,6 +27,11 @@ actor Wallet {
 
     @SharePublished private(set) var blocked: [LbryUri]?
 
+    @SharePublished private(set) var builtinCollections = SharedPreference.CollectionGroup()
+    @SharePublished private(set) var editedCollections = SharedPreference.CollectionGroup()
+    @SharePublished private(set) var savedCollectionIds = [String]()
+    @SharePublished private(set) var unpublishedCollections = SharedPreference.CollectionGroup()
+
     private(set) var defaultChannelId: String?
 
     // MARK: - Sync
@@ -77,6 +82,10 @@ actor Wallet {
 
         following = nil
         blocked = nil
+        builtinCollections = [:]
+        editedCollections = [:]
+        savedCollectionIds = []
+        unpublishedCollections = [:]
         defaultChannelId = nil
     }
 
@@ -133,6 +142,11 @@ actor Wallet {
 
             blocked = sharedPreference.blocked
 
+            builtinCollections = sharedPreference.builtinCollections.withOrigin(.builtin)
+            editedCollections = sharedPreference.editedCollections.withOrigin(.edited)
+            savedCollectionIds = sharedPreference.savedCollectionIds
+            unpublishedCollections = sharedPreference.unpublishedCollections.withOrigin(.unpublished)
+
             defaultChannelId = sharedPreference.defaultChannelId
         }
 
@@ -177,6 +191,11 @@ actor Wallet {
         if let blocked {
             sharedPreference.blocked = blocked
         }
+
+        sharedPreference.builtinCollections = builtinCollections
+        sharedPreference.editedCollections = editedCollections
+        sharedPreference.savedCollectionIds = savedCollectionIds
+        sharedPreference.unpublishedCollections = unpublishedCollections
 
         sharedPreference.defaultChannelId = defaultChannelId
 
@@ -373,6 +392,79 @@ extension Wallet {
 
     func isBlocked(claimId: String) -> Bool {
         return blocked?.map(\.claimId).contains(claimId) ?? false
+    }
+}
+
+// MARK: - Playlists
+
+extension Wallet {
+    /// Checks if a collection **not from `.saved`** is present in the saved collections.
+    ///
+    /// E.g. checking if a collection viewed from a Claim is saved or unsaved.
+    static func isCollectionSaved(collection: SharedPreference.Collection, for saved: [String]) -> Bool {
+        collection.origin != .saved && saved.contains(collection.collectionId)
+    }
+
+    func addSavedCollection(collection: SharedPreference.Collection) {
+        guard collection.origin == .claim, !savedCollectionIds.contains(collection.collectionId) else {
+            return
+        }
+
+        savedCollectionIds.append(collection.collectionId)
+    }
+
+    func setBuiltin(collection: SharedPreference.Collection) -> SharedPreference.Collection {
+        guard builtinCollections[collection.collectionId] != nil else {
+            return collection
+        }
+
+        return addOrSetCollection(group: &builtinCollections, collection: collection)
+    }
+
+    func addOrSetEdited(collection: SharedPreference.Collection) -> SharedPreference.Collection {
+        var collection = collection
+        // Because collection may come from published, make sure it's stored as edited
+        collection.origin = .edited
+        return addOrSetCollection(group: &editedCollections, collection: collection)
+    }
+
+    @discardableResult
+    func addOrSetUnpublished(collection: SharedPreference.Collection) -> SharedPreference.Collection {
+        return addOrSetCollection(group: &unpublishedCollections, collection: collection)
+    }
+
+    /// Adds/updates collection in CollectionGroup\
+    /// Updates collection itemCount and updatedAt
+    private func addOrSetCollection(
+        group: inout SharedPreference.CollectionGroup,
+        collection: SharedPreference.Collection
+    ) -> SharedPreference.Collection {
+        var collection = collection
+        collection.itemCount = collection.items.uris.count
+        collection.updatedAt = Int(Date().timeIntervalSince1970)
+
+        group[collection.collectionId] = collection
+
+        return collection
+    }
+
+    func removeSavedCollection(collection: SharedPreference.Collection) {
+        savedCollectionIds.removeAll { $0 == collection.collectionId }
+    }
+
+    func removeEdited(collection: SharedPreference.Collection) {
+        removeCollection(group: &editedCollections, collection: collection)
+    }
+
+    func removeUnpublished(collection: SharedPreference.Collection) {
+        removeCollection(group: &unpublishedCollections, collection: collection)
+    }
+
+    private func removeCollection(
+        group: inout SharedPreference.CollectionGroup,
+        collection: SharedPreference.Collection
+    ) {
+        group.removeValue(forKey: collection.collectionId)
     }
 }
 
