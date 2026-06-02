@@ -129,20 +129,7 @@ struct ClaimListItem: View {
                    let publisher = channelClaim.titleOrName
                 {
                     Button {
-                        let currentVc = UIApplication.currentViewController()
-                        if let channelVc = currentVc as? ChannelViewController {
-                            if channelVc.channelClaim?.claimId == channelClaim.claimId {
-                                // if we already have the channel page open, don't do anything
-                                return
-                            }
-                        } else if currentVc is FileViewController {
-                            AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
-                        }
-
-                        let vc = AppDelegate.shared.mainViewController?.storyboard?
-                            .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
-                        vc.channelClaim = channelClaim
-                        AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+                        Helper.openChannelVc(channelClaim)
                     } label: {
                         Text(publisher)
                             .font(.system(size: secondarySize))

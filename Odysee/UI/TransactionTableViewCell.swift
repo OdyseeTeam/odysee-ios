@@ -84,14 +84,7 @@ class TransactionTableViewCell: UITableViewCell {
                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
                 } else {
                     // file claim
-                    let vc = AppDelegate.shared.mainViewController?.storyboard?
-                        .instantiateViewController(identifier: "file_view_vc") as! FileViewController
-                    vc.claim = actualClaim
-                    AppDelegate.shared.mainNavigationController?.view.layer.add(
-                        Helper.buildFileViewTransition(),
-                        forKey: kCATransition
-                    )
-                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+                    Helper.openFileVc(actualClaim)
                 }
             } catch {
                 Helper.showError(error: error)
