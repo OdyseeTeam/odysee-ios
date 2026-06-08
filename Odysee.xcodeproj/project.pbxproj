@@ -16,6 +16,8 @@
 		533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */; };
 		534457BA2F87732F00E81A7E /* SharedPreference+Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457B92F87732F00E81A7E /* SharedPreference+Following.swift */; };
 		534457BC2F87741700E81A7E /* SharedPreference+Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */; };
+		534457BE2F87E4E900E81A7E /* PlaylistsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457BD2F87E4E900E81A7E /* PlaylistsScreen.swift */; };
+		53486A5C2FADB7510028717C /* PlaylistDetailForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53486A5B2FADB7510028717C /* PlaylistDetailForm.swift */; };
 		53486A602FAEDF8F0028717C /* ThumbnailPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53486A5F2FAEDF8F0028717C /* ThumbnailPicker.swift */; };
 		534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */; };
 		534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */; };
@@ -24,6 +26,7 @@
 		535BD0412FBD4A9100E4FE19 /* SharePublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535BD0402FBD4A9100E4FE19 /* SharePublished.swift */; };
 		5359CABD2FB2D5ED0035D0D6 /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABC2FB2D5ED0035D0D6 /* Tags.swift */; };
 		5359CAC02FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */; };
+		5359CAC32FB37C840035D0D6 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 5359CAC22FB37C840035D0D6 /* WrappingHStack */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5377EA832F7B666E00C8E03E /* LibraryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA822F7B666E00C8E03E /* LibraryScreen.swift */; };
 		5377EA852F7B6C3300C8E03E /* PublishesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */; };
@@ -42,9 +45,13 @@
 		539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 539D798B2F3E389400E7686E /* CachedAsyncImage */; };
 		539D798E2F3EBDCE00E7686E /* ManageFollowingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */; };
 		539D79932F3ECE7300E7686E /* ChannelListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79922F3ECE7300E7686E /* ChannelListItem.swift */; };
+		53AE21372F8DE086009939B2 /* PlaylistListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AE21362F8DE086009939B2 /* PlaylistListItem.swift */; };
+		53AE21392F99B59B009939B2 /* PlaylistsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
 		53B25D4A2FC733F400D91F8B /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B25D492FC733F400D91F8B /* Icons.swift */; };
 		53B25D482FC5779500D91F8B /* ChannelPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B25D472FC5779500D91F8B /* ChannelPicker.swift */; };
+		53B7E2012FA24B27001CCFD6 /* PlaylistDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B7E2002FA24B26001CCFD6 /* PlaylistDetailScreen.swift */; };
+		53B7E2032FA2507F001CCFD6 /* PlaylistDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B7E2022FA2507F001CCFD6 /* PlaylistDetailViewModel.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
 		53C01F552F28CFFC008ED3F8 /* SignInUpScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */; };
@@ -176,6 +183,8 @@
 		533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerificationScreen.swift; sourceTree = "<group>"; };
 		534457B92F87732F00E81A7E /* SharedPreference+Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Following.swift"; sourceTree = "<group>"; };
 		534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Playlist.swift"; sourceTree = "<group>"; };
+		534457BD2F87E4E900E81A7E /* PlaylistsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsScreen.swift; sourceTree = "<group>"; };
+		53486A5B2FADB7510028717C /* PlaylistDetailForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailForm.swift; sourceTree = "<group>"; };
 		53486A5F2FAEDF8F0028717C /* ThumbnailPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThumbnailPicker.swift; sourceTree = "<group>"; };
 		534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIParams.swift; sourceTree = "<group>"; };
 		534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncScreen.swift; sourceTree = "<group>"; };
@@ -199,9 +208,13 @@
 		539D79882F3E386000E7686E /* ManageFollowingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageFollowingScreen.swift; sourceTree = "<group>"; };
 		539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageFollowingViewModel.swift; sourceTree = "<group>"; };
 		539D79922F3ECE7300E7686E /* ChannelListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelListItem.swift; sourceTree = "<group>"; };
+		53AE21362F8DE086009939B2 /* PlaylistListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistListItem.swift; sourceTree = "<group>"; };
+		53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsViewModel.swift; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
 		53B25D492FC733F400D91F8B /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
 		53B25D472FC5779500D91F8B /* ChannelPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelPicker.swift; sourceTree = "<group>"; };
+		53B7E2002FA24B26001CCFD6 /* PlaylistDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailScreen.swift; sourceTree = "<group>"; };
+		53B7E2022FA2507F001CCFD6 /* PlaylistDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailViewModel.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
 		53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpScreen.swift; sourceTree = "<group>"; };
@@ -327,6 +340,7 @@
 				CCFB0B4F26653E0900696E0C /* OrderedCollections in Frameworks */,
 				6459121D2620745D00B2ABA5 /* Starscream in Frameworks */,
 				B63C54A7260C990C00DD26A9 /* AuthenticationServices.framework in Frameworks */,
+				5359CAC32FB37C840035D0D6 /* WrappingHStack in Frameworks */,
 				6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */,
 				64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */,
 				539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */,
@@ -370,6 +384,8 @@
 				5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */,
 				5301F1C42F6A492F0033B54D /* WatchHistoryScreen.swift */,
 				539D79882F3E386000E7686E /* ManageFollowingScreen.swift */,
+				534457BD2F87E4E900E81A7E /* PlaylistsScreen.swift */,
+				53B7E2002FA24B26001CCFD6 /* PlaylistDetailScreen.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -383,6 +399,8 @@
 				5377EA862F7B6C6B00C8E03E /* PublishesViewModel.swift */,
 				5301F1C62F6A7F3A0033B54D /* WatchHistoryViewModel.swift */,
 				539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */,
+				53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */,
+				53B7E2022FA2507F001CCFD6 /* PlaylistDetailViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -393,6 +411,8 @@
 				539D79922F3ECE7300E7686E /* ChannelListItem.swift */,
 				5314A01D2F69066A008E858C /* ClaimListItem.swift */,
 				53486A5F2FAEDF8F0028717C /* ThumbnailPicker.swift */,
+				53AE21362F8DE086009939B2 /* PlaylistListItem.swift */,
+				53486A5B2FADB7510028717C /* PlaylistDetailForm.swift */,
 				532CCA3C2FB1CA0000D1E8D2 /* TagsFormSection.swift */,
 				53B25D472FC5779500D91F8B /* ChannelPicker.swift */,
 			);
@@ -689,6 +709,7 @@
 				5391E43C2EFED725008EF30A /* ValueCodable */,
 				53D4CFA92F2B357C00F395A3 /* AsyncExtensions */,
 				539D798B2F3E389400E7686E /* CachedAsyncImage */,
+				5359CAC22FB37C840035D0D6 /* WrappingHStack */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -781,6 +802,7 @@
 				5391E43B2EFED725008EF30A /* XCRemoteSwiftPackageReference "ValueCodable" */,
 				53D4CFA82F2B357C00F395A3 /* XCRemoteSwiftPackageReference "AsyncExtensions" */,
 				539D798A2F3E389400E7686E /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
+				5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -887,6 +909,7 @@
 				64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */,
 				648F70D726307BF900885A2F /* GoLiveViewController.swift in Sources */,
 				CC0B2B0D266D0E72002490BB /* Lock.swift in Sources */,
+				53B7E2012FA24B27001CCFD6 /* PlaylistDetailScreen.swift in Sources */,
 				6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */,
 				5377EA852F7B6C3300C8E03E /* PublishesScreen.swift in Sources */,
 				64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */,
@@ -894,11 +917,13 @@
 				533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */,
 				5377EA872F7B6C6B00C8E03E /* PublishesViewModel.swift in Sources */,
 				648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */,
+				534457BE2F87E4E900E81A7E /* PlaylistsScreen.swift in Sources */,
 				5314A01E2F69066A008E858C /* ClaimListItem.swift in Sources */,
 				539D79932F3ECE7300E7686E /* ChannelListItem.swift in Sources */,
 				539D798E2F3EBDCE00E7686E /* ManageFollowingViewModel.swift in Sources */,
 				6462DABD255D3CFE001CF1E8 /* UICardView.swift in Sources */,
 				641108DC255A8D7D00F0FB8A /* Lbryio.swift in Sources */,
+				53AE21392F99B59B009939B2 /* PlaylistsViewModel.swift in Sources */,
 				64FF82002604748E009B7A3B /* FirstRunViewController.swift in Sources */,
 				64CB288225768A9A00FE48B3 /* Snackbar.swift in Sources */,
 				64A6CA7B255DD34700294E74 /* AppTabBarController.swift in Sources */,
@@ -912,6 +937,7 @@
 				641B3E2727E0EFCC0089E816 /* CustomBlockRule.swift in Sources */,
 				53B25D482FC5779500D91F8B /* ChannelPicker.swift in Sources */,
 				646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */,
+				53486A5C2FADB7510028717C /* PlaylistDetailForm.swift in Sources */,
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
 				5377EA832F7B666E00C8E03E /* LibraryScreen.swift in Sources */,
 				641108F1255AF6CE00F0FB8A /* Helper.swift in Sources */,
@@ -934,6 +960,7 @@
 				642B6B11257B4CBC00F17355 /* Transaction.swift in Sources */,
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
 				5359CABD2FB2D5ED0035D0D6 /* Tags.swift in Sources */,
+				53AE21372F8DE086009939B2 /* PlaylistListItem.swift in Sources */,
 				534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */,
 				641108E7255AA2BC00F0FB8A /* InitViewController.swift in Sources */,
 				64666AFB25872BE000DF4608 /* ChannelManagerViewController.swift in Sources */,
@@ -953,6 +980,7 @@
 				640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */,
 				CC3A1E7826853D7E00683E28 /* BackendAPIParams.swift in Sources */,
 				641AFAE925B606E000218BD9 /* UAButton.swift in Sources */,
+				53B7E2032FA2507F001CCFD6 /* PlaylistDetailViewModel.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				CC97807926549867009F580E /* Log.swift in Sources */,
 				535BD0412FBD4A9100E4FE19 /* SharePublished.swift in Sources */,
@@ -1349,6 +1377,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dkk/WrappingHStack";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.2.11;
+			};
+		};
 		5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/OdyseeTeam/ActionSheetPicker-3.0";
@@ -1448,6 +1484,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5359CAC22FB37C840035D0D6 /* WrappingHStack */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */;
+			productName = WrappingHStack;
+		};
 		5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */;
