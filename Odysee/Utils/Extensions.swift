@@ -64,6 +64,16 @@ extension Optional {
     }
 }
 
+extension Binding {
+    func orElse<T>(_ other: T) -> Binding<T> where Value == T? {
+        .init {
+            self.wrappedValue ?? other
+        } set: {
+            self.wrappedValue = $0
+        }
+    }
+}
+
 extension UIImageView {
     func load(url: URL) {
         pin_setImage(from: url)
@@ -300,7 +310,7 @@ extension Crashlytics {
 
 // https://stackoverflow.com/a/77735876
 extension View {
-    func apply<V: View>(@ViewBuilder _ block: (Self) -> V) -> V { block(self) }
+    @ViewBuilder func apply(@ViewBuilder _ block: (Self) -> some View) -> some View { block(self) }
 }
 
 // swift-format-ignore
@@ -325,5 +335,11 @@ extension ButtonRole {
         close
     } else {
         cancel
+    }
+
+    static let confirmOrNil: Self? = if #available(iOS 26, *) {
+        confirm
+    } else {
+        nil
     }
 }

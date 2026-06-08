@@ -46,10 +46,14 @@ enum Icons {
 
     static let publish = "icloud.and.arrow.up"
 
+    static let `public` = "eye"
+    static let `private` = "lock"
+
     static let remove = "xmark"
     static let add = "plus"
 
     static let delete = "trash"
+    static let copy = "square.on.square"
 
     static let rewardVerificationHelp = "questionmark.circle"
     static let closeCancelSkip = "xmark"
@@ -59,4 +63,17 @@ enum Icons {
 
     static let notificationSubscription = "heart.fill"
     static let notification = "star"
+
+    static let playlistPlay = "play.circle"
+    static let playlistUnsave = "minus.square"
+    static let playlistSave = "plus.square"
+    static let playlistClearUpdates = re
+    static let playlistShowDetails = "eye.fill"
+
+    static let sort = "arrow.up.arrow.down"
+    static let ascending = "chevron.up"
+    static let descending = "chevron.down"
+    static let filter = "line.3.horizontal.decrease"
+
+    static let more = "ellipsis"
 }

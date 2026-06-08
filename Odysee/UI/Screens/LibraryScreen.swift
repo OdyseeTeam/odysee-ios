@@ -11,6 +11,7 @@ struct LibraryScreen: View {
     enum Tab: String, CaseIterable, Identifiable {
         case publishes
         case watchHistory
+        case playlists
 
         var id: Self { self }
     }
@@ -18,19 +19,27 @@ struct LibraryScreen: View {
     @AppStorage("library#selectedTab") private var selectedTab: Tab = .publishes
 
     var body: some View {
-        Picker("Tab", selection: $selectedTab) {
-            Text("Publishes").tag(Tab.publishes)
-            Text("Watch History").tag(Tab.watchHistory)
-        }
-        .pickerStyle(.segmented)
-        .padding(.horizontal)
+        NavigationView {
+            VStack {
+                Picker("Tab", selection: $selectedTab) {
+                    Text("Publishes").tag(Tab.publishes)
+                    Text("Watch History").tag(Tab.watchHistory)
+                    Text("Playlists").tag(Tab.playlists)
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
 
-        switch selectedTab {
-        case .publishes:
-            PublishesScreen()
-        case .watchHistory:
-            WatchHistoryScreen()
+                switch selectedTab {
+                case .publishes:
+                    PublishesScreen()
+                case .watchHistory:
+                    WatchHistoryScreen()
+                case .playlists:
+                    PlaylistsScreen()
+                }
+            }
         }
+        .navigationViewStyle(.stack)
     }
 }
 
