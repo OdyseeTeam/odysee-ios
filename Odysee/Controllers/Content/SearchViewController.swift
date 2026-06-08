@@ -511,6 +511,14 @@ class SearchViewController: UIViewController,
         }
     }
 
+    func tableView(
+        _ tableView: UITableView,
+        contextMenuConfigurationForRowAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        (tableView.cellForRow(at: indexPath) as? ClaimTableViewCell)?.menu
+    }
+
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         if searching {
             return

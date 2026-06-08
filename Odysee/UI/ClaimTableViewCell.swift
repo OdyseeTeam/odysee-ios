@@ -5,6 +5,7 @@
 //  Created by Akinwale Ariwodola on 08/11/2020.
 //
 
+import SwiftUI
 import UIKit
 
 class ClaimTableViewCell: UITableViewCell {
@@ -283,6 +284,196 @@ class ClaimTableViewCell: UITableViewCell {
                 .instantiateViewController(withIdentifier: "channel_view_vc") as! ChannelViewController
             vc.channelClaim = channelClaim
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+        }
+    }
+
+    var menu: UIContextMenuConfiguration? {
+        var elements = [UIMenuElement]()
+
+        if currentClaim?.valueType == ClaimType.collection,
+           let collection = currentClaim?.asCollection(origin: .claim)
+        {
+            elements.append(UIAction(
+                title: __("View Playlist Details"),
+                image: .init(systemName: Icons.playlistShowDetails)
+            ) { _ in
+                /// Workaround for having a back destination\
+                /// Not needed once this menu is in SwiftUI
+                struct PlaylistDetailScreenWrapper: View {
+                    let collection: SharedPreference.Collection
+
+                    @Environment(\.dismiss) private var dismiss
+                    @State private var isActive: Bool = false
+
+                    var body: some View {
+                        NavigationView {
+                            NavigationLink(isActive: $isActive) {
+                                PlaylistDetailScreen(collection: collection, onCopy: {
+                                    Helper.showMessage(
+                                        message: "Playlist copied. You can find it in Library -> Playlists"
+                                    )
+                                })
+                            } label: {
+                                ProgressView()
+                                    .controlSize(.large)
+                            }
+                            .onAppear {
+                                isActive = true
+                            }
+                            .onChange(of: isActive) { active in
+                                if !active {
+                                    dismiss()
+                                }
+                            }
+                        }
+                    }
+                }
+
+                let vc = UIHostingController(rootView: PlaylistDetailScreenWrapper(collection: collection))
+                AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+            })
+        } else if currentClaim?.valueType == ClaimType.stream,
+                  ["audio", "video"].contains(currentClaim?.value?.streamType),
+                  let permanentUrl = currentClaim?.permanentUrl,
+                  let uri = LbryUri.tryParse(url: permanentUrl, requireProto: true)
+        {
+            elements.append(UIMenu(
+                title: __("Add to Playlist"), image: .init(systemName: Icons.add),
+                children: [
+                    UIDeferredMenuElement.uncached { completion in
+                        Task {
+                            var actions = [UIMenuElement]()
+
+                            actions.append(UIMenu(title: "", options: .displayInline, children: [
+                                UIAction(title: __("New Playlist")) { _ in
+                                    let alert = UIAlertController(
+                                        title: __("Create a Playlist"),
+                                        message: nil,
+                                        preferredStyle: .alert
+                                    )
+
+                                    alert.addTextField { textField in
+                                        textField.placeholder = __("New Playlist Title")
+                                    }
+
+                                    alert.addAction(UIAlertAction(title: __("Confirm"), style: .default) { _ in
+                                        Task {
+                                            guard let title = alert.textFields?.first?.text else {
+                                                Helper
+                                                    .showError(message: "Couldn't get playlist title, please try again")
+                                                return
+                                            }
+
+                                            var collection = PlaylistsScreen.ViewModel.newPlaylist(title: title)
+                                            collection.items.uris = [uri]
+
+                                            await PlaylistDetailScreen.ViewModel.saveCollection(collection)
+                                            await Wallet.shared.queuePushSync()
+
+                                            Helper.showMessage(message: "Added to \(collection.titleOrName)")
+                                        }
+                                    })
+
+                                    UIApplication.currentViewController()?.present(alert, animated: true)
+                                }
+                            ]))
+
+                            @MainActor func handler(_ collection: SharedPreference.Collection) -> UIActionHandler {
+                                { _ in
+                                    Task {
+                                        var uris = collection.items.uris
+                                        if let claimIds = collection.items.claimIds {
+                                            var claims = [Claim]()
+
+                                            do {
+                                                // Limit in case of failure to break
+                                                for page in 1 ... 999 {
+                                                    let claimSearch = try await BackendMethods.claimSearch
+                                                        .call(params: .init(
+                                                            page: page,
+                                                            pageSize: PlaylistDetailScreen.ViewModel.pageSize,
+                                                            claimIds: claimIds,
+                                                        ))
+
+                                                    claims.append(contentsOf: claimSearch.items)
+
+                                                    if claimSearch.isLastPage {
+                                                        break
+                                                    }
+                                                }
+                                            } catch {
+                                                Helper.showError(
+                                                    message: "Error loading playlist claims, please try again later: \(error)"
+                                                )
+                                                return
+                                            }
+
+                                            uris = claims
+                                                .sorted(like: claimIds, keyPath: \.claimId, transform: \.self)
+                                                .compactMap(\.permanentUrl)
+                                                .compactMap { LbryUri.tryParse(url: $0, requireProto: true) }
+                                        }
+
+                                        uris.append(uri)
+
+                                        var collection = collection
+                                        collection.items.uris = uris
+
+                                        await PlaylistDetailScreen.ViewModel.saveCollection(collection)
+                                        await Wallet.shared.queuePushSync()
+
+                                        Helper.showMessage(message: "Added to \(collection.titleOrName)")
+                                    }
+                                }
+                            }
+
+                            let builtinMenu = UIMenu(
+                                title: "", options: .displayInline,
+                                children: await Wallet.shared.builtinCollections.values.map {
+                                    UIAction(title: $0.titleOrName, handler: handler($0))
+                                }
+                            )
+
+                            actions.append(builtinMenu)
+
+                            var playlists = await Wallet.shared.unpublishedCollections.items
+                            do {
+                                var published = try await PlaylistsScreen.ViewModel.collectionListAll()
+
+                                for var edited in await Wallet.shared.editedCollections.items {
+                                    if let original = published[edited.collectionId] {
+                                        edited.originalClaim = original.originalClaim
+                                        published[edited.collectionId] = edited
+                                    }
+                                }
+
+                                playlists.append(contentsOf: published.items)
+                            } catch {
+                                Helper.showError(
+                                    message: "Error fetching public playlists: \(error.localizedDescription)"
+                                )
+                            }
+                            playlists.sort {
+                                $0.updatedAt > $1.updatedAt
+                            }
+
+                            actions.append(contentsOf: playlists.map {
+                                UIAction(title: $0.titleOrName, handler: handler($0))
+                            })
+
+                            completion(actions)
+                        }
+                    }
+                ]
+            ))
+        }
+
+        guard elements.count > 0 else {
+            return nil
+        }
+
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            return UIMenu(title: "", children: elements)
         }
     }
 }
