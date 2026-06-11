@@ -180,11 +180,6 @@ extension Method where ParamType: AccountMethodParams {
         }
 
         let respCode = httpResponse.statusCode
-        Crashlytics.crashlytics().setCustomValue(
-            String(data: data, encoding: .utf8),
-            forKey: "Lbryio.call_data"
-        )
-        Crashlytics.crashlytics().setCustomValue(respCode, forKey: "Lbryio.call_respCode")
 
         let response = try JSONDecoder().decode(LbryioAPIResponse<ResultType>.self, from: data)
 
