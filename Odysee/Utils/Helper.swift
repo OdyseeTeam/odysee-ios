@@ -497,6 +497,14 @@ enum Helper {
         vc.channelClaim = channel
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
+
+    // TODO: Timezone check / conversion?
+    static func formatTimestamp(_ timestamp: TimeInterval) -> String {
+        let date = Date(timeIntervalSince1970: timestamp)
+            // Shift back by 1s, because timestamp == now leads to "in 0 seconds" rather than "0 seconds ago"
+            .addingTimeInterval(-1)
+        return date.formatted(.relative(presentation: .numeric))
+    }
 }
 
 struct GenericError: LocalizedError {
