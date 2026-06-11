@@ -137,11 +137,13 @@ class ClaimTableViewCell: UITableViewCell {
         channelImageView.isHidden = !isChannel
         thumbnailImageView.isHidden = isChannel
 
-        titleLabel.textColor = actualClaim.featured ? UIColor.white : nil
+        titleLabel.textColor = actualClaim.featured ? .white : nil
         titleLabel.text = actualClaim.value?.title
 
         publisherLabel.text = isChannel ? actualClaim.name : (actualClaim.signingChannel?.titleOrName ?? "Anonymous")
-        publisherLabel.textColor = isChannel || actualClaim.signingChannel?.titleOrName != nil ? .tintColor : .label
+        publisherLabel.textColor = isChannel || actualClaim.signingChannel?.titleOrName != nil ?
+            .tintColor :
+            actualClaim.featured ? .white : .label
 
         // load thumbnail url
         let spec = isChannel ? Self.channelImageSpec : Self.thumbImageSpec
