@@ -10,6 +10,10 @@ import Odysee
 import Testing
 
 struct QueryItemsCoderTests {
+    struct CamelCase: Codable {
+        var thisThing: String
+    }
+
     struct Params: Codable, Equatable {
         var email: String
         var password: String
@@ -82,6 +86,13 @@ struct QueryItemsCoderTests {
         }
     }
 
+    @Test func decode_camelCase() async throws {
+        var components = URLComponents()
+        components.percentEncodedQuery = "thisThing=hellorld"
+        let result = try QueryItemsDecoder().decode(CamelCase.self, from: components.queryItems!)
+        #expect(result.thisThing == "hellorld")
+    }
+
     /// fatalError expected
     /*
      struct NestedParams: Codable {
@@ -125,5 +136,12 @@ struct QueryItemsCoderTests {
         components = URLComponents()
         components.queryItems = items
         #expect(components.percentEncodedQuery == "maybe=true")
+    }
+
+    @Test func encode_camelCase() async throws {
+        let items = try QueryItemsEncoder().encode(CamelCase(thisThing: "hellorld"))
+        var components = URLComponents()
+        components.queryItems = items
+        #expect(components.percentEncodedQuery == "this_thing=hellorld")
     }
 }
