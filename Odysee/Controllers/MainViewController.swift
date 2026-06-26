@@ -618,10 +618,11 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         present(alert, animated: true)
     }
 
-    func showError(message: String?) {
-        // Going back and forth with GenericError,
-        // in the case where we come from showError(error:)
-        Crashlytics.crashlytics().recordImmediate(error: GenericError(""), userInfo: ["MESSAGE_KEY": message ?? ""])
+    func showError(message: String?, error: Error? = nil) {
+        Crashlytics.crashlytics().recordImmediate(
+            error: error ?? GenericError(message ?? ""),
+            userInfo: ["MESSAGE_KEY": message ?? ""]
+        )
 
         DispatchQueue.main.async {
             self.snackbar.backgroundColor = .red
@@ -630,7 +631,24 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
     }
 
     func showError(error: Error?) {
-        showError(message: error?.localizedDescription)
+        if let error = error as? DecodingError {
+            let description = switch error {
+            case let DecodingError.keyNotFound(key, context):
+                "Key \"\(key.stringValue)\" not found at \(context.codingPath.map(\.stringValue))"
+            case let DecodingError.valueNotFound(value, context):
+                "Value \(value) not found at \(context.codingPath.map(\.stringValue))"
+            case let .typeMismatch(type, context):
+                "Type \(type) mismatch at \(context.codingPath.map(\.stringValue))"
+            case let .dataCorrupted(context):
+                "Data corrupted: \(context)"
+            @unknown default:
+                error.localizedDescription
+            }
+
+            showError(message: "Decoding error: \(description)", error: error)
+        } else {
+            showError(message: error?.localizedDescription, error: error)
+        }
     }
 
     func addWalletObserver(key: String, observer: WalletBalanceObserver) {
