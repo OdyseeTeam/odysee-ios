@@ -55,7 +55,18 @@ extension Method where ParamType: BackendMethodParams {
         let task = Task.detached(priority: .userInitiated) {
             let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: authToken)
 
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, urlResponse) = try await URLSession.shared.data(for: request)
+
+            guard let httpResponse = urlResponse as? HTTPURLResponse else {
+                throw LbryioRequestError.invalidResponse(urlResponse)
+            }
+
+            let respCode = httpResponse.statusCode
+            Crashlytics.crashlytics().setCustomValue(
+                String(data: data, encoding: .utf8),
+                forKey: "Lbry.call_data"
+            )
+            Crashlytics.crashlytics().setCustomValue(respCode, forKey: "Lbry.call_respCode")
 
             let response = try JSONDecoder().decode(LbryAPIResponse<ResultType>.self, from: data)
             if response.jsonrpc != "2.0" {
