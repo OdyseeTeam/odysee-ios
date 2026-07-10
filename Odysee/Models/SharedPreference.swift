@@ -21,13 +21,10 @@ public struct SharedPreference: Codable {
     var otherValues: [String: Value]
     var otherSettings: [String: Value]
 
-    init() {
+    private static var defaultBuiltinCollections: CollectionGroup {
         let now = Int(Date().timeIntervalSince1970)
 
-        subscriptions = []
-        following = []
-        blocked = []
-        builtinCollections = [
+        return [
             "watchlater": .init(
                 id: "watchlater",
                 name: "Watch Later",
@@ -43,6 +40,13 @@ public struct SharedPreference: Codable {
                 updatedAt: now
             ),
         ]
+    }
+
+    init() {
+        subscriptions = []
+        following = []
+        blocked = []
+        builtinCollections = Self.defaultBuiltinCollections
         editedCollections = [:]
         savedCollectionIds = []
         unpublishedCollections = [:]
@@ -130,10 +134,11 @@ public struct SharedPreference: Codable {
         subscriptions = try value.decode([LbryUri].self, forKey: .subscriptions)
         following = try value.decode([Following].self, forKey: .following)
         blocked = try value.decode([LbryUri].self, forKey: .blocked)
-        builtinCollections = try value.decode(CollectionGroup.self, forKey: .builtinCollections)
-        editedCollections = try value.decode(CollectionGroup.self, forKey: .editedCollections)
-        savedCollectionIds = try value.decode([String].self, forKey: .savedCollectionIds)
-        unpublishedCollections = try value.decode(CollectionGroup.self, forKey: .unpublishedCollections)
+        builtinCollections = try value.decodeIfPresent(CollectionGroup.self, forKey: .builtinCollections)
+            ?? Self.defaultBuiltinCollections
+        editedCollections = try value.decodeIfPresent(CollectionGroup.self, forKey: .editedCollections) ?? [:]
+        savedCollectionIds = try value.decodeIfPresent([String].self, forKey: .savedCollectionIds) ?? []
+        unpublishedCollections = try value.decodeIfPresent(CollectionGroup.self, forKey: .unpublishedCollections) ?? [:]
         defaultChannelId = try settings.decodeIfPresent(String.self, forKey: .defaultChannelId)
     }
 
