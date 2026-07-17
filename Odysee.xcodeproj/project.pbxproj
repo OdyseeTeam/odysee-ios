@@ -13,6 +13,8 @@
 		5314A01E2F69066A008E858C /* ClaimListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5314A01D2F69066A008E858C /* ClaimListItem.swift */; };
 		532650E4286EAB1B00F0FF0B /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 532650E3286EAB1B00F0FF0B /* Settings.bundle */; };
 		532CCA3D2FB1CA0000D1E8D2 /* TagsFormSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532CCA3C2FB1CA0000D1E8D2 /* TagsFormSection.swift */; };
+		532FCAAE2FEE75C200CBBAB1 /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532FCAAD2FEE75C200CBBAB1 /* Wallet.swift */; };
+		532FCAB12FEE762300CBBAB1 /* TaskGate in Frameworks */ = {isa = PBXBuildFile; productRef = 532FCAB02FEE762300CBBAB1 /* TaskGate */; };
 		533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */; };
 		534457BA2F87732F00E81A7E /* SharedPreference+Following.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457B92F87732F00E81A7E /* SharedPreference+Following.swift */; };
 		534457BC2F87741700E81A7E /* SharedPreference+Playlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */; };
@@ -23,7 +25,6 @@
 		534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */; };
 		534CCCA92F3C74CC00457BBF /* YouTubeSyncViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */; };
 		53593F31287E5D75007FD08E /* CommentsAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentsAPIResult.swift */; };
-		535BD0412FBD4A9100E4FE19 /* SharePublished.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535BD0402FBD4A9100E4FE19 /* SharePublished.swift */; };
 		5359CABD2FB2D5ED0035D0D6 /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABC2FB2D5ED0035D0D6 /* Tags.swift */; };
 		5359CAC02FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */; };
 		5359CAC32FB37C840035D0D6 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 5359CAC22FB37C840035D0D6 /* WrappingHStack */; };
@@ -37,7 +38,6 @@
 		538C27562EFB8DA300305361 /* AuthToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C27552EFB8DA300305361 /* AuthToken.swift */; };
 		538C8CC62ED74B8C00E20949 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 538C8CC52ED74B8C00E20949 /* AppIcon.icon */; };
 		5390C80D2ECE13A3005A104B /* ActionSheetPicker-3.0 in Frameworks */ = {isa = PBXBuildFile; productRef = 5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */; };
-		5391E4362EFE36C4008EF30A /* Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5391E4332EFE36C4008EF30A /* Wallet.swift */; };
 		5391E43A2EFE6C88008EF30A /* SharedPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5391E4392EFE6C88008EF30A /* SharedPreference.swift */; };
 		5391E43D2EFED725008EF30A /* ValueCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 5391E43C2EFED725008EF30A /* ValueCodable */; };
 		539D79872F3DA6DC00E7686E /* AccountYoutubeChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */; };
@@ -57,7 +57,6 @@
 		53C01F552F28CFFC008ED3F8 /* SignInUpScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */; };
 		53C4FA3F2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */; };
 		53C4FA412F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */; };
-		53D4CFAA2F2B357C00F395A3 /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 53D4CFA92F2B357C00F395A3 /* AsyncExtensions */; };
 		53D4CFAC2F2C5A9000F395A3 /* SignInUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */; };
 		53D59FFA2EF3AAEA0081D800 /* BackendAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FF92EF3AAEA0081D800 /* BackendAPIResult.swift */; };
 		53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFB2EF3AE530081D800 /* Methods.swift */; };
@@ -180,6 +179,7 @@
 		5314A01D2F69066A008E858C /* ClaimListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimListItem.swift; sourceTree = "<group>"; };
 		532650E3286EAB1B00F0FF0B /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		532CCA3C2FB1CA0000D1E8D2 /* TagsFormSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagsFormSection.swift; sourceTree = "<group>"; };
+		532FCAAD2FEE75C200CBBAB1 /* Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		533562912ECEBF9E0024ECC9 /* RewardVerificationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardVerificationScreen.swift; sourceTree = "<group>"; };
 		534457B92F87732F00E81A7E /* SharedPreference+Following.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Following.swift"; sourceTree = "<group>"; };
 		534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Playlist.swift"; sourceTree = "<group>"; };
@@ -190,7 +190,6 @@
 		534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncScreen.swift; sourceTree = "<group>"; };
 		534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncViewModel.swift; sourceTree = "<group>"; };
 		53593F30287E5D75007FD08E /* CommentsAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIResult.swift; sourceTree = "<group>"; };
-		535BD0402FBD4A9100E4FE19 /* SharePublished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePublished.swift; sourceTree = "<group>"; };
 		5359CABC2FB2D5ED0035D0D6 /* Tags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tags.swift; sourceTree = "<group>"; };
 		5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+PlaylistTest.swift"; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
@@ -202,7 +201,6 @@
 		538C274E2EFB8BE900305361 /* AccountAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountAPIParams.swift; sourceTree = "<group>"; };
 		538C27552EFB8DA300305361 /* AuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthToken.swift; sourceTree = "<group>"; };
 		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
-		5391E4332EFE36C4008EF30A /* Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wallet.swift; sourceTree = "<group>"; };
 		5391E4392EFE6C88008EF30A /* SharedPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPreference.swift; sourceTree = "<group>"; };
 		539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountYoutubeChannel.swift; sourceTree = "<group>"; };
 		539D79882F3E386000E7686E /* ManageFollowingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageFollowingScreen.swift; sourceTree = "<group>"; };
@@ -347,11 +345,11 @@
 				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
 				64A26CE526974B7A00AE19DE /* PerfectMarkdown in Frameworks */,
 				6411C0B0255B35260018C3D5 /* Base58Swift in Frameworks */,
+				532FCAB12FEE762300CBBAB1 /* TaskGate in Frameworks */,
 				53F64E382ECCEC2A001A7D8F /* FirebaseCrashlytics in Frameworks */,
 				648F70D226307BC700885A2F /* HaishinKit in Frameworks */,
 				5391E43D2EFED725008EF30A /* ValueCodable in Frameworks */,
 				CCDDA929265861AF0006035F /* PINRemoteImage in Frameworks */,
-				53D4CFAA2F2B357C00F395A3 /* AsyncExtensions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -393,7 +391,6 @@
 		5391E4342EFE36C4008EF30A /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
-				5391E4332EFE36C4008EF30A /* Wallet.swift */,
 				53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */,
 				534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */,
 				5377EA862F7B6C6B00C8E03E /* PublishesViewModel.swift */,
@@ -453,6 +450,7 @@
 				534457B92F87732F00E81A7E /* SharedPreference+Following.swift */,
 				534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */,
 				5359CABC2FB2D5ED0035D0D6 /* Tags.swift */,
+				532FCAAD2FEE75C200CBBAB1 /* Wallet.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -477,7 +475,6 @@
 				5385091F28E13D28009A7AAB /* MembershipPerk.swift */,
 				53D59FFB2EF3AE530081D800 /* Methods.swift */,
 				53D59FFD2EF3B3150081D800 /* QueryItemsCoder.swift */,
-				535BD0402FBD4A9100E4FE19 /* SharePublished.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -707,9 +704,9 @@
 				53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */,
 				5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */,
 				5391E43C2EFED725008EF30A /* ValueCodable */,
-				53D4CFA92F2B357C00F395A3 /* AsyncExtensions */,
 				539D798B2F3E389400E7686E /* CachedAsyncImage */,
 				5359CAC22FB37C840035D0D6 /* WrappingHStack */,
+				532FCAB02FEE762300CBBAB1 /* TaskGate */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -800,9 +797,9 @@
 				64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */,
 				5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */,
 				5391E43B2EFED725008EF30A /* XCRemoteSwiftPackageReference "ValueCodable" */,
-				53D4CFA82F2B357C00F395A3 /* XCRemoteSwiftPackageReference "AsyncExtensions" */,
 				539D798A2F3E389400E7686E /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
 				5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
+				532FCAAF2FEE762300CBBAB1 /* XCRemoteSwiftPackageReference "TaskGate" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -911,6 +908,7 @@
 				CC0B2B0D266D0E72002490BB /* Lock.swift in Sources */,
 				53B7E2012FA24B27001CCFD6 /* PlaylistDetailScreen.swift in Sources */,
 				6413274E2557D89200CBB6B8 /* Extensions.swift in Sources */,
+				532FCAAE2FEE75C200CBBAB1 /* Wallet.swift in Sources */,
 				5377EA852F7B6C3300C8E03E /* PublishesScreen.swift in Sources */,
 				64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */,
 				53C01F552F28CFFC008ED3F8 /* SignInUpScreen.swift in Sources */,
@@ -973,7 +971,6 @@
 				64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */,
 				CC015766267A9C1100F96EFE /* ImageURLs.swift in Sources */,
 				641682D825ACBA7800BCDC3A /* CommentsViewController.swift in Sources */,
-				5391E4362EFE36C4008EF30A /* Wallet.swift in Sources */,
 				64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */,
 				53B25D4A2FC733F400D91F8B /* Icons.swift in Sources */,
 				5301F1C72F6A7F3A0033B54D /* WatchHistoryViewModel.swift in Sources */,
@@ -983,7 +980,6 @@
 				53B7E2032FA2507F001CCFD6 /* PlaylistDetailViewModel.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				CC97807926549867009F580E /* Log.swift in Sources */,
-				535BD0412FBD4A9100E4FE19 /* SharePublished.swift in Sources */,
 				53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */,
 				534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */,
 				64FBE79D25502A290082AF2E /* AppDelegate.swift in Sources */,
@@ -1377,6 +1373,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		532FCAAF2FEE762300CBBAB1 /* XCRemoteSwiftPackageReference "TaskGate" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/mattmassicotte/TaskGate";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
 		5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/dkk/WrappingHStack";
@@ -1407,14 +1411,6 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.1.1;
-			};
-		};
-		53D4CFA82F2B357C00F395A3 /* XCRemoteSwiftPackageReference "AsyncExtensions" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sideeffect-io/AsyncExtensions";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.5.5;
 			};
 		};
 		64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */ = {
@@ -1484,6 +1480,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		532FCAB02FEE762300CBBAB1 /* TaskGate */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 532FCAAF2FEE762300CBBAB1 /* XCRemoteSwiftPackageReference "TaskGate" */;
+			productName = TaskGate;
+		};
 		5359CAC22FB37C840035D0D6 /* WrappingHStack */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */;
@@ -1503,11 +1504,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 539D798A2F3E389400E7686E /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */;
 			productName = CachedAsyncImage;
-		};
-		53D4CFA92F2B357C00F395A3 /* AsyncExtensions */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 53D4CFA82F2B357C00F395A3 /* XCRemoteSwiftPackageReference "AsyncExtensions" */;
-			productName = AsyncExtensions;
 		};
 		53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;

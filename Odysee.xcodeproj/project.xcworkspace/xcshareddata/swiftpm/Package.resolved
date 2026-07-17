@@ -1,5 +1,5 @@
 {
-  "originHash" : "ec75066e7bcfc8d4b5e08a121b29207c301eba155ff929f5b47140e33d9dff56",
+  "originHash" : "45f2fe75a202a5395d4b6b919ffc074e6de151644ace7d793ffb810c0ad1ca05",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -26,15 +26,6 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
-      }
-    },
-    {
-      "identity" : "asyncextensions",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/sideeffect-io/AsyncExtensions",
-      "state" : {
-        "revision" : "c2b32caf189993285b5a782fe7cd658ed1fa9b9a",
-        "version" : "0.5.5"
       }
     },
     {
@@ -258,6 +249,15 @@
       "state" : {
         "revision" : "467a3d17479887943ab917a379e62bbaff60ac8a",
         "version" : "2.1.1"
+      }
+    },
+    {
+      "identity" : "taskgate",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mattmassicotte/TaskGate",
+      "state" : {
+        "revision" : "de13e6234d81fe3174362cf3aabddd3ae833c52e",
+        "version" : "0.4.0"
       }
     },
     {
