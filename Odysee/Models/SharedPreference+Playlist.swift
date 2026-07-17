@@ -305,3 +305,76 @@ extension SharedPreference.Collection {
         [.edited, .published].contains(origin)
     }
 }
+
+// MARK: - Mutators and Predicates
+
+extension SharedPreference {
+    /// Checks if a collection **not from `.saved`** is present in the saved collections.
+    ///
+    /// E.g. checking if a collection viewed from a Claim is saved or unsaved.
+    func isCollectionSaved(collection: Collection) -> Bool {
+        collection.origin != .saved && savedCollectionIds.contains(collection.collectionId)
+    }
+
+    mutating func addSavedCollection(collection: Collection) {
+        guard collection.origin == .claim, !savedCollectionIds.contains(collection.collectionId) else {
+            return
+        }
+
+        savedCollectionIds.append(collection.collectionId)
+    }
+
+    mutating func setBuiltinCollection(collection: Collection) -> Collection {
+        guard builtinCollections[collection.collectionId] != nil else {
+            return collection
+        }
+
+        return addOrSetCollection(group: &builtinCollections, collection: collection)
+    }
+
+    mutating func addOrSetEditedCollection(collection: Collection) -> Collection {
+        var collection = collection
+        // Because collection may come from published, make sure it's stored as edited
+        collection.origin = .edited
+        return addOrSetCollection(group: &editedCollections, collection: collection)
+    }
+
+    @discardableResult
+    mutating func addOrSetUnpublishedCollection(collection: Collection) -> Collection {
+        return addOrSetCollection(group: &unpublishedCollections, collection: collection)
+    }
+
+    /// Adds/updates collection in CollectionGroup\
+    /// Updates collection itemCount and updatedAt
+    private func addOrSetCollection(
+        group: inout CollectionGroup,
+        collection: Collection
+    ) -> Collection {
+        var collection = collection
+        collection.itemCount = collection.items.uris.count
+        collection.updatedAt = Int(Date().timeIntervalSince1970)
+
+        group[collection.collectionId] = collection
+
+        return collection
+    }
+
+    mutating func removeSavedCollection(collection: Collection) {
+        savedCollectionIds.removeAll { $0 == collection.collectionId }
+    }
+
+    mutating func removeEditedCollection(collection: Collection) {
+        removeCollection(group: &editedCollections, collection: collection)
+    }
+
+    mutating func removeUnpublishedCollection(collection: Collection) {
+        removeCollection(group: &unpublishedCollections, collection: collection)
+    }
+
+    private func removeCollection(
+        group: inout SharedPreference.CollectionGroup,
+        collection: SharedPreference.Collection
+    ) {
+        group.removeValue(forKey: collection.collectionId)
+    }
+}
