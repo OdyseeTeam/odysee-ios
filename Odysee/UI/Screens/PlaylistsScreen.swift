@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PlaylistsScreen: View {
+    @ObservedObject private var wallet = Wallet.shared
     @StateObject private var model: ViewModel = .init()
 
     // FIXME: Localize
@@ -66,7 +67,7 @@ struct PlaylistsScreen: View {
         var published = model.publishedCollections
 
         // Update the originalClaim on edited, and replace published with edited
-        let editedCollections = model.editedCollections.map {
+        let editedCollections = wallet.prefs.editedCollections.items.map {
             var edited = $0
 
             if let original = published[edited.collectionId] {
@@ -79,11 +80,13 @@ struct PlaylistsScreen: View {
 
         let publishedCollections = published.items
 
+        let unpublishedCollections = wallet.prefs.unpublishedCollections.items
+
         let all: [SharedPreference.Collection] = switch filterBy {
         case .all:
-            model.unpublishedCollections + publishedCollections + model.savedCollections
+            unpublishedCollections + publishedCollections + model.savedCollections
         case .private:
-            model.unpublishedCollections
+            unpublishedCollections
         case .public:
             publishedCollections
         case .edited:
@@ -127,7 +130,7 @@ struct PlaylistsScreen: View {
                                     .font(.title3)
                                     .padding(.horizontal)
 
-                                ForEach(model.builtinCollections) { collection in
+                                ForEach(wallet.prefs.builtinCollections.items) { collection in
                                     PlaylistListItem(collection: collection)
                                 }
                             }

@@ -189,42 +189,40 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             )
         )
         .subscribeResult { result in
-            Task {
-                self.loadingContainer.isHidden = true
-                switch result {
-                case let .failure(error):
-                    self.showError(error: error)
-                case let .success(page):
-                    self.commentsLastPageReached = page.isLastPage
-                    var loadedComments = page.items.filter {
-                        comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
-                    }
-                    if let blocked = (await Wallet.shared.blocked)?.map(\.claimId) {
-                        loadedComments.removeAll { blocked.contains($0.channelId) }
-                    }
-                    self.comments.append(contentsOf: loadedComments)
+            self.loadingContainer.isHidden = true
+            self.commentsLoading = false
 
-                    if loadedComments.count > 0 {
-                        self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
-                    }
-                    // resolve author map
-                    if self.comments.count > 0 {
-                        self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
-                    }
+            switch result {
+            case let .failure(error):
+                self.showError(error: error)
+            case let .success(page):
+                self.commentsLastPageReached = page.isLastPage
+                var loadedComments = page.items.filter {
+                    comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
+                }
+                let blocked = Wallet.prefs.blocked.map(\.claimId)
+                loadedComments.removeAll { blocked.contains($0.channelId) }
+                self.comments.append(contentsOf: loadedComments)
 
-                    self.commentsLoading = false
-                    self.commentList.reloadData()
-                    self.checkNoComments()
+                if loadedComments.count > 0 {
+                    self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+                }
+                // resolve author map
+                if self.comments.count > 0 {
+                    self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
+                }
 
-                    if self.currentCommentId != nil && !self.currentCommentIsReply {
-                        if !self.commentsLastPageReached && !self.comments.contains(where: {
-                            $0.commentId == self.currentCommentId
-                        }) {
-                            self.commentsCurrentPage += 1
-                            self.loadComments()
-                        } else if !self.hasScrolledToCurrentComment {
-                            self.scrollToCurrentComment()
-                        }
+                self.commentList.reloadData()
+                self.checkNoComments()
+
+                if self.currentCommentId != nil && !self.currentCommentIsReply {
+                    if !self.commentsLastPageReached && !self.comments.contains(where: {
+                        $0.commentId == self.currentCommentId
+                    }) {
+                        self.commentsCurrentPage += 1
+                        self.loadComments()
+                    } else if !self.hasScrolledToCurrentComment {
+                        self.scrollToCurrentComment()
                     }
                 }
             }
@@ -293,17 +291,15 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         Task {
-            let defaultChannelId = await Wallet.shared.defaultChannelId
+            let defaultChannelId = Wallet.prefs.defaultChannelId
             let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
             if channels.count > index, currentCommentAsIndex == -1 {
                 currentCommentAsIndex = index
                 updateCommentAsChannel(index)
             }
 
-            for await blocked in await Wallet.shared.$blocked {
-                guard let blocked = blocked?.map(\.claimId) else {
-                    continue
-                }
+            for await blocked in Wallet.$prefs.blocked {
+                let blocked = blocked.map(\.claimId)
 
                 comments.removeAll { blocked.contains($0.channelId) }
                 commentList.reloadData()

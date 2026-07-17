@@ -100,12 +100,10 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         tipButton.isEnabled = true
         channelPickerView.reloadAllComponents()
 
-        Task {
-            let defaultChannelId = await Wallet.shared.defaultChannelId
-            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
-            if channels.count > index {
-                channelPickerView.selectRow(index, inComponent: 0, animated: true)
-            }
+        let defaultChannelId = Wallet.prefs.defaultChannelId
+        let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+        if channels.count > index {
+            channelPickerView.selectRow(index, inComponent: 0, animated: true)
         }
     }
 

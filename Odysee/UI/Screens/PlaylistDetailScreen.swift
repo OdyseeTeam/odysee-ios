@@ -10,6 +10,7 @@ import WrappingHStack
 
 // TODO: Add button to play playlist from this screen
 struct PlaylistDetailScreen: View {
+    @ObservedObject private var wallet = Wallet.shared
     @StateObject private var model: ViewModel = .init()
     @EnvironmentObject private var playlistsModel: PlaylistsScreen.ViewModel
 
@@ -148,15 +149,12 @@ struct PlaylistDetailScreen: View {
                         }
                     } else {
                         Menu("More", systemImage: Icons.more) {
-                            if Wallet.isCollectionSaved(
-                                collection: collection,
-                                for: model.walletSavedCollectionIds
-                            ) {
+                            if wallet.prefs.isCollectionSaved(collection: collection) {
                                 Button("Unsave", systemImage: Icons.playlistUnsave, role: .destructive) {
                                     Task {
-                                        await Wallet.shared.removeSavedCollection(collection: collection)
-
-                                        await Wallet.shared.queuePushSync()
+                                        await Wallet.withSyncedPrefs { prefs in
+                                            prefs.removeSavedCollection(collection: collection)
+                                        }
 
                                         Helper.showMessage(message: "Playlist unsaved")
                                     }
@@ -164,9 +162,9 @@ struct PlaylistDetailScreen: View {
                             } else if collection.origin == .claim {
                                 Button("Save", systemImage: Icons.playlistSave) {
                                     Task {
-                                        await Wallet.shared.addSavedCollection(collection: collection)
-
-                                        await Wallet.shared.queuePushSync()
+                                        await Wallet.withSyncedPrefs { prefs in
+                                            prefs.addSavedCollection(collection: collection)
+                                        }
 
                                         Helper.showMessage(
                                             message: "Playlist saved. You can find it in Library -> Playlists"
@@ -282,9 +280,9 @@ struct PlaylistDetailScreen: View {
             ) {
                 Button("Clear Updates", role: .destructive) {
                     Task {
-                        await Wallet.shared.removeEdited(collection: collection)
-
-                        await Wallet.shared.queuePushSync()
+                        await Wallet.withSyncedPrefs { prefs in
+                            prefs.removeEditedCollection(collection: collection)
+                        }
 
                         Helper.showMessage(message: "Updates cleared")
                         // NOTE: View dismisses due to list item with NavigationLink being removed
