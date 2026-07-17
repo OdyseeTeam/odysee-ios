@@ -11,39 +11,30 @@ import Foundation
 /// Holds `Optional` as property wrapper properties can't be optional
 @propertyWrapper
 public struct Tags: Codable, Equatable {
-    private var tags: [String]?
-
-    public var wrappedValue: [String]? {
-        get {
-            return tags
-        }
-        set {
-            tags = newValue
-        }
-    }
+    public var wrappedValue: [String]?
 
     private struct Tag: Codable {
         var name: String
     }
 
     init(_ tags: [String]?) {
-        self.tags = tags
+        wrappedValue = tags
     }
 
     public init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
 
         if let tags = try? container.decode([String].self) {
-            self.tags = tags
+            wrappedValue = tags
         } else {
             let tags = try container.decode([Tag].self)
-            self.tags = tags.map(\.name)
+            wrappedValue = tags.map(\.name)
         }
     }
 
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode(tags?.map(Tag.init))
+        try container.encode(wrappedValue?.map(Tag.init))
     }
 }
 
