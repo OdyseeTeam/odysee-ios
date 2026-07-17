@@ -307,6 +307,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
                 comments.removeAll { blocked.contains($0.channelId) }
                 commentList.reloadData()
+                checkNoComments()
             }
         }
     }
