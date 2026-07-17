@@ -25,13 +25,9 @@ class LibraryViewController: UIViewController {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+        } else {
+            setupLibraryView()
         }
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        setupLibraryView()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -49,6 +45,10 @@ class LibraryViewController: UIViewController {
     }
 
     func setupLibraryView() {
+        guard library.parent == nil else {
+            return
+        }
+
         addChild(library)
         view.addSubview(library.view)
         library.didMove(toParent: self)
