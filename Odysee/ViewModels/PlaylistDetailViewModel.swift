@@ -17,18 +17,8 @@ extension PlaylistDetailScreen {
 
         @Published private(set) var claims: [Claim]
 
-        @Published private(set) var walletSavedCollectionIds: [String] = []
-
         init(claims: [Claim] = []) {
             self.claims = claims
-
-            Task<Void, Never> {
-                walletSavedCollectionIds = await Wallet.shared.savedCollectionIds
-
-                for await newSavedCollectionIds in await Wallet.shared.$savedCollectionIds {
-                    walletSavedCollectionIds = newSavedCollectionIds
-                }
-            }
         }
 
         func loadClaims(collection: SharedPreference.Collection) async throws {
@@ -74,30 +64,30 @@ extension PlaylistDetailScreen {
         func copy(collection: SharedPreference.Collection, title: String) async {
             let now = Int(Date().timeIntervalSince1970)
 
-            await Wallet.shared.addOrSetUnpublished(collection: .init(
-                id: UUID().uuidString,
-                items: .init(uris: claims.compactMap {
-                    guard let url = $0.permanentUrl else {
-                        return nil
-                    }
+            await Wallet.withSyncedPrefs { prefs in
+                prefs.addOrSetUnpublishedCollection(collection: .init(
+                    id: UUID().uuidString,
+                    items: .init(uris: claims.compactMap {
+                        guard let url = $0.permanentUrl else {
+                            return nil
+                        }
 
-                    return LbryUri.tryParse(url: url, requireProto: true)
-                }),
-                name: title,
-                title: title,
-                description: collection.description,
-                tags: collection.tags,
-                thumbnail: collection.thumbnail,
-                type: .playlist,
-                createdAt: now,
-                updatedAt: now,
-                itemCount: collection.itemCount,
-                sourceId: collection.originalClaim?.claimId,
+                        return LbryUri.tryParse(url: url, requireProto: true)
+                    }),
+                    name: title,
+                    title: title,
+                    description: collection.description,
+                    tags: collection.tags,
+                    thumbnail: collection.thumbnail,
+                    type: .playlist,
+                    createdAt: now,
+                    updatedAt: now,
+                    itemCount: collection.itemCount,
+                    sourceId: collection.originalClaim?.claimId,
 
-                origin: .unpublished
-            ))
-
-            await Wallet.shared.queuePushSync()
+                    origin: .unpublished
+                ))
+            }
         }
 
         func saveChanges(collection: SharedPreference.Collection) async -> SharedPreference.Collection {
@@ -115,23 +105,30 @@ extension PlaylistDetailScreen {
                 return LbryUri.tryParse(url: url, requireProto: true)
             }
 
-            collection = await Self.saveCollection(collection)
-
-            await Wallet.shared.queuePushSync()
+            do {
+                try await Wallet.withSyncedPrefsGet { prefs in
+                    collection = Self.saveCollection(collection, to: &prefs)
+                }
+            } catch {
+                Helper.showError(message: "Error saving playlist: \(error)")
+            }
 
             return collection
         }
 
-        @discardableResult nonisolated
-        static func saveCollection(_ collection: SharedPreference.Collection) async -> SharedPreference.Collection {
+        @discardableResult
+        static func saveCollection(
+            _ collection: SharedPreference.Collection,
+            to prefs: inout SharedPreference
+        ) -> SharedPreference.Collection {
             return switch collection.origin {
             case .builtin:
-                await Wallet.shared.setBuiltin(collection: collection)
+                prefs.setBuiltinCollection(collection: collection)
             case .edited,
                  .published:
-                await Wallet.shared.addOrSetEdited(collection: collection)
+                prefs.addOrSetEditedCollection(collection: collection)
             case .unpublished:
-                await Wallet.shared.addOrSetUnpublished(collection: collection)
+                prefs.addOrSetUnpublishedCollection(collection: collection)
             case .saved,
                  .claim,
                  .none:
@@ -151,8 +148,6 @@ extension PlaylistDetailScreen {
                         thumbnailUrl: collection.thumbnail?.url?.absoluteString,
                         channelId: collection.publishChannel?.claimId
                     ))
-
-                    await Wallet.shared.removeUnpublished(collection: collection)
                 } else {
                     _ = try await BackendMethods.collectionUpdate.call(params: .init(
                         claimId: collection.collectionId,
@@ -163,11 +158,15 @@ extension PlaylistDetailScreen {
                         thumbnailUrl: collection.thumbnail?.url?.absoluteString,
                         channelId: collection.publishChannel?.claimId
                     ))
-
-                    await Wallet.shared.removeEdited(collection: collection)
                 }
 
-                await Wallet.shared.queuePushSync()
+                await Wallet.withSyncedPrefs { prefs in
+                    if collection.origin == .unpublished {
+                        prefs.removeUnpublishedCollection(collection: collection)
+                    } else {
+                        prefs.removeEditedCollection(collection: collection)
+                    }
+                }
             } catch {
                 Helper.showError(message: "Error publishing playlist: \(error.localizedDescription)")
             }

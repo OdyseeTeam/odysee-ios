@@ -55,11 +55,7 @@ extension ManageFollowingScreen {
                                         }
                                     }
                                 } label: {
-                                    if ViewModel.isNotificationsDisabled(
-                                        follow: follow,
-                                        toSet: model.toSetNotificationsDisabled,
-                                        following: model.walletFollowing
-                                    ) {
+                                    if model.isNotificationsDisabled(follow: follow) {
                                         Label("Enable Notifications", systemImage: "bell")
                                     } else {
                                         Label("Disable Notifications", systemImage: "bell.slash")

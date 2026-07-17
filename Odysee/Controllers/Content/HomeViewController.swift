@@ -115,10 +115,8 @@ class HomeViewController: UIViewController,
         }
 
         Task {
-            for await blocked in await Wallet.shared.$blocked {
-                guard let blocked = blocked?.map(\.claimId) else {
-                    continue
-                }
+            for await blocked in Wallet.$prefs.blocked {
+                let blocked = blocked.map(\.claimId)
 
                 claims.removeAll { blocked.contains($0.signingChannel?.claimId) }
                 claimListView.reloadData()
@@ -145,26 +143,26 @@ class HomeViewController: UIViewController,
         assert(Thread.isMainThread)
         result.showErrorIfPresent()
 
-        Task {
-            if case var .success(payload) = result {
-                if let blocked = (await Wallet.shared.blocked)?.map(\.claimId) {
-                    payload.items.removeAll { blocked.contains($0.signingChannel?.claimId) }
-                }
+        if case var .success(payload) = result {
+            let blocked = Wallet.prefs.blocked.map(\.claimId)
 
-                let oldCount = claims.count
-                claims.append(contentsOf: payload.items)
-                if claims.count != oldCount {
-                    claimListView.reloadData()
-                }
-                claimsLastPageReached = payload.isLastPage
+            payload.items.removeAll { blocked.contains($0.signingChannel?.claimId) }
+
+            let oldCount = claims.count
+            claims.append(contentsOf: payload.items)
+            if claims.count != oldCount {
+                claimListView.reloadData()
             }
-            if !loadingLivestreams {
-                loadingContainer.isHidden = true
-            }
-            loadingClaims = false
-            checkNoContent()
-            refreshControl.endRefreshing()
+            claimsLastPageReached = payload.isLastPage
         }
+
+        if !loadingLivestreams {
+            loadingContainer.isHidden = true
+        }
+
+        loadingClaims = false
+        checkNoContent()
+        refreshControl.endRefreshing()
     }
 
     func loadClaims() {

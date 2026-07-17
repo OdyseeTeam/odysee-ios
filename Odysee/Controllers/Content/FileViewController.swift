@@ -2021,29 +2021,27 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let publisher = isPlaylist ? currentPlaylistClaim()?.signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
-            Task {
-                if await Wallet.shared.isFollowing(claim: channelClaim) {
-                    let alert = UIAlertController(
-                        title: String.localized("Stop following channel?"),
-                        message: String.localized("Are you sure you want to stop following this channel?"),
-                        preferredStyle: .alert
-                    )
-                    alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
-                        self.subscribeOrUnsubscribe(
-                            claim: channelClaim,
-                            notificationsDisabled: true, // Unused
-                            unsubscribing: true
-                        )
-                    })
-                    alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
-                    present(alert, animated: true, completion: nil)
-                } else {
-                    subscribeOrUnsubscribe(
+            if Wallet.prefs.isFollowing(claim: channelClaim) {
+                let alert = UIAlertController(
+                    title: String.localized("Stop following channel?"),
+                    message: String.localized("Are you sure you want to stop following this channel?"),
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
+                    self.subscribeOrUnsubscribe(
                         claim: channelClaim,
-                        notificationsDisabled: true, // New subscriptions have notifications disabled
-                        unsubscribing: false
+                        notificationsDisabled: true, // Unused
+                        unsubscribing: true
                     )
-                }
+                })
+                alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
+                present(alert, animated: true, completion: nil)
+            } else {
+                subscribeOrUnsubscribe(
+                    claim: channelClaim,
+                    notificationsDisabled: true, // New subscriptions have notifications disabled
+                    unsubscribing: false
+                )
             }
         }
     }
@@ -2057,13 +2055,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         let publisher = isPlaylist ? currentPlaylistClaim()?.signingChannel : claim?.signingChannel
         if let channelClaim = publisher {
-            Task {
-                subscribeOrUnsubscribe(
-                    claim: channelClaim,
-                    notificationsDisabled: !(await Wallet.shared.isNotificationsDisabled(claim: channelClaim)),
-                    unsubscribing: false
-                )
-            }
+            subscribeOrUnsubscribe(
+                claim: channelClaim,
+                notificationsDisabled: !Wallet.prefs.isNotificationsDisabled(claim: channelClaim),
+                unsubscribing: false
+            )
         }
     }
 
@@ -2072,32 +2068,28 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        Task {
-            if await Wallet.shared.isFollowing(claim: channelClaim) {
-                await MainActor.run {
-                    // show unfollow and bell icons
-                    self.followLabel.isHidden = true
-                    self.bellView.isHidden = false
-                    self.followUnfollowIconView.image = UIImage(systemName: Icons.unfollow)
-                    self.followUnfollowIconView.tintColor = UIColor.label
+        Task { @MainActor in
+            if Wallet.prefs.isFollowing(claim: channelClaim) {
+                // show unfollow and bell icons
+                self.followLabel.isHidden = true
+                self.bellView.isHidden = false
+                self.followUnfollowIconView.image = UIImage(systemName: Icons.unfollow)
+                self.followUnfollowIconView.tintColor = UIColor.label
 
-                    self.streamerFollowLabel.isHidden = true
-                    self.streamerBellView.isHidden = false
-                    self.streamerFollowUnfollowIconView.image = UIImage(systemName: Icons.unfollow)
-                    self.streamerFollowUnfollowIconView.tintColor = UIColor.label
-                }
+                self.streamerFollowLabel.isHidden = true
+                self.streamerBellView.isHidden = false
+                self.streamerFollowUnfollowIconView.image = UIImage(systemName: Icons.unfollow)
+                self.streamerFollowUnfollowIconView.tintColor = UIColor.label
             } else {
-                await MainActor.run {
-                    self.followLabel.isHidden = false
-                    self.bellView.isHidden = true
-                    self.followUnfollowIconView.image = UIImage(systemName: Icons.follow)
-                    self.followUnfollowIconView.tintColor = UIColor.systemRed
+                self.followLabel.isHidden = false
+                self.bellView.isHidden = true
+                self.followUnfollowIconView.image = UIImage(systemName: Icons.follow)
+                self.followUnfollowIconView.tintColor = UIColor.systemRed
 
-                    self.streamerFollowLabel.isHidden = false
-                    self.streamerBellView.isHidden = true
-                    self.streamerFollowUnfollowIconView.image = UIImage(systemName: Icons.follow)
-                    self.streamerFollowUnfollowIconView.tintColor = UIColor.systemRed
-                }
+                self.streamerFollowLabel.isHidden = false
+                self.streamerBellView.isHidden = true
+                self.streamerFollowUnfollowIconView.image = UIImage(systemName: Icons.follow)
+                self.streamerFollowUnfollowIconView.tintColor = UIColor.systemRed
             }
         }
     }
@@ -2107,15 +2099,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        Task {
-            let image = if await Wallet.shared.isNotificationsDisabled(claim: channelClaim) {
+        Task { @MainActor in
+            let image = if Wallet.prefs.isNotificationsDisabled(claim: channelClaim) {
                 "bell.fill"
             } else {
                 "bell.slash.fill"
             }
-            await MainActor.run {
-                self.bellIconView.image = UIImage(systemName: image)
-            }
+            bellIconView.image = UIImage(systemName: image)
         }
     }
 
@@ -2165,16 +2155,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                     }
 
                     Task {
-                        if !unsubscribing {
-                            await Wallet.shared.addOrSetFollowing(
-                                claim: claim,
-                                notificationsDisabled: notificationsDisabled
-                            )
-                        } else {
-                            await Wallet.shared.removeFollowing(claim: claim)
+                        await Wallet.withSyncedPrefs { prefs in
+                            if !unsubscribing {
+                                prefs.addOrSetFollowing(claim: claim, notificationsDisabled: notificationsDisabled)
+                            } else {
+                                prefs.removeFollowing(claim: claim)
+                            }
                         }
-
-                        await Wallet.shared.queuePushSync()
 
                         self.checkFollowing(actualClaim)
                         self.checkNotificationsDisabled(actualClaim)
@@ -2437,13 +2424,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
         Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
-        Task {
-            let defaultChannelId = await Wallet.shared.defaultChannelId
-            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
-            if channels.count > index, currentCommentAsIndex == -1 {
-                currentCommentAsIndex = index
-                updateCommentAsChannel(index)
-            }
+        let defaultChannelId = Wallet.prefs.defaultChannelId
+        let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+        if channels.count > index, currentCommentAsIndex == -1 {
+            currentCommentAsIndex = index
+            updateCommentAsChannel(index)
         }
     }
 

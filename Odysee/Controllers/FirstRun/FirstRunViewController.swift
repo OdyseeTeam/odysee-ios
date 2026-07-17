@@ -242,8 +242,9 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
                                 Lbryio.logPublishEvent(claimResult)
 
                                 Task {
-                                    await Wallet.shared.setDefaultChannelId(channelId: claimId)
-                                    await Wallet.shared.queuePushSync()
+                                    await Wallet.withSyncedPrefs { prefs in
+                                        prefs.setDefaultChannelId(channelId: claimId)
+                                    }
                                 }
                             }
                         } catch {

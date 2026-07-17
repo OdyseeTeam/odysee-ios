@@ -36,7 +36,7 @@ struct ChannelPicker: View {
                             let channels = claimList.items.filter { $0.claimId != Claim.anonymous.claimId }
                             Lbry.ownChannels = channels
 
-                            let defaultChannelId = await Wallet.shared.defaultChannelId
+                            let defaultChannelId = Wallet.prefs.defaultChannelId
                             channel = channels.first { $0.claimId == defaultChannelId } ?? Claim.anonymous
 
                             self.channels = channels + [Claim.anonymous]

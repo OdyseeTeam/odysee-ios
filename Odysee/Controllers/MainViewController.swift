@@ -108,7 +108,7 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             // check if the user is pending_delete
             if let pendingDeletion = Lbryio.currentUser?.pendingDeletion, pendingDeletion {
                 Task {
-                    await stopAllTimers()
+                    stopAllTimers()
                     await resetUserAndViews()
                     rerunInit()
                 }
@@ -174,10 +174,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
-    func stopAllTimers() async {
+    func stopAllTimers() {
         walletBalanceTimer.invalidate()
         balanceTimerScheduled = false
-        await Wallet.shared.stopSync()
+        Wallet.shared.stopSync()
     }
 
     func resetUserAndViews() async {

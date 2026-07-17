@@ -111,7 +111,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     @IBAction func signOutTapped(_ sender: Any) {
         Task {
             presentingViewController?.dismiss(animated: false, completion: nil)
-            await AppDelegate.shared.mainController?.stopAllTimers()
+            AppDelegate.shared.mainController?.stopAllTimers()
             await AppDelegate.shared.mainController?.resetUserAndViews()
             AppDelegate.shared.mainController?.rerunInit()
         }
@@ -329,39 +329,38 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
             return
         }
 
-        Task {
-            channels = page.items
+        channels = page.items
 
-            let channelActionHandler: UIActionHandler = { selected in
-                if let menu = self.changeDefaultChannelButton.menu {
-                    for action in menu.children {
-                        (action as? UIAction)?.state = action == selected ? .on : .off
-                    }
-                }
-
-                Task {
-                    await Wallet.shared.setDefaultChannelId(channelId: selected.identifier.rawValue)
-                    await Wallet.shared.queuePushSync()
+        let channelActionHandler: UIActionHandler = { [weak self] selected in
+            if let menu = self?.changeDefaultChannelButton.menu {
+                for action in menu.children {
+                    (action as? UIAction)?.state = action == selected ? .on : .off
                 }
             }
-            let defaultChannelId = await Wallet.shared.defaultChannelId
-            let channelActions = channels.compactMap { claim -> UIAction? in
-                if let name = claim.name, let claimId = claim.claimId {
-                    let action = UIAction(
-                        title: name,
-                        identifier: .init(claimId),
-                        handler: channelActionHandler
-                    )
-                    if claim.claimId == defaultChannelId {
-                        action.state = .on
-                    }
-                    return action
+
+            Task {
+                await Wallet.withSyncedPrefs { prefs in
+                    prefs.setDefaultChannelId(channelId: selected.identifier.rawValue)
                 }
-                return nil
             }
-            changeDefaultChannelButton.menu = UIMenu(title: "", children: channelActions)
-            changeDefaultChannelButton.showsMenuAsPrimaryAction = true
         }
+        let defaultChannelId = Wallet.prefs.defaultChannelId
+        let channelActions = channels.compactMap { claim -> UIAction? in
+            if let name = claim.name, let claimId = claim.claimId {
+                let action = UIAction(
+                    title: name,
+                    identifier: .init(claimId),
+                    handler: channelActionHandler
+                )
+                if claim.claimId == defaultChannelId {
+                    action.state = .on
+                }
+                return action
+            }
+            return nil
+        }
+        changeDefaultChannelButton.menu = UIMenu(title: "", children: channelActions)
+        changeDefaultChannelButton.showsMenuAsPrimaryAction = true
     }
 
     func showError(message: String) {

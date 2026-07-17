@@ -273,12 +273,10 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
             channels.append(contentsOf: page.items)
             channelPicker.reloadAllComponents()
 
-            Task {
-                let defaultChannelId = await Wallet.shared.defaultChannelId
-                let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
-                if channels.count > index {
-                    channelPicker.selectRow(index, inComponent: 0, animated: true)
-                }
+            let defaultChannelId = Wallet.prefs.defaultChannelId
+            let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
+            if channels.count > index {
+                channelPicker.selectRow(index, inComponent: 0, animated: true)
             }
 
             if channels.count > 0 {
