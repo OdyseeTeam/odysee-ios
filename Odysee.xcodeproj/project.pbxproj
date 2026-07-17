@@ -55,6 +55,8 @@
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
 		53BC58FE2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */; };
 		53C01F552F28CFFC008ED3F8 /* SignInUpScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */; };
+		53C411273006982400656530 /* SharedPreference+Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C411263006982400656530 /* SharedPreference+Settings.swift */; };
+		53C4112930069B9600656530 /* SharedPreference+Blocked.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4112830069B9600656530 /* SharedPreference+Blocked.swift */; };
 		53C4FA3F2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */; };
 		53C4FA412F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */; };
 		53D4CFAC2F2C5A9000F395A3 /* SignInUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */; };
@@ -216,6 +218,8 @@
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
 		53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LivestreamCollectionViewCell.swift; sourceTree = "<group>"; };
 		53C01F542F28CFFC008ED3F8 /* SignInUpScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpScreen.swift; sourceTree = "<group>"; };
+		53C411263006982400656530 /* SharedPreference+Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Settings.swift"; sourceTree = "<group>"; };
+		53C4112830069B9600656530 /* SharedPreference+Blocked.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+Blocked.swift"; sourceTree = "<group>"; };
 		53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubeSyncScreen+Status.swift"; sourceTree = "<group>"; };
 		53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubeSyncScreen+Setup.swift"; sourceTree = "<group>"; };
 		53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpViewModel.swift; sourceTree = "<group>"; };
@@ -448,7 +452,9 @@
 				539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */,
 				5391E4392EFE6C88008EF30A /* SharedPreference.swift */,
 				534457B92F87732F00E81A7E /* SharedPreference+Following.swift */,
+				53C4112830069B9600656530 /* SharedPreference+Blocked.swift */,
 				534457BB2F87741700E81A7E /* SharedPreference+Playlist.swift */,
+				53C411263006982400656530 /* SharedPreference+Settings.swift */,
 				5359CABC2FB2D5ED0035D0D6 /* Tags.swift */,
 				532FCAAD2FEE75C200CBBAB1 /* Wallet.swift */,
 			);
@@ -890,6 +896,7 @@
 				646E54DD257DCD6100BEBFBE /* UIPaddedLabel.swift in Sources */,
 				645912222620789E00B2ABA5 /* ChatMessageTableViewCell.swift in Sources */,
 				534CCCA92F3C74CC00457BBF /* YouTubeSyncViewModel.swift in Sources */,
+				53C411273006982400656530 /* SharedPreference+Settings.swift in Sources */,
 				CC015768267C1A0B00F96EFE /* ResolveResult.swift in Sources */,
 				64D72BBA258C952A00F5C4E3 /* RewardVerified.swift in Sources */,
 				530525AB28125CCE00D92A2E /* Txo.swift in Sources */,
@@ -971,6 +978,7 @@
 				64D0CFED25728D2A00A89B0A /* FollowingViewController.swift in Sources */,
 				CC015766267A9C1100F96EFE /* ImageURLs.swift in Sources */,
 				641682D825ACBA7800BCDC3A /* CommentsViewController.swift in Sources */,
+				53C4112930069B9600656530 /* SharedPreference+Blocked.swift in Sources */,
 				64D72BC3258CDEC400F5C4E3 /* Reward.swift in Sources */,
 				53B25D4A2FC733F400D91F8B /* Icons.swift in Sources */,
 				5301F1C72F6A7F3A0033B54D /* WatchHistoryViewModel.swift in Sources */,

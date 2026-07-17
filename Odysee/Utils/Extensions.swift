@@ -64,6 +64,12 @@ extension Optional {
     }
 }
 
+extension Optional {
+    func orElse(_ other: Wrapped) -> Wrapped {
+        self ?? other
+    }
+}
+
 extension Binding {
     func orElse<T>(_ other: T) -> Binding<T> where Value == T? {
         .init {
