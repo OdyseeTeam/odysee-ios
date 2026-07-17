@@ -160,7 +160,7 @@ class CommentTableViewCell: UITableViewCell {
 
     @objc func blockChannelTapped(_ sender: Any) {
         guard let mainVc = AppDelegate.shared.mainViewController as? MainViewController,
-              let claimId = currentComment?.claimId,
+              let channelId = currentComment?.channelId,
               let channelName = currentComment?.channelName
         else {
             return
@@ -178,7 +178,7 @@ class CommentTableViewCell: UITableViewCell {
         )
         alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .destructive) { _ in
             Task {
-                await Wallet.shared.addBlocked(channelName: channelName, claimId: claimId)
+                await Wallet.shared.addBlocked(channelName: channelName, claimId: channelId)
 
                 await Wallet.shared.queuePushSync()
             }
