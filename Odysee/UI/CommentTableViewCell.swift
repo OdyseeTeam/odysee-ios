@@ -178,9 +178,9 @@ class CommentTableViewCell: UITableViewCell {
         )
         alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .destructive) { _ in
             Task {
-                await Wallet.shared.addBlocked(channelName: channelName, claimId: channelId)
-
-                await Wallet.shared.queuePushSync()
+                await Wallet.withSyncedPrefs { prefs in
+                    prefs.addBlocked(channelName: channelName, claimId: channelId)
+                }
             }
         })
         alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))

@@ -127,23 +127,14 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         contentListView.addSubview(refreshControl)
 
         Task {
-            await update(await Wallet.shared.following)
-
-            for await newFollowing in await Wallet.shared.$following {
+            for await newFollowing in Wallet.$prefs.following {
                 await update(newFollowing)
             }
         }
     }
 
-    func update(_ newFollowing: Wallet.Following?) async {
+    func update(_ newFollowing: SharedPreference.Follows) async {
         following.removeAll(keepingCapacity: true)
-
-        guard let newFollowing else {
-            loadingContainer.isHidden = false
-            suggestedView.isHidden = true
-            mainView.isHidden = true
-            return
-        }
 
         do {
             guard newFollowing.count > 0 else {
@@ -152,10 +143,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
                 loadSuggestedFollows()
 
-                manageFollowing.rootView.model.update(
-                    following: [],
-                    walletFollowing: [:]
-                )
+                manageFollowing.rootView.model.update(following: [])
 
                 return
             }
@@ -168,10 +156,7 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
             following.append(contentsOf: resolve.claims.values.sorted())
 
-            manageFollowing.rootView.model.update(
-                following: Array(following),
-                walletFollowing: newFollowing
-            )
+            manageFollowing.rootView.model.update(following: Array(following))
 
             checkSelectedChannel()
             channelListView.reloadData()
@@ -304,9 +289,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     @IBAction func doneTapped(_ sender: UIButton) {
         Task {
-            guard let following = await Wallet.shared.following,
-                  following.count + selectedSuggestedFollows.count > 0
-            else {
+            let following = Wallet.prefs.following
+
+            guard following.count + selectedSuggestedFollows.count > 0 else {
                 Helper.showMessage(message: String.localized("Please select one or more creators to follow"))
                 return
             }
@@ -535,11 +520,11 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             try await taskGroup.waitForAll()
         }
 
-        await Wallet.shared.addOrSetFollowingAll(values: Dictionary(
-            selected.map { ($0, true) }, uniquingKeysWith: { _, last in last }
-        ))
-
-        await Wallet.shared.queuePushSync()
+        await Wallet.withSyncedPrefs { prefs in
+            prefs.addOrSetFollowingAll(values: Dictionary(
+                selected.map { ($0, true) }, uniquingKeysWith: { _, last in last }
+            ))
+        }
     }
 
     func scrollViewDidScroll(_ scrollView: UIScrollView) {

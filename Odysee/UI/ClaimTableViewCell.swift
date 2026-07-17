@@ -359,16 +359,18 @@ class ClaimTableViewCell: UITableViewCell {
                                     alert.addAction(UIAlertAction(title: __("Confirm"), style: .default) { _ in
                                         Task {
                                             guard let title = alert.textFields?.first?.text else {
-                                                Helper
-                                                    .showError(message: "Couldn't get playlist title, please try again")
+                                                Helper.showError(
+                                                    message: "Couldn't get playlist title, please try again"
+                                                )
                                                 return
                                             }
 
                                             var collection = PlaylistsScreen.ViewModel.newPlaylist(title: title)
                                             collection.items.uris = [uri]
 
-                                            await PlaylistDetailScreen.ViewModel.saveCollection(collection)
-                                            await Wallet.shared.queuePushSync()
+                                            await Wallet.withSyncedPrefs { prefs in
+                                                PlaylistDetailScreen.ViewModel.saveCollection(collection, to: &prefs)
+                                            }
 
                                             Helper.showMessage(message: "Added to \(collection.titleOrName)")
                                         }
@@ -419,8 +421,9 @@ class ClaimTableViewCell: UITableViewCell {
                                         var collection = collection
                                         collection.items.uris = uris
 
-                                        await PlaylistDetailScreen.ViewModel.saveCollection(collection)
-                                        await Wallet.shared.queuePushSync()
+                                        await Wallet.withSyncedPrefs { prefs in
+                                            PlaylistDetailScreen.ViewModel.saveCollection(collection, to: &prefs)
+                                        }
 
                                         Helper.showMessage(message: "Added to \(collection.titleOrName)")
                                     }
@@ -429,18 +432,18 @@ class ClaimTableViewCell: UITableViewCell {
 
                             let builtinMenu = UIMenu(
                                 title: "", options: .displayInline,
-                                children: await Wallet.shared.builtinCollections.values.map {
+                                children: Wallet.prefs.builtinCollections.items.map {
                                     UIAction(title: $0.titleOrName, handler: handler($0))
                                 }
                             )
 
                             actions.append(builtinMenu)
 
-                            var playlists = await Wallet.shared.unpublishedCollections.items
+                            var playlists = Wallet.prefs.unpublishedCollections.items
                             do {
                                 var published = try await PlaylistsScreen.ViewModel.collectionListAll()
 
-                                for var edited in await Wallet.shared.editedCollections.items {
+                                for var edited in Wallet.prefs.editedCollections.items {
                                     if let original = published[edited.collectionId] {
                                         edited.originalClaim = original.originalClaim
                                         published[edited.collectionId] = edited
