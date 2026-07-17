@@ -9,8 +9,7 @@ import Foundation
 import ValueCodable
 
 public struct SharedPreference: Codable {
-    var subscriptions: [LbryUri]
-    var following: [Following]
+    @Following var following: Follows
     var blocked: [LbryUri]
     var defaultChannelId: String?
     var builtinCollections: CollectionGroup
@@ -43,8 +42,7 @@ public struct SharedPreference: Codable {
     }
 
     init() {
-        subscriptions = []
-        following = []
+        _following = .init([:])
         blocked = []
         builtinCollections = Self.defaultBuiltinCollections
         editedCollections = [:]
@@ -131,14 +129,18 @@ public struct SharedPreference: Codable {
             otherSettings[key.stringValue] = try settings.decode(Value.self, forKey: key)
         }
 
-        subscriptions = try value.decode([LbryUri].self, forKey: .subscriptions)
-        following = try value.decode([Following].self, forKey: .following)
+        _following = try value.decode(Following.self, forKey: .following)
         blocked = try value.decode([LbryUri].self, forKey: .blocked)
         builtinCollections = try value.decodeIfPresent(CollectionGroup.self, forKey: .builtinCollections)
-            ?? Self.defaultBuiltinCollections
-        editedCollections = try value.decodeIfPresent(CollectionGroup.self, forKey: .editedCollections) ?? [:]
+            .orElse(Self.defaultBuiltinCollections)
+            .withOrigin(.builtin)
+        editedCollections = try value.decodeIfPresent(CollectionGroup.self, forKey: .editedCollections)
+            .orElse([:])
+            .withOrigin(.edited)
         savedCollectionIds = try value.decodeIfPresent([String].self, forKey: .savedCollectionIds) ?? []
-        unpublishedCollections = try value.decodeIfPresent(CollectionGroup.self, forKey: .unpublishedCollections) ?? [:]
+        unpublishedCollections = try value.decodeIfPresent(CollectionGroup.self, forKey: .unpublishedCollections)
+            .orElse([:])
+            .withOrigin(.unpublished)
         defaultChannelId = try settings.decodeIfPresent(String.self, forKey: .defaultChannelId)
     }
 
@@ -156,8 +158,8 @@ public struct SharedPreference: Codable {
 
         try container.encode(Self.type, forKey: .type)
         try container.encode(Self.version, forKey: .version)
-        try value.encode(subscriptions, forKey: .subscriptions)
-        try value.encode(following, forKey: .following)
+        try value.encode(Array(following.keys), forKey: .subscriptions)
+        try value.encode(_following, forKey: .following)
         try value.encode(blocked, forKey: .blocked)
         try value.encode(builtinCollections, forKey: .builtinCollections)
         try value.encode(editedCollections, forKey: .editedCollections)
