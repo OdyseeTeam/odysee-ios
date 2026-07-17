@@ -13,10 +13,8 @@ extension ManageFollowingScreen {
         @Published private(set) var inProgress = false
 
         @Published private(set) var following: [Claim]?
-        // Local copy used for checking notificationsDisabled
-        @Published private(set) var walletFollowing: Wallet.Following?
 
-        @Published private(set) var toSetNotificationsDisabled = [Claim: Wallet.NotificationsDisabled]()
+        @Published private(set) var toSetNotificationsDisabled = [Claim: SharedPreference.NotificationsDisabled]()
 
         private var toRemove: [Claim] = []
 
@@ -24,14 +22,8 @@ extension ManageFollowingScreen {
             self.following = following
         }
 
-        func update(following: [Claim], walletFollowing: Wallet.Following) {
-            inProgress = true
-            defer {
-                inProgress = false
-            }
-
+        func update(following: [Claim]) {
             self.following = following
-            self.walletFollowing = walletFollowing
         }
 
         func refresh() async throws {
@@ -48,21 +40,15 @@ extension ManageFollowingScreen {
             }
         }
 
-        static func isNotificationsDisabled(
-            follow: Claim, toSet: [Claim: Wallet.NotificationsDisabled], following: Wallet.Following?
-        ) -> Wallet.NotificationsDisabled {
-            return toSet[
+        func isNotificationsDisabled(follow: Claim) -> SharedPreference.NotificationsDisabled {
+            return toSetNotificationsDisabled[
                 follow,
-                default: Wallet.isNotificationsDisabled(claim: follow, for: following)
+                default: Wallet.prefs.isNotificationsDisabled(claim: follow)
             ]
         }
 
-        func markToggleNotificationsDisabled(follow: Claim) -> Wallet.NotificationsDisabled {
-            let new = !Self.isNotificationsDisabled(
-                follow: follow,
-                toSet: toSetNotificationsDisabled,
-                following: walletFollowing
-            )
+        func markToggleNotificationsDisabled(follow: Claim) -> SharedPreference.NotificationsDisabled {
+            let new = !isNotificationsDisabled(follow: follow)
             toSetNotificationsDisabled[follow] = new
             return new
         }
@@ -118,10 +104,11 @@ extension ManageFollowingScreen {
                 try await taskGroup.waitForAll()
             }
 
-            await Wallet.shared.updateNotificationsDisabledAll_and_removeFollowingAll(
-                toUpdate: toUpdate, toRemove: toRemove
-            )
-            await Wallet.shared.queuePushSync()
+            await Wallet.withSyncedPrefs { prefs in
+                prefs.updateNotificationsDisabledAll_and_removeFollowingAll(
+                    toUpdate: toUpdate, toRemove: toRemove
+                )
+            }
 
             toSetNotificationsDisabled.removeAll()
             toRemove.removeAll()

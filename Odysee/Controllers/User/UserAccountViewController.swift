@@ -17,7 +17,7 @@ class UserAccountViewController: UIViewController {
             },
             model: .init(
                 finish: { [weak self] in
-                    Task { await self?.finishWithWalletSync() }
+                    self?.finishWithWalletSync()
                 },
                 frRequestStarted: { [weak self] in
                     self?.frDelegate?.requestStarted()
@@ -109,8 +109,8 @@ class UserAccountViewController: UIViewController {
         navigationController.popToViewController(targetVc, animated: true)
     }
 
-    func finishWithWalletSync() async {
-        await Wallet.shared.startSync()
+    func finishWithWalletSync() {
+        Wallet.shared.startSync()
 
         AppDelegate.shared.mainController?.checkUploadButton()
         AppDelegate.shared.mainController?.startWalletBalanceTimer()

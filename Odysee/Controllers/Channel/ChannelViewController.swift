@@ -172,11 +172,10 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         }
 
         Task {
-            for await _ in await Wallet.shared.$blocked {
+            for await _ in Wallet.$prefs.blocked {
                 if let claimId = channelClaim?.claimId {
                     blockUnblockLabel.text = String.localized(
-                        await Wallet.shared.isBlocked(claimId: claimId) ?
-                            "Unblock channel" : "Block channel"
+                        Wallet.prefs.isBlocked(claimId: claimId) ? "Unblock channel" : "Block channel"
                     )
                 }
             }
@@ -344,12 +343,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
            let claimId = channelClaim?.claimId,
            let name = channelClaim?.name
         {
-            Task {
-                blockUnblockLabel.text = String.localized(
-                    await Wallet.shared.isBlocked(claimId: claimId) ?
-                        "Unblock channel" : "Block channel"
-                )
-            }
+            blockUnblockLabel.text = String.localized(
+                Wallet.prefs.isBlocked(claimId: claimId) ? "Unblock channel" : "Block channel"
+            )
 
             Lbryio.areCommentsEnabled(
                 claimId: claimId,
@@ -775,22 +771,18 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     func checkFollowing() {
-        Task {
-            if let channelClaim, await Wallet.shared.isFollowing(claim: channelClaim) {
-                await MainActor.run {
-                    // show unfollow and bell icons
-                    self.followLabel.isHidden = true
-                    self.bellView.isHidden = false
-                    self.followUnfollowIconView.image = UIImage(systemName: Icons.unfollow)
-                    self.followUnfollowIconView.tintColor = UIColor.label
-                }
+        Task { @MainActor in
+            if let channelClaim, Wallet.prefs.isFollowing(claim: channelClaim) {
+                // show unfollow and bell icons
+                self.followLabel.isHidden = true
+                self.bellView.isHidden = false
+                self.followUnfollowIconView.image = UIImage(systemName: Icons.unfollow)
+                self.followUnfollowIconView.tintColor = UIColor.label
             } else {
-                await MainActor.run {
-                    self.followLabel.isHidden = false
-                    self.bellView.isHidden = true
-                    self.followUnfollowIconView.image = UIImage(systemName: Icons.follow)
-                    self.followUnfollowIconView.tintColor = UIColor.systemRed
-                }
+                self.followLabel.isHidden = false
+                self.bellView.isHidden = true
+                self.followUnfollowIconView.image = UIImage(systemName: Icons.follow)
+                self.followUnfollowIconView.tintColor = UIColor.systemRed
             }
         }
     }
@@ -800,17 +792,15 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
-        Task {
-            let (image, message) = if await Wallet.shared.isNotificationsDisabled(claim: channelClaim) {
+        Task { @MainActor in
+            let (image, message) = if Wallet.prefs.isNotificationsDisabled(claim: channelClaim) {
                 (Icons.enableNotifications, "You will not receive notifications for this channel")
             } else {
                 (Icons.disableNotifications, "You will receive all notifications")
             }
-            await MainActor.run {
-                self.bellIconView.image = UIImage(systemName: image)
-                if showMessage {
-                    self.showMessage(message: String.localized(message))
-                }
+            bellIconView.image = UIImage(systemName: image)
+            if showMessage {
+                self.showMessage(message: String.localized(message))
             }
         }
     }
@@ -858,32 +848,32 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
-        Task {
-            if await Wallet.shared.isBlocked(claimId: claimId) {
-                await Wallet.shared.removeBlocked(claimId: claimId)
-
-                await Wallet.shared.queuePushSync()
-            } else {
-                let alert = UIAlertController(
-                    title: String(format: String.localized("Block %@?"), channelName),
-                    message: String(
-                        format: String.localized(
-                            "Are you sure you want to block this channel? You will no longer see comments nor content from %@."
-                        ),
-                        channelName
-                    ),
-                    preferredStyle: .alert
-                )
-                alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .destructive) { _ in
-                    Task {
-                        await Wallet.shared.addBlocked(channelName: channelName, claimId: claimId)
-
-                        await Wallet.shared.queuePushSync()
-                    }
-                })
-                alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
-                present(alert, animated: true)
+        if Wallet.prefs.isBlocked(claimId: claimId) {
+            Task {
+                await Wallet.withSyncedPrefs { prefs in
+                    prefs.removeBlocked(claimId: claimId)
+                }
             }
+        } else {
+            let alert = UIAlertController(
+                title: String(format: String.localized("Block %@?"), channelName),
+                message: String(
+                    format: String.localized(
+                        "Are you sure you want to block this channel? You will no longer see comments nor content from %@."
+                    ),
+                    channelName
+                ),
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: String.localized("Yes"), style: .destructive) { _ in
+                Task {
+                    await Wallet.withSyncedPrefs { prefs in
+                        prefs.addBlocked(channelName: channelName, claimId: claimId)
+                    }
+                }
+            })
+            alert.addAction(UIAlertAction(title: String.localized("No"), style: .cancel))
+            present(alert, animated: true)
         }
     }
 
@@ -910,29 +900,27 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
-        Task {
-            if await Wallet.shared.isFollowing(claim: channelClaim) {
-                let alert = UIAlertController(
-                    title: String.localized("Stop following channel?"),
-                    message: String.localized("Are you sure you want to stop following this channel?"),
-                    preferredStyle: .alert
-                )
-                alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
-                    self.subscribeOrUnsubscribe(
-                        claim: channelClaim,
-                        notificationsDisabled: true, // Unused
-                        unsubscribing: true
-                    )
-                })
-                alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
-                present(alert, animated: true, completion: nil)
-            } else {
-                subscribeOrUnsubscribe(
+        if Wallet.prefs.isFollowing(claim: channelClaim) {
+            let alert = UIAlertController(
+                title: String.localized("Stop following channel?"),
+                message: String.localized("Are you sure you want to stop following this channel?"),
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "Yes", style: .destructive) { _ in
+                self.subscribeOrUnsubscribe(
                     claim: channelClaim,
-                    notificationsDisabled: true, // New subscriptions have notifications disabled
-                    unsubscribing: false
+                    notificationsDisabled: true, // Unused
+                    unsubscribing: true
                 )
-            }
+            })
+            alert.addAction(UIAlertAction(title: "No", style: .cancel, handler: { _ in }))
+            present(alert, animated: true, completion: nil)
+        } else {
+            subscribeOrUnsubscribe(
+                claim: channelClaim,
+                notificationsDisabled: true, // New subscriptions have notifications disabled
+                unsubscribing: false
+            )
         }
     }
 
@@ -945,13 +933,11 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
-        Task {
-            subscribeOrUnsubscribe(
-                claim: channelClaim,
-                notificationsDisabled: !(await Wallet.shared.isNotificationsDisabled(claim: channelClaim)),
-                unsubscribing: false
-            )
-        }
+        subscribeOrUnsubscribe(
+            claim: channelClaim,
+            notificationsDisabled: !Wallet.prefs.isNotificationsDisabled(claim: channelClaim),
+            unsubscribing: false
+        )
     }
 
     func subscribeOrUnsubscribe(claim: Claim, notificationsDisabled: Bool, unsubscribing: Bool) {
@@ -988,16 +974,13 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
                     }
 
                     Task {
-                        if !unsubscribing {
-                            await Wallet.shared.addOrSetFollowing(
-                                claim: claim,
-                                notificationsDisabled: notificationsDisabled
-                            )
-                        } else {
-                            await Wallet.shared.removeFollowing(claim: claim)
+                        await Wallet.withSyncedPrefs { prefs in
+                            if !unsubscribing {
+                                prefs.addOrSetFollowing(claim: claim, notificationsDisabled: notificationsDisabled)
+                            } else {
+                                prefs.removeFollowing(claim: claim)
+                            }
                         }
-
-                        await Wallet.shared.queuePushSync()
 
                         self.checkFollowing()
                         if !unsubscribing {
