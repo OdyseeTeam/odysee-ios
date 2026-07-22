@@ -202,6 +202,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
         if AppDelegate.shared.currentClaim == claim || AppDelegate.shared.currentClaim == currentPlaylistClaim() {
             AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: true)
+        } else {
+            closeOldMiniPlayer()
         }
         AppDelegate.shared.currentFileViewController = self
 
@@ -1077,6 +1079,13 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
 
+    func closeOldMiniPlayer() {
+        // Close PiP if any
+        AppDelegate.shared.currentFileViewController?.avpc.allowsPictureInPicturePlayback = false
+
+        (AppDelegate.shared.mainViewController as? MainViewController)?.closeMiniPlayerTapped(self)
+    }
+
     func initializePlayerWithUrl(
         singleClaim: Claim,
         sourceUrl: URL,
@@ -1112,12 +1121,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
 
         playerStartedObserver = currentPlayer?.observe(\.rate, options: .new) { [self] _, _ in
             playerStartedObserver = nil
-
-            let saveCurrent = AppDelegate.shared.currentClaim
-            let saveCurrentPlaylist = AppDelegate.shared.currentPlaylistClaim
-            (AppDelegate.shared.mainViewController as? MainViewController)?.closeMiniPlayerTapped(self)
-            AppDelegate.shared.currentClaim = saveCurrent
-            AppDelegate.shared.currentPlaylistClaim = saveCurrentPlaylist
 
             AppDelegate.shared.lazyPlayer?.pause()
 

@@ -807,11 +807,18 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         _ playerViewController: AVPlayerViewController,
         restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void
     ) {
+        defer {
+            completionHandler(true)
+        }
+
+        if AppDelegate.shared.currentClaim == nil {
+            return
+        }
+
         if AppDelegate.shared.mainNavigationController?.topViewController ==
             AppDelegate.shared.currentFileViewController,
             AppDelegate.shared.currentFileViewController?.claim == AppDelegate.shared.pictureInPicturePlayingClaim
         {
-            completionHandler(true)
             return
         }
 
@@ -829,7 +836,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
                 forKey: kCATransition
             )
             AppDelegate.shared.mainNavigationController?.pushViewController(fileVc, animated: false)
-            completionHandler(true)
             return
         }
 
@@ -842,8 +848,6 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
             forKey: kCATransition
         )
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
-
-        completionHandler(true)
     }
 
     func playerViewController(
