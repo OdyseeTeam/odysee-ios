@@ -254,6 +254,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         AppDelegate.shared.currentPlaylistClaim = nil
         AppDelegate.shared.currentClaim = nil
 
+        // Close PiP if any, and dealloc file vc
+        AppDelegate.shared.currentFileViewController?.avpc.allowsPictureInPicturePlayback = false
+        AppDelegate.shared.currentFileViewController = nil
+
         toggleMiniPlayer(hidden: true)
     }
 
