@@ -416,7 +416,7 @@ class HomeViewController: UIViewController,
         vc.claim = claim
 
         AppDelegate.shared.mainNavigationController?.view.layer.add(
-            Helper.buildFileViewTransition(),
+            Helper.fileViewTransition,
             forKey: kCATransition
         )
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)

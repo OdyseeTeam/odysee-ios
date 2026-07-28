@@ -76,7 +76,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
                     let vc = storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
                     vc.claimUrl = lbryUrl
                     AppDelegate.shared.mainNavigationController?.view.layer.add(
-                        Helper.buildFileViewTransition(),
+                        Helper.fileViewTransition,
                         forKey: kCATransition
                     )
                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
@@ -350,7 +350,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
            fileVc.currentPlaylistClaim() == AppDelegate.shared.currentClaim
         {
             AppDelegate.shared.mainNavigationController?.view.layer.add(
-                Helper.buildFileViewTransition(),
+                Helper.fileViewTransition,
                 forKey: kCATransition
             )
             AppDelegate.shared.mainNavigationController?.pushViewController(fileVc, animated: false)
@@ -363,7 +363,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
             vc.claim = AppDelegate.shared.currentClaim
 
             AppDelegate.shared.mainNavigationController?.view.layer.add(
-                Helper.buildFileViewTransition(),
+                Helper.fileViewTransition,
                 forKey: kCATransition
             )
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
@@ -880,7 +880,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
            fileVc.claim == AppDelegate.shared.pictureInPicturePlayingClaim
         {
             AppDelegate.shared.mainNavigationController?.view.layer.add(
-                Helper.buildFileViewTransition(),
+                Helper.fileViewTransition,
                 forKey: kCATransition
             )
             AppDelegate.shared.mainNavigationController?.pushViewController(fileVc, animated: false)
@@ -892,7 +892,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         vc.claim = AppDelegate.shared.pictureInPicturePlayingClaim
 
         AppDelegate.shared.mainNavigationController?.view.layer.add(
-            Helper.buildFileViewTransition(),
+            Helper.fileViewTransition,
             forKey: kCATransition
         )
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
