@@ -238,7 +238,7 @@ enum Helper {
     }
 
     static var miniPlayerBottomWithTabBar: CGFloat {
-        (AppDelegate.shared.mainTabViewController?.tabBar.frame.size.height ?? 0) + 2
+        (AppDelegate.shared.mainTabViewController?.tabBar.frame.size.height ?? 0) + 8
     }
 
     static func makeid() -> String {

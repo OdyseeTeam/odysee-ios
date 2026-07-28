@@ -12,7 +12,9 @@ import MediaPlayer
 import MessageUI
 import UIKit
 
-class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMailComposeViewControllerDelegate {
+class MainViewController: UIViewController, UINavigationControllerDelegate, AVPlayerViewControllerDelegate,
+    MFMailComposeViewControllerDelegate
+{
     @IBOutlet var headerArea: UIView!
     @IBOutlet var headerAreaHeightConstraint: NSLayoutConstraint!
     @IBOutlet var containerBelowHeaderConstraint: NSLayoutConstraint!
@@ -52,6 +54,9 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
+        mainNavigationController.delegate = self
+
         snackbar.sbLength = .long
         checkAndShowFirstRun()
         checkUploadButton()
@@ -234,8 +239,30 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         view.layoutIfNeeded()
     }
 
-    func adjustMiniPlayerBottom(bottom: CGFloat) {
-        miniPlayerBottomConstraint.constant = bottom
+    func adjustMiniPlayerBottom() {
+        // Run after the UI thread settles
+        // If not, tab bar height from iPhone orientation change isn't updated
+        Task { @MainActor in
+            guard let tabs = AppDelegate.shared.mainTabViewController?.tabBar.items,
+                  let currentVc = UIApplication.currentViewController()
+            else {
+                return
+            }
+
+            if tabs.contains(currentVc.tabBarItem) {
+                // If iPad large window and iOS 18+ (tab bar is on top), remove miniplayer bottom space
+                if #available(iOS 18, *),
+                   traitCollection.horizontalSizeClass == .regular && traitCollection.verticalSizeClass == .regular
+                {
+                    miniPlayerBottomConstraint.constant = Helper.miniPlayerBottomWithoutTabBar
+                } else {
+                    miniPlayerBottomConstraint.constant = Helper.miniPlayerBottomWithTabBar
+                }
+            } else {
+                // Tab bar isn't visible (a different vc is pushed above)
+                miniPlayerBottomConstraint.constant = Helper.miniPlayerBottomWithoutTabBar
+            }
+        }
     }
 
     @IBAction func closeMiniPlayerTapped(_ sender: Any) {
@@ -619,6 +646,10 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
     func toggleMiniPlayer(hidden: Bool) {
         miniPlayerView.isHidden = hidden
+
+        if !hidden {
+            adjustMiniPlayerBottom()
+        }
     }
 
     func showMessage(message: String?) {
@@ -793,6 +824,19 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         {
             AppDelegate.shared.mainTabViewController?.selectedIndex = 0
         }
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        adjustMiniPlayerBottom()
+    }
+
+    func navigationController(
+        _ navigationController: UINavigationController,
+        didShow viewController: UIViewController,
+        animated: Bool
+    ) {
+        adjustMiniPlayerBottom()
     }
 
     func playerViewControllerShouldAutomaticallyDismissAtPictureInPictureStart(
