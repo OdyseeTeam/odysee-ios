@@ -39,7 +39,6 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     override func viewWillAppear(_ animated: Bool) {
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar)
 
         if Lbryio.isSignedIn() {
             if !(Lbryio.currentUser?.isRewardApproved ?? false) {

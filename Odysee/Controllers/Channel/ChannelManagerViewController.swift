@@ -26,7 +26,6 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar)
     }
 
     override func viewDidAppear(_ animated: Bool) {

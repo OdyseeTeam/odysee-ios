@@ -50,6 +50,13 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: true)
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        if AppDelegate.shared.lazyPlayer != nil {
+            AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: false)
+        }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
