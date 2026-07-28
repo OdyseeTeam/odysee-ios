@@ -61,7 +61,6 @@ class SearchViewController: UIViewController,
         super.viewWillAppear(animated)
 
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar)
         searchBar.becomeFirstResponder()
     }
 

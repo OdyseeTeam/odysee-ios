@@ -71,7 +71,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
 
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
-        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithTabBar)
     }
 
     override func viewWillDisappear(_ animated: Bool) {

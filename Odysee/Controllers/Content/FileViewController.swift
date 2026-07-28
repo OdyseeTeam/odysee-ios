@@ -250,10 +250,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         AppDelegate.shared.savePlaybackPosition()
 
         AppDelegate.shared.mainController?.updateMiniPlayer()
-
-        if AppDelegate.shared.lazyPlayer != nil {
-            AppDelegate.shared.mainController?.toggleMiniPlayer(hidden: false)
-        }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -2219,6 +2215,11 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
              .recognized,
              .possible: ()
         @unknown default: ()
+        }
+
+        // In any "final" state, restore the delegate
+        if ![.began, .changed].contains(dismissPanRecognizer.state) {
+            AppDelegate.shared.mainNavigationController?.delegate = AppDelegate.shared.mainController
         }
     }
 

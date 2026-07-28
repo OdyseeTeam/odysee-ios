@@ -95,7 +95,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
-        AppDelegate.shared.mainController?.adjustMiniPlayerBottom(bottom: Helper.miniPlayerBottomWithoutTabBar)
 
         if channelClaim != nil {
             checkFollowing()
