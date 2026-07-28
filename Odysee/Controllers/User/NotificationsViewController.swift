@@ -291,7 +291,7 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
                             .isBlank
                     }
                     AppDelegate.shared.mainNavigationController?.view.layer.add(
-                        Helper.buildFileViewTransition(),
+                        Helper.fileViewTransition,
                         forKey: kCATransition
                     )
                     AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)

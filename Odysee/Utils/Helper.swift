@@ -220,14 +220,14 @@ enum Helper {
         return formatter.string(for: value as NSDecimalNumber) ?? ""
     }
 
-    static func buildFileViewTransition() -> CATransition {
+    static let fileViewTransition: CATransition = {
         let transition = CATransition()
         transition.duration = 0.3
         transition.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
         transition.type = .push
         transition.subtype = .fromTop
         return transition
-    }
+    }()
 
     static var miniPlayerBottomWithoutTabBar: CGFloat {
         if let window = UIApplication.shared.windows.filter(\.isKeyWindow).first {
@@ -474,7 +474,7 @@ enum Helper {
         vc.claim = claim
 
         AppDelegate.shared.mainNavigationController?.view.layer.add(
-            Helper.buildFileViewTransition(),
+            Helper.fileViewTransition,
             forKey: kCATransition
         )
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)

@@ -1891,7 +1891,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             // dismiss the current file view before displaying the new one
             AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
             AppDelegate.shared.mainNavigationController?.view.layer.add(
-                Helper.buildFileViewTransition(),
+                Helper.fileViewTransition,
                 forKey: kCATransition
             )
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
