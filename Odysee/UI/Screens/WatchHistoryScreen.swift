@@ -71,6 +71,8 @@ struct WatchHistoryScreen: View {
                                     }
                                 }
                         }
+
+                        MiniPlayerAvoiding()
                     }
                     .listRowSeparator(.hidden)
                     .listRowInsets(.init())

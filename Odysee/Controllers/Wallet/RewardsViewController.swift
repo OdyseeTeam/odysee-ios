@@ -25,6 +25,8 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var rewardEligibleView: UIView!
 
+    var miniPlayerTopTask: Task<Void, Never>?
+
     lazy var rewardVerification = {
         let rootView = RewardVerificationScreen(close: { self.closeTapped(nil) })
         let vc = UIHostingController(rootView: rootView)
@@ -80,6 +82,21 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
                 AnalyticsParameterScreenClass: "RewardsViewController",
             ]
         )
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                rewardsList.contentInset.bottom = miniPlayerTop
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidLoad() {

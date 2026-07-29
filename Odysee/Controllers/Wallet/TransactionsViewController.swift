@@ -17,6 +17,8 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var backView: UIView!
 
+    var miniPlayerTopTask: Task<Void, Never>?
+
     var transactions: OrderedSet<Transaction> = []
     var loadingTransactions: Bool = false
     var lastPageReached: Bool = false
@@ -39,6 +41,21 @@ class TransactionsViewController: UIViewController, UITableViewDataSource, UITab
 
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                transactionListView.contentInset.bottom = miniPlayerTop
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidLoad() {

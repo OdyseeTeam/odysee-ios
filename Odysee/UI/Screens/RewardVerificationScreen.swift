@@ -97,6 +97,8 @@ struct RewardVerificationScreen: View {
                     }
                     .padding(.leading, 10)
                 }
+
+                MiniPlayerAvoiding()
             }
             .padding()
         }

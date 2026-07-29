@@ -14,6 +14,10 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
     @IBOutlet var emptyView: UIView!
     @IBOutlet var loadingContainer: UIView!
     @IBOutlet var notificationsListView: UITableView!
+
+    @IBOutlet var tableView: UITableView!
+    var miniPlayerTopTask: Task<Void, Never>?
+
     let refreshControl = UIRefreshControl()
 
     var loadingNotifications = false
@@ -47,12 +51,23 @@ class NotificationsViewController: UIViewController, UIGestureRecognizerDelegate
 
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                tableView.contentInset.bottom = miniPlayerTop
+            }
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         AppDelegate.shared.mainController?.notificationBadgeIcon.tintColor = UIColor.label
         AppDelegate.shared.mainController?.notificationsViewActive = false
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidLoad() {
