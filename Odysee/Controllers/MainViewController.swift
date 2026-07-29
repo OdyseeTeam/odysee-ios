@@ -7,6 +7,7 @@
 
 import AVFoundation
 import AVKit
+import Combine
 import FirebaseCrashlytics
 import MediaPlayer
 import MessageUI
@@ -49,6 +50,8 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
     var balanceTimerScheduled = false
 
     let balanceTimerInterval: Double = 5 // 5 seconds
+
+    let miniPlayerTop = CurrentValueSubject<CGFloat, Never>(0)
 
     let snackbar = Snackbar()
 
@@ -262,6 +265,15 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
                 // Tab bar isn't visible (a different vc is pushed above)
                 miniPlayerBottomConstraint.constant = Helper.miniPlayerBottomWithoutTabBar
             }
+
+            miniPlayerTop.send(
+                miniPlayerView.isHidden ? 0 : (
+                    miniPlayerBottomConstraint.constant
+                        + 90 // Height
+                        + 8 // Gap
+                    // Leaves extra gap due to safe area, but it's better than having too little
+                )
+            )
         }
     }
 
@@ -647,9 +659,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
     func toggleMiniPlayer(hidden: Bool) {
         miniPlayerView.isHidden = hidden
 
-        if !hidden {
-            adjustMiniPlayerBottom()
-        }
+        adjustMiniPlayerBottom()
     }
 
     func showMessage(message: String?) {

@@ -30,6 +30,9 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
     @IBOutlet var savingIndicator: UIActivityIndicatorView!
     @IBOutlet var uploadingIndicator: UIView!
 
+    @IBOutlet var scrollView: UIScrollView!
+    var miniPlayerTopTask: Task<Void, Never>?
+
     var currentClaim: Claim?
     var saveInProgress = false
     var nameFieldManualUpdate = false
@@ -57,6 +60,21 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
 
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                scrollView.contentInset.bottom = miniPlayerTop
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidLoad() {

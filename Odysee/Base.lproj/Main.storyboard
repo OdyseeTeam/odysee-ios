@@ -1035,6 +1035,7 @@ Line 2</string>
                         <outlet property="receiveAddressTextField" destination="axe-PG-cKK" id="sOA-1H-IgS"/>
                         <outlet property="recentTransactionsListView" destination="MbK-i8-7G5" id="neu-ms-Ha4"/>
                         <outlet property="recentTxListHeightConstraint" destination="uIp-OM-Oy8" id="KPk-QT-qfH"/>
+                        <outlet property="scrollView" destination="XT5-Ft-Hxx" id="O21-pJ-Z0h"/>
                         <outlet property="sendAddressTextField" destination="070-Pq-xY6" id="MAo-H5-VZH"/>
                         <outlet property="sendAmountTextField" destination="dr2-hI-mAT" id="No4-GP-eaZ"/>
                         <outlet property="sendButton" destination="Jc2-gI-wQ2" id="hn4-QS-fqL"/>
@@ -1361,9 +1362,9 @@ Line 2</string>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="EcR-1L-mWs" firstAttribute="leading" secondItem="zmS-y5-O2f" secondAttribute="leading" id="63I-uQ-mds"/>
-                            <constraint firstItem="zmS-y5-O2f" firstAttribute="bottom" secondItem="1yL-UK-7uX" secondAttribute="bottom" id="Fis-vM-yAp"/>
+                            <constraint firstAttribute="bottom" secondItem="1yL-UK-7uX" secondAttribute="bottom" priority="999" id="Fis-vM-yAp"/>
                             <constraint firstItem="EcR-1L-mWs" firstAttribute="top" secondItem="zmS-y5-O2f" secondAttribute="top" id="HJN-nD-QK0"/>
-                            <constraint firstAttribute="bottom" secondItem="EcR-1L-mWs" secondAttribute="bottom" id="HXI-Au-ubx"/>
+                            <constraint firstItem="1yL-UK-7uX" firstAttribute="bottom" secondItem="zmS-y5-O2f" secondAttribute="bottom" id="HgL-mB-3Qn"/>
                             <constraint firstItem="zmS-y5-O2f" firstAttribute="trailing" secondItem="1yL-UK-7uX" secondAttribute="trailing" id="JFc-iw-u6m"/>
                             <constraint firstItem="zmS-y5-O2f" firstAttribute="bottom" secondItem="EcR-1L-mWs" secondAttribute="bottom" id="LfK-6o-mk3"/>
                             <constraint firstItem="EcR-1L-mWs" firstAttribute="trailing" secondItem="zmS-y5-O2f" secondAttribute="trailing" id="S5N-hG-che"/>
@@ -1382,6 +1383,8 @@ Line 2</string>
                         <outlet property="loadingContainer" destination="IFd-jt-YE1" id="yov-XR-Q4k"/>
                         <outlet property="mainView" destination="EcR-1L-mWs" id="Ih0-vh-7Sy"/>
                         <outlet property="sortByLabel" destination="Qgz-4z-Zml" id="rHP-QU-0bM"/>
+                        <outlet property="suggestedFollowsBottomConstraint" destination="Fis-vM-yAp" id="j3j-5A-nSJ"/>
+                        <outlet property="suggestedFollowsBottomSafeAreaConstraint" destination="HgL-mB-3Qn" id="rj4-TY-3uI"/>
                         <outlet property="suggestedFollowsButton" destination="7uQ-Jx-ysn" id="187-8I-2j5"/>
                         <outlet property="suggestedFollowsView" destination="nK5-7p-2QP" id="nFl-uK-OfR"/>
                         <outlet property="suggestedView" destination="1yL-UK-7uX" id="zRg-ln-51G"/>
@@ -1574,6 +1577,7 @@ Line 2</string>
                         <outlet property="emptyView" destination="wAf-fp-Flu" id="hyE-gh-8AS"/>
                         <outlet property="loadingContainer" destination="gNZ-yR-hgC" id="HDn-aq-Tur"/>
                         <outlet property="notificationsListView" destination="CT0-up-rRK" id="Eon-r4-Pal"/>
+                        <outlet property="tableView" destination="CT0-up-rRK" id="GPa-ch-xYx"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5QK-bq-M3h" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1720,6 +1724,7 @@ Line 2</string>
                         <outlet property="loadingContainer" destination="TRZ-ZH-YFM" id="LqX-ng-um7"/>
                         <outlet property="noContentView" destination="CEB-nI-u0n" id="PB2-Hz-dmg"/>
                         <outlet property="sortByLabel" destination="ejT-8a-Fwx" id="mZh-6Z-ZhY"/>
+                        <outlet property="tableView" destination="E1b-cq-Meq" id="L1r-vT-QQX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -2407,6 +2412,7 @@ Line 2</string>
                         <outlet property="nameField" destination="Rxg-Cs-CLK" id="j0E-CT-n0U"/>
                         <outlet property="namePrefixLabel" destination="xUS-Xi-t5E" id="p84-Hw-nOc"/>
                         <outlet property="progressView" destination="6md-d9-MNf" id="jjK-Be-Tx6"/>
+                        <outlet property="scrollView" destination="3wx-yg-s99" id="mQ6-Vr-4Qh"/>
                         <outlet property="selectVideoArea" destination="Yrc-eH-HDp" id="Alr-97-vgE"/>
                         <outlet property="thumbnailImageView" destination="7bS-GP-EdN" id="fN6-O1-Poy"/>
                         <outlet property="titleField" destination="Nyx-vN-Bmz" id="BNB-nB-Vec"/>
@@ -3299,6 +3305,7 @@ Line 2</string>
                         <outlet property="optionalFieldsContainer" destination="fVb-wy-N7i" id="y52-5N-jVW"/>
                         <outlet property="saveButton" destination="bfu-gf-aa2" id="IFw-v2-HIh"/>
                         <outlet property="savingIndicator" destination="VSC-nJ-wRj" id="nSu-j7-p7P"/>
+                        <outlet property="scrollView" destination="PaG-zY-5Jv" id="Pfp-ed-Luo"/>
                         <outlet property="thumbnailEditContainer" destination="3jt-zw-qJ0" id="hKj-Hx-Wsr"/>
                         <outlet property="thumbnailImageView" destination="Rax-qA-xTx" id="2PU-Qo-RSC"/>
                         <outlet property="titleField" destination="DC2-va-Kzi" id="dvK-bv-pC9"/>
@@ -4683,6 +4690,7 @@ Line 2</string>
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="aboutScrollView" destination="cJU-mh-gl2" id="Tf4-pv-Yk5"/>
                         <outlet property="bellIconView" destination="T2P-qs-RW6" id="Z8X-e2-lAC"/>
                         <outlet property="bellView" destination="QQe-bf-f8q" id="SiH-0q-cND"/>
                         <outlet property="blockUnblockLabel" destination="z1Q-Fm-oqj" id="x2i-vv-IOs"/>

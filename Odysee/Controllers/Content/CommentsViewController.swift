@@ -28,6 +28,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     @IBOutlet var replyToContainerView: UIView!
     @IBOutlet var replyToCommentLabel: UILabel!
 
+    var miniPlayerTopTask: Task<Void, Never>?
+
     var commentsDisabled: Bool = false
     var commentAsPicker: ActionSheetStringPicker?
     var claimId: String?
@@ -73,6 +75,25 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         if currentCommentIsReply, currentCommentId != nil {
             Task { await loadCurrentCommentThread() }
         }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                commentList.contentInset.bottom = miniPlayerTop
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        miniPlayerTopTask?.cancel()
     }
 
     func resetCommentList() {

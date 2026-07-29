@@ -33,6 +33,8 @@ class SearchViewController: UIViewController,
     @IBOutlet var resultsListView: UITableView!
     @IBOutlet var loadingContainer: UIView!
 
+    var miniPlayerTopTask: Task<Void, Never>?
+
     let refreshControl = UIRefreshControl()
 
     var searchTask: DispatchWorkItem?
@@ -73,6 +75,21 @@ class SearchViewController: UIViewController,
 
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                resultsListView.contentInset.bottom = miniPlayerTop
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidLoad() {

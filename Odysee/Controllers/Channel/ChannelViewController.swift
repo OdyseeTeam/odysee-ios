@@ -59,6 +59,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
     @IBOutlet var blockUnblockLabel: UILabel!
 
+    @IBOutlet var aboutScrollView: UIScrollView!
+    var miniPlayerTopTask: Task<Void, Never>?
+
     var commentsViewPresented = false
     let pageSize: Int = 20
     var currentPage: Int = 1
@@ -109,6 +112,22 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         if Lbryio.isSignedIn() {
             loadChannels()
         }
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                contentListView.contentInset.bottom = miniPlayerTop
+                aboutScrollView.contentInset.bottom = miniPlayerTop
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidAppear(_ animated: Bool) {

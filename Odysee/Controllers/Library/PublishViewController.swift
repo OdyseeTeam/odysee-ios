@@ -38,6 +38,9 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
     @IBOutlet var progressView: UIProgressView!
     @IBOutlet var uploadingIndicator: UIView!
 
+    @IBOutlet var scrollView: UIScrollView!
+    var miniPlayerTopTask: Task<Void, Never>?
+
     var channels: [Claim] = []
     var uploads: OrderedSet<Claim> = []
     var currentClaim: Claim?
@@ -68,11 +71,22 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
 
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                scrollView.contentInset.bottom = miniPlayerTop
+            }
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         view.endEditing(true)
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidLoad() {
