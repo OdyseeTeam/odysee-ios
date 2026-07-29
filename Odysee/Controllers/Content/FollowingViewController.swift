@@ -57,6 +57,9 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     var currentSuggestedPage: Int = 1
     var lastSuggestedPageReached: Bool = false
     var loadingSuggested: Bool = false
+    /// Suggested requested by user
+    ///
+    /// Not set to `true` when `update` returns empty
     var showingSuggested: Bool = false
 
     let pageSize: Int = 20
@@ -166,7 +169,6 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         do {
             guard newFollowing.count > 0 else {
                 loadingContainer.isHidden = true
-                showingSuggested = true
 
                 loadSuggestedFollows()
 
@@ -192,11 +194,8 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
             resetSubscriptionContent()
             loadSubscriptionContent()
 
-            // If updating following from other vc, allow dismissing suggested
-            if !(UIApplication.currentViewController() == self && showingSuggested) {
-                suggestedView.isHidden = true
-                mainView.isHidden = false
-            }
+            suggestedView.isHidden = !showingSuggested
+            mainView.isHidden = showingSuggested
         } catch {
             loadingContainer.isHidden = true
             Helper.showError(error: error)
