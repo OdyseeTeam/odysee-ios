@@ -248,13 +248,18 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         super.viewWillDisappear(animated)
 
         AppDelegate.shared.savePlaybackPosition()
-
-        AppDelegate.shared.mainController?.updateMiniPlayer()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         disconnectChatSocket()
+
+        if AppDelegate.shared.lazyPlayer == nil {
+            // If dismissing before setting up player, then fully dealloc this vc, so playback doesn't start
+            AppDelegate.shared.currentFileViewController = nil
+        } else {
+            AppDelegate.shared.mainController?.updateMiniPlayer()
+        }
     }
 
     override func viewDidLoad() {
@@ -1088,6 +1093,12 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         headers: [String: String] = [:],
         forceInit: Bool = false
     ) {
+        // If view has been dismissed (which clears currentFileViewController),
+        // then don't proceed to player setup (which can happen if network request finished after dismiss)
+        guard AppDelegate.shared.currentFileViewController === self else {
+            return
+        }
+
         assert(Thread.isMainThread)
 
         livestreamOfflinePlaceholder.isHidden = true
