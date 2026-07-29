@@ -16,6 +16,8 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     @IBOutlet var noChannelsView: UIView!
     @IBOutlet var newChannelButton: UIButton!
 
+    var miniPlayerTopTask: Task<Void, Never>?
+
     static let channelCreationLimit = 5
 
     var longPressGestureRecognizer: UILongPressGestureRecognizer!
@@ -41,7 +43,22 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
         navigationController?.interactivePopGestureRecognizer?.delegate = self
 
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                channelListView.contentInset.bottom = miniPlayerTop
+            }
+        }
+
         loadChannels()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidLoad() {

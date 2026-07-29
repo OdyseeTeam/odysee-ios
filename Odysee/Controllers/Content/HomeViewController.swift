@@ -25,6 +25,9 @@ class HomeViewController: UIViewController,
     @IBOutlet var sortByLabel: UILabel!
     @IBOutlet var contentFromLabel: UILabel!
 
+    @IBOutlet var tableView: UITableView!
+    var miniPlayerTopTask: Task<Void, Never>?
+
     static var categoryIndexDiscover = -1
     static var categoryIndexWildWest = -1
     static let categoryKeyDiscover = "discoverNew"
@@ -67,6 +70,21 @@ class HomeViewController: UIViewController,
         )
 
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                tableView.contentInset.bottom = miniPlayerTop
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidLoad() {

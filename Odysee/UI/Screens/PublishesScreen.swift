@@ -103,6 +103,8 @@ struct PublishesScreen: View {
                                     }
                                 }
                         }
+
+                        MiniPlayerAvoiding()
                     }
                     .listRowSeparator(.hidden)
                     .listRowInsets(.init())

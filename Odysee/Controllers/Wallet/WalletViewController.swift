@@ -41,6 +41,9 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet var noRecentTransactionsLabel: UILabel!
     @IBOutlet var loadingRecentTransactionsView: UIActivityIndicatorView!
 
+    @IBOutlet var scrollView: UIScrollView!
+    var miniPlayerTopTask: Task<Void, Never>?
+
     var boostingBreakdownVisible = false
 
     override func viewWillAppear(_ animated: Bool) {
@@ -71,11 +74,22 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
 
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                scrollView.contentInset.bottom = miniPlayerTop
+            }
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         AppDelegate.shared.mainController?.removeWalletObserver(key: keyBalanceObserver)
+        miniPlayerTopTask?.cancel()
     }
 
     override func viewDidLoad() {

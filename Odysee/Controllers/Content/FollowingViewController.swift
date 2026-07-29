@@ -28,6 +28,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
     @IBOutlet var sortByLabel: UILabel!
     @IBOutlet var contentFromLabel: UILabel!
 
+    @IBOutlet var suggestedFollowsBottomConstraint: NSLayoutConstraint!
+    @IBOutlet var suggestedFollowsBottomSafeAreaConstraint: NSLayoutConstraint!
+    var miniPlayerTopTask: Task<Void, Never>?
+
     lazy var manageFollowing = {
         let rootView = ManageFollowingScreen(
             navigator: .init(
@@ -87,6 +91,30 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
         )
 
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
+
+        miniPlayerTopTask = Task {
+            guard let mainController = AppDelegate.shared.mainController else {
+                return
+            }
+
+            for await miniPlayerTop in mainController.miniPlayerTop.values {
+                if miniPlayerTop == 0 {
+                    suggestedFollowsBottomConstraint.isActive = false
+                    suggestedFollowsBottomSafeAreaConstraint.isActive = true
+                } else {
+                    suggestedFollowsBottomConstraint.isActive = true
+                    suggestedFollowsBottomSafeAreaConstraint.isActive = false
+                    suggestedFollowsBottomConstraint.constant = miniPlayerTop
+                }
+
+                contentListView.contentInset.bottom = miniPlayerTop
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        miniPlayerTopTask?.cancel()
     }
 
     func checkSelectedChannel() {

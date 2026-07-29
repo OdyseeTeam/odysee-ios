@@ -60,6 +60,7 @@
 		53C4FA3F2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */; };
 		53C4FA412F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */; };
 		53D4CFAC2F2C5A9000F395A3 /* SignInUpViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */; };
+		53D4FED93019A57400F20363 /* MiniPlayerAvoiding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D4FED83019A57400F20363 /* MiniPlayerAvoiding.swift */; };
 		53D59FFA2EF3AAEA0081D800 /* BackendAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FF92EF3AAEA0081D800 /* BackendAPIResult.swift */; };
 		53D59FFC2EF3AE530081D800 /* Methods.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFB2EF3AE530081D800 /* Methods.swift */; };
 		53D59FFE2EF3B3150081D800 /* QueryItemsCoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53D59FFD2EF3B3150081D800 /* QueryItemsCoder.swift */; };
@@ -223,6 +224,7 @@
 		53C4FA3E2F4D7D9C00EEEFDF /* YouTubeSyncScreen+Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubeSyncScreen+Status.swift"; sourceTree = "<group>"; };
 		53C4FA402F4D805300EEEFDF /* YouTubeSyncScreen+Setup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "YouTubeSyncScreen+Setup.swift"; sourceTree = "<group>"; };
 		53D4CFAB2F2C5A9000F395A3 /* SignInUpViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInUpViewModel.swift; sourceTree = "<group>"; };
+		53D4FED83019A57400F20363 /* MiniPlayerAvoiding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerAvoiding.swift; sourceTree = "<group>"; };
 		53D59FF92EF3AAEA0081D800 /* BackendAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackendAPIResult.swift; sourceTree = "<group>"; };
 		53D59FFB2EF3AE530081D800 /* Methods.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Methods.swift; sourceTree = "<group>"; };
 		53D59FFD2EF3B3150081D800 /* QueryItemsCoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueryItemsCoder.swift; sourceTree = "<group>"; };
@@ -416,6 +418,7 @@
 				53486A5B2FADB7510028717C /* PlaylistDetailForm.swift */,
 				532CCA3C2FB1CA0000D1E8D2 /* TagsFormSection.swift */,
 				53B25D472FC5779500D91F8B /* ChannelPicker.swift */,
+				53D4FED83019A57400F20363 /* MiniPlayerAvoiding.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -908,6 +911,7 @@
 				641E7EB92608BDB100A79CD3 /* Predefined.swift in Sources */,
 				64FF820F2604FB0B009B7A3B /* FirstRunDelegate.swift in Sources */,
 				648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */,
+				53D4FED93019A57400F20363 /* MiniPlayerAvoiding.swift in Sources */,
 				CCDDA9172655C1340006035F /* FileDismissAnimationController.swift in Sources */,
 				53486A602FAEDF8F0028717C /* ThumbnailPicker.swift in Sources */,
 				64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */,

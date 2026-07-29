@@ -117,6 +117,8 @@ struct PlaylistDetailScreen: View {
                     .onMove(perform: model.move)
                     .onDelete(perform: model.delete)
                     .deleteDisabled(!isEditing) // Disable delete swipe action
+
+                    MiniPlayerAvoiding()
                 }
                 .listRowSeparator(.hidden)
                 .listRowInsets(.init())
