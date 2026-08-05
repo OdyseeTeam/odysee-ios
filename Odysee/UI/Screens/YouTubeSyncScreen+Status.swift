@@ -183,9 +183,9 @@ extension YouTubeSyncScreen {
                             RoundedRectangle(cornerRadius: 8)
                                 .apply {
                                     if !channel.channelClaimId.isBlank {
-                                        $0.fill(Color.accentColor.opacity(0.3))
+                                        $0.fill(.accentColor.opacity(0.3))
                                     } else {
-                                        $0.stroke(Color.accentColor)
+                                        $0.stroke(.accentColor)
                                     }
                                 }
                         )

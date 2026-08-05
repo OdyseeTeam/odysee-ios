@@ -349,3 +349,7 @@ extension ButtonRole {
         nil
     }
 }
+
+extension ShapeStyle where Self == Color {
+    static var accentColor: Color { .accentColor }
+}
