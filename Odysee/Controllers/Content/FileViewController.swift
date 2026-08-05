@@ -2493,7 +2493,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         if messages.count == 0 {
             // only append initial items if the list is empty
             messages.append(contentsOf: page.items)
-            messages.sort(by: { $1.timestamp ?? 0 > $0.timestamp ?? 0 })
+            messages.sort(by: { $1.timestamp > $0.timestamp })
             chatListView.reloadData()
             if messages.count >= 1 {
                 let indexPath = IndexPath(row: messages.count - 1, section: 0)
@@ -2502,10 +2502,16 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
     }
 
-    func handleChatMessageReceived(data: [String: Any]) {
-        var comment = Comment()
-        comment.comment = data["comment"] as? String
-        comment.channelName = data["channel_name"] as? String
+    struct ChatMessageEvent: Decodable {
+        var type: String
+        var data: ChatMessageData?
+
+        struct ChatMessageData: Decodable {
+            var comment: Comment
+        }
+    }
+
+    func handleChatMessageReceived(comment: Comment) {
         messages.append(comment)
 
         DispatchQueue.main.async {
@@ -2523,13 +2529,9 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             chatConnected = false
         case let .text(string):
             do {
-                let jsonData = string.data
-                if let response = try JSONSerialization.jsonObject(with: jsonData, options: []) as? [String: Any],
-                   response["type"] as? String == "delta",
-                   let data = response["data"] as? [String: Any],
-                   let commentData = data["comment"] as? [String: Any]
-                {
-                    handleChatMessageReceived(data: commentData)
+                let response = try JSONDecoder().decode(ChatMessageEvent.self, from: string.data)
+                if response.type == "delta", let data = response.data {
+                    handleChatMessageReceived(comment: data.comment)
                 }
             } catch {
                 // pass

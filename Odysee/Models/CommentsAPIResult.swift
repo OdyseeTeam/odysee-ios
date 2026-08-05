@@ -23,7 +23,7 @@ struct ReactListResult: Decodable {
         var dislike: Int
     }
 
-    var othersReactions: [String: Reaction]?
+    var othersReactions: [String: Reaction]
     var myReactions: [String: Reaction]?
 
     enum CodingKeys: String, CodingKey {

@@ -246,17 +246,14 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
                         }
                     }
 
-                    DispatchQueue.main.async {
-                        self
-                            .showMessage(
-                                message: String
-                                    .localized(
-                                        editMode ? "The channel was successfully updated" :
-                                            "The channel was successfully created"
-                                    )
-                            )
+                    Task { @MainActor in
+                        Helper.showMessage(message: String.localized(
+                            editMode ?
+                                "The channel was successfully updated" :
+                                "The channel was successfully created"
+                        ))
                         if let vc = self.commentsVc {
-                            vc.loadChannels()
+                            await vc.loadChannels()
                         }
                         self.navigationController?.popViewController(animated: true)
                     }

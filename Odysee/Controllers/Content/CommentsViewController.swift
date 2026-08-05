@@ -66,14 +66,24 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             postCommentAreaHiddenConstraint.isActive = false
         }
 
-        if Lbryio.isSignedIn() {
-            loadChannels()
-        }
-        if comments.count == 0, !commentsDisabled {
-            loadComments()
-        }
-        if currentCommentIsReply, currentCommentId != nil {
-            Task { await loadCurrentCommentThread() }
+        Task {
+            if Lbryio.isSignedIn() {
+                await loadChannels()
+            }
+
+            if comments.count > 0 {
+                // comments already preloaded
+                loadCommentReactions(commentIds: comments.compactMap(\.id))
+            } else if !commentsDisabled {
+                loadComments()
+            }
+
+            if currentCommentIsReply, currentCommentId != nil {
+                await loadCurrentCommentThread()
+            }
+
+            channelDriverView.isHidden = channels.count > 0
+            channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
         }
     }
 
@@ -135,14 +145,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         if UserDefaults.standard.integer(forKey: Helper.keyPostedCommentHideTos) != 0 {
             guidelinesTextView.heightAnchor.constraint(equalToConstant: 0).isActive = true
         }
-
-        if comments.count > 0 {
-            // comments already preloaded
-            loadCommentReactions(commentIds: comments.compactMap(\.commentId))
-        }
-
-        channelDriverView.isHidden = channels.count > 0
-        channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
     }
 
     /*
@@ -179,7 +181,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         guard let cell = cell as? CommentTableViewCell else {
             return
         }
-        if cell.currentComment?.commentId == currentCommentId {
+        if cell.currentComment?.id == currentCommentId {
             cell.contentView.backgroundColor = UIColor(named: "commentHighlight")
         } else {
             cell.contentView.backgroundColor = nil
@@ -219,14 +221,14 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             case let .success(page):
                 self.commentsLastPageReached = page.isLastPage
                 var loadedComments = page.items.filter {
-                    comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
+                    comment in !self.comments.contains(where: { $0.id == comment.id })
                 }
                 let blocked = Wallet.prefs.blocked.map(\.claimId)
                 loadedComments.removeAll { blocked.contains($0.channelId) }
                 self.comments.append(contentsOf: loadedComments)
 
                 if loadedComments.count > 0 {
-                    self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+                    self.loadCommentReactions(commentIds: loadedComments.compactMap(\.id))
                 }
                 // resolve author map
                 if self.comments.count > 0 {
@@ -238,7 +240,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
                 if self.currentCommentId != nil && !self.currentCommentIsReply {
                     if !self.commentsLastPageReached && !self.comments.contains(where: {
-                        $0.commentId == self.currentCommentId
+                        $0.id == self.currentCommentId
                     }) {
                         self.commentsCurrentPage += 1
                         self.loadComments()
@@ -251,7 +253,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func scrollToCurrentComment() {
-        if let currentCommentIndex = comments.firstIndex(where: { $0.commentId == currentCommentId }) {
+        if let currentCommentIndex = comments.firstIndex(where: { $0.id == currentCommentId }) {
             let indexPath = IndexPath(row: currentCommentIndex, section: 0)
             commentList.scrollToRow(at: indexPath, at: .top, animated: true)
             hasScrolledToCurrentComment = true
@@ -276,42 +278,32 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         commentList.reloadData()
     }
 
-    func loadChannels() {
+    func loadChannels() async {
         if channels.count > 0 {
             return
         }
 
-        Lbry.apiCall(
-            method: BackendMethods.claimList,
-            params: .init(
+        do {
+            let page = try await BackendMethods.claimList.call(params: .init(
                 claimType: [.channel],
                 page: 1,
                 pageSize: 999,
                 resolve: true
-            )
-        )
-        .subscribeResult(didLoadChannels)
-    }
+            ))
 
-    func didLoadChannels(_ result: Result<Page<Claim>, Error>) {
-        guard case let .success(page) = result else {
-            return
-        }
-        channels.removeAll(keepingCapacity: true)
-        channels.append(contentsOf: page.items)
-        Lbry.ownChannels = channels
-        channelDriverView.isHidden = channels.count > 0
-        channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
-        if let picker = commentAsPicker {
-            // Hacky, but this path (empty picker -> load channels) should be very rare
-            // TODO: Reload picker action sheet
-            picker.hideWithCancelAction()
-            DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .seconds(1))) {
-                self.commentAsTapped(self)
+            channels.removeAll(keepingCapacity: true)
+            channels.append(contentsOf: page.items)
+            Lbry.ownChannels = channels
+            channelDriverView.isHidden = channels.count > 0
+            channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
+            if let picker = commentAsPicker {
+                // Hacky, but this path (empty picker -> load channels) should be very rare
+                // TODO: Reload picker action sheet
+                picker.hideWithCancelAction()
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                commentAsTapped(self)
             }
-        }
 
-        Task {
             let defaultChannelId = Wallet.prefs.defaultChannelId
             let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
             if channels.count > index, currentCommentAsIndex == -1 {
@@ -319,13 +311,18 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 updateCommentAsChannel(index)
             }
 
-            for await blocked in Wallet.$prefs.blocked {
-                let blocked = blocked.map(\.claimId)
+            Task {
+                for await blocked in Wallet.$prefs.blocked {
+                    let blocked = blocked.map(\.claimId)
 
-                comments.removeAll { blocked.contains($0.channelId) }
-                commentList.reloadData()
-                checkNoComments()
+                    comments.removeAll { blocked.contains($0.channelId) }
+                    commentList.reloadData()
+                    checkNoComments()
+                }
             }
+        } catch {
+            Helper.showError(message: "couldn't load channels: \(error)")
+            return
         }
     }
 
@@ -410,7 +407,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     signature: channelSignResult.signature,
                     signingTs: channelSignResult.signingTs,
                     comment: commentText,
-                    parentId: self.currentReplyToComment?.commentId
+                    parentId: self.currentReplyToComment?.id
                 )
             )
         }
@@ -422,15 +419,15 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 self.showError(error: error)
             case var .success(comment):
                 if let currentReplyToComment = self.currentReplyToComment {
-                    if currentReplyToComment.repliesLoaded ?? false {
+                    if currentReplyToComment.repliesLoaded {
                         if let parentIndex = self.comments.firstIndex(where: {
-                            $0.commentId == currentReplyToComment.commentId
+                            $0.id == currentReplyToComment.id
                         }) {
                             var currentComment: Comment? = comment
                             while let currentComment_ = currentComment {
                                 comment.replyDepth += 1
                                 currentComment = self.comments.first(where: {
-                                    $0.commentId == currentComment_.parentId
+                                    $0.id == currentComment_.parentId
                                 })
                             }
                             self.comments.insert(comment, at: parentIndex + 1)
@@ -501,80 +498,55 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func loadCommentReactions(commentIds: [String]) {
-        let handler: (Result<ReactListResult, Error>) -> Void = { result in
-            switch result {
-            case let .failure(error):
-                self.showError(error: error)
-            case let .success(reactions):
-                var combined = [String: CombinedReactionData]()
-                if let othersReactions = reactions.othersReactions {
-                    for (commentId, reactionData) in othersReactions {
-                        combined[commentId] = CombinedReactionData(
-                            othersLike: reactionData.like, othersDislike: reactionData.dislike
-                        )
-                    }
-                }
-                if let myReactions = reactions.myReactions {
-                    for (commentId, reactionData) in myReactions {
-                        if combined[commentId] != nil {
-                            combined[commentId]?.myLike = reactionData.like
-                            combined[commentId]?.myDislike = reactionData.dislike
-                        } else {
-                            combined[commentId] = CombinedReactionData(
-                                myLike: reactionData.like, myDislike: reactionData.dislike
-                            )
-                        }
-                    }
-                }
-                for (commentId, combinedReactionData) in combined {
-                    self.updateCommentReactions(commentId: commentId, combined: combinedReactionData)
-                }
-                self.commentList.reloadData()
-            }
-        }
+        Task {
+            var params = CommentReactListParams(commentIds: commentIds.joined(separator: ","))
 
-        if currentCommentAsIndex == -1 || channels.count == 0 || channels.count <= currentCommentAsIndex {
-            Lbry.commentApiCall(
-                method: CommentsMethods.reactList,
-                params: .init(commentIds: commentIds.joined(separator: ","))
-            )
-            .subscribeResult(handler)
-        } else {
-            let channel = channels[currentCommentAsIndex]
-            guard let claimId = channel.claimId, let name = channel.name else {
-                showError(message: "couldn't get channel claimId and/or name")
-                return
-            }
-            Lbry.apiCall(
-                method: BackendMethods.channelSign,
-                params: .init(
-                    channelId: claimId,
-                    hexdata: Helper.strToHex(name)
-                )
-            )
-            .flatMap { channelSignResult in
-                Lbry.commentApiCall(
-                    method: CommentsMethods.reactList,
-                    params: .init(
-                        commentIds: commentIds.joined(separator: ","),
-                        channelName: name,
+            if channels.count > currentCommentAsIndex, currentCommentAsIndex > -1 {
+                let channel = channels[currentCommentAsIndex]
+                guard let claimId = channel.claimId, let name = channel.name else {
+                    Helper.showError(message: "couldn't get channel claimId and/or name")
+                    return
+                }
+                do {
+                    let channelSign = try await BackendMethods.channelSign.call(params: .init(
                         channelId: claimId,
-                        signature: channelSignResult.signature,
-                        signingTs: channelSignResult.signingTs
-                    )
-                )
-            }
-            .subscribeResult(handler)
-        }
-    }
+                        hexdata: Helper.strToHex(name)
+                    ))
 
-    func updateCommentReactions(commentId: String, combined: CombinedReactionData) {
-        for i in comments.indices {
-            if comments[i].commentId == commentId {
-                comments[i].numLikes = (combined.othersLike ?? 0) + ((combined.myLike ?? 0) > 0 ? 1 : 0)
-                comments[i].numDislikes = (combined.othersDislike ?? 0) + ((combined.myDislike ?? 0) > 0 ? 1 : 0)
-                comments[i].isLiked = combined.myLike ?? 0 > 0
-                comments[i].isDisliked = combined.myDislike ?? 0 > 0
+                    params.channelName = name
+                    params.channelId = claimId
+                    params.signature = channelSign.signature
+                    params.signingTs = channelSign.signingTs
+                } catch {
+                    Helper.showError(message: "couldn't get channel signature for loading reactions")
+                    return
+                }
+            }
+
+            do {
+                let reactions = try await CommentsMethods.reactList.call(params: params)
+
+                comments = comments.map { comment in
+                    var comment = comment
+
+                    if let other = reactions.othersReactions[comment.id] {
+                        comment.numLikes = other.like
+                        comment.numDislikes = other.dislike
+                    }
+
+                    if let mine = reactions.myReactions?[comment.id] {
+                        comment.numLikes += mine.like
+                        comment.numDislikes += mine.dislike
+                        comment.isLiked = mine.like > 0
+                        comment.isDisliked = mine.dislike > 0
+                    }
+
+                    return comment
+                }
+                commentList.reloadData()
+            } catch {
+                Helper.showError(message: "couldn't load reactions: \(error)")
+                return
             }
         }
     }
@@ -603,33 +575,29 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         reacting = true
-        let remove = (type == Helper.reactionTypeLike && (comment.isLiked ?? false)) ||
-            (type == Helper.reactionTypeDislike && (comment.isDisliked ?? false)) ? true : false
+        let remove = (type == Helper.reactionTypeLike && comment.isLiked) ||
+            (type == Helper.reactionTypeDislike && comment.isDisliked)
         let channel = channels[currentCommentAsIndex]
 
         guard let claimId = channel.claimId, let name = channel.name else {
             showError(message: "couldn't get channel claimId and/or name")
             return
         }
-        guard let commentId = comment.commentId else {
-            showError(message: "couldn't get commentId")
-            return
-        }
 
         var updatedComment = comment
         if type == Helper.reactionTypeLike {
             updatedComment.isLiked = !remove
-            updatedComment.numLikes = (updatedComment.numLikes ?? 0) + (remove ? -1 : 1)
-            if !remove, updatedComment.isDisliked ?? false {
-                updatedComment.numDislikes = (updatedComment.numDislikes ?? 1) - 1
+            updatedComment.numLikes = updatedComment.numLikes + (remove ? -1 : 1)
+            if !remove, updatedComment.isDisliked {
+                updatedComment.numDislikes = updatedComment.numDislikes - 1
                 updatedComment.isDisliked = false
             }
         }
         if type == Helper.reactionTypeDislike {
             updatedComment.isDisliked = !remove
-            updatedComment.numDislikes = (updatedComment.numDislikes ?? 0) + (remove ? -1 : 1)
-            if !remove, updatedComment.isLiked ?? false {
-                updatedComment.numLikes = (updatedComment.numLikes ?? 1) - 1
+            updatedComment.numDislikes = updatedComment.numDislikes + (remove ? -1 : 1)
+            if !remove, updatedComment.isLiked {
+                updatedComment.numLikes = updatedComment.numLikes - 1
                 updatedComment.isLiked = false
             }
         }
@@ -643,7 +611,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             Lbry.commentApiCall(
                 method: CommentsMethods.react,
                 params: .init(
-                    commentIds: commentId,
+                    commentIds: comment.id,
                     signature: channelSignResult.signature,
                     signingTs: channelSignResult.signingTs,
                     remove: remove,
@@ -667,7 +635,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     func updateSingleCommentReactions(_ comment: Comment) {
         var commentUpdated = false
         for i in comments.indices {
-            if comments[i].commentId == comment.commentId {
+            if comments[i].id == comment.id {
                 comments[i].numLikes = comment.numLikes
                 comments[i].numDislikes = comment.numDislikes
                 comments[i].isLiked = comment.isLiked
@@ -689,7 +657,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             return
         }
 
-        guard let claimId, let parentId = parent.commentId else {
+        guard let claimId else {
             showError(message: "couldn't get claimId and/or parent commentId")
             return
         }
@@ -700,7 +668,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
             method: CommentsMethods.list,
             params: .init(
                 claimId: claimId,
-                parentId: parentId,
+                parentId: parent.id,
                 page: 1,
                 pageSize: 999,
                 skipValidation: true,
@@ -714,19 +682,19 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 self.showError(error: error)
             case let .success(page):
                 let loadedComments = page.items.filter {
-                    comment in !self.comments.contains(where: { $0.commentId == comment.commentId })
+                    comment in !self.comments.contains(where: { $0.id == comment.id })
                 }.map { comment in
                     var comment = comment
                     var currentComment: Comment? = comment
                     while let currentComment_ = currentComment {
                         comment.replyDepth += 1
-                        currentComment = self.comments.first(where: { $0.commentId == currentComment_.parentId })
+                        currentComment = self.comments.first(where: { $0.id == currentComment_.parentId })
                     }
                     return comment
                 }
 
                 if let parentIndex = self.comments.firstIndex(where: {
-                    $0.commentId == parent.commentId
+                    $0.id == parent.id
                 }), loadedComments.count > 0 {
                     self.comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
                     self.commentList.insertRows(
@@ -735,7 +703,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                         },
                         with: .automatic
                     )
-                    self.loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+                    self.loadCommentReactions(commentIds: loadedComments.compactMap(\.id))
                     self.resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
                 }
 
@@ -766,19 +734,15 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 throw GenericError(String.localized("Comment could not be found"))
             }
 
-            if let parent = ancestors.last, !comments.contains(where: { $0.commentId == parent.commentId }) {
+            if let parent = ancestors.last, !comments.contains(where: { $0.id == parent.id }) {
                 comments.insert(parent, at: 0)
                 commentList.insertRows(at: [IndexPath(row: 0, section: 0)], with: .automatic)
             }
 
             for comment in ancestors.reversed() {
-                guard let parentId = comment.commentId else {
-                    throw GenericError("couldn't get parent commentId")
-                }
-
                 let page = try await CommentsMethods.list.call(params: .init(
                     claimId: claimId,
-                    parentId: parentId,
+                    parentId: comment.id,
                     page: 1,
                     pageSize: 999,
                     skipValidation: true,
@@ -786,18 +750,18 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 ))
 
                 let loadedComments = page.items.filter {
-                    comment in !comments.contains(where: { $0.commentId == comment.commentId })
+                    comment in !comments.contains(where: { $0.id == comment.id })
                 }.map { comment in
                     var comment = comment
                     var currentComment: Comment? = comment
                     while let currentComment_ = currentComment {
                         comment.replyDepth += 1
-                        currentComment = comments.first(where: { $0.commentId == currentComment_.parentId })
+                        currentComment = comments.first(where: { $0.id == currentComment_.parentId })
                     }
                     return comment
                 }
 
-                if let parentIndex = comments.firstIndex(where: { $0.commentId == parentId }),
+                if let parentIndex = comments.firstIndex(where: { $0.id == comment.id }),
                    loadedComments.count > 0
                 {
                     comments.insert(contentsOf: loadedComments, at: parentIndex + 1)
@@ -807,7 +771,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                         },
                         with: .automatic
                     )
-                    loadCommentReactions(commentIds: loadedComments.compactMap(\.commentId))
+                    loadCommentReactions(commentIds: loadedComments.compactMap(\.id))
                     resolveCommentAuthors(urls: loadedComments.compactMap(\.channelUrl))
                 }
 
@@ -822,7 +786,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
     func setCommentRepliesLoaded(_ comment: Comment) {
         for i in comments.indices {
-            if comments[i].commentId == comment.commentId {
+            if comments[i].id == comment.id {
                 comments[i].repliesLoaded = true
                 break
             }
@@ -894,12 +858,5 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
         let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
-    }
-
-    struct CombinedReactionData {
-        var othersLike: Int?
-        var othersDislike: Int?
-        var myLike: Int?
-        var myDislike: Int?
     }
 }

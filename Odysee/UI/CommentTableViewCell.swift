@@ -63,7 +63,7 @@ class CommentTableViewCell: UITableViewCell {
         commentBodyTextView.textContainer.lineFragmentPadding = 0
         commentBodyTextView.textContainerInset = .zero
 
-        if let currentComment, comment.commentId != currentComment.commentId {
+        if let currentComment, comment.id != currentComment.id {
             authorThumbnailView.image = UIImage(named: "spaceman")
             authorThumbnailView.backgroundColor = Helper.lightPrimaryColor
         }
@@ -73,7 +73,7 @@ class CommentTableViewCell: UITableViewCell {
 
         displayAuthorImage()
         leadingLayoutConstraint.constant = CGFloat(comment.replyDepth * 16)
-        replyCountButton.isHidden = (comment.replies ?? 0) == 0 || (comment.repliesLoaded ?? false)
+        replyCountButton.isHidden = (comment.replies ?? 0) == 0
         replyCountButton.setTitle(
             String(
                 format: comment.replies == 1 ? String.localized("%d reply") : String.localized("%d replies"),
@@ -83,26 +83,26 @@ class CommentTableViewCell: UITableViewCell {
         )
 
         authorNameLabel.text = comment.channelName
-        if #available(iOS 16.0, *), let commentText = comment.comment {
+        if #available(iOS 16.0, *) {
             commentBodyTextView.delegate = AppDelegate.shared.currentFileViewController
 
-            var attributedComment = Helper.processTimestamps(commentText)
+            var attributedComment = Helper.processTimestamps(comment.comment)
             attributedComment.uiKit.font = .systemFont(ofSize: 13)
             attributedComment.uiKit.foregroundColor = .label
             commentBodyTextView.attributedText = NSAttributedString(attributedComment)
         } else {
             commentBodyTextView.text = comment.comment
         }
-        fireReactionLabel.text = String(describing: comment.numLikes ?? 0)
+        fireReactionLabel.text = String(describing: comment.numLikes)
         if fireReactionLabel.text.isEmpty {
             fireReactionLabel.text = "0"
         }
-        slimeReactionLabel.text = String(describing: comment.numDislikes ?? 0)
+        slimeReactionLabel.text = String(describing: comment.numDislikes)
         if slimeReactionLabel.text.isEmpty {
             slimeReactionLabel.text = "0"
         }
-        fireReactionImage.tintColor = (comment.isLiked ?? false) ? Helper.fireActiveColor : UIColor.label
-        slimeReactionImage.tintColor = (comment.isDisliked ?? false) ? Helper.slimeActiveColor : UIColor.label
+        fireReactionImage.tintColor = comment.isLiked ? Helper.fireActiveColor : UIColor.label
+        slimeReactionImage.tintColor = comment.isDisliked ? Helper.slimeActiveColor : UIColor.label
 
         let authorTapGesture = UITapGestureRecognizer(target: self, action: #selector(authorTapped(_:)))
         authorNameLabel.addGestureRecognizer(authorTapGesture)
@@ -189,7 +189,7 @@ class CommentTableViewCell: UITableViewCell {
 
     @objc func reportContentTapped(_ sender: Any) {
         if let channelId = currentComment?.channelId,
-           let commentId = currentComment?.commentId
+           let commentId = currentComment?.id
         {
             if let url = URL(string: String(
                 format: "https://odysee.com/$/report_content?claimId=%@&commentId=%@",
