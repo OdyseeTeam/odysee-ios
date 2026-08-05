@@ -69,7 +69,7 @@ extension YouTubeSyncScreen {
                             }
                         }
                 }
-                .foregroundStyle(Color.accentColor)
+                .foregroundStyle(.accentColor)
 
                 Text("Channel language")
                     .padding(.top, 20)
