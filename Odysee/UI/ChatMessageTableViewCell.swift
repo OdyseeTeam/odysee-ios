@@ -25,7 +25,7 @@ class ChatMessageTableViewCell: UITableViewCell {
     }
 
     func setComment(comment: Comment) {
-        if let currentComment, comment.commentId != currentComment.commentId {
+        if let currentComment, comment.id != currentComment.id {
             nameLabel.text = nil
             messageLabel.text = nil
         }

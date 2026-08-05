@@ -8,52 +8,44 @@
 import Foundation
 
 struct Comment: Decodable, Hashable {
+    var comment: String
+    var id: String
+    var claimId: String
+    var timestamp: Int
+    var parentId: String?
     var channelId: String?
     var channelName: String?
     var channelUrl: String?
-    var claimId: String?
-    var parentId: String?
-    var comment: String?
-    var commentId: String?
-    var isChannelSignatureValid: Bool?
-    var isHidden: Bool?
-    var isPinned: Bool?
     var replies: Int?
-    var signature: String?
-    var signingTs: String?
-    var timestamp: Int64?
 
-    var numLikes: Int?
-    var numDislikes: Int?
-    var isLiked: Bool?
-    var isDisliked: Bool?
+    // MARK: Internal fields
 
-    var repliesLoaded: Bool?
+    var numLikes: Int = 0
+    var numDislikes: Int = 0
+    var isLiked: Bool = false
+    var isDisliked: Bool = false
+
+    var repliesLoaded: Bool = false
 
     var replyDepth: Int = 1
 
     private enum CodingKeys: String, CodingKey {
+        case comment
+        case id = "comment_id"
+        case claimId = "claim_id"
+        case timestamp
+        case parentId = "parent_id"
         case channelId = "channel_id"
         case channelName = "channel_name"
         case channelUrl = "channel_url"
-        case claimId = "claim_id"
-        case parentId = "parent_id"
-        case comment
-        case commentId = "comment_id"
-        case isChannelSignatureValid = "is_channel_signature_valid"
-        case isHidden = "is_hidden"
-        case isPinned = "is_pinned"
         case replies
-        case signature
-        case signingTs = "signing_ts"
-        case timestamp
     }
 
     static func == (lhs: Comment, rhs: Comment) -> Bool {
-        return lhs.commentId == rhs.commentId
+        return lhs.id == rhs.id
     }
 
     func hash(into hasher: inout Hasher) {
-        commentId.hash(into: &hasher)
+        id.hash(into: &hasher)
     }
 }
