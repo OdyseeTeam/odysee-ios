@@ -158,7 +158,7 @@ extension Method where ParamType: AccountMethodParams {
             )
 
             guard let url = components.url else {
-                throw LbryioRequestError.invalidUrl(components: components)
+                throw LbryioRequestError.invalidUrlComponents(components)
             }
             requestUrl = url
         }
@@ -176,7 +176,7 @@ extension Method where ParamType: AccountMethodParams {
             components.queryItems = queryItems
 
             guard let query = components.percentEncodedQuery else {
-                throw LbryioRequestError.invalidUrl(components: components)
+                throw LbryioRequestError.invalidUrlComponents(components)
             }
             req.httpBody = query.replacingOccurrences(
                 of: "+",

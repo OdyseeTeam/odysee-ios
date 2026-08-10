@@ -313,13 +313,17 @@ enum Lbry {
     }
 }
 
-struct LbryApiResponseError: LocalizedError {
+struct LbryApiResponseError: LocalizedError, CustomNSError {
     let message: String
     init(_ message: String) {
         self.message = message
     }
 
-    var errorDescription: String? {
+    var errorDescription: String {
         return message
+    }
+
+    var errorUserInfo: [String: Any] {
+        [NSLocalizedDescriptionKey: errorDescription]
     }
 }

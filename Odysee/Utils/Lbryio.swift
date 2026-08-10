@@ -493,17 +493,34 @@ enum Lbryio {
     }
 }
 
-enum LbryioRequestError: Error {
+enum LbryioRequestError: LocalizedError, CustomNSError {
     case runtimeError(String)
     case invalidUrl(_ url: String)
-    case invalidUrl(components: URLComponents)
+    case invalidUrlComponents(_ components: URLComponents)
     case invalidResponse(_ response: URLResponse)
+
+    var errorDescription: String {
+        switch self {
+        case let .runtimeError(message):
+            return message
+        case let .invalidUrl(url):
+            return __("Invalid request URL: \(url)")
+        case let .invalidUrlComponents(components):
+            return __("Invalid request URL with components: \(components.string ?? "[]")")
+        case .invalidResponse:
+            return __("Invalid request response")
+        }
+    }
+
+    var errorUserInfo: [String: Any] {
+        [NSLocalizedDescriptionKey: errorDescription]
+    }
 }
 
-enum LbryioResponseError: LocalizedError {
+enum LbryioResponseError: LocalizedError, CustomNSError {
     case error(_ message: String?, _ code: Int)
 
-    var errorDescription: String? {
+    var errorDescription: String {
         switch self {
         case let .error(message, code):
             guard let message else {
@@ -512,5 +529,9 @@ enum LbryioResponseError: LocalizedError {
 
             return message
         }
+    }
+
+    var errorUserInfo: [String: Any] {
+        [NSLocalizedDescriptionKey: errorDescription]
     }
 }

@@ -58,12 +58,12 @@ enum MembershipPerk {
     }
 }
 
-enum MembershipPerkError: LocalizedError {
+enum MembershipPerkError: LocalizedError, CustomNSError {
     case couldNotCreateUrl
     case noData
     case apiError(String)
 
-    var errorDescription: String? {
+    var errorDescription: String {
         switch self {
         case .couldNotCreateUrl:
             return String.localized("endpoint URL could not be created.")
@@ -72,5 +72,9 @@ enum MembershipPerkError: LocalizedError {
         case let .apiError(error):
             return error
         }
+    }
+
+    var errorUserInfo: [String: Any] {
+        [NSLocalizedDescriptionKey: errorDescription]
     }
 }

@@ -174,12 +174,12 @@ struct LivestreamData: Hashable {
     var claim: Claim
 }
 
-enum OdyseeLivestreamError: LocalizedError {
+enum OdyseeLivestreamError: LocalizedError, CustomNSError {
     case unknown
     case couldNotCreateUrl
     case runtimeError(String)
 
-    var errorDescription: String? {
+    var errorDescription: String {
         switch self {
         case .unknown:
             return String.localized("Unknown error occurred")
@@ -188,5 +188,9 @@ enum OdyseeLivestreamError: LocalizedError {
         case let .runtimeError(message):
             return String(format: String.localized("Runtime error: %@"), message)
         }
+    }
+
+    var errorUserInfo: [String: Any] {
+        [NSLocalizedDescriptionKey: errorDescription]
     }
 }

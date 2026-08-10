@@ -85,12 +85,12 @@ extension SignInUpScreen {
             return .emailVerification
         }
 
-        enum ContinueError: LocalizedError {
+        enum ContinueError: LocalizedError, CustomNSError {
             case empty
             case invalid(message: String)
             case emailVerification(message: String)
 
-            var errorDescription: String? {
+            var errorDescription: String {
                 switch self {
                 case .empty:
                     assertionFailure("Empty email should be handled by the UI")
@@ -99,6 +99,10 @@ extension SignInUpScreen {
                      let .emailVerification(message):
                     return message
                 }
+            }
+
+            var errorUserInfo: [String: Any] {
+                [NSLocalizedDescriptionKey: errorDescription]
             }
         }
 
