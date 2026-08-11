@@ -225,6 +225,7 @@ class HomeViewController: UIViewController,
 
         // Don't show livestreams in Discover
         guard currentCategoryIndex != Self.categoryIndexDiscover else {
+            claimListView.tableHeaderView = nil
             return
         }
 
