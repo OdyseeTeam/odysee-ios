@@ -75,7 +75,6 @@ enum Lbryio {
     static var currentUser: User?
 
     private static let lock = Lock()
-    static var currentLbcUsdRate: Decimal? = 0
     static var cachedNotifications: [LbryNotification] = []
     static var latestNotificationId: Int64 = 0
 
@@ -431,8 +430,7 @@ enum Lbryio {
                 if let response = data as? [String: Any],
                    let lbcUsdRate = response["lbc_usd"] as? Double
                 {
-                    currentLbcUsdRate = Decimal(lbcUsdRate)
-                    completion(currentLbcUsdRate, nil)
+                    completion(Decimal(lbcUsdRate), nil)
                     return
                 }
 

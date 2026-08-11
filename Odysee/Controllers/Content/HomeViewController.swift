@@ -126,6 +126,7 @@ class HomeViewController: UIViewController,
         }
     }
 
+    // FIXME: Reload Homepage (Will keep this for SwiftUI rewrite, if loading failure just quit/reopen app)
     func buildDynamicCategories() {
         for (idx, category) in ContentSources.DynamicContentCategories.enumerated() {
             categories.append(String.localized(category.label))

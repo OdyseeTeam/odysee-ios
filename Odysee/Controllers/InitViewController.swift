@@ -6,20 +6,22 @@
 //
 
 import AVKit
-import FirebaseAnalytics
 import FirebaseCrashlytics
+import FirebaseMessaging
 import UIKit
 
 class InitViewController: UIViewController {
     @IBOutlet var errorView: UIView!
     @IBOutlet var errorLabel: UILabel!
     @IBOutlet var loadingIndicator: UIActivityIndicatorView!
-    var initErrorState = false
 
-    // Init process flow
-    // 1. loadExchangeRate
-    // 2. loadCategories
-    // 3. authenticateAndRegisterInstall
+    /// Init process flow
+    /// 1. Load/Generate installationId
+    /// 2. loadCategories
+    /// 3. Load/Generate auth token
+    /// 4. Authenticate (may regenerate invalidated auth token)
+    /// 5. Register install (Lbryio analytics, FCM token)
+    /// 6. Switch to MainViewController
     func runInit() async {
         let defaults = UserDefaults.standard
 
@@ -34,79 +36,23 @@ class InitViewController: UIViewController {
             defaults.set(Lbry.installationId, forKey: Lbry.keyInstallationId)
         }
 
-        // Run singleton init side effects
-        _ = await AuthToken.token
-
-        Lbryio.loadExchangeRate(completion: { _, _ in
-            // don't bother with error checks here, simply proceed to authenticate
-            self.loadCategories()
-        })
-    }
-
-    func loadCategories() {
-        ContentSources.loadCategories(completion: { error in
-            guard error == nil else {
-                // Categories have to be properly loaded for the home page
-                // If they are not properly loaded, display the startup error
-                self.showError(error: error)
-                return
-            }
-
-            self.authenticateAndRegisterInstall()
-        })
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        Task { await runInit() }
-
-        errorView.layer.cornerRadius = 16
-    }
-
-    func authenticateAndRegisterInstall() {
         do {
-            try Lbryio.fetchCurrentUser(completion: { user, error in
-                if error != nil || user == nil {
-                    if let error = error as? LbryioResponseError,
-                       case let LbryioResponseError.error(_, code) = error,
-                       code == 403
-                    {
-                        // invalidated auth token, get a new one
-                        Lbryio.Defaults.reset()
-                        Task { await AuthToken.reset() }
-                        self.authenticateAndRegisterInstall()
-                        return
-                    }
-
-                    // show a startup error message
-                    self.initErrorState = true
-                    self.showError(error: error) // TODO: Show more meaningful errors for /user/me failures?
-                    return
-                }
-
-                // Run singleton init side effects
-                _ = Wallet.shared
-
-                if user != nil {
-                    self.registerInstall()
-                }
-            })
+            try await ContentSources.loadCategories()
         } catch {
-            // user/me failed
-            // show eror message
-            initErrorState = true
-            showError(error: error)
+            // Just log this error, but proceed with placeholder discover category
+            logError(error: error)
         }
-    }
 
-    func registerInstall() {
-        Lbryio.newInstall(completion: { error in
-            if error != nil {
-                // show error
-                self.initErrorState = true
-                self.showError(error: error)
-                return
-            }
+        do {
+            // Singleton init loads/generates auth token
+            _ = await AuthToken.token
+
+            try await authenticate()
+
+            try await registerInstall()
+
+            // Singleton init loads Wallet and SharedPreference data
+            _ = Wallet.shared
 
             // successful authentication and install registration
             // open the main application interface
@@ -122,44 +68,76 @@ class InitViewController: UIViewController {
                     )
                 }
             }
-        })
+        } catch {
+            // Errors in this flow need to be retried, the app can't be used without an auth token
+            showError(error: error)
+        }
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        Task { await runInit() }
+
+        errorView.layer.cornerRadius = 16
+    }
+
+    /// fetchCurrentUser (through `AccountMethods/.../call`) will generate an AuthToken if none is stored
+    func authenticate() async throws {
+        do {
+            // Sets Analytics user_id
+            _ = try await Lbryio.fetchCurrentUser()
+        } catch LbryioResponseError.error(_, 403) {
+            // invalidated auth token, get a new one
+            Lbryio.Defaults.reset()
+            await AuthToken.reset()
+
+            try await authenticate()
+        }
+    }
+
+    func registerInstall() async throws {
+        guard let installationId = Lbry.installationId, !installationId.isBlank else {
+            throw LbryioRequestError.runtimeError("The installation ID is not set")
+        }
+
+        var token: String? = nil
+        do {
+            token = try await Messaging.messaging().token()
+        } catch {
+            // no need to fail on error here
+            logError(error: error)
+        }
+
+        _ = try await AccountMethods.installNew.call(params: .init(
+            appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
+            appId: installationId,
+            firebaseToken: token
+        ))
     }
 
     func showLoading() {
-        DispatchQueue.main.async {
-            self.loadingIndicator.isHidden = false
-            self.errorView.isHidden = true
-        }
+        loadingIndicator.isHidden = false
+        errorView.isHidden = true
     }
 
-    func showError(error: Error?) {
-        Crashlytics.crashlytics().recordImmediate(
-            error: GenericError(""),
-            userInfo: ["MESSAGE_KEY": error?.localizedDescription ?? ""]
-        )
+    func showError(error: Error) {
+        logError(error: error)
 
-        DispatchQueue.main.async {
-            self.loadingIndicator.isHidden = true
-            self.errorView.isHidden = false
-        }
+        errorLabel.text = error.localizedDescription
+
+        loadingIndicator.isHidden = true
+        errorView.isHidden = false
+    }
+
+    func logError(error: Error) {
+        Crashlytics.crashlytics().recordImmediate(
+            error: error,
+            userInfo: ["MESSAGE_KEY": error.localizedDescription]
+        )
     }
 
     @IBAction func retryTapped(_ sender: UIButton) {
         showLoading()
-        initErrorState = false
-        Lbryio.loadExchangeRate(completion: { _, _ in
-            // don't bother with error checks here, simply proceed to authenticate
-            self.loadCategories()
-        })
+        Task { await runInit() }
     }
-
-    /*
-     // MARK: - Navigation
-
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-         // Get the new view controller using segue.destination.
-         // Pass the selected object to the new view controller.
-     }
-     */
 }

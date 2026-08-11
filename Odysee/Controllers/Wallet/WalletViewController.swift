@@ -243,26 +243,18 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 .string(from: NSDecimalNumber(decimal: balance.supports ?? Decimal(0)))
 
             if let total = balance.total {
-                if let rate = Lbryio.currentLbcUsdRate {
-                    usdBalanceLabel.text = String(
-                        format: "≈$%@",
-                        currencyFormatter.string(from: (total * rate) as NSDecimalNumber) ?? ""
-                    )
-                } else {
-                    // attempt to reload the exchange rate (if it wasn't loaded previously)
-                    Lbryio.loadExchangeRate(completion: { rate, error in
-                        guard let rate = rate, error == nil else {
-                            self.showError(error: error)
-                            return
-                        }
-                        DispatchQueue.main.async {
-                            self.usdBalanceLabel.text = String(
-                                format: "≈$%@",
-                                currencyFormatter.string(from: (total * rate) as NSDecimalNumber) ?? ""
-                            )
-                        }
-                    })
-                }
+                Lbryio.loadExchangeRate(completion: { rate, error in
+                    guard let rate = rate, error == nil else {
+                        self.showError(error: error)
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        self.usdBalanceLabel.text = String(
+                            format: "≈$%@",
+                            currencyFormatter.string(from: (total * rate) as NSDecimalNumber) ?? ""
+                        )
+                    }
+                })
             }
         }
     }
