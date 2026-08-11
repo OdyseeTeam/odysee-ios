@@ -39,6 +39,16 @@ struct UserEmailResendTokenParams: Encodable, AccountMethodParams {
     let onlyIfExpired = true
 }
 
+struct InstallNewParams: Encodable, AccountMethodParams {
+    var appVersion: String?
+    var appId: String
+    var firebaseToken: String?
+
+    let operatingSystem = "ios"
+    let platform = "darwin"
+    let domain = "odysee.com"
+}
+
 struct SyncGetParams: Encodable, AccountMethodParams {
     var hash: String
 }

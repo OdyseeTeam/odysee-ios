@@ -6319,15 +6319,21 @@ Line 2</string>
                             <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="koz-xy-DLz">
                                 <rect key="frame" x="32" y="380" width="350" height="136.5"/>
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Oops! The Odysee servers are unreachable at this time. Please check your Internet connection and try again." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D0w-zV-D4B">
-                                        <rect key="frame" x="32" y="16" width="286" height="50.5"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="An error occurred. Please check your Internet connection and try again." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="D0w-zV-D4B">
+                                        <rect key="frame" x="32" y="16" width="286" height="33.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="occ-Ri-dQD">
+                                        <rect key="frame" x="32" y="73.5" width="286" height="0.0"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ljs-N9-n0x">
-                                        <rect key="frame" x="143" y="90.5" width="64" height="30"/>
-                                        <state key="normal" title="Try Again">
+                                        <rect key="frame" x="156.5" y="97.5" width="37" height="30"/>
+                                        <state key="normal" title="Retry">
                                             <color key="titleColor" red="0.8980392157" green="0.0" blue="0.3294117647" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
                                         <connections>
@@ -6337,11 +6343,14 @@ Line 2</string>
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
+                                    <constraint firstItem="occ-Ri-dQD" firstAttribute="top" secondItem="D0w-zV-D4B" secondAttribute="bottom" constant="24" id="0iV-Ix-t5W"/>
                                     <constraint firstAttribute="trailing" secondItem="D0w-zV-D4B" secondAttribute="trailing" constant="32" id="ALk-dR-etK"/>
                                     <constraint firstAttribute="bottom" secondItem="ljs-N9-n0x" secondAttribute="bottom" constant="16" id="E3t-4p-FcV"/>
-                                    <constraint firstItem="ljs-N9-n0x" firstAttribute="top" secondItem="D0w-zV-D4B" secondAttribute="bottom" constant="24" id="ECu-x8-c22"/>
+                                    <constraint firstItem="ljs-N9-n0x" firstAttribute="top" secondItem="occ-Ri-dQD" secondAttribute="bottom" constant="24" id="ECu-x8-c22"/>
                                     <constraint firstItem="D0w-zV-D4B" firstAttribute="leading" secondItem="koz-xy-DLz" secondAttribute="leading" constant="32" id="VXe-mA-flD"/>
                                     <constraint firstItem="D0w-zV-D4B" firstAttribute="top" secondItem="koz-xy-DLz" secondAttribute="top" constant="16" id="Zl1-Pn-K0a"/>
+                                    <constraint firstAttribute="trailing" secondItem="occ-Ri-dQD" secondAttribute="trailing" constant="32" id="jpL-jB-bgR"/>
+                                    <constraint firstItem="occ-Ri-dQD" firstAttribute="leading" secondItem="koz-xy-DLz" secondAttribute="leading" constant="32" id="kPp-ic-3ul"/>
                                     <constraint firstItem="ljs-N9-n0x" firstAttribute="centerX" secondItem="koz-xy-DLz" secondAttribute="centerX" id="mcm-Lz-ZrH"/>
                                 </constraints>
                             </view>
@@ -6361,7 +6370,7 @@ Line 2</string>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="errorLabel" destination="D0w-zV-D4B" id="6XC-jx-3Eh"/>
+                        <outlet property="errorLabel" destination="occ-Ri-dQD" id="Zdm-fQ-RFG"/>
                         <outlet property="errorView" destination="koz-xy-DLz" id="hRo-RN-efP"/>
                         <outlet property="loadingIndicator" destination="41E-JU-Zj0" id="dS9-K1-Vnj"/>
                     </connections>

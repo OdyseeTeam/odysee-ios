@@ -266,6 +266,7 @@ enum AccountMethods {
     static let userSignIn = Method<UserSignInUpParams, User>(name: "user/signin")
     static let userSignOut = Method<NilType, NilType>(name: "user/signout")
     static let userEmailResendToken = Method<UserEmailResendTokenParams, NilType>(name: "user_email/resend_token")
+    static let installNew = Method<InstallNewParams, NilType>(name: "install/new")
     static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
     static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
     static let subscriptionNew = Method<SubscriptionNewParams, NilType>(name: "subscription/new")
