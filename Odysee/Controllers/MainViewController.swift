@@ -104,10 +104,14 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         updateMiniPlayer()
 
         if Lbryio.isSignedIn() {
+            // FIXME: This only runs after reopening app, not immediately when signing in
             // check if the user is pending_delete
             if let pendingDeletion = Lbryio.currentUser?.pendingDeletion, pendingDeletion {
-                stopAllTimers()
-                resetUserAndViews()
+                Task {
+                    await stopAllTimers()
+                    await resetUserAndViews()
+                    rerunInit()
+                }
                 return
             }
 
@@ -170,13 +174,13 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
-    func stopAllTimers() {
+    func stopAllTimers() async {
         walletBalanceTimer.invalidate()
         balanceTimerScheduled = false
-        Task { await Wallet.shared.stopSync() }
+        await Wallet.shared.stopSync()
     }
 
-    func resetUserAndViews() {
+    func resetUserAndViews() async {
         Lbryio.cachedNotifications = []
         Lbry.walletBalance = WalletBalance()
 
@@ -186,16 +190,24 @@ class MainViewController: UIViewController, AVPlayerViewControllerDelegate, MFMa
 
         // remove the auth token so that a new one will be generated upon the next init
         Lbryio.Defaults.reset()
-        Task { await AuthToken.reset() }
+        await AuthToken.reset()
 
         // clear the wallet address if it exists
         UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
 
         AppDelegate.shared.mainNavigationController?.popToRootViewController(animated: false)
-        if let initvc = presentingViewController as? InitViewController {
-            initvc.dismiss(animated: true, completion: {
-                Task { await initvc.runInit() }
-            })
+    }
+
+    func rerunInit() {
+        let initVc = storyboard?.instantiateViewController(identifier: "init_vc") as! InitViewController
+        if let window = view.window {
+            window.rootViewController = initVc
+            UIView.transition(
+                with: window,
+                duration: 0.2,
+                options: .transitionCrossDissolve,
+                animations: nil
+            )
         }
     }
 
