@@ -109,19 +109,11 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @IBAction func signOutTapped(_ sender: Any) {
-        presentingViewController?.dismiss(animated: false, completion: nil)
-        AppDelegate.shared.mainController?.stopAllTimers()
-        AppDelegate.shared.mainController?.resetUserAndViews()
-
-        let initVc = storyboard?.instantiateViewController(identifier: "init_vc") as! InitViewController
-        if let window = view.window {
-            window.rootViewController = initVc
-            UIView.transition(
-                with: window,
-                duration: 0.2,
-                options: .transitionCrossDissolve,
-                animations: nil
-            )
+        Task {
+            presentingViewController?.dismiss(animated: false, completion: nil)
+            await AppDelegate.shared.mainController?.stopAllTimers()
+            await AppDelegate.shared.mainController?.resetUserAndViews()
+            AppDelegate.shared.mainController?.rerunInit()
         }
     }
 
