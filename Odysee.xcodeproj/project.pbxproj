@@ -24,6 +24,7 @@
 		534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */; };
 		534CCCA52F3C5EAC00457BBF /* YouTubeSyncScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */; };
 		534CCCA92F3C74CC00457BBF /* YouTubeSyncViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */; };
+		534FB131302DB464003B496B /* ChannelThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 534FB130302DB464003B496B /* ChannelThumbnail.swift */; };
 		53593F31287E5D75007FD08E /* CommentsAPIResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53593F30287E5D75007FD08E /* CommentsAPIResult.swift */; };
 		5359CABD2FB2D5ED0035D0D6 /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABC2FB2D5ED0035D0D6 /* Tags.swift */; };
 		5359CAC02FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */; };
@@ -40,6 +41,8 @@
 		5390C80D2ECE13A3005A104B /* ActionSheetPicker-3.0 in Frameworks */ = {isa = PBXBuildFile; productRef = 5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */; };
 		5391E43A2EFE6C88008EF30A /* SharedPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5391E4392EFE6C88008EF30A /* SharedPreference.swift */; };
 		5391E43D2EFED725008EF30A /* ValueCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 5391E43C2EFED725008EF30A /* ValueCodable */; };
+		5395404F301C889400DF10E6 /* Comments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5395404E301C889400DF10E6 /* Comments.swift */; };
+		53954051301D8B9800DF10E6 /* CommentsList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53954050301D8B9800DF10E6 /* CommentsList.swift */; };
 		539D79872F3DA6DC00E7686E /* AccountYoutubeChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */; };
 		539D79892F3E386000E7686E /* ManageFollowingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79882F3E386000E7686E /* ManageFollowingScreen.swift */; };
 		539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 539D798B2F3E389400E7686E /* CachedAsyncImage */; };
@@ -48,8 +51,9 @@
 		53AE21372F8DE086009939B2 /* PlaylistListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AE21362F8DE086009939B2 /* PlaylistListItem.swift */; };
 		53AE21392F99B59B009939B2 /* PlaylistsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
-		53B25D4A2FC733F400D91F8B /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B25D492FC733F400D91F8B /* Icons.swift */; };
 		53B25D482FC5779500D91F8B /* ChannelPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B25D472FC5779500D91F8B /* ChannelPicker.swift */; };
+		53B25D4A2FC733F400D91F8B /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B25D492FC733F400D91F8B /* Icons.swift */; };
+		53B2CFDD3023056700EB0068 /* CommentListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B2CFDC3023056700EB0068 /* CommentListItem.swift */; };
 		53B7E2012FA24B27001CCFD6 /* PlaylistDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B7E2002FA24B26001CCFD6 /* PlaylistDetailScreen.swift */; };
 		53B7E2032FA2507F001CCFD6 /* PlaylistDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B7E2022FA2507F001CCFD6 /* PlaylistDetailViewModel.swift */; };
 		53BC58FC2818DF530017F9D2 /* LivestreamCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */; };
@@ -192,6 +196,7 @@
 		534B71A1287BE08D00F01D42 /* CommentsAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIParams.swift; sourceTree = "<group>"; };
 		534CCCA42F3C5EAC00457BBF /* YouTubeSyncScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncScreen.swift; sourceTree = "<group>"; };
 		534CCCA82F3C74CC00457BBF /* YouTubeSyncViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YouTubeSyncViewModel.swift; sourceTree = "<group>"; };
+		534FB130302DB464003B496B /* ChannelThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelThumbnail.swift; sourceTree = "<group>"; };
 		53593F30287E5D75007FD08E /* CommentsAPIResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsAPIResult.swift; sourceTree = "<group>"; };
 		5359CABC2FB2D5ED0035D0D6 /* Tags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tags.swift; sourceTree = "<group>"; };
 		5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+PlaylistTest.swift"; sourceTree = "<group>"; };
@@ -205,6 +210,8 @@
 		538C27552EFB8DA300305361 /* AuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthToken.swift; sourceTree = "<group>"; };
 		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		5391E4392EFE6C88008EF30A /* SharedPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPreference.swift; sourceTree = "<group>"; };
+		5395404E301C889400DF10E6 /* Comments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comments.swift; sourceTree = "<group>"; };
+		53954050301D8B9800DF10E6 /* CommentsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsList.swift; sourceTree = "<group>"; };
 		539D79862F3DA6DC00E7686E /* AccountYoutubeChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountYoutubeChannel.swift; sourceTree = "<group>"; };
 		539D79882F3E386000E7686E /* ManageFollowingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageFollowingScreen.swift; sourceTree = "<group>"; };
 		539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageFollowingViewModel.swift; sourceTree = "<group>"; };
@@ -212,8 +219,9 @@
 		53AE21362F8DE086009939B2 /* PlaylistListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistListItem.swift; sourceTree = "<group>"; };
 		53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistsViewModel.swift; sourceTree = "<group>"; };
 		53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OdyseeLivestream.swift; sourceTree = "<group>"; };
-		53B25D492FC733F400D91F8B /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
 		53B25D472FC5779500D91F8B /* ChannelPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelPicker.swift; sourceTree = "<group>"; };
+		53B25D492FC733F400D91F8B /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
+		53B2CFDC3023056700EB0068 /* CommentListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentListItem.swift; sourceTree = "<group>"; };
 		53B7E2002FA24B26001CCFD6 /* PlaylistDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailScreen.swift; sourceTree = "<group>"; };
 		53B7E2022FA2507F001CCFD6 /* PlaylistDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistDetailViewModel.swift; sourceTree = "<group>"; };
 		53BC58FB2818DF530017F9D2 /* LivestreamCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LivestreamCollectionViewCell.xib; sourceTree = "<group>"; };
@@ -419,6 +427,10 @@
 				532CCA3C2FB1CA0000D1E8D2 /* TagsFormSection.swift */,
 				53B25D472FC5779500D91F8B /* ChannelPicker.swift */,
 				53D4FED83019A57400F20363 /* MiniPlayerAvoiding.swift */,
+				534FB130302DB464003B496B /* ChannelThumbnail.swift */,
+				5395404E301C889400DF10E6 /* Comments.swift */,
+				53954050301D8B9800DF10E6 /* CommentsList.swift */,
+				53B2CFDC3023056700EB0068 /* CommentListItem.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -915,6 +927,7 @@
 				CCDDA9172655C1340006035F /* FileDismissAnimationController.swift in Sources */,
 				53486A602FAEDF8F0028717C /* ThumbnailPicker.swift in Sources */,
 				64FF821A260507D2009B7A3B /* CreateChannelViewController.swift in Sources */,
+				534FB131302DB464003B496B /* ChannelThumbnail.swift in Sources */,
 				648F70D726307BF900885A2F /* GoLiveViewController.swift in Sources */,
 				CC0B2B0D266D0E72002490BB /* Lock.swift in Sources */,
 				53B7E2012FA24B27001CCFD6 /* PlaylistDetailScreen.swift in Sources */,
@@ -939,6 +952,8 @@
 				CC49954526692037001BB2DC /* ImagePrefetchController.swift in Sources */,
 				642B6B1B257B698C00F17355 /* TransactionsViewController.swift in Sources */,
 				6411C0B5255B94DA0018C3D5 /* MainViewController.swift in Sources */,
+				53B2CFDD3023056700EB0068 /* CommentListItem.swift in Sources */,
+				53954051301D8B9800DF10E6 /* CommentsList.swift in Sources */,
 				CC80EC0F2672A80700CA07DA /* Page.swift in Sources */,
 				64666B032587378400DF4608 /* ChannelEditorViewController.swift in Sources */,
 				538C274F2EFB8BE900305361 /* AccountAPIParams.swift in Sources */,
@@ -946,6 +961,7 @@
 				641B3E2727E0EFCC0089E816 /* CustomBlockRule.swift in Sources */,
 				53B25D482FC5779500D91F8B /* ChannelPicker.swift in Sources */,
 				646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */,
+				5395404F301C889400DF10E6 /* Comments.swift in Sources */,
 				53486A5C2FADB7510028717C /* PlaylistDetailForm.swift in Sources */,
 				642B6AFD257A382900F17355 /* WalletViewController.swift in Sources */,
 				5377EA832F7B666E00C8E03E /* LibraryScreen.swift in Sources */,

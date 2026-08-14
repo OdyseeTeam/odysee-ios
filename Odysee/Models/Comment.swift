@@ -7,16 +7,16 @@
 
 import Foundation
 
-struct Comment: Decodable, Hashable {
+struct Comment: Decodable, Hashable, Identifiable {
     var comment: String
     var id: String
     var claimId: String
-    var timestamp: Int
+    var timestamp: TimeInterval
     var parentId: String?
     var channelId: String?
     var channelName: String?
     var channelUrl: String?
-    var replies: Int?
+    var replyCount: Int?
 
     // MARK: Internal fields
 
@@ -25,9 +25,14 @@ struct Comment: Decodable, Hashable {
     var isLiked: Bool = false
     var isDisliked: Bool = false
 
+    // FIXME: Remove (Not needed in SwiftUI component)
     var repliesLoaded: Bool = false
 
+    // FIXME: Remove (Not needed in SwiftUI component)
     var replyDepth: Int = 1
+
+    // FIXME: Remove (Not needed in SwiftUI component)
+    var replies: [Comment] = []
 
     private enum CodingKeys: String, CodingKey {
         case comment
@@ -38,11 +43,7 @@ struct Comment: Decodable, Hashable {
         case channelId = "channel_id"
         case channelName = "channel_name"
         case channelUrl = "channel_url"
-        case replies
-    }
-
-    static func == (lhs: Comment, rhs: Comment) -> Bool {
-        return lhs.id == rhs.id
+        case replyCount = "replies"
     }
 
     func hash(into hasher: inout Hasher) {

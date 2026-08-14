@@ -208,7 +208,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 claimId: claimId,
                 page: commentsCurrentPage,
                 pageSize: commentsPageSize,
-                skipValidation: true
             )
         )
         .subscribeResult { result in
@@ -671,7 +670,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 parentId: parent.id,
                 page: 1,
                 pageSize: 999,
-                skipValidation: true,
                 topLevel: false
             )
         )
@@ -745,7 +743,6 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     parentId: comment.id,
                     page: 1,
                     pageSize: 999,
-                    skipValidation: true,
                     topLevel: false
                 ))
 

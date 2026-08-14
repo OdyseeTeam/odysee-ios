@@ -73,10 +73,10 @@ class CommentTableViewCell: UITableViewCell {
 
         displayAuthorImage()
         leadingLayoutConstraint.constant = CGFloat(comment.replyDepth * 16)
-        replyCountButton.isHidden = (comment.replies ?? 0) == 0
+        replyCountButton.isHidden = (comment.replyCount ?? 0) == 0
         replyCountButton.setTitle(
             String(
-                format: comment.replies == 1 ? String.localized("%d reply") : String.localized("%d replies"),
+                format: comment.replyCount == 1 ? String.localized("%d reply") : String.localized("%d replies"),
                 comment.replies ?? 0
             ),
             for: .normal

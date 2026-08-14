@@ -12,6 +12,7 @@ struct CommentByIdParams: Encodable, CommentsMethodParams {
     var withAncestors: Bool?
 }
 
+// FIXME: Match ListArgs
 struct CommentListParams: Encodable, CommentsMethodParams {
     var claimId: String
     var channelId: String?
@@ -19,8 +20,9 @@ struct CommentListParams: Encodable, CommentsMethodParams {
     var parentId: String?
     var page: Int?
     var pageSize: Int?
-    var skipValidation: Bool?
     var topLevel: Bool? = true
+    // FIXME: Enum
+    var sortBy = 3
 }
 
 struct CommentCreateParams: Encodable, CommentsMethodParams {
