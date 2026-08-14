@@ -19,27 +19,31 @@ struct LibraryScreen: View {
     @AppStorage("library#selectedTab") private var selectedTab: Tab = .publishes
 
     var body: some View {
-        NavigationView {
-            VStack {
-                Picker("Tab", selection: $selectedTab) {
-                    Text("Publishes").tag(Tab.publishes)
-                    Text("Watch History").tag(Tab.watchHistory)
-                    Text("Playlists").tag(Tab.playlists)
-                }
-                .pickerStyle(.segmented)
-                .padding(.horizontal)
+        if #available(iOS 16, *) {
+            Comments()
+        } else {
+            NavigationView {
+                VStack {
+                    Picker("Tab", selection: $selectedTab) {
+                        Text("Publishes").tag(Tab.publishes)
+                        Text("Watch History").tag(Tab.watchHistory)
+                        Text("Playlists").tag(Tab.playlists)
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
 
-                switch selectedTab {
-                case .publishes:
-                    PublishesScreen()
-                case .watchHistory:
-                    WatchHistoryScreen()
-                case .playlists:
-                    PlaylistsScreen()
+                    switch selectedTab {
+                    case .publishes:
+                        PublishesScreen()
+                    case .watchHistory:
+                        WatchHistoryScreen()
+                    case .playlists:
+                        PlaylistsScreen()
+                    }
                 }
             }
+            .navigationViewStyle(.stack)
         }
-        .navigationViewStyle(.stack)
     }
 }
 

@@ -32,25 +32,7 @@ struct ChannelListItem: View {
                     .foregroundStyle(.red)
             } else if case let .claim(claim) = channel {
                 HStack(spacing: 20) {
-                    Group {
-                        if let url = claim.value?.thumbnail?.url {
-                            CachedAsyncImage(url: URL(string: url)) { phase in
-                                if let image = phase.image {
-                                    image
-                                        .resizable()
-                                        .scaledToFit()
-                                        .clipShape(.circle)
-                                } else if phase.error != nil {
-                                    Color.clear
-                                } else {
-                                    ProgressView()
-                                }
-                            }
-                        } else {
-                            Color.clear
-                        }
-                    }
-                    .frame(width: 40 * scale, height: 40 * scale)
+                    ChannelThumbnail(claim: claim)
 
                     VStack(alignment: .leading) {
                         Text(claim.titleOrName ?? "")
