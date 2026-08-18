@@ -117,11 +117,18 @@ struct CommentsList: View {
             .listRowSeparator(.hidden)
             .listRowInsets(.init(top: 0, leading: 0, bottom: 16, trailing: 0))
 
-            if true || maxShown < comments.count {
-                Button("Show more") {
-                    maxShown += 10
+            if maxShown < comments.count {
+                if shownComments.first?.parentId != nil {
+                    Button("Show more") {
+                        maxShown += 10
+                    }
+                    .buttonStyle(.borderless)
+                } else {
+                    Color.clear
+                        .onAppear {
+                            maxShown += 10
+                        }
                 }
-                .buttonStyle(.borderless)
             }
         }
     }

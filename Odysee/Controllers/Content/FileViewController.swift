@@ -2349,6 +2349,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 claimId: claimId,
                 page: commentsCurrentPage,
                 pageSize: commentsPageSize,
+                topLevel: true,
+                sortBy: .popularity
             )
         )
         .subscribeResult(didLoadComments)
@@ -2473,6 +2475,8 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
                 claimId: claimId,
                 page: 1,
                 pageSize: 75,
+                topLevel: true,
+                sortBy: .popularity
             )
         )
         .subscribeResult(didLoadInitialChatMessages)

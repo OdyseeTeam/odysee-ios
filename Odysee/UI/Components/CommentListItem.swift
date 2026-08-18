@@ -13,8 +13,7 @@ struct CommentListItem: View {
     var author: Claim
 
     @ScaledMetric private var scale: CGFloat = 1
-    @ScaledMetric private var contentSize: CGFloat = 14
-    @ScaledMetric private var secondarySize: CGFloat = 12
+    @ScaledMetric private var secondarySize: CGFloat = 14
 
     @State private var unlimitedLines: Bool = false
 
@@ -55,7 +54,6 @@ struct CommentListItem: View {
                 } label: {
                     Text(.init(comment.comment))
                         .lineLimit(unlimitedLines ? nil : 2)
-                        .font(.system(size: contentSize))
                 }
 
                 HStack(spacing: 32) {
@@ -77,6 +75,7 @@ struct CommentListItem: View {
                         Text(String(comment.numDislikes))
                     }
                 }
+                .font(.system(size: secondarySize))
 
                 if let toggleReplies {
                     Button {
@@ -84,6 +83,7 @@ struct CommentListItem: View {
                     } label: {
                         HStack {
                             Text(repliesExpanded ? "Hide replies" : "Show ^[\(replyCount) reply](inflect: true)")
+                                .font(.system(size: secondarySize))
 
                             Image(systemName: repliesExpanded ? "chevron.up" : "chevron.down")
                         }

@@ -38,6 +38,7 @@
 		538C274F2EFB8BE900305361 /* AccountAPIParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C274E2EFB8BE900305361 /* AccountAPIParams.swift */; };
 		538C27562EFB8DA300305361 /* AuthToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C27552EFB8DA300305361 /* AuthToken.swift */; };
 		538C8CC62ED74B8C00E20949 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 538C8CC52ED74B8C00E20949 /* AppIcon.icon */; };
+		538D47C73033FF9E00330BE8 /* CommentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538D47C63033FF9E00330BE8 /* CommentsViewModel.swift */; };
 		5390C80D2ECE13A3005A104B /* ActionSheetPicker-3.0 in Frameworks */ = {isa = PBXBuildFile; productRef = 5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */; };
 		5391E43A2EFE6C88008EF30A /* SharedPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5391E4392EFE6C88008EF30A /* SharedPreference.swift */; };
 		5391E43D2EFED725008EF30A /* ValueCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 5391E43C2EFED725008EF30A /* ValueCodable */; };
@@ -209,6 +210,7 @@
 		538C274E2EFB8BE900305361 /* AccountAPIParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountAPIParams.swift; sourceTree = "<group>"; };
 		538C27552EFB8DA300305361 /* AuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthToken.swift; sourceTree = "<group>"; };
 		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
+		538D47C63033FF9E00330BE8 /* CommentsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsViewModel.swift; sourceTree = "<group>"; };
 		5391E4392EFE6C88008EF30A /* SharedPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPreference.swift; sourceTree = "<group>"; };
 		5395404E301C889400DF10E6 /* Comments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comments.swift; sourceTree = "<group>"; };
 		53954050301D8B9800DF10E6 /* CommentsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsList.swift; sourceTree = "<group>"; };
@@ -412,6 +414,7 @@
 				539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */,
 				53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */,
 				53B7E2022FA2507F001CCFD6 /* PlaylistDetailViewModel.swift */,
+				538D47C63033FF9E00330BE8 /* CommentsViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -986,6 +989,7 @@
 				647408512577FA30008007C6 /* ChannelCollectionViewCell.swift in Sources */,
 				5359CABD2FB2D5ED0035D0D6 /* Tags.swift in Sources */,
 				53AE21372F8DE086009939B2 /* PlaylistListItem.swift in Sources */,
+				538D47C73033FF9E00330BE8 /* CommentsViewModel.swift in Sources */,
 				534B71A2287BE08D00F01D42 /* CommentsAPIParams.swift in Sources */,
 				641108E7255AA2BC00F0FB8A /* InitViewController.swift in Sources */,
 				64666AFB25872BE000DF4608 /* ChannelManagerViewController.swift in Sources */,
