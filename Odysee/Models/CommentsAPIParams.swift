@@ -18,11 +18,18 @@ struct CommentListParams: Encodable, CommentsMethodParams {
     var channelId: String?
     var channelName: String?
     var parentId: String?
-    var page: Int?
-    var pageSize: Int?
-    var topLevel: Bool? = true
-    // FIXME: Enum
-    var sortBy = 3
+    var page: Int
+    var pageSize: Int
+    var topLevel: Bool
+    var sortBy: Sort
+
+    enum Sort: Int, Encodable {
+        case newest
+        case oldest
+        case controversy
+        case popularity
+        case newestNoPins
+    }
 }
 
 struct CommentCreateParams: Encodable, CommentsMethodParams {

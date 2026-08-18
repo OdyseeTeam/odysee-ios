@@ -355,7 +355,9 @@ enum Lbryio {
                 channelId: channelId,
                 channelName: channelName,
                 page: 1,
-                pageSize: 1
+                pageSize: 1,
+                topLevel: true,
+                sortBy: .popularity
             )
         )
         .subscribeResult { result in

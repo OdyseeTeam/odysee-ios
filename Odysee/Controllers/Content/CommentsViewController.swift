@@ -208,6 +208,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 claimId: claimId,
                 page: commentsCurrentPage,
                 pageSize: commentsPageSize,
+                topLevel: true,
+                sortBy: .popularity
             )
         )
         .subscribeResult { result in
@@ -670,7 +672,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                 parentId: parent.id,
                 page: 1,
                 pageSize: 999,
-                topLevel: false
+                topLevel: false,
+                sortBy: .oldest
             )
         )
         .subscribeResult { result in
@@ -743,7 +746,8 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
                     parentId: comment.id,
                     page: 1,
                     pageSize: 999,
-                    topLevel: false
+                    topLevel: false,
+                    sortBy: .oldest
                 ))
 
                 let loadedComments = page.items.filter {
