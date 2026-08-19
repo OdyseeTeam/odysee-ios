@@ -400,6 +400,7 @@ enum Helper {
         (AppDelegate.shared.mainViewController as? MainViewController)?.showError(error: error)
     }
 
+    // TODO: Remove (not needed with SwiftUI, CommentText handles it)
     @available(iOS 16.0, *)
     static func processTimestamps(_ str: String) -> AttributedString {
         str

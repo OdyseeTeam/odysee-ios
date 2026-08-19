@@ -353,3 +353,15 @@ extension ButtonRole {
 extension ShapeStyle where Self == Color {
     static var accentColor: Color { .accentColor }
 }
+
+@available(iOS 16.0, *)
+extension Image {
+    init(_ resource: ImageResource, size: CGFloat) {
+        self.init(size: CGSize(width: size, height: size)) { context in
+            context.draw(
+                Image(resource),
+                in: CGRect(x: 0, y: 0, width: size, height: size)
+            )
+        }
+    }
+}

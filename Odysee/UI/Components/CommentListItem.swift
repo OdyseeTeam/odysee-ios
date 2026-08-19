@@ -6,14 +6,16 @@
 //
 
 import SwiftUI
+import WrappingHStack
 
 // FIXME: Accessibility
+@available(iOS 16, *)
 struct CommentListItem: View {
     var comment: Comment
     var author: Claim
 
-    @ScaledMetric private var scale: CGFloat = 1
     @ScaledMetric private var secondarySize: CGFloat = 14
+    @ScaledMetric private var secondaryInlineSize: CGFloat = 18
 
     @State private var unlimitedLines: Bool = false
 
@@ -26,7 +28,7 @@ struct CommentListItem: View {
             ChannelThumbnail(claim: author)
 
             VStack(alignment: .leading) {
-                HStack {
+                WrappingHStack(lineSpacing: 8) {
                     if let authorTitle = author.titleOrName {
                         Button {
                             Helper.openChannelVc(author)
@@ -48,31 +50,38 @@ struct CommentListItem: View {
                 }
                 .font(.system(size: secondarySize))
 
-                // FIXME: Accessibility
-                Button {
-                    unlimitedLines.toggle()
-                } label: {
-                    Text(.init(comment.comment))
-                        .lineLimit(unlimitedLines ? nil : 2)
+                if let sticker = CommentSticker.parse(comment.comment) {
+                    CommentSticker(sticker: sticker)
+                } else {
+                    // FIXME: Accessibility
+                    Button {
+                        unlimitedLines.toggle()
+                    } label: {
+                        // FIXME: Timestamp click
+                        CommentText(comment.comment)
+                            .lineLimit(unlimitedLines ? nil : 2)
+                    }
                 }
 
-                HStack(spacing: 32) {
+                WrappingHStack(spacing: .constant(32), lineSpacing: 8) {
                     Button("Reply") {}
                         .buttonStyle(.borderless)
 
-                    Button {} label: {
-                        Image(systemName: "flame.fill")
-                            .foregroundStyle(comment.isLiked ? Color(Helper.fireActiveColor) : .primary)
-                        Text(String(comment.numLikes))
-                    }
+                    HStack(spacing: 32) {
+                        Button {} label: {
+                            Image(systemName: "flame.fill")
+                                .foregroundStyle(comment.isLiked ? Color(Helper.fireActiveColor) : .primary)
+                            Text(String(comment.numLikes))
+                        }
 
-                    Button {} label: {
-                        Image("slime")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 18 * scale, height: 18 * scale)
-                            .foregroundStyle(comment.isDisliked ? Color(Helper.slimeActiveColor) : .primary)
-                        Text(String(comment.numDislikes))
+                        Button {} label: {
+                            Image("slime")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: secondaryInlineSize, height: secondaryInlineSize)
+                                .foregroundStyle(comment.isDisliked ? Color(Helper.slimeActiveColor) : .primary)
+                            Text(String(comment.numDislikes))
+                        }
                     }
                 }
                 .font(.system(size: secondarySize))
@@ -94,6 +103,7 @@ struct CommentListItem: View {
 
             Spacer()
         }
+        .padding(.top, 16)
         .buttonStyle(.plain)
         .contextMenu {
             // FIXME: Items
@@ -103,13 +113,6 @@ struct CommentListItem: View {
 
 @available(iOS 17, *)
 #Preview {
-    let comment = Comment(
-        comment: "A comment",
-        id: "identifier",
-        claimId: "",
-        timestamp: Date().timeIntervalSince1970
-    )
-
     let author = Claim(
         claimId: "comment-author",
         value: .init(
@@ -118,5 +121,35 @@ struct CommentListItem: View {
         )
     )
 
-    CommentListItem(comment: comment, author: author)
+    List {
+        CommentListItem(
+            comment: Comment(
+                comment: "A comment",
+                id: "1",
+                claimId: "",
+                timestamp: Date().timeIntervalSince1970
+            ),
+            author: author
+        )
+
+        CommentListItem(
+            comment: Comment(
+                comment: "A comment",
+                id: "2",
+                claimId: "",
+                timestamp: Date().timeIntervalSince1970
+            ),
+            author: Claim()
+        )
+
+        CommentListItem(
+            comment: Comment(
+                comment: "A comment with :+1:",
+                id: "3",
+                claimId: "",
+                timestamp: Date().timeIntervalSince1970
+            ),
+            author: author
+        )
+    }
 }
