@@ -11,8 +11,6 @@ import SwiftUI
 struct ChannelThumbnail: View {
     var claim: Claim
 
-    @ScaledMetric private var scale = 1
-
     /// <https://github.com/OdyseeTeam/odysee-frontend/blob/c605de2a2f461d61fcc4745dd1008510ef1e3737/ui/component/channelThumbnail/view.tsx#L89-L95>
     /// <https://github.com/OdyseeTeam/odysee-frontend/blob/c605de2a2f461d61fcc4745dd1008510ef1e3737/ui/scss/component/_channel.scss#L612-L630>
     private var background: Color {
@@ -39,6 +37,7 @@ struct ChannelThumbnail: View {
     var body: some View {
         Group {
             if let url = claim.value?.thumbnail?.url {
+                // FIXME: Less reloads somehow (when scrolling/scrolling back)
                 CachedAsyncImage(url: URL(string: url)) { phase in
                     if let image = phase.image {
                         image
@@ -57,7 +56,7 @@ struct ChannelThumbnail: View {
         }
         .scaledToFill()
         .clipShape(.circle)
-        .frame(width: 40 * scale, height: 40 * scale)
+        .frame(width: 40, height: 40)
     }
 }
 

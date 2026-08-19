@@ -9,34 +9,33 @@ import Foundation
 
 @available(iOS 16, *)
 extension Comments {
-    // FIXME: Loading etc
     @MainActor
     class ViewModel: ObservableObject {
-        @Published private(set) var commentsByParent: [String?: Replies] = [:]
-        @Published private(set) var authors: [String: Claim] = [:]
+        @Published private(set) var inProgress = false
 
-        /// <https://github.com/OdyseeTeam/commentron/blob/e8381c3b1f482c83922f4051dc01848afacce499/commentapi/comment.go#L151>
-        static let pageSize = 200
+        private var authors: [String: Claim] = [:]
 
-        init() {
-            Task<Void, Never> {
-                do {
-                    try await loadTopLevelComments()
-                } catch {
-                    Helper.showError(error: error)
-                    return
-                }
+        func author(for comment: Comment) -> Claim {
+            guard let authorUrl = comment.channelUrl,
+                  let author = authors[authorUrl]
+            else {
+                return Claim()
             }
+
+            return author
         }
 
-        private func addCommentsToParent(parentId: String?, comments: [Comment]) async throws {
-            try await resolveNewAuthors(newComments: comments)
-
-            if commentsByParent[parentId] == nil {
-                commentsByParent[parentId] = comments
-            } else {
-                commentsByParent[parentId]?.append(contentsOf: comments)
+        func listComments(params: CommentListParams) async throws -> Page<Comment> {
+            inProgress = true
+            defer {
+                inProgress = false
             }
+
+            let list = try await CommentsMethods.list.call(params: params)
+
+            try await resolveNewAuthors(newComments: list.items)
+
+            return list
         }
 
         private func resolveNewAuthors(newComments: [Comment]) async throws {
@@ -47,31 +46,6 @@ extension Comments {
             ))
 
             authors.merge(resolve.claims, uniquingKeysWith: { _, last in last })
-        }
-
-        func loadTopLevelComments() async throws {
-            try await loadReplies(comment: nil)
-        }
-
-        func loadReplies(comment: Comment?) async throws {
-            let pageNum = commentsByParent[comment?.id]?.pageNum ?? 1
-
-            let page = try await CommentsMethods.list.call(params: .init(
-                claimId: "80d2590ad04e36fb1d077a9b9e3a8bba76defdf8",
-                //                    claimId: "989f7977d0394ec45389ba05c50109dd958b655e",
-                parentId: comment?.id,
-                page: pageNum,
-                pageSize: Self.pageSize,
-                topLevel: comment?.id == nil,
-                sortBy: comment?.id == nil ? .popularity : .oldest
-            ))
-
-//            try await addCommentsToParent(parentId: comment?.id, comments: )
-        }
-
-        struct Replies {
-            var pageNum: Int
-            var page: Page<Comment>
         }
     }
 }

@@ -39,6 +39,10 @@
 		538C27562EFB8DA300305361 /* AuthToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C27552EFB8DA300305361 /* AuthToken.swift */; };
 		538C8CC62ED74B8C00E20949 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 538C8CC52ED74B8C00E20949 /* AppIcon.icon */; };
 		538D47C73033FF9E00330BE8 /* CommentsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538D47C63033FF9E00330BE8 /* CommentsViewModel.swift */; };
+		538D47C93034AF9100330BE8 /* CommentsListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538D47C83034AF9100330BE8 /* CommentsListViewModel.swift */; };
+		538D47CB303553A900330BE8 /* FontScaled.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538D47CA303553A900330BE8 /* FontScaled.swift */; };
+		538D47CD3035596500330BE8 /* CommentText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538D47CC3035596500330BE8 /* CommentText.swift */; };
+		538D47CF30357BFB00330BE8 /* CommentSticker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538D47CE30357BFB00330BE8 /* CommentSticker.swift */; };
 		5390C80D2ECE13A3005A104B /* ActionSheetPicker-3.0 in Frameworks */ = {isa = PBXBuildFile; productRef = 5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */; };
 		5391E43A2EFE6C88008EF30A /* SharedPreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5391E4392EFE6C88008EF30A /* SharedPreference.swift */; };
 		5391E43D2EFED725008EF30A /* ValueCodable in Frameworks */ = {isa = PBXBuildFile; productRef = 5391E43C2EFED725008EF30A /* ValueCodable */; };
@@ -211,6 +215,10 @@
 		538C27552EFB8DA300305361 /* AuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthToken.swift; sourceTree = "<group>"; };
 		538C8CC52ED74B8C00E20949 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		538D47C63033FF9E00330BE8 /* CommentsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsViewModel.swift; sourceTree = "<group>"; };
+		538D47C83034AF9100330BE8 /* CommentsListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsListViewModel.swift; sourceTree = "<group>"; };
+		538D47CA303553A900330BE8 /* FontScaled.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FontScaled.swift; sourceTree = "<group>"; };
+		538D47CC3035596500330BE8 /* CommentText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentText.swift; sourceTree = "<group>"; };
+		538D47CE30357BFB00330BE8 /* CommentSticker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentSticker.swift; sourceTree = "<group>"; };
 		5391E4392EFE6C88008EF30A /* SharedPreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPreference.swift; sourceTree = "<group>"; };
 		5395404E301C889400DF10E6 /* Comments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comments.swift; sourceTree = "<group>"; };
 		53954050301D8B9800DF10E6 /* CommentsList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsList.swift; sourceTree = "<group>"; };
@@ -415,6 +423,7 @@
 				53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */,
 				53B7E2022FA2507F001CCFD6 /* PlaylistDetailViewModel.swift */,
 				538D47C63033FF9E00330BE8 /* CommentsViewModel.swift */,
+				538D47C83034AF9100330BE8 /* CommentsListViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -524,6 +533,9 @@
 				645912212620789E00B2ABA5 /* ChatMessageTableViewCell.swift */,
 				53BC58FD2818E3D90017F9D2 /* LivestreamCollectionViewCell.swift */,
 				53B25D492FC733F400D91F8B /* Icons.swift */,
+				538D47CA303553A900330BE8 /* FontScaled.swift */,
+				538D47CC3035596500330BE8 /* CommentText.swift */,
+				538D47CE30357BFB00330BE8 /* CommentSticker.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -906,6 +918,7 @@
 				64424DCF25588D0D00F2D247 /* ClaimTableViewCell.swift in Sources */,
 				538C27562EFB8DA300305361 /* AuthToken.swift in Sources */,
 				642B6B16257B528300F17355 /* TransactionTableViewCell.swift in Sources */,
+				538D47C93034AF9100330BE8 /* CommentsListViewModel.swift in Sources */,
 				6484E1AD2582238900221658 /* NotificationsViewController.swift in Sources */,
 				641614D2258077EF003A2194 /* UserAccountMenuViewController.swift in Sources */,
 				646D563F2584FAD4002DB12F /* RewardsViewController.swift in Sources */,
@@ -978,6 +991,7 @@
 				64A6CA76255DB5B200294E74 /* Lighthouse.swift in Sources */,
 				5391E43A2EFE6C88008EF30A /* SharedPreference.swift in Sources */,
 				64424DDA255895A500F2D247 /* ContentSources.swift in Sources */,
+				538D47CD3035596500330BE8 /* CommentText.swift in Sources */,
 				5301F1C52F6A492F0033B54D /* WatchHistoryScreen.swift in Sources */,
 				539D79872F3DA6DC00E7686E /* AccountYoutubeChannel.swift in Sources */,
 				643382A3258DB119004B562B /* RewardTableViewCell.swift in Sources */,
@@ -995,6 +1009,7 @@
 				64666AFB25872BE000DF4608 /* ChannelManagerViewController.swift in Sources */,
 				53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */,
 				534457BC2F87741700E81A7E /* SharedPreference+Playlist.swift in Sources */,
+				538D47CB303553A900330BE8 /* FontScaled.swift in Sources */,
 				64666AF62587290200DF4608 /* ChannelListTableViewCell.swift in Sources */,
 				6402A30327E14C8800113E26 /* OdyseeLocale.swift in Sources */,
 				534457BA2F87732F00E81A7E /* SharedPreference+Following.swift in Sources */,
@@ -1009,6 +1024,7 @@
 				640BEF342587DB5D0019B840 /* NotificationTableViewCell.swift in Sources */,
 				CC3A1E7826853D7E00683E28 /* BackendAPIParams.swift in Sources */,
 				641AFAE925B606E000218BD9 /* UAButton.swift in Sources */,
+				538D47CF30357BFB00330BE8 /* CommentSticker.swift in Sources */,
 				53B7E2032FA2507F001CCFD6 /* PlaylistDetailViewModel.swift in Sources */,
 				644F76AE25592F8400813451 /* FileViewController.swift in Sources */,
 				CC97807926549867009F580E /* Log.swift in Sources */,

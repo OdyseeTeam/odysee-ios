@@ -91,3 +91,7 @@ iOSInjectionProject/
 
 Odysee/GoogleService-Info.plist
 Odysee/Secrets.plist
+
+# MacOS
+
+.DS_Store

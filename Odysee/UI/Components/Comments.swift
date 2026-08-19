@@ -13,15 +13,38 @@ struct Comments: View {
     @State var expanded: Set<Comment.ID> = .init()
 
     var body: some View {
-        CommentsList(
-            commentsByParent: model.commentsByParent,
-            authors: model.authors,
-            expanded: $expanded,
-            model: model
-        )
+        ZStack {
+            List {
+                CommentsListRecursive(expanded: $expanded)
+                    .environmentObject(model)
+                    .environment(\.parentId, nil)
+
+                MiniPlayerAvoiding()
+                    .listRowSeparator(.hidden)
+            }
+            .environment(\.defaultMinListRowHeight, 0)
+            .listStyle(.plain)
+
+            ProgressView()
+                .controlSize(.large)
+                .tint(.white)
+                .padding()
+                .background {
+                    Color.accentColor
+                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                }
+                .apply {
+                    if model.inProgress {
+                        $0
+                    } else {
+                        $0.hidden()
+                    }
+                }
+        }
     }
 }
 
+/// Preview of ProgressView
 @available(iOS 16, *)
 #Preview {
     Comments()

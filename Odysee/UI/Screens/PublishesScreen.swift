@@ -124,6 +124,7 @@ struct PublishesScreen: View {
             }
         }
     }
+    // FIXME: (and playlists) disabled when inprogress
 }
 
 #Preview {
