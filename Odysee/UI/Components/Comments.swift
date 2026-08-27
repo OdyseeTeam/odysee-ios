@@ -15,6 +15,9 @@ struct Comments: View {
     var body: some View {
         ZStack {
             List {
+                CommentPostForm()
+                    .padding(.bottom)
+
                 CommentsListRecursive(expanded: $expanded)
                     .environmentObject(model)
                     .environment(\.parentId, nil)

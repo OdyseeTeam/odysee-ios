@@ -12,7 +12,6 @@ struct CommentByIdParams: Encodable, CommentsMethodParams {
     var withAncestors: Bool?
 }
 
-// FIXME: Match ListArgs
 struct CommentListParams: Encodable, CommentsMethodParams {
     var claimId: String
     var channelId: String?

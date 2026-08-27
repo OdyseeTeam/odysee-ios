@@ -78,7 +78,6 @@ class CommentTableViewCell: UITableViewCell {
             String(
                 format: comment.replyCount == 1 ? String.localized("%d reply") : String.localized("%d replies"),
                 comment.replyCount ?? 0
-                // FIXME: (project): couldn't load reactions too many ids
             ),
             for: .normal
         )
