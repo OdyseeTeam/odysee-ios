@@ -26,7 +26,7 @@ extension CommentsListRecursive {
                     page: page,
                     pageSize: Self.pageSize,
                     topLevel: parentId == nil,
-                    sortBy: parentId == nil ? .popularity : .oldest
+                    sortBy: parentId == nil ? .popularity : .oldest // FIXME: Option
                 ))
 
                 replies.append(contentsOf: list.items)

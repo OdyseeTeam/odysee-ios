@@ -8,13 +8,17 @@
 import SwiftUI
 
 struct ChannelPicker: View {
+    var title: LocalizedStringKey = "Channel"
+
     @Binding var channel: Claim
+
+    var includeAnonymous: Bool = true
 
     @State private var channels: [Claim]?
 
     var body: some View {
         if let channels {
-            Picker("Channel", selection: $channel) {
+            Picker(title, selection: $channel) {
                 ForEach(channels) {
                     Text($0.name ?? "")
                         .tag($0)
@@ -39,12 +43,18 @@ struct ChannelPicker: View {
                             let defaultChannelId = Wallet.prefs.defaultChannelId
                             channel = channels.first { $0.claimId == defaultChannelId } ?? Claim.anonymous
 
-                            self.channels = channels + [Claim.anonymous]
+                            if includeAnonymous {
+                                self.channels = channels + [Claim.anonymous]
+                            } else {
+                                self.channels = channels
+                            }
                         } catch {
                             Helper.showError(message: __("Error loading channels: \(error.localizedDescription)"))
 
-                            channel = Claim.anonymous
-                            channels = [channel]
+                            if includeAnonymous {
+                                channel = Claim.anonymous
+                                channels = [channel]
+                            }
                         }
                     }
                 }
