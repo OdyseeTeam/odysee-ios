@@ -11,9 +11,14 @@ import Foundation
 extension Comments {
     @MainActor
     class ViewModel: ObservableObject {
-        @Published private(set) var inProgress = false
+        @Published var replyTo: Comment?
 
+        @Published private(set) var totalItems: Int?
         private var authors: [String: Claim] = [:]
+
+        @Published var sortBy: SortBy = .best
+
+        @Published private(set) var inProgress = false
 
         func author(for comment: Comment) -> Claim {
             guard let authorUrl = comment.channelUrl,
@@ -32,6 +37,8 @@ extension Comments {
             }
 
             let list = try await CommentsMethods.list.call(params: params)
+
+            totalItems = list.totalItems
 
             async let a = resolveNewAuthors(newComments: list.items)
             async let r = loadCommentReactions(comments: list.items)
@@ -109,6 +116,26 @@ extension Comments {
                 }
 
                 return comment
+            }
+        }
+
+        // FIXME: Localize
+        enum SortBy: String, CaseIterable, Identifiable {
+            case best
+            case controversial
+            case new
+
+            var id: String { rawValue }
+
+            var param: CommentListParams.Sort {
+                switch self {
+                case .best:
+                    .popularity
+                case .controversial:
+                    .controversy
+                case .new:
+                    .newest
+                }
             }
         }
     }
