@@ -199,6 +199,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         // remove the auth token so that a new one will be generated upon the next init
         Lbryio.Defaults.reset()
         await AuthToken.reset()
+        Wallet.shared.reset()
 
         // clear the wallet address if it exists
         UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
