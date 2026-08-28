@@ -9,6 +9,7 @@ import Foundation
 
 struct Page<Item: Decodable>: Decodable {
     var items: [Item]
+    var totalItems: Int?
     var isLastPage: Bool
 
     init(items: [Item], isLastPage: Bool) {
@@ -19,6 +20,7 @@ struct Page<Item: Decodable>: Decodable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         items = try container.decodeIfPresent([Item].self, forKey: .items) ?? []
+        totalItems = try container.decodeIfPresent(Int.self, forKey: .totalItems)
 
         if let page = try container.decodeIfPresent(Int.self, forKey: .page),
            let totalPages = try container.decodeIfPresent(Int.self, forKey: .totalPages)
@@ -33,8 +35,9 @@ struct Page<Item: Decodable>: Decodable {
 
     private enum CodingKeys: String, CodingKey {
         case items
-        case page
+        case totalItems = "total_items"
 
+        case page
         /// Backend API
         case totalPages = "total_pages"
         /// Account API `user/view_history`

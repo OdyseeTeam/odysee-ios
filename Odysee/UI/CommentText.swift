@@ -22,6 +22,7 @@ extension AttributeScopes {
     var odyseeApp: OdyseeAppAttributes.Type { OdyseeAppAttributes.self }
 }
 
+// FIXME: Handle Markdown images?
 /// Renders `:emotes:`, Markdown, and clickable Timestamps
 @available(iOS 16.0, *)
 struct CommentText: View {

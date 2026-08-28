@@ -9,7 +9,8 @@ import SwiftUI
 
 @available(iOS 16, *)
 struct CommentPostForm: View {
-    var cancel: (() -> Void)?
+    @Binding var replyTo: Comment?
+    var scrollProxy: ScrollViewProxy
 
     @State private var text: String = ""
 
@@ -17,7 +18,31 @@ struct CommentPostForm: View {
 
     var body: some View {
         VStack {
-            ChannelPicker(title: "Comment as", channel: $commentAs, includeAnonymous: false)
+            // FIXME: Doesn't populate at first, needs onAppear?
+            ChannelPicker(
+                title: replyTo != nil ? "Replying as" : "Comment as",
+                channel: $commentAs,
+                includeAnonymous: false
+            )
+
+            if let replyTo {
+                Button {
+                    withAnimation {
+                        scrollProxy.scrollTo(replyTo.id, anchor: .center)
+                    }
+                } label: {
+                    HStack {
+                        Color.accentColor
+                            .frame(width: 2)
+
+                        CommentText(replyTo.comment)
+                            .lineLimit(1)
+                            .opacity(0.5)
+
+                        Spacer()
+                    }
+                }
+            }
 
             TextField(
                 "Comment Text",
@@ -32,9 +57,15 @@ struct CommentPostForm: View {
                     .buttonStyle(.borderedProminent)
                     .disabled(text.isBlank)
 
-                if let cancel {
-                    Button("Cancel", action: cancel)
-                        .buttonStyle(.borderless)
+                if let replyTo {
+                    Button("Cancel") {
+                        self.replyTo = nil
+
+                        withAnimation {
+                            scrollProxy.scrollTo(replyTo.id, anchor: .center)
+                        }
+                    }
+                    .buttonStyle(.borderless)
                 }
 
                 Spacer()
@@ -47,5 +78,7 @@ struct CommentPostForm: View {
 
 @available(iOS 16, *)
 #Preview {
-    CommentPostForm()
+    ScrollViewReader { proxy in
+        CommentPostForm(replyTo: .constant(nil), scrollProxy: proxy)
+    }
 }

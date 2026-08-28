@@ -19,6 +19,8 @@ struct CommentListItem: View {
 
     @State private var unlimitedLines: Bool = false
 
+    @EnvironmentObject private var commentsModel: Comments.ViewModel
+
     @Environment(\.replyCount) var replyCount
     @Environment(\.repliesExpanded) var repliesExpanded
     @Environment(\.toggleReplies) var toggleReplies
@@ -64,11 +66,14 @@ struct CommentListItem: View {
                 }
 
                 WrappingHStack(spacing: .constant(32), lineSpacing: 8) {
-                    Button("Reply") {}
-                        .buttonStyle(.borderless)
+                    Button("Reply") {
+                        commentsModel.replyTo = comment
+                    }
+                    .buttonStyle(.borderless)
 
                     HStack(spacing: 32) {
                         Button {} label: {
+                            // FIXME: And systemImage, use Icons
                             Image(systemName: "flame.fill")
                                 .foregroundStyle(comment.isLiked ? Color(Helper.fireActiveColor) : .primary)
                             Text(String(comment.numLikes))
