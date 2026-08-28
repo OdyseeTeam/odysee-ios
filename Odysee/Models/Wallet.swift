@@ -63,6 +63,12 @@ class Wallet: ObservableObject {
         sync = nil
     }
 
+    func reset() {
+        remoteWalletHash = nil
+        // Default, should be replaced by pullSync immediately
+        prefs = SharedPreference()
+    }
+
     // MARK: Methods which operate on the global singleton (for shorter code at use)
 
     static func withSyncedPrefs(_ modify: (inout SharedPreference) -> Void) async {
