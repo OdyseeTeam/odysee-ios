@@ -81,7 +81,6 @@ enum Lbry {
     private static var claimCacheByUrl = NSCache<NSString, ClaimBox>()
     static var ownChannels: [Claim] = []
     static var ownUploads: [Claim] = []
-    static var defaultChannelId: String?
 
     private struct APIBody<CallParams: Encodable>: Encodable {
         var method: String

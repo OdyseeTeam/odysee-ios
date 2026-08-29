@@ -9,23 +9,18 @@ import SwiftUI
 
 @available(iOS 16, *)
 struct CommentPostForm: View {
-    @Binding var replyTo: Comment?
+    @ObservedObject var model: Comments.ViewModel
     var scrollProxy: ScrollViewProxy
-
-    @State private var text: String = ""
-
-    @State private var commentAs: Claim = .init(claimId: Lbry.defaultChannelId)
 
     var body: some View {
         VStack {
-            // FIXME: Doesn't populate at first, needs onAppear?
             ChannelPicker(
-                title: replyTo != nil ? "Replying as" : "Comment as",
-                channel: $commentAs,
+                title: model.replyTo != nil ? "Replying as" : "Comment as",
+                channel: $model.channel,
                 includeAnonymous: false
             )
 
-            if let replyTo {
+            if let replyTo = model.replyTo {
                 Button {
                     withAnimation {
                         scrollProxy.scrollTo(replyTo.id, anchor: .center)
@@ -42,11 +37,12 @@ struct CommentPostForm: View {
                         Spacer()
                     }
                 }
+                .buttonStyle(.plain)
             }
 
             TextField(
                 "Comment Text",
-                text: $text.max(Helper.commentMaxLength),
+                text: $model.postText.max(Helper.commentMaxLength),
                 prompt: Text("Say something about this..."),
                 axis: .vertical
             )
@@ -55,11 +51,11 @@ struct CommentPostForm: View {
             HStack {
                 Button("Comment") {}
                     .buttonStyle(.borderedProminent)
-                    .disabled(text.isBlank)
+                    .disabled(model.postText.isBlank)
 
-                if let replyTo {
+                if let replyTo = model.replyTo {
                     Button("Cancel") {
-                        self.replyTo = nil
+                        model.replyTo = nil
 
                         withAnimation {
                             scrollProxy.scrollTo(replyTo.id, anchor: .center)
@@ -70,7 +66,7 @@ struct CommentPostForm: View {
 
                 Spacer()
 
-                Text(String(text.count)) + Text("/\(String(Helper.commentMaxLength))")
+                Text(String(model.postText.count)) + Text("/\(String(Helper.commentMaxLength))")
             }
         }
     }
@@ -79,6 +75,6 @@ struct CommentPostForm: View {
 @available(iOS 16, *)
 #Preview {
     ScrollViewReader { proxy in
-        CommentPostForm(replyTo: .constant(nil), scrollProxy: proxy)
+        CommentPostForm(model: .init(), scrollProxy: proxy)
     }
 }

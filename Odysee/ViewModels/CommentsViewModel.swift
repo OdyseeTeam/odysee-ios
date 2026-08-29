@@ -12,11 +12,31 @@ extension Comments {
     @MainActor
     class ViewModel: ObservableObject {
         @Published var replyTo: Comment?
+        // FIXME: Unacceptable
+        // Gets updated with default channel
+        @Published var channel: Claim = .anonymous
+        @Published var postText: String = ""
 
-        @Published private(set) var totalItems: Int?
+        static let pageSize = 10
+        private var page = 1
+        @Published private(set) var isLastPage = false
+        @Published private(set) var comments: [Comment] = []
+        @Published private(set) var totalComments: Int?
+
         private var authors: [String: Claim] = [:]
 
-        @Published var sortBy: SortBy = .best
+        var sortBy: SortBy = .best {
+            didSet {
+                Task {
+                    comments.removeAll(keepingCapacity: true)
+                    page = 1
+                    isLastPage = false
+                    totalComments = nil
+
+                    await loadPage()
+                }
+            }
+        }
 
         @Published private(set) var inProgress = false
 
@@ -30,15 +50,44 @@ extension Comments {
             return author
         }
 
-        func listComments(params: CommentListParams) async throws -> Page<Comment> {
+        func loadPage() async {
+            do {
+                let list = try await listComments(page: page, sortBy: sortBy.param)
+
+                comments.append(contentsOf: list.items)
+                isLastPage = list.isLastPage
+
+                totalComments = list.totalItems
+
+                page += 1
+            } catch {
+                Helper.showError(error: error)
+            }
+        }
+
+        /// List either toplevel comments or replies
+        ///
+        /// Top level: `parentId = nil, sortBy = <choice>`
+        /// Replies: `parentId = <id>, sortBy = .oldest`
+        func listComments(
+            parentId: Comment.ID? = nil,
+            page: Int,
+            sortBy: CommentListParams.Sort = .oldest
+        ) async throws -> Page<Comment> {
             inProgress = true
             defer {
                 inProgress = false
             }
 
-            let list = try await CommentsMethods.list.call(params: params)
-
-            totalItems = list.totalItems
+            let list = try await CommentsMethods.list.call(params: .init(
+                claimId: "80d2590ad04e36fb1d077a9b9e3a8bba76defdf8",
+//                claimId: "989f7977d0394ec45389ba05c50109dd958b655e",
+                parentId: parentId,
+                page: page,
+                pageSize: Self.pageSize,
+                topLevel: parentId == nil,
+                sortBy: sortBy
+            ))
 
             async let a = resolveNewAuthors(newComments: list.items)
             async let r = loadCommentReactions(comments: list.items)
@@ -72,13 +121,8 @@ extension Comments {
                 commentIds: comments.map(\.id).joined(separator: ",")
             )
 
-            // FIXME: Current channel
-//            if channels.count > currentCommentAsIndex, currentCommentAsIndex > -1 {
-//                let channel = channels[currentCommentAsIndex]
-//                guard let claimId = channel.claimId, let name = channel.name else {
-//                    Helper.showError(message: "couldn't get channel claimId and/or name")
-//                    return
-//                }
+            // FIXME: with ChannelPicker async
+//            if let claimId = channel.claimId, let name = channel.name {
 //                do {
 //                    let channelSign = try await BackendMethods.channelSign.call(params: .init(
 //                        channelId: claimId,
@@ -91,7 +135,6 @@ extension Comments {
 //                    params.signingTs = channelSign.signingTs
 //                } catch {
 //                    Helper.showError(message: "couldn't get channel signature for loading reactions")
-//                    return
 //                }
 //            }
 

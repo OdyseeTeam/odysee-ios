@@ -22,7 +22,7 @@ struct Comments: View {
                         TitleSort(model: model)
 
                         CommentPostForm(
-                            replyTo: $model.replyTo,
+                            model: model,
                             scrollProxy: proxy
                         )
                         .padding(.bottom)
@@ -37,9 +37,18 @@ struct Comments: View {
                         }
                     }
 
-                    CommentsListRecursive(expanded: $expanded)
+                    CommentsList(expanded: $expanded, comments: model.comments)
                         .environmentObject(model)
                         .environment(\.parentId, nil)
+
+                    if !model.isLastPage {
+                        Color.clear
+                            .onAppear {
+                                Task {
+                                    await model.loadPage()
+                                }
+                            }
+                    }
 
                     MiniPlayerAvoiding()
                         .listRowSeparator(.hidden)
@@ -75,8 +84,8 @@ extension Comments {
         var body: some View {
             HStack {
                 Group {
-                    if let totalItems = model.totalItems {
-                        Text("^[\(totalItems) comment](inflect: true)")
+                    if let totalComments = model.totalComments {
+                        Text("^[\(totalComments) comment](inflect: true)")
                     } else {
                         Text("Comments")
                     }
