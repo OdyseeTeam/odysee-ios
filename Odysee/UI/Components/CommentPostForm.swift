@@ -14,11 +14,12 @@ struct CommentPostForm: View {
 
     var body: some View {
         VStack {
-            ChannelPicker(
-                title: model.replyTo != nil ? "Replying as" : "Comment as",
-                channel: $model.channel,
-                includeAnonymous: false
-            )
+            ChannelPickerNil(channel: $model.channel)
+//            ChannelPicker(
+//                title: model.replyTo != nil ? "Replying as" : "Comment as",
+//                channel: $model.channel,
+//                includeAnonymous: false
+//            )
 
             if let replyTo = model.replyTo {
                 Button {
@@ -68,6 +69,51 @@ struct CommentPostForm: View {
 
                 Text(String(model.postText.count)) + Text("/\(String(Helper.commentMaxLength))")
             }
+        }
+    }
+}
+
+struct ChannelPickerNil: View {
+    @Binding var channel: Claim?
+
+    @State private var channels: [Claim]?
+
+    var body: some View {
+        if let channels {
+            Picker("Channel", selection: $channel) {
+                ForEach(channels) {
+                    Text($0.name ?? "")
+                        .tag($0)
+                }
+            }
+            .pickerStyle(.menu)
+        } else {
+            ProgressView()
+                .onAppear {
+                    Task {
+                        do {
+                            let claimList = try await BackendMethods.claimList.call(params: .init(
+                                claimType: [.channel],
+                                page: 1,
+                                pageSize: 999,
+                                resolve: true
+                            ))
+
+                            let channels = claimList.items.filter { $0.claimId != Claim.anonymous.claimId }
+                            Lbry.ownChannels = channels
+
+                            let defaultChannelId = Wallet.prefs.defaultChannelId
+                            channel = channels.first { $0.claimId == defaultChannelId } ?? channels.first
+
+                            self.channels = channels
+                        } catch {
+                            Helper.showError(message: __("Error loading channels: \(error.localizedDescription)"))
+
+                            channel = nil
+                            channels = []
+                        }
+                    }
+                }
         }
     }
 }

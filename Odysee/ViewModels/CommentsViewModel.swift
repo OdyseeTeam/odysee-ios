@@ -12,9 +12,7 @@ extension Comments {
     @MainActor
     class ViewModel: ObservableObject {
         @Published var replyTo: Comment?
-        // FIXME: Unacceptable
-        // Gets updated with default channel
-        @Published var channel: Claim = .anonymous
+        @Published var channel: Claim?
         @Published var postText: String = ""
 
         static let pageSize = 10
@@ -80,8 +78,8 @@ extension Comments {
             }
 
             let list = try await CommentsMethods.list.call(params: .init(
-                claimId: "80d2590ad04e36fb1d077a9b9e3a8bba76defdf8",
-//                claimId: "989f7977d0394ec45389ba05c50109dd958b655e",
+                //                claimId: "80d2590ad04e36fb1d077a9b9e3a8bba76defdf8",
+                claimId: "989f7977d0394ec45389ba05c50109dd958b655e",
                 parentId: parentId,
                 page: page,
                 pageSize: Self.pageSize,
@@ -122,21 +120,21 @@ extension Comments {
             )
 
             // FIXME: with ChannelPicker async
-//            if let claimId = channel.claimId, let name = channel.name {
-//                do {
-//                    let channelSign = try await BackendMethods.channelSign.call(params: .init(
-//                        channelId: claimId,
-//                        hexdata: Helper.strToHex(name)
-//                    ))
-//
-//                    params.channelName = name
-//                    params.channelId = claimId
-//                    params.signature = channelSign.signature
-//                    params.signingTs = channelSign.signingTs
-//                } catch {
-//                    Helper.showError(message: "couldn't get channel signature for loading reactions")
-//                }
-//            }
+            if let claimId = channel?.claimId, let name = channel?.name {
+                do {
+                    let channelSign = try await BackendMethods.channelSign.call(params: .init(
+                        channelId: claimId,
+                        hexdata: Helper.strToHex(name)
+                    ))
+
+                    params.channelName = name
+                    params.channelId = claimId
+                    params.signature = channelSign.signature
+                    params.signingTs = channelSign.signingTs
+                } catch {
+                    Helper.showError(message: "couldn't get channel signature for loading reactions")
+                }
+            }
 
             return try await CommentsMethods.reactList.call(params: params)
         }
