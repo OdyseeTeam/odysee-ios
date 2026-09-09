@@ -28,30 +28,15 @@ enum Lbry {
         // Filtering will be handled on the file view instead
         if result.claims.keys.count > 1 {
             result.claims = result.claims.filter {
-                !Lbryio.isClaimBlocked($0.value) &&
-                    !Lbryio.isClaimAppleFiltered($0.value) &&
-                    !Lbryio.isClaimFiltered($0.value)
+                ClaimFiltering.reason(for: $0.value) == nil
             }
-            result.claims = result.claims
-                .filter {
-                    !Lbryio.isClaimBlocked($0.value.signingChannel ?? Claim()) &&
-                        !Lbryio.isClaimAppleFiltered($0.value.signingChannel ?? Claim()) &&
-                        !Lbryio.isClaimFiltered($0.value.signingChannel ?? Claim())
-                }
         }
-        result.claims.values.forEach(Lbry.addClaimToCache)
     }
 
     static func processPageOfClaims(_ page: inout Page<Claim>) {
-        page.items
-            .removeAll { Lbryio.isClaimBlocked($0) || Lbryio.isClaimFiltered($0) || Lbryio.isClaimAppleFiltered($0) }
-        page.items
-            .removeAll {
-                Lbryio.isClaimBlocked($0.signingChannel ?? Claim()) || Lbryio
-                    .isClaimFiltered($0.signingChannel ?? Claim()) || Lbryio
-                    .isClaimAppleFiltered($0.signingChannel ?? Claim())
-            }
-        page.items.forEach(Lbry.addClaimToCache)
+        page.items.removeAll {
+            ClaimFiltering.reason(for: $0) != nil
+        }
     }
 
     // Over time these will move up into the Methods struct as we migrate to the newer apiCall func.
@@ -73,14 +58,9 @@ enum Lbry {
     static var installationId: String?
     static let keyInstallationId = "AppInstallationId"
 
-    static var remoteWalletHash: String?
-    static var localWalletHash: String?
     static var walletBalance: WalletBalance?
 
-    private static var claimCacheById = NSCache<NSString, ClaimBox>()
-    private static var claimCacheByUrl = NSCache<NSString, ClaimBox>()
     static var ownChannels: [Claim] = []
-    static var ownUploads: [Claim] = []
 
     private struct APIBody<CallParams: Encodable>: Encodable {
         var method: String
@@ -258,38 +238,6 @@ enum Lbry {
                 }
             })
             task.resume()
-        }
-    }
-
-    static func cachedClaim(url: String) -> Claim? {
-        return claimCacheByUrl.object(forKey: url as NSString)?.wrappedValue
-    }
-
-    static func cachedClaim(id: String) -> Claim? {
-        return claimCacheById.object(forKey: id as NSString)?.wrappedValue
-    }
-
-    static func addClaimToCache(claim: Claim?) {
-        guard let claim = claim else {
-            return
-        }
-        assert(claim.claimId != nil)
-
-        let boxed = ClaimBox(claim)
-
-        if let id = claim.claimId {
-            claimCacheById.setObject(boxed, forKey: id as NSString)
-        }
-        if let claimUrl = claim.permanentUrl,
-           let parsed = LbryUri.tryParse(url: claimUrl, requireProto: false)?.description
-        {
-            Lbry.claimCacheByUrl.setObject(boxed, forKey: parsed as NSString)
-        }
-        if let shortUrl = claim.shortUrl, !shortUrl.isBlank {
-            Lbry.claimCacheByUrl.setObject(boxed, forKey: shortUrl as NSString)
-        }
-        if let canonicalUrl = claim.canonicalUrl, !canonicalUrl.isBlank {
-            Lbry.claimCacheByUrl.setObject(boxed, forKey: canonicalUrl as NSString)
         }
     }
 

@@ -162,11 +162,9 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
         // TODO: If channelClaim is not set, resolve the claim url before displaying
         if channelClaim == nil, let claimUrl {
             resolveAndDisplayClaim(claimUrl: claimUrl)
-        } else if let channelClaim, let claimId = channelClaim.claimId {
-            if Lbryio.isClaimAppleFiltered(channelClaim) {
-                displayClaimBlockedWithMessage(
-                    message: Lbryio.getFilteredMessageForClaim(claimId, claimId)
-                )
+        } else if let channelClaim {
+            if let reason = ClaimFiltering.reason(for: channelClaim) {
+                displayClaimBlockedWithMessage(message: reason.message)
                 return
             }
 
@@ -276,7 +274,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
 
         let url = claimUrl.description
 
-        channelClaim = Lbry.cachedClaim(url: url)
         if channelClaim != nil {
             DispatchQueue.main.async {
                 self.showClaimAndCheckFollowing()
@@ -298,15 +295,12 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
-        channelClaim = claim
-        if Lbryio.isClaimAppleFiltered(claim) {
-            displayClaimBlockedWithMessage(
-                message: Lbryio
-                    .getFilteredMessageForClaim(claim.claimId ?? "", claim.claimId ?? "")
-            )
+        if let reason = ClaimFiltering.reason(for: claim) {
+            displayClaimBlockedWithMessage(message: reason.message)
             return
         }
 
+        channelClaim = claim
         showClaimAndCheckFollowing()
     }
 

@@ -66,67 +66,13 @@ enum Lbryio {
         }
     }
 
-    // - MARK: Lbryio
+    // - MARK: Lbryio API Calls
 
     static let connectionString = "https://api.odysee.com"
-    static let wsConnectionBaseUrl = "wss://api.lbry.com/subscribe?auth_token="
     static let wsCommmentBaseUrl = "wss://comments.lbry.com/api/v2/live-chat/subscribe?subscription_id="
 
+    // FIXME: Remove
     static var currentUser: User?
-
-    private static let lock = Lock()
-    static var cachedNotifications: [LbryNotification] = []
-    static var latestNotificationId: Int64 = 0
-
-    static var appleFilteredClaimsTagged = [String: String]()
-    static var appleFilteredClaimIds = Set<String>()
-
-    static func addAppleFilteredClaim(claimId: String?, tag: String?) {
-        guard let claimId = claimId, let tag = tag else { return }
-        lock.withLock {
-            appleFilteredClaimsTagged[claimId] = tag
-        }
-    }
-
-    static func updateAppleFilteredClaimIds() {
-        lock.withLock {
-            appleFilteredClaimIds = Set(appleFilteredClaimsTagged.keys)
-        }
-    }
-
-    static func getFilteredMessageForClaim(_ claimId: String, _ signingClaimId: String) -> String {
-        let defaultText =
-            "This content is not available on iOS. Consider using odysee.com for the Complete Odysee Experience."
-
-        var tag = appleFilteredClaimsTagged[claimId]
-        if tag == nil {
-            tag = appleFilteredClaimsTagged[signingClaimId]
-        }
-        if let tagName = tag {
-            switch tagName {
-            case "dmca":
-                return "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications."
-            case "internal-dmca-redflag":
-                return "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications."
-            case "filter-ios":
-                return defaultText
-            default:
-                return defaultText
-            }
-        }
-
-        return defaultText
-    }
-
-    private static var filteredOutpoints = Set<Outpoint>()
-    static func setFilteredOutpoints(_ val: Set<Outpoint>) {
-        lock.withLock { filteredOutpoints = val }
-    }
-
-    private static var blockedOutpoints = Set<Outpoint>()
-    static func setBlockedOutpoints(_ val: Set<Outpoint>) {
-        lock.withLock { blockedOutpoints = val }
-    }
 
     static func get(
         resource: String,
@@ -470,25 +416,6 @@ enum Lbryio {
             })
         } catch {
             // pass
-        }
-    }
-
-    static func isClaimAppleFiltered(_ claim: Claim) -> Bool {
-        guard let claimId = claim.claimId else { return false }
-        return appleFilteredClaimIds.contains(claimId)
-    }
-
-    static func isClaimFiltered(_ claim: Claim) -> Bool {
-        guard let outpoint = claim.outpoint else { return false }
-        return lock.withLock {
-            filteredOutpoints.contains(outpoint)
-        }
-    }
-
-    static func isClaimBlocked(_ claim: Claim) -> Bool {
-        guard let outpoint = claim.outpoint else { return false }
-        return lock.withLock {
-            blockedOutpoints.contains(outpoint)
         }
     }
 }

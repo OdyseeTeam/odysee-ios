@@ -111,7 +111,6 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     @IBAction func signOutTapped(_ sender: Any) {
         Task {
             presentingViewController?.dismiss(animated: false, completion: nil)
-            AppDelegate.shared.mainController?.stopAllTimers()
             await AppDelegate.shared.mainController?.resetUserAndViews()
             AppDelegate.shared.mainController?.rerunInit()
         }
@@ -141,6 +140,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
 
     @IBAction func deleteAccountTapped(_ sender: Any) {
         if Lbryio.currentUser != nil {
+            // FIXME: Needs to load fresh
             if !Lbry.ownChannels.isEmpty {
                 let alert = UIAlertController(
                     title: String.localized("Delete Account: Delete your Channels"),

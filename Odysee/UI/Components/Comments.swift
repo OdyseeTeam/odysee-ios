@@ -9,6 +9,7 @@ import SwiftUI
 
 @available(iOS 16, *)
 struct Comments: View {
+    // FIXME: hoist state to not reload when reappear
     @StateObject private var model: ViewModel = .init()
     @State private var expanded: Set<Comment.ID> = .init()
 

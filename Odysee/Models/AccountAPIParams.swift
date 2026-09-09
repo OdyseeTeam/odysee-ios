@@ -90,3 +90,12 @@ struct YtTransferParams: Encodable, AccountMethodParams {
     var address: String
     var publicKey: String
 }
+
+struct ListAppleBlockedClaimIdsParams: Encodable, AccountMethodParams {
+    let platform = "ios"
+    let withClaimId = true
+}
+
+struct FileListClaimIdsParams: Encodable, AccountMethodParams {
+    let withClaimId = true
+}

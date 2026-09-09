@@ -377,3 +377,9 @@ extension Image {
         }
     }
 }
+
+extension KeyedDecodingContainer {
+    func decodeDecimalString(forKey key: Key) throws -> Decimal {
+        try Decimal(string: decode(String.self, forKey: key)) ?? 0
+    }
+}

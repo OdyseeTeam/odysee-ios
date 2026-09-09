@@ -39,19 +39,12 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
     var loadingNotifications = false
     var notificationsViewActive = false
     var channels: [Claim] = []
-    var customBlockRulesMap: [String: [CustomBlockRule]] = [:]
-    var currentLocale: OdyseeLocale?
 
     var mainNavigationController: UINavigationController!
-    var walletObservers = [String: WalletBalanceObserver]()
-
-    var walletBalanceTimer = Timer()
-
-    var balanceTimerScheduled = false
-
-    let balanceTimerInterval: Double = 5 // 5 seconds
 
     let miniPlayerTop = CurrentValueSubject<CGFloat, Never>(0)
+
+    var walletBalanceTask: Task<Void, Never>?
 
     let snackbar = Snackbar()
 
@@ -103,12 +96,6 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         notificationBadgeView.layer.cornerRadius = 6
 
         // Do any additional setup after loading the view
-        startWalletBalanceTimer()
-        loadNotifications()
-        loadAppleFilteredClaimIds()
-        loadBlockedOutpoints()
-        loadFilteredOutpoints()
-        loadLocaleAndCustomBlockedRules()
         updateMiniPlayer()
 
         if Lbryio.isSignedIn() {
@@ -116,7 +103,6 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
             // check if the user is pending_delete
             if let pendingDeletion = Lbryio.currentUser?.pendingDeletion, pendingDeletion {
                 Task {
-                    stopAllTimers()
                     await resetUserAndViews()
                     rerunInit()
                 }
@@ -127,6 +113,21 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
             checkAndShowYouTubeSync()
             loadChannels()
         }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        walletBalanceTask = Task {
+            for await balance in Globals.$walletBalance.values {
+                mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance?.total)
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        walletBalanceTask?.cancel()
     }
 
     func checkAndClaimEmailReward(completion: @escaping (() -> Void)) {
@@ -182,16 +183,9 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
     }
 
-    func stopAllTimers() {
-        walletBalanceTimer.invalidate()
-        balanceTimerScheduled = false
-        Wallet.shared.stopSync()
-    }
-
     func resetUserAndViews() async {
-        Lbryio.cachedNotifications = []
-        Lbry.walletBalance = WalletBalance()
-
+        // FIXME: Change
+        Lbry.walletBalance = nil
         mainBalanceLabel.text = "0"
         notificationBadgeView.isHidden = true
         notificationBadgeCountLabel.text = ""
@@ -200,6 +194,8 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         Lbryio.Defaults.reset()
         await AuthToken.reset()
         Wallet.shared.reset()
+        // FIXME: claimfiltering reset?
+        // FIXME: Globals reset
 
         // clear the wallet address if it exists
         UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
@@ -387,259 +383,64 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         uploadButtonView.isHidden = !Lbryio.isSignedIn()
     }
 
-    func loadFilteredOutpoints() {
-        do {
-            try Lbryio.get(
-                resource: "file",
-                action: "list_filtered",
-                options: [:],
-                authTokenOverride: "",
-                completion: { data, error in
-                    guard let data = data, error == nil else {
-                        return
-                    }
-
-                    if let result = data as? [String: Any],
-                       let outpointStrings = result["outpoints"] as? [String]
-                    {
-                        let outpoints = Set(outpointStrings.compactMap(Outpoint.parse))
-                        Lbryio.setFilteredOutpoints(outpoints)
-                    }
-                }
-            )
-        } catch {
-            // pass
-        }
-    }
-
-    func loadAppleFilteredClaimIds() {
-        do {
-            var options: [String: String] = [:]
-            options["platform"] = "ios"
-            options["with_claim_id"] = "true"
-            try Lbryio.get(
-                resource: "file",
-                action: "list_blocked",
-                options: options,
-                authTokenOverride: "",
-                completion: { data, error in
-                    guard let data = data, error == nil else {
-                        return
-                    }
-
-                    if let result = data as? [[String: Any]] {
-                        for item in result {
-                            Lbryio.addAppleFilteredClaim(
-                                claimId: item["claim_id"] as? String,
-                                tag: item["tag_name"] as? String
-                            )
-                        }
-                        Lbryio.updateAppleFilteredClaimIds()
-                    }
-                }
-            )
-        } catch {
-            // pass
-        }
-    }
-
-    func loadBlockedOutpoints() {
-        do {
-            try Lbryio.get(
-                resource: "file",
-                action: "list_blocked",
-                options: [:],
-                authTokenOverride: "",
-                completion: { data, error in
-                    guard let data = data, error == nil else {
-                        return
-                    }
-
-                    if let result = data as? [String: Any],
-                       let outpointStrings = result["outpoints"] as? [String]
-                    {
-                        let outpoints = Set(outpointStrings.compactMap(Outpoint.parse))
-                        Lbryio.setBlockedOutpoints(outpoints)
-                    }
-                }
-            )
-        } catch {
-            // pass
-        }
-    }
-
-    func loadLocaleAndCustomBlockedRules() {
-        do {
-            try Lbryio.get(resource: "locale", action: "get", options: [:], completion: { data, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-                if let result = data as? [String: Any] {
-                    self.currentLocale = OdyseeLocale()
-                    self.currentLocale?.continent = result["continent"] as? String
-                    self.currentLocale?.country = result["country"] as? String
-                    self.currentLocale?.isEUMember = result["is_eu_member"] as? Bool
-
-                    self.loadCustomBlockedRules()
-                }
-            })
-        } catch {
-            // pass
-        }
-    }
-
-    func loadCustomBlockedRules() {
-        do {
-            try Lbryio.get(resource: "geo", action: "blocked_list", options: [:], completion: { data, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-
-                if let result = data as? [String: Any] {
-                    if let livestreams = result["livestreams"] as? [String: Any] {
-                        // parse block rules for livestreams
-                        for (claimId, value) in livestreams {
-                            var cbRules: [CustomBlockRule] = []
-                            if let rules = value as? [String: [Any]] {
-                                cbRules += self.parseCustomBlockRules(
-                                    rules: rules["countries"],
-                                    type: CustomBlockContentType.livestreams,
-                                    scope: CustomBlockScope.country
-                                )
-                                cbRules += self.parseCustomBlockRules(
-                                    rules: rules["continents"],
-                                    type: CustomBlockContentType.livestreams,
-                                    scope: CustomBlockScope.continent
-                                )
-                                cbRules += self.parseCustomBlockRules(
-                                    rules: rules["specials"],
-                                    type: CustomBlockContentType.livestreams,
-                                    scope: CustomBlockScope.special
-                                )
-                            }
-
-                            self.customBlockRulesMap[claimId] = cbRules
-                        }
-                    }
-
-                    if let videos = result["videos"] as? [String: Any] {
-                        for (claimId, value) in videos {
-                            var cbRules: [CustomBlockRule] = if let cbRules = self.customBlockRulesMap[claimId] {
-                                cbRules
-                            } else {
-                                []
-                            }
-                            if let rules = value as? [String: [Any]] {
-                                cbRules += self.parseCustomBlockRules(
-                                    rules: rules["countries"],
-                                    type: CustomBlockContentType.videos,
-                                    scope: CustomBlockScope.country
-                                )
-                                cbRules += self.parseCustomBlockRules(
-                                    rules: rules["continents"],
-                                    type: CustomBlockContentType.videos,
-                                    scope: CustomBlockScope.continent
-                                )
-                                cbRules += self.parseCustomBlockRules(
-                                    rules: rules["specials"],
-                                    type: CustomBlockContentType.videos,
-                                    scope: CustomBlockScope.special
-                                )
-                            }
-
-                            self.customBlockRulesMap[claimId] = cbRules
-                        }
-                    }
-                }
-            })
-        } catch {
-            // pass
-        }
-    }
-
-    func parseCustomBlockRules(
-        rules: [Any]?,
-        type: CustomBlockContentType,
-        scope: CustomBlockScope
-    ) -> [CustomBlockRule] {
-        guard let rules else {
-            return []
-        }
-
-        var cbRules: [CustomBlockRule] = []
-        for rule in rules {
-            if let indvRule = rule as? [String: Any] {
-                var cbRule = CustomBlockRule()
-                cbRule.type = type
-                cbRule.scope = scope
-                cbRule.id = indvRule["id"] as? String
-                cbRule.trigger = indvRule["trigger"] as? String
-                cbRule.message = indvRule["message"] as? String
-                cbRule.reason = indvRule["reason"] as? String
-                cbRules.append(cbRule)
-            }
-        }
-
-        return cbRules
-    }
-
-    func loadNotifications() {
-        if loadingNotifications {
-            return
-        }
-        do {
-            var options: [String: String] = [:]
-            if Lbryio.latestNotificationId > 0 {
-                options["since_id"] = String(Lbryio.latestNotificationId)
-            }
-
-            try Lbryio.post(resource: "notification", action: "list", options: options, completion: { data, error in
-                guard let data = data, error == nil else {
-                    return
-                }
-
-                if let items = data as? [[String: Any]] {
-                    var loadedNotifications: [LbryNotification] = []
-                    for item in items {
-                        do {
-                            let jsonData = try JSONSerialization.data(
-                                withJSONObject: item as Any,
-                                options: [.prettyPrinted, .sortedKeys]
-                            )
-                            let notification: LbryNotification? = try JSONDecoder()
-                                .decode(LbryNotification.self, from: jsonData)
-                            if let notification {
-                                loadedNotifications.append(notification)
-                            }
-                        } catch {
-                            // pass
-                        }
-                    }
-                    Lbryio.cachedNotifications.append(contentsOf: loadedNotifications)
-                    Lbryio.cachedNotifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "") })
-                    Lbryio.latestNotificationId = Lbryio.cachedNotifications.compactMap(\.id).max() ?? 0
-                }
-
-                self.loadingNotifications = false
-                self.updateUnseenCount()
-            })
-        } catch {
-            showError(error: error)
-        }
-    }
-
-    func updateUnseenCount() {
-        let unseenCount = Lbryio.cachedNotifications.reduce(0) { $0 + ($1.isSeen ?? false ? 0 : 1) }
-        DispatchQueue.main.async {
-            if unseenCount > 0 {
-                self.notificationBadgeView.isHidden = false
-                self.notificationBadgeCountLabel.text = unseenCount < 100 ? String(unseenCount) : "99+"
-            } else {
-                self.notificationBadgeView.isHidden = true
-                self.notificationBadgeCountLabel.text = ""
-            }
-        }
-    }
+//
+//    func loadNotifications() {
+//        if loadingNotifications {
+//            return
+//        }
+//        do {
+//            var options: [String: String] = [:]
+//            if Lbryio.latestNotificationId > 0 {
+//                options["since_id"] = String(Lbryio.latestNotificationId)
+//            }
+//
+//            try Lbryio.post(resource: "notification", action: "list", options: options, completion: { data, error in
+//                guard let data = data, error == nil else {
+//                    return
+//                }
+//
+//                if let items = data as? [[String: Any]] {
+//                    var loadedNotifications: [LbryNotification] = []
+//                    for item in items {
+//                        do {
+//                            let jsonData = try JSONSerialization.data(
+//                                withJSONObject: item as Any,
+//                                options: [.prettyPrinted, .sortedKeys]
+//                            )
+//                            let notification: LbryNotification? = try JSONDecoder()
+//                                .decode(LbryNotification.self, from: jsonData)
+//                            if let notification {
+//                                loadedNotifications.append(notification)
+//                            }
+//                        } catch {
+//                            // pass
+//                        }
+//                    }
+//                    Lbryio.cachedNotifications.append(contentsOf: loadedNotifications)
+//                    Lbryio.cachedNotifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "") })
+//                    Lbryio.latestNotificationId = Lbryio.cachedNotifications.compactMap(\.id).max() ?? 0
+//                }
+//
+//                self.loadingNotifications = false
+//                self.updateUnseenCount()
+//            })
+//        } catch {
+//            showError(error: error)
+//        }
+//    }
+//
+//    func updateUnseenCount() {
+//        let unseenCount = Lbryio.cachedNotifications.reduce(0) { $0 + ($1.isSeen ?? false ? 0 : 1) }
+//        DispatchQueue.main.async {
+//            if unseenCount > 0 {
+//                self.notificationBadgeView.isHidden = false
+//                self.notificationBadgeCountLabel.text = unseenCount < 100 ? String(unseenCount) : "99+"
+//            } else {
+//                self.notificationBadgeView.isHidden = true
+//                self.notificationBadgeCountLabel.text = ""
+//            }
+//        }
+//    }
 
     func updateMiniPlayer() {
         if AppDelegate.shared.currentClaim != nil, AppDelegate.shared.lazyPlayer != nil {
@@ -707,64 +508,6 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         } else {
             showError(message: error?.localizedDescription, error: error)
         }
-    }
-
-    func addWalletObserver(key: String, observer: WalletBalanceObserver) {
-        walletObservers[key] = observer
-    }
-
-    func removeWalletObserver(key: String) {
-        walletObservers.removeValue(forKey: key)
-    }
-
-    func startWalletBalanceTimer() {
-        if Lbryio.isSignedIn(), !balanceTimerScheduled {
-            walletBalanceTimer = Timer.scheduledTimer(
-                timeInterval: balanceTimerInterval,
-                target: self,
-                selector: #selector(fetchWalletBalance),
-                userInfo: nil,
-                repeats: true
-            )
-            balanceTimerScheduled = true
-        }
-    }
-
-    @objc func fetchWalletBalance() {
-        Lbry.apiCall(
-            method: Lbry.methodWalletBalance,
-            params: [String: Any](),
-            url: Lbry.lbrytvURL,
-            completion: { data, error in
-                guard error == nil,
-                      let result = data?["result"] as? [String: Any]
-                else {
-                    return
-                }
-
-                var balance = WalletBalance()
-                balance.available = Decimal(string: result["available"] as? String ?? "0")
-                balance.reserved = Decimal(string: result["reserved"] as? String ?? "0")
-                balance.total = Decimal(string: result["total"] as? String ?? "0")
-
-                if let reservedSubtotals = result["reserved_subtotals"] as? [String: Any] {
-                    balance.claims = Decimal(string: reservedSubtotals["claims"] as? String ?? "0")
-                    balance.supports = Decimal(string: reservedSubtotals["supports"] as? String ?? "0")
-                    balance.tips = Decimal(string: reservedSubtotals["tips"] as? String ?? "0")
-                } else {
-                    balance.claims = Decimal(0)
-                    balance.supports = Decimal(0)
-                    balance.tips = Decimal(0)
-                }
-                Lbry.walletBalance = balance
-                DispatchQueue.main.async {
-                    self.mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.total)
-                    for observer in self.walletObservers.values {
-                        observer.balanceUpdated(balance: balance)
-                    }
-                }
-            }
-        )
     }
 
     func handleSpecialUrl(url: String) -> Bool {
@@ -956,8 +699,4 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
          // Pass the selected object to the new view controller.
      }
      */
-}
-
-protocol WalletBalanceObserver {
-    func balanceUpdated(balance: WalletBalance)
 }

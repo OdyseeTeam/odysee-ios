@@ -113,7 +113,6 @@ class UserAccountViewController: UIViewController {
         Wallet.shared.startSync()
 
         AppDelegate.shared.mainController?.checkUploadButton()
-        AppDelegate.shared.mainController?.startWalletBalanceTimer()
         AppDelegate.shared.mainController?.checkAndClaimEmailReward(completion: {})
 
         if firstRunFlow {

@@ -8,13 +8,10 @@
 import FirebaseAnalytics
 import UIKit
 
-class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource,
-    WalletBalanceObserver
-{
+class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerViewDelegate, UIPickerViewDataSource {
     var channels: [Claim] = []
     var claim: Claim?
     var sendingSupport = false
-    let keyBalanceObserver = "support_vc"
 
     @IBOutlet var walletBalanceLabel: UILabel!
     @IBOutlet var contentView: UIView!
@@ -26,15 +23,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
 
     var tipCreditAmount: Decimal = 5
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        AppDelegate.shared.mainController?.addWalletObserver(key: keyBalanceObserver, observer: self)
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        AppDelegate.shared.mainController?.removeWalletObserver(key: keyBalanceObserver)
-    }
+    var walletBalanceTask: Task<Void, Never>?
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -45,16 +34,23 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
                 AnalyticsParameterScreenClass: "SupportViewController",
             ]
         )
+
+        walletBalanceTask = Task {
+            for await balance in Globals.$walletBalance.values {
+                walletBalanceLabel.text = Helper.shortCurrencyFormat(value: balance?.available)
+            }
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        walletBalanceTask?.cancel()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         checkCreditAmount()
-
-        if let balance = Lbry.walletBalance {
-            balanceUpdated(balance: balance)
-        }
 
         loadChannels()
     }
@@ -272,10 +268,6 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         }
 
         return channels[row].name
-    }
-
-    func balanceUpdated(balance: WalletBalance) {
-        walletBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.available)
     }
 
     func showError(message: String?) {

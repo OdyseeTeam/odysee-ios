@@ -150,28 +150,23 @@ class SearchViewController: UIViewController,
                 Decimal(string: $0.meta?.effectiveAmount ?? "0") ?? 0 <
                     Decimal(string: $1.meta?.effectiveAmount ?? "0") ?? 0
             }) {
+                // check if the winning claim could be mature content
+                if let tags = winningClaim.value?.tags, tags.contains(where: Constants.NotTags.contains) {
+                    return
+                }
+
+                if ClaimFiltering.reason(for: winningClaim) != nil {
+                    return
+                }
+
                 winningClaim.featured = true
 
-                var canShow = true
-
-                // check if the winning claim could be mature content
-                if let tags = winningClaim.value?.tags {
-                    canShow = !tags.contains(where: Constants.NotTags.contains)
-                }
-
-                // check if the winning claim is filtered or blocked
-                canShow = !Lbryio.isClaimFiltered(winningClaim) && !Lbryio.isClaimAppleFiltered(winningClaim) && canShow
-                canShow = !Lbryio.isClaimBlocked(winningClaim) && canShow
-
-                // only show the winning claim if it is not mature content or blocked
-                if canShow {
-                    // if the claim is already in the search results, remove it so we can promote to the top
-                    claims.removeAll(where: { $0.claimId == winningClaim.claimId })
-                    claims.insert(winningClaim, at: 0)
-                    resultsListView.reloadData()
-                    checkNoResults()
-                    self.winningClaim = winningClaim
-                }
+                // if the claim is already in the search results, remove it so we can promote to the top
+                claims.removeAll(where: { $0.claimId == winningClaim.claimId })
+                claims.insert(winningClaim, at: 0)
+                resultsListView.reloadData()
+                checkNoResults()
+                self.winningClaim = winningClaim
             }
         }
     }

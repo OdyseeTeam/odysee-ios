@@ -114,7 +114,8 @@ private struct CommentListItems: View {
                 } label: {
                     CommentListItem(
                         comment: comment,
-                        author: commentsModel.author(for: comment)
+                        author: commentsModel.author(for: comment),
+                        reactions: commentsModel.reactions(for: comment)
                     )
                 }
                 .disclosureGroupStyle(CommentDisclosureGroupStyle())
@@ -125,7 +126,8 @@ private struct CommentListItems: View {
             } else {
                 CommentListItem(
                     comment: comment,
-                    author: commentsModel.author(for: comment)
+                    author: commentsModel.author(for: comment),
+                    reactions: commentsModel.reactions(for: comment)
                 )
                 .environment(\.toggleReplies, nil)
             }

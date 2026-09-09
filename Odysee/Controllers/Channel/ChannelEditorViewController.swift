@@ -161,6 +161,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
             return
         }
 
+        // FIXME: Needs to load fresh
         if !editMode && Lbry.ownChannels.filter({ $0.name?.lowercased() == name.lowercased() }).first != nil {
             showError(message: String.localized("A channel with the specified name already exists"))
             return

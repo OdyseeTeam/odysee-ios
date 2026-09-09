@@ -179,7 +179,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         }
     }
 
-    @objc private func rtmpStatusHandler(_ notification: Notification) {
+    @objc private func rtmpStatusHandler(_ notification: Foundation.Notification) {
         startingStream = false
 
         let e = Event.from(notification)
@@ -207,7 +207,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         }
     }
 
-    @objc private func rtmpErrorHandler(_ notification: Notification) {
+    @objc private func rtmpErrorHandler(_ notification: Foundation.Notification) {
         // simply attempt to reconnect
         showError(
             message: String

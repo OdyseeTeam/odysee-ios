@@ -61,6 +61,9 @@ extension Method where ParamType: BackendMethodParams {
                 throw LbryioRequestError.invalidResponse(urlResponse)
             }
 
+            print("MYLOG", name, httpResponse.statusCode, String(data: data, encoding: .utf8))
+
+            // FIXME: All call check respcode OK before decode
             let respCode = httpResponse.statusCode
             Crashlytics.crashlytics().setCustomValue(
                 String(data: data, encoding: .utf8),
@@ -68,7 +71,10 @@ extension Method where ParamType: BackendMethodParams {
             )
             Crashlytics.crashlytics().setCustomValue(respCode, forKey: "Lbry.call_respCode")
 
-            let response = try JSONDecoder().decode(LbryAPIResponse<ResultType>.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+
+            let response = try decoder.decode(LbryAPIResponse<ResultType>.self, from: data)
             if response.jsonrpc != "2.0" {
                 assertionFailure()
                 throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
@@ -112,7 +118,10 @@ extension Method where ParamType: CommentsMethodParams {
 
             let (data, _) = try await URLSession.shared.data(for: request)
 
-            let response = try JSONDecoder().decode(LbryAPIResponse<ResultType>.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+
+            let response = try decoder.decode(LbryAPIResponse<ResultType>.self, from: data)
             if response.jsonrpc != "2.0" {
                 assertionFailure()
                 throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
@@ -192,7 +201,10 @@ extension Method where ParamType: AccountMethodParams {
 
         let respCode = httpResponse.statusCode
 
-        let response = try JSONDecoder().decode(LbryioAPIResponse<ResultType>.self, from: data)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        let response = try decoder.decode(LbryioAPIResponse<ResultType>.self, from: data)
 
         guard let result = response.result else {
             throw LbryioResponseError.error(response.error, respCode)
@@ -232,6 +244,7 @@ enum BackendMethods {
     static let txoList = Method<TxoListParams, Page<Txo>>(name: "txo_list")
     static let syncHash = Method<NilType, SyncHashResult>(name: "sync_hash")
     static let syncApply = Method<SyncApplyParams, SyncApplyResult>(name: "sync_apply")
+    static let walletBalance = Method<NilType, WalletBalance>(name: "wallet_balance")
 
     static let sharedPreferenceGet = Method<SharedPreferenceGetParams, SharedPreferenceGetResult>(
         name: "preference_get"
@@ -248,6 +261,7 @@ enum CommentsMethods {
     static let list = Method<CommentListParams, Page<Comment>>(name: "comment.List")
     static let create = Method<CommentCreateParams, Comment>(name: "comment.Create")
     static let reactList = Method<CommentReactListParams, ReactListResult>(name: "reaction.List")
+    static let v2_reactList = Method<CommentReactListParams, V2_ReactListResult>(name: "reaction.List")
     static let react = Method<CommentReactParams, NilType>(name: "reaction.React")
 }
 
@@ -269,6 +283,8 @@ enum AccountMethods {
     static let installNew = Method<InstallNewParams, NilType>(name: "install/new")
     static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
     static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
+    static let localeGet = Method<NilType, LocaleGetResult>(name: "locale/get", method: .GET)
+    static let geoBlockedList = Method<NilType, GeoBlockedListResult>(name: "geo/blocked_list")
     static let subscriptionNew = Method<SubscriptionNewParams, NilType>(name: "subscription/new")
     static let subscriptionDelete = Method<SubscriptionDeleteParams, NilType>(name: "subscription/delete")
     static let viewHistory = Method<ViewHistoryParams, Page<ViewHistory>>(name: "user/view_history")
@@ -278,4 +294,13 @@ enum AccountMethods {
     static let ytTransfer = Method<YtTransferParams, YtTransferResult>(name: "yt/transfer")
 
     static let ytTransferStatusCheck = Method<NilType, YtTransferResult>(name: "yt/transfer")
+    static let listAppleBlockedClaimIds = Method<ListAppleBlockedClaimIdsParams, FileListClaimIdsResult>(
+        name: "file/list_blocked", method: .GET
+    )
+    static let listBlockedClaimIds = Method<FileListClaimIdsParams, FileListClaimIdsResult>(
+        name: "file/list_blocked", method: .GET
+    )
+    static let listFilteredClaimIds = Method<FileListClaimIdsParams, FileListClaimIdsResult>(
+        name: "file/list_filtered", method: .GET
+    )
 }

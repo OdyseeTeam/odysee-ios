@@ -50,6 +50,7 @@ public struct Claim: Decodable {
     var nout: Int?
     var permanentUrl: String?
     var shortUrl: String?
+    // FIXME: Propertywrapper
     var signingChannelRef: ClaimBox?
     var repostedClaimRef: ClaimBox?
     var signingChannel: Claim? { signingChannelRef?.wrappedValue }
