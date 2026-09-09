@@ -353,45 +353,14 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        guard let claim, let claimId = claim.claimId else {
+        guard let claim else {
             displayNothingAtLocation()
             return
         }
 
-        guard !Lbryio.isClaimBlocked(claim) else {
-            displayClaimBlocked()
+        if let reason = ClaimFiltering.reason(for: claim) {
+            displayClaimBlockedWithMessage(message: reason.message)
             return
-        }
-        guard !Lbryio.isClaimAppleFiltered(claim) else {
-            displayClaimBlockedWithMessage(
-                message: Lbryio.getFilteredMessageForClaim(claimId, "")
-            )
-            return
-        }
-        guard !Helper.isCustomBlocked(claimId: claimId) else {
-            displayClaimBlockedWithMessage(
-                message: Helper.getCustomBlockedMessage(claimId: claimId) ?? ""
-            )
-            return
-        }
-
-        if let signingChannel = claim.signingChannel, let signingClaimId = signingChannel.claimId {
-            guard !Lbryio.isClaimBlocked(signingChannel) else {
-                displayClaimBlocked()
-                return
-            }
-            guard !Lbryio.isClaimAppleFiltered(signingChannel) else {
-                displayClaimBlockedWithMessage(
-                    message: Lbryio.getFilteredMessageForClaim("", signingClaimId)
-                )
-                return
-            }
-            guard !Helper.isCustomBlocked(claimId: signingClaimId) else {
-                displayClaimBlockedWithMessage(
-                    message: Helper.getCustomBlockedMessage(claimId: signingClaimId) ?? ""
-                )
-                return
-            }
         }
 
         guard !(claim.value?.tags?.contains(Constants.MembersOnly) ?? false) else {
@@ -418,7 +387,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             return
         }
 
-        claim = Lbry.cachedClaim(url: url)
+        // FIXME: Re-add caching if needed
         if claim != nil {
             DispatchQueue.main.async {
                 self.showClaimAndCheckFollowing()
@@ -461,12 +430,6 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
             self.resolvingLabel.text = String.localized("There's nothing at this location.")
             self.resolvingCloseButton.isHidden = false
         }
-    }
-
-    func displayClaimBlocked() {
-        displayClaimBlockedWithMessage(
-            message: "In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this content from our applications."
-        )
     }
 
     func displayClaimBlockedWithMessage(message: String) {

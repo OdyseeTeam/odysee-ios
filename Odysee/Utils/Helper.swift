@@ -328,62 +328,6 @@ enum Helper {
         }
     }
 
-    static func isCustomBlocked(claimId: String) -> Bool {
-        var isBlocked = false
-        if let rules = AppDelegate.shared.mainController?.customBlockRulesMap[claimId],
-           let locale = AppDelegate.shared.mainController?.currentLocale
-        {
-            for rule in rules {
-                if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only",
-                   locale.isEUMember ?? false
-                {
-                    isBlocked = true
-                    break
-                }
-
-                if rule.scope == CustomBlockScope.continent, rule.id?.lowercased() == locale.continent?.lowercased() {
-                    isBlocked = true
-                    break
-                }
-
-                if rule.scope == CustomBlockScope.country, rule.id?.lowercased() == locale.country?.lowercased() {
-                    isBlocked = true
-                    break
-                }
-            }
-        }
-
-        return isBlocked
-    }
-
-    static func getCustomBlockedMessage(claimId: String) -> String? {
-        var message: String?
-        if let rules = AppDelegate.shared.mainController?.customBlockRulesMap[claimId],
-           let locale = AppDelegate.shared.mainController?.currentLocale
-        {
-            for rule in rules {
-                if rule.scope == CustomBlockScope.special, rule.id?.lowercased() == "eu-only",
-                   locale.isEUMember ?? false
-                {
-                    message = rule.message
-                    break
-                }
-
-                if rule.scope == CustomBlockScope.continent, rule.id?.lowercased() == locale.continent?.lowercased() {
-                    message = rule.message
-                    break
-                }
-
-                if rule.scope == CustomBlockScope.country, rule.id?.lowercased() == locale.country?.lowercased() {
-                    message = rule.message
-                    break
-                }
-            }
-        }
-
-        return message
-    }
-
     @MainActor
     static func showMessage(message: String?) {
         (AppDelegate.shared.mainViewController as? MainViewController)?.showMessage(message: message)

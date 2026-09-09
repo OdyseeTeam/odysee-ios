@@ -7,6 +7,7 @@
 
 import FirebaseAnalytics
 import OrderedCollections
+import SwiftUI
 import UIKit
 
 class HomeViewController: UIViewController,
@@ -27,6 +28,13 @@ class HomeViewController: UIViewController,
 
     @IBOutlet var tableView: UITableView!
     var miniPlayerTopTask: Task<Void, Never>?
+
+    lazy var library = {
+        let rootView = LibraryScreen()
+        let vc = UIHostingController(rootView: rootView)
+        vc.view.translatesAutoresizingMaskIntoConstraints = false
+        return vc
+    }()
 
     static var categoryIndexDiscover = -1
     static var categoryIndexWildWest = -1
@@ -61,6 +69,24 @@ class HomeViewController: UIViewController,
 
     var claimsPrefetchController: ImagePrefetchingController!
     var livestreamsPrefetchController: ImagePrefetchingController!
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        guard library.parent == nil else {
+            return
+        }
+
+        addChild(library)
+        view.addSubview(library.view)
+        library.didMove(toParent: self)
+        NSLayoutConstraint.activate([
+            library.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            library.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            library.view.topAnchor.constraint(equalTo: view.topAnchor),
+            library.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+    }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)

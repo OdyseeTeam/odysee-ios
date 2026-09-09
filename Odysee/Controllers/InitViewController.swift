@@ -53,6 +53,11 @@ class InitViewController: UIViewController {
 
             // Singleton init loads Wallet and SharedPreference data
             _ = Wallet.shared
+            // Singleton init loads block and filter rules
+            _ = ClaimFiltering.shared
+            // FIXME: Singleton to load notifications
+            // Singleton init loads Globals and starts wallet balance loop
+            _ = Globals.shared
 
             // successful authentication and install registration
             // open the main application interface

@@ -15,7 +15,7 @@ class NotificationTableViewCell: UITableViewCell {
     @IBOutlet var timeView: UILabel!
     @IBOutlet var unreadIndicatorView: UIView!
 
-    var currentNotification: LbryNotification?
+    var currentNotification: Notification?
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -29,7 +29,7 @@ class NotificationTableViewCell: UITableViewCell {
     }
 
     func displayAuthorImage() {
-        if let thumbnail = currentNotification?.notificationParameters?.dynamic?.commentAuthorThumbnail,
+        if let thumbnail = currentNotification?.notificationParameters?.dynamic.commentAuthorThumbnail,
            !thumbnail.isBlank,
            let thumbnailUrl = URL(string: thumbnail)
         {
@@ -38,7 +38,7 @@ class NotificationTableViewCell: UITableViewCell {
         }
     }
 
-    func setNotification(notification: LbryNotification) {
+    func setNotification(notification: Notification) {
         if let currentNotification, notification.id != currentNotification.id {
             iconView.isHidden = true
             avatarView.isHidden = true
@@ -50,8 +50,8 @@ class NotificationTableViewCell: UITableViewCell {
 
         currentNotification = notification
         unreadIndicatorView.layer.cornerRadius = 6
-        unreadIndicatorView.isHidden = notification.isRead ?? true
-        if currentNotification?.notificationParameters?.dynamic?.commentAuthorThumbnail != nil {
+        unreadIndicatorView.isHidden = notification.isRead
+        if currentNotification?.notificationParameters?.dynamic.commentAuthorThumbnail != nil {
             iconView.isHidden = true
             avatarView.isHidden = false
 
@@ -72,13 +72,12 @@ class NotificationTableViewCell: UITableViewCell {
             }
         }
 
-        titleView.text = notification.title ?? ""
-        bodyView.text = notification.text ?? ""
-        if let date = Helper.apiDateFormatter.date(from: notification.createdAt ?? "") {
-            let localDateString = Helper.localDateFormatter.string(from: date)
-            if let localDate = Helper.localDateFormatter.date(from: localDateString) {
-                timeView.text = Helper.fullRelativeDateFormatter.localizedString(for: localDate, relativeTo: Date())
-            }
+        titleView.text = notification.title
+        bodyView.text = notification.text
+        // FIXME: Make local directly
+        let localDateString = Helper.localDateFormatter.string(from: notification.createdAt)
+        if let localDate = Helper.localDateFormatter.date(from: localDateString) {
+            timeView.text = Helper.fullRelativeDateFormatter.localizedString(for: localDate, relativeTo: Date())
         }
     }
 }

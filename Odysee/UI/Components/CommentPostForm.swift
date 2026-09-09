@@ -12,79 +12,88 @@ struct CommentPostForm: View {
     @ObservedObject var model: Comments.ViewModel
     var scrollProxy: ScrollViewProxy
 
+    @State private var channels: [Claim]?
+
     var body: some View {
-        VStack {
-            ChannelPickerNil(channel: $model.channel)
-//            ChannelPicker(
-//                title: model.replyTo != nil ? "Replying as" : "Comment as",
-//                channel: $model.channel,
-//                includeAnonymous: false
-//            )
-
-            if let replyTo = model.replyTo {
-                Button {
-                    withAnimation {
-                        scrollProxy.scrollTo(replyTo.id, anchor: .center)
-                    }
-                } label: {
-                    HStack {
-                        Color.accentColor
-                            .frame(width: 2)
-
-                        CommentText(replyTo.comment)
-                            .lineLimit(1)
-                            .opacity(0.5)
-
-                        Spacer()
-                    }
-                }
-                .buttonStyle(.plain)
-            }
-
-            TextField(
-                "Comment Text",
-                text: $model.postText.max(Helper.commentMaxLength),
-                prompt: Text("Say something about this..."),
-                axis: .vertical
-            )
-            .textFieldStyle(.roundedBorder)
-
-            HStack {
-                Button("Comment") {}
-                    .buttonStyle(.borderedProminent)
-                    .disabled(model.postText.isBlank)
+        if !Lbryio.isSignedIn() /* if no channels */ {
+            Text("FIXME")
+        } else if let channels, channels.count == 0 {
+            Text("Create")
+        } else {
+            VStack {
+                ChannelPickerNil(
+                    title: model.replyTo != nil ? "Replying as" : "Comment as",
+                    channel: $model.channel,
+                    channels: $channels
+                )
 
                 if let replyTo = model.replyTo {
-                    Button("Cancel") {
-                        model.replyTo = nil
-
+                    Button {
                         withAnimation {
                             scrollProxy.scrollTo(replyTo.id, anchor: .center)
                         }
+                    } label: {
+                        HStack {
+                            Color.accentColor
+                                .frame(width: 2)
+
+                            CommentText(replyTo.comment)
+                                .lineLimit(1)
+                                .opacity(0.5)
+
+                            Spacer()
+                        }
                     }
-                    .buttonStyle(.borderless)
+                    .buttonStyle(.plain)
                 }
 
-                Spacer()
+                TextField(
+                    "Comment Text",
+                    text: $model.postText.max(Helper.commentMaxLength),
+                    prompt: Text("Say something about this..."),
+                    axis: .vertical
+                )
+                .textFieldStyle(.roundedBorder)
 
-                Text(String(model.postText.count)) + Text("/\(String(Helper.commentMaxLength))")
+                HStack {
+                    Button("Comment") {}
+                        .buttonStyle(.borderedProminent)
+                        .disabled(model.postText.isBlank)
+
+                    if let replyTo = model.replyTo {
+                        Button("Cancel") {
+                            model.replyTo = nil
+
+                            withAnimation {
+                                scrollProxy.scrollTo(replyTo.id, anchor: .center)
+                            }
+                        }
+                        .buttonStyle(.borderless)
+                    }
+
+                    Spacer()
+
+                    Text(String(model.postText.count)) + Text("/\(String(Helper.commentMaxLength))")
+                }
             }
         }
     }
 }
 
 struct ChannelPickerNil: View {
+    var title: String
     @Binding var channel: Claim?
-
-    @State private var channels: [Claim]?
+    @Binding var channels: [Claim]?
 
     var body: some View {
         if let channels {
-            Picker("Channel", selection: $channel) {
+            Picker(title, selection: $channel) {
                 ForEach(channels) {
                     Text($0.name ?? "")
                         .tag($0)
                 }
+
+                Divider().tag(nil as Claim?)
             }
             .pickerStyle(.menu)
         } else {
@@ -102,8 +111,9 @@ struct ChannelPickerNil: View {
                             let channels = claimList.items.filter { $0.claimId != Claim.anonymous.claimId }
                             Lbry.ownChannels = channels
 
-                            let defaultChannelId = Wallet.prefs.defaultChannelId
-                            channel = channels.first { $0.claimId == defaultChannelId } ?? channels.first
+                            if let defaultChannelId = Wallet.prefs.defaultChannelId {
+                                channel = channels.first { $0.claimId == defaultChannelId }
+                            }
 
                             self.channels = channels
                         } catch {
@@ -111,6 +121,12 @@ struct ChannelPickerNil: View {
 
                             channel = nil
                             channels = []
+                        }
+
+                        for await defaultChannelId in Wallet.$prefs.defaultChannelId {
+                            if channel == nil, let channels, let defaultChannelId {
+                                channel = channels.first { $0.claimId == defaultChannelId }
+                            }
                         }
                     }
                 }

@@ -9,11 +9,7 @@ import Base58Swift
 import FirebaseAnalytics
 import UIKit
 
-class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate,
-    WalletBalanceObserver
-{
-    let keyBalanceObserver = "wallet_vc"
-
+class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate {
     var loadingRecentTransactions = false
     var recentTransactions: [Transaction] = []
 
@@ -44,11 +40,12 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet var scrollView: UIScrollView!
     var miniPlayerTopTask: Task<Void, Never>?
 
+    var walletBalanceTask: Task<Void, Never>?
+
     var boostingBreakdownVisible = false
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        AppDelegate.shared.mainController?.addWalletObserver(key: keyBalanceObserver, observer: self)
         view.isHidden = !Lbryio.isSignedIn()
 
         if !Lbryio.isSignedIn() {
@@ -68,9 +65,6 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         if Lbryio.isSignedIn() {
             checkReceiveAddress()
             loadRecentTransactions()
-            if let balance = Lbry.walletBalance {
-                balanceUpdated(balance: balance)
-            }
         }
 
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: false)
@@ -84,18 +78,21 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 scrollView.contentInset.bottom = miniPlayerTop
             }
         }
+        walletBalanceTask = Task {
+            for await balance in Globals.$walletBalance.values {
+                displayBalance(balance: balance)
+            }
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        AppDelegate.shared.mainController?.removeWalletObserver(key: keyBalanceObserver)
         miniPlayerTopTask?.cancel()
+        walletBalanceTask?.cancel()
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        displayBalance(balance: Lbry.walletBalance)
 
         recentTransactionsListView.addObserver(self, forKeyPath: "contentSize", options: .new, context: nil)
     }
@@ -237,38 +234,28 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         sendAmountTextField.resignFirstResponder()
     }
 
-    func balanceUpdated(balance: WalletBalance) {
-        displayBalance(balance: balance)
-    }
-
     func displayBalance(balance: WalletBalance?) {
         let currencyFormatter = Helper.currencyFormatter
-        if let balance = balance {
-            balanceLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.total ?? Decimal(0)))
-            immediatelySpendableLabel.text = currencyFormatter
-                .string(from: NSDecimalNumber(decimal: balance.available ?? Decimal(0)))
-            boostingContentLabel.text = currencyFormatter
-                .string(from: NSDecimalNumber(decimal: balance.reserved ?? Decimal(0)))
-            tipsLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.tips ?? Decimal(0)))
-            initialPublishesLabel.text = currencyFormatter
-                .string(from: NSDecimalNumber(decimal: balance.claims ?? Decimal(0)))
-            supportingContentLabel.text = currencyFormatter
-                .string(from: NSDecimalNumber(decimal: balance.supports ?? Decimal(0)))
+        if let balance {
+            balanceLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.total))
+            immediatelySpendableLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.available))
+            boostingContentLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.reserved))
+            tipsLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.tips))
+            initialPublishesLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.claims))
+            supportingContentLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.supports))
 
-            if let total = balance.total {
-                Lbryio.loadExchangeRate(completion: { rate, error in
-                    guard let rate = rate, error == nil else {
-                        self.showError(error: error)
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.usdBalanceLabel.text = String(
-                            format: "≈$%@",
-                            currencyFormatter.string(from: (total * rate) as NSDecimalNumber) ?? ""
-                        )
-                    }
-                })
-            }
+            Lbryio.loadExchangeRate(completion: { rate, error in
+                guard let rate = rate, error == nil else {
+                    self.showError(error: error)
+                    return
+                }
+                DispatchQueue.main.async {
+                    self.usdBalanceLabel.text = String(
+                        format: "≈$%@",
+                        currencyFormatter.string(from: (balance.total * rate) as NSDecimalNumber) ?? ""
+                    )
+                }
+            })
         }
     }
 

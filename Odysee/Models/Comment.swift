@@ -20,18 +20,13 @@ struct Comment: Decodable, Hashable, Identifiable {
 
     // MARK: Internal fields
 
+    // FIXME: Remove (Not needed in SwiftUI component)
     var numLikes: Int = 0
     var numDislikes: Int = 0
     var isLiked: Bool = false
     var isDisliked: Bool = false
-
-    // FIXME: Remove (Not needed in SwiftUI component)
     var repliesLoaded: Bool = false
-
-    // FIXME: Remove (Not needed in SwiftUI component)
     var replyDepth: Int = 1
-
-    // FIXME: Remove (Not needed in SwiftUI component)
     var replies: [Comment] = []
 
     private enum CodingKeys: String, CodingKey {
@@ -49,4 +44,11 @@ struct Comment: Decodable, Hashable, Identifiable {
     func hash(into hasher: inout Hasher) {
         id.hash(into: &hasher)
     }
+}
+
+struct CommentReactions {
+    var numLikes: Int
+    var numDislikes: Int
+    var isLiked: Bool = false
+    var isDisliked: Bool = false
 }

@@ -13,6 +13,7 @@ import WrappingHStack
 struct CommentListItem: View {
     var comment: Comment
     var author: Claim
+    var reactions: CommentReactions
 
     @ScaledMetric private var secondarySize: CGFloat = 14
     @ScaledMetric private var secondaryInlineSize: CGFloat = 18
@@ -75,8 +76,8 @@ struct CommentListItem: View {
                         Button {} label: {
                             // FIXME: And systemImage, use Icons
                             Image(systemName: "flame.fill")
-                                .foregroundStyle(comment.isLiked ? Color(Helper.fireActiveColor) : .primary)
-                            Text(String(comment.numLikes))
+                                .foregroundStyle(reactions.isLiked ? Color(Helper.fireActiveColor) : .primary)
+                            Text(String(reactions.numLikes))
                         }
 
                         Button {} label: {
@@ -84,8 +85,8 @@ struct CommentListItem: View {
                                 .resizable()
                                 .scaledToFit()
                                 .frame(width: secondaryInlineSize, height: secondaryInlineSize)
-                                .foregroundStyle(comment.isDisliked ? Color(Helper.slimeActiveColor) : .primary)
-                            Text(String(comment.numDislikes))
+                                .foregroundStyle(reactions.isDisliked ? Color(Helper.slimeActiveColor) : .primary)
+                            Text(String(reactions.numDislikes))
                         }
                     }
                 }
@@ -134,7 +135,8 @@ struct CommentListItem: View {
                 claimId: "",
                 timestamp: Date().timeIntervalSince1970
             ),
-            author: author
+            author: author,
+            reactions: .init(numLikes: 0, numDislikes: 0)
         )
 
         CommentListItem(
@@ -144,7 +146,8 @@ struct CommentListItem: View {
                 claimId: "",
                 timestamp: Date().timeIntervalSince1970
             ),
-            author: Claim()
+            author: Claim(),
+            reactions: .init(numLikes: 0, numDislikes: 0)
         )
 
         CommentListItem(
@@ -154,7 +157,8 @@ struct CommentListItem: View {
                 claimId: "",
                 timestamp: Date().timeIntervalSince1970
             ),
-            author: author
+            author: author,
+            reactions: .init(numLikes: 0, numDislikes: 0)
         )
     }
 }

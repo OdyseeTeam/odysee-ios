@@ -58,12 +58,15 @@ class Wallet: ObservableObject {
         }
     }
 
-    func stopSync() {
+    private func stopSync() {
         sync?.cancel()
         sync = nil
     }
 
+    /// Stop sync/load loop and reset stored values
     func reset() {
+        stopSync()
+
         remoteWalletHash = nil
         // Default, should be replaced by pullSync immediately
         prefs = SharedPreference()

@@ -142,7 +142,6 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         }
 
         uploads.append(contentsOf: page.items)
-        Lbry.ownUploads = uploads.filter { $0.claimId != "new" }
     }
 
     func loadChannels() {

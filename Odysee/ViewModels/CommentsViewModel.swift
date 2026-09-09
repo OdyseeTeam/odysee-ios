@@ -6,22 +6,40 @@
 //
 
 import Foundation
+import TaskGate
 
 @available(iOS 16, *)
 extension Comments {
     @MainActor
     class ViewModel: ObservableObject {
         @Published var replyTo: Comment?
-        @Published var channel: Claim?
+        @Published var channel: Claim? {
+            didSet {
+                Task {
+                    do {
+                        try await reloadCommentReactions()
+                    } catch {
+                        Helper.showError(error: error)
+                    }
+                }
+            }
+        }
+
         @Published var postText: String = ""
 
         static let pageSize = 10
         private var page = 1
         @Published private(set) var isLastPage = false
+        @Published private(set) var inProgress = false
         @Published private(set) var comments: [Comment] = []
         @Published private(set) var totalComments: Int?
 
         private var authors: [String: Claim] = [:]
+
+        // FIXME: (iOS 18): replace with Mutex
+        /// Protected by `gate`
+        @Published private var allReactions: [Comment.ID: CommentReactions] = [:]
+        private let gate = AsyncGate()
 
         var sortBy: SortBy = .best {
             didSet {
@@ -36,8 +54,6 @@ extension Comments {
             }
         }
 
-        @Published private(set) var inProgress = false
-
         func author(for comment: Comment) -> Claim {
             guard let authorUrl = comment.channelUrl,
                   let author = authors[authorUrl]
@@ -46,6 +62,14 @@ extension Comments {
             }
 
             return author
+        }
+
+        func reactions(for comment: Comment) -> CommentReactions {
+            guard let reactions = allReactions[comment.id] else {
+                return .init(numLikes: 0, numDislikes: 0)
+            }
+
+            return reactions
         }
 
         func loadPage() async {
@@ -88,11 +112,16 @@ extension Comments {
             ))
 
             async let a = resolveNewAuthors(newComments: list.items)
-            async let r = loadCommentReactions(comments: list.items)
+            // FIXME: Force channel before load (meaning before load comments)
+            // If have channels/is signed in
+            // Main thing is stopping this race condition where comments aren't done loading before channel updates the first time
+            // It probably isn't an issue with comments not the first screen loaded (before prefs init)
+            // FIXME: (CommentListItem): load reactions for that comment before updating reactions, in case "my" reaction isn't loaded
+            async let r = loadCommentReactions(commentIds: list.items.map(\.id))
 
-            let (_, reactions) = try await (a, r)
+            let _ = try await (a, r)
 
-            let comments = updateCommentReactions(comments: list.items, reactions: reactions)
+            let comments = list.items
                 .filter {
                     if let authorUrl = $0.channelUrl, authors[authorUrl] != nil {
                         return true
@@ -114,12 +143,11 @@ extension Comments {
             authors.merge(resolve.claims, uniquingKeysWith: { _, last in last })
         }
 
-        private func loadCommentReactions(comments: [Comment]) async throws -> ReactListResult {
+        private func loadCommentReactions(commentIds: [Comment.ID]) async throws {
             var params: CommentReactListParams = .init(
-                commentIds: comments.map(\.id).joined(separator: ",")
+                commentIds: commentIds.joined(separator: ",")
             )
 
-            // FIXME: with ChannelPicker async
             if let claimId = channel?.claimId, let name = channel?.name {
                 do {
                     let channelSign = try await BackendMethods.channelSign.call(params: .init(
@@ -136,28 +164,21 @@ extension Comments {
                 }
             }
 
-            return try await CommentsMethods.reactList.call(params: params)
+            let reactList = try await CommentsMethods.v2_reactList.call(params: params)
+
+            await gate.withGate {
+                allReactions.merge(reactList.reactions, uniquingKeysWith: { _, last in last })
+            }
         }
 
-        /// Non-async function to update comments after both async network calls finish
-        private func updateCommentReactions(comments: [Comment], reactions: ReactListResult) -> [Comment] {
-            comments.map { comment in
-                var comment = comment
-
-                if let other = reactions.othersReactions[comment.id] {
-                    comment.numLikes = other.like
-                    comment.numDislikes = other.dislike
-                }
-
-                if let mine = reactions.myReactions?[comment.id] {
-                    comment.numLikes += mine.like
-                    comment.numDislikes += mine.dislike
-                    comment.isLiked = mine.like > 0
-                    comment.isDisliked = mine.dislike > 0
-                }
-
-                return comment
+        /// Reloads reactions for all current comments, including child threads, using the current channel for "my" reactions
+        private func reloadCommentReactions() async throws {
+            let commentIds = Array(allReactions.keys)
+            guard commentIds.count > 0 else {
+                return
             }
+
+            try await loadCommentReactions(commentIds: commentIds)
         }
 
         // FIXME: Localize
