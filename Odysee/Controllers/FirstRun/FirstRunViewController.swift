@@ -88,7 +88,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
     }
 
     func showUserAccountView() {
-        if Lbryio.isSignedIn(), currentStep == FirstRunViewController.stepUserAccount {
+        if Account.signedIn, currentStep == FirstRunViewController.stepUserAccount {
             nextStep()
             return
         }
@@ -193,7 +193,7 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
             return
         }
 
-        if Lbry.walletBalance == nil || deposit > Lbry.walletBalance?.available ?? 0 {
+        if deposit > Account.walletBalance.available {
             showError(message: "Your channel cannot be created at this time. Please try again later.")
             return
         }

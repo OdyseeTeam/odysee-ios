@@ -22,9 +22,10 @@ extension SharedPreference.Block {
 
 extension SharedPreference {
     mutating func addBlocked(channelName: String, claimId: String) {
-        guard !Lbry.ownChannels.contains(where: { $0.claimId == claimId }) else {
-            return
-        }
+        // FIXME: Actor
+//        guard !Globals.channels.contains(where: { $0.claimId == claimId }) else {
+//            return
+//        }
 
         guard let block = try? Block(channelName: channelName, claimId: claimId),
               !blocked.contains(block)

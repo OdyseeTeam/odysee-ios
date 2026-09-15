@@ -73,10 +73,10 @@ class FollowingViewController: UIViewController, UICollectionViewDataSource, UIC
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        view.isHidden = !Lbryio.isSignedIn()
+        view.isHidden = !Account.signedIn
 
         // check if current user is signed in
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)

@@ -27,7 +27,7 @@ extension YouTubeSyncScreen {
         @Published var setupOauthUrl: URL?
         @Published private(set) var setupReturnUrl: ReturnURL?
 
-        @Published private(set) var channels: [AccountYoutubeChannel]? {
+        @Published private(set) var channels: [YoutubeChannel]? {
             didSet {
                 if let channels {
                     showStatus = channels.count > 0
@@ -37,14 +37,14 @@ extension YouTubeSyncScreen {
 
         @Published private(set) var youtubeTransferStatus: (total: Int, complete: Int)?
 
-        init(channels: [AccountYoutubeChannel]? = nil) {
+        init(channels: [YoutubeChannel]? = nil) {
             super.init()
             self.channels = channels
         }
 
         private func fetchUserChannels() async throws {
-            let user = try await Lbryio.fetchCurrentUser()
-            channels = user.youtubeChannels
+//            let user = try await Lbryio.fetchCurrentUser()
+//            channels = user.youtubeChannels
         }
 
         // MARK: - Setup
@@ -126,7 +126,7 @@ extension YouTubeSyncScreen {
         private var hasYoutubeChannelsWait: Task<Void, Never>?
 
         private func startHasYoutubeChannelsWait() {
-            guard Lbryio.isSignedIn(), hasYoutubeChannelsWait == nil else {
+            guard Account.signedIn, hasYoutubeChannelsWait == nil else {
                 return
             }
 
@@ -172,7 +172,7 @@ extension YouTubeSyncScreen {
         private var checkYoutubeTransfers: Task<Void, Never>?
 
         private func startCheckYoutubeTransfers() {
-            guard Lbryio.isSignedIn(), checkYoutubeTransfers == nil else {
+            guard Account.signedIn, checkYoutubeTransfers == nil else {
                 return
             }
 
@@ -201,21 +201,21 @@ extension YouTubeSyncScreen {
             youtubeTransferStatus = nil
         }
 
-        static func isNotEligible(channels: [AccountYoutubeChannel]) -> Bool {
+        static func isNotEligible(channels: [YoutubeChannel]) -> Bool {
             channels.count > 0 && channels.allSatisfy { $0.syncStatus == .abandoned }
         }
 
-        static func isYoutubeTransferComplete(channels: [AccountYoutubeChannel]) -> Bool {
+        static func isYoutubeTransferComplete(channels: [YoutubeChannel]) -> Bool {
             channels.count > 0 && channels.allSatisfy {
                 $0.transferState == .completedTransfer || $0.syncStatus == .abandoned
             }
         }
 
-        static func hasPendingTransfers(channels: [AccountYoutubeChannel]) -> Bool {
+        static func hasPendingTransfers(channels: [YoutubeChannel]) -> Bool {
             channels.contains { $0.transferState == .pendingTransfer }
         }
 
-        static func transferEnabled(channels: [AccountYoutubeChannel]) -> Bool {
+        static func transferEnabled(channels: [YoutubeChannel]) -> Bool {
             channels.contains(where: \.transferable)
         }
 

@@ -12,19 +12,16 @@ struct CommentPostForm: View {
     @ObservedObject var model: Comments.ViewModel
     var scrollProxy: ScrollViewProxy
 
-    @State private var channels: [Claim]?
-
     var body: some View {
-        if !Lbryio.isSignedIn() /* if no channels */ {
+        if !Account.signedIn /* if no channels */ {
             Text("FIXME")
-        } else if let channels, channels.count == 0 {
-            Text("Create")
+//        } else if globals.channels.count == 0 {
+//            Text("Create")
         } else {
             VStack {
                 ChannelPickerNil(
                     title: model.replyTo != nil ? "Replying as" : "Comment as",
                     channel: $model.channel,
-                    channels: $channels
                 )
 
                 if let replyTo = model.replyTo {
@@ -83,10 +80,14 @@ struct CommentPostForm: View {
 struct ChannelPickerNil: View {
     var title: String
     @Binding var channel: Claim?
-    @Binding var channels: [Claim]?
+
+    @ObservedObject private var account = Account.shared
+    private var channels: [Claim] {
+        account.channels
+    }
 
     var body: some View {
-        if let channels {
+        if channels.count > 0 {
             Picker(title, selection: $channel) {
                 ForEach(channels) {
                     Text($0.name ?? "")
@@ -96,40 +97,17 @@ struct ChannelPickerNil: View {
                 Divider().tag(nil as Claim?)
             }
             .pickerStyle(.menu)
-        } else {
-            ProgressView()
-                .onAppear {
-                    Task {
-                        do {
-                            let claimList = try await BackendMethods.claimList.call(params: .init(
-                                claimType: [.channel],
-                                page: 1,
-                                pageSize: 999,
-                                resolve: true
-                            ))
-
-                            let channels = claimList.items.filter { $0.claimId != Claim.anonymous.claimId }
-                            Lbry.ownChannels = channels
-
-                            if let defaultChannelId = Wallet.prefs.defaultChannelId {
-                                channel = channels.first { $0.claimId == defaultChannelId }
-                            }
-
-                            self.channels = channels
-                        } catch {
-                            Helper.showError(message: __("Error loading channels: \(error.localizedDescription)"))
-
-                            channel = nil
-                            channels = []
-                        }
-
-                        for await defaultChannelId in Wallet.$prefs.defaultChannelId {
-                            if channel == nil, let channels, let defaultChannelId {
-                                channel = channels.first { $0.claimId == defaultChannelId }
-                            }
+            .onAppear {
+                Task {
+                    for await defaultChannelId in Wallet.$prefs.defaultChannelId {
+                        if channel == nil, let defaultChannelId {
+                            channel = channels.first { $0.claimId == defaultChannelId }
                         }
                     }
                 }
+            }
+        } else {
+            ProgressView()
         }
     }
 }

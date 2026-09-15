@@ -39,45 +39,45 @@ class NotificationTableViewCell: UITableViewCell {
     }
 
     func setNotification(notification: Notification) {
-        if let currentNotification, notification.id != currentNotification.id {
-            iconView.isHidden = true
-            avatarView.isHidden = true
-            iconView.image = nil
-            iconView.tintColor = UIColor.clear
-            avatarView.image = nil
-            avatarView.backgroundColor = UIColor.clear
-        }
-
-        currentNotification = notification
-        unreadIndicatorView.layer.cornerRadius = 6
-        unreadIndicatorView.isHidden = notification.isRead
-        if currentNotification?.notificationParameters?.dynamic.commentAuthorThumbnail != nil {
-            iconView.isHidden = true
-            avatarView.isHidden = false
-
-            avatarView.rounded()
-            avatarView.image = UIImage(named: "spaceman")
-            avatarView.backgroundColor = Helper.lightPrimaryColor
-            displayAuthorImage()
-        } else {
-            iconView.isHidden = false
-            avatarView.isHidden = true
-
-            if ["first_subscription", "creator_subscriber"].contains(notification.notificationRule) {
-                iconView.image = UIImage(systemName: Icons.notificationSubscription)
-                iconView.tintColor = UIColor.systemRed
-            } else {
-                iconView.image = UIImage(systemName: Icons.notification)
-                iconView.tintColor = Helper.primaryColor
-            }
-        }
-
-        titleView.text = notification.title
-        bodyView.text = notification.text
-        // FIXME: Make local directly
-        let localDateString = Helper.localDateFormatter.string(from: notification.createdAt)
-        if let localDate = Helper.localDateFormatter.date(from: localDateString) {
-            timeView.text = Helper.fullRelativeDateFormatter.localizedString(for: localDate, relativeTo: Date())
-        }
+//        if let currentNotification, notification.id != currentNotification.id {
+//            iconView.isHidden = true
+//            avatarView.isHidden = true
+//            iconView.image = nil
+//            iconView.tintColor = UIColor.clear
+//            avatarView.image = nil
+//            avatarView.backgroundColor = UIColor.clear
+//        }
+//
+//        currentNotification = notification
+//        unreadIndicatorView.layer.cornerRadius = 6
+//        unreadIndicatorView.isHidden = notification.isRead
+//        if currentNotification?.notificationParameters?.dynamic.commentAuthorThumbnail != nil {
+//            iconView.isHidden = true
+//            avatarView.isHidden = false
+//
+//            avatarView.rounded()
+//            avatarView.image = UIImage(named: "spaceman")
+//            avatarView.backgroundColor = Helper.lightPrimaryColor
+//            displayAuthorImage()
+//        } else {
+//            iconView.isHidden = false
+//            avatarView.isHidden = true
+//
+//            if ["first_subscription", "creator_subscriber"].contains(notification.notificationRule) {
+//                iconView.image = UIImage(systemName: Icons.notificationSubscription)
+//                iconView.tintColor = UIColor.systemRed
+//            } else {
+//                iconView.image = UIImage(systemName: Icons.notification)
+//                iconView.tintColor = Helper.primaryColor
+//            }
+//        }
+//
+//        titleView.text = notification.title
+//        bodyView.text = notification.text
+//        // FIXME: Make local directly
+//        let localDateString = Helper.localDateFormatter.string(from: notification.createdAt)
+//        if let localDate = Helper.localDateFormatter.date(from: localDateString) {
+//            timeView.text = Helper.fullRelativeDateFormatter.localizedString(for: localDate, relativeTo: Date())
+//        }
     }
 }

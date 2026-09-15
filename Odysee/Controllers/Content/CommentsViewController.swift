@@ -56,7 +56,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         super.viewWillAppear(animated)
 
         postCommentAreaView.translatesAutoresizingMaskIntoConstraints = false
-        if !Lbryio.isSignedIn() || commentsDisabled {
+        if !Account.signedIn || commentsDisabled {
             postCommentAreaView.isHidden = true
             postCommentAreaHeightConstraint.isActive = false
             postCommentAreaHiddenConstraint.isActive = true
@@ -67,7 +67,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
         }
 
         Task {
-            if Lbryio.isSignedIn() {
+            if Account.signedIn {
                 await loadChannels()
             }
 
@@ -294,7 +294,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
 
             channels.removeAll(keepingCapacity: true)
             channels.append(contentsOf: page.items)
-            Lbry.ownChannels = channels
+//            Lbry.ownChannels = channels
             channelDriverView.isHidden = channels.count > 0
             channelDriverHeightConstraint.constant = channels.count > 0 ? 0 : 68
             if let picker = commentAsPicker {
@@ -468,7 +468,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     @IBAction func channelDriverTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
             return
@@ -553,7 +553,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func react(_ comment: Comment, type: String) {
-        guard Lbryio.isSignedIn() else {
+        guard Account.signedIn else {
             showUAView()
             return
         }
@@ -795,7 +795,7 @@ class CommentsViewController: UIViewController, UITableViewDelegate, UITableView
     }
 
     func setReplyToComment(_ comment: Comment) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             showUAView()
             return
         }

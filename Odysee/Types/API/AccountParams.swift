@@ -1,5 +1,5 @@
 //
-//  AccountAPIParams.swift
+//  AccountParams.swift
 //  Odysee
 //
 //  Created by Keith Toh on 24/12/2025.
@@ -57,6 +57,10 @@ struct SyncSetParams: Encodable, AccountMethodParams {
     var oldHash: String
     var newHash: String
     var data: String
+}
+
+struct NotificationListParams: Encodable, AccountMethodParams {
+    let isAppReadable = true
 }
 
 struct SubscriptionNewParams: Encodable, AccountMethodParams {

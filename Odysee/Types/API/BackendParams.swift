@@ -1,5 +1,5 @@
 //
-//  BackendAPIParams.swift
+//  BackendParams.swift
 //  Odysee
 //
 //  Created by Adlai Holler on 6/24/21.

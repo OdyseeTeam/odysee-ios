@@ -21,34 +21,30 @@ class ClaimFiltering: ObservableObject {
     @Published private var odyseeLocale: LocaleGetResult?
     @Published private var geoBlockedRules = GeoBlockedListResult.Rules()
 
-    // FIXME: If fails to load, fail open or closed?
-    // At the moment is fail open (all content allowed)
-    private init() {
-        Task {
-            do {
-                try await loadAll()
-            } catch {
-                await Helper.showError(error: error)
-            }
-        }
-    }
+    private init() {}
 
-    private func loadAll() async throws {
-        appleBlockedClaimIds = try await AccountMethods.listAppleBlockedClaimIds.call(
-            params: .init(), authTokenOverride: ""
-        ).claimIds
-        blockedClaimIds = try await AccountMethods.listBlockedClaimIds.call(
-            params: .init(), authTokenOverride: ""
-        ).claimIds
-        filteredClaimIds = try await AccountMethods.listFilteredClaimIds.call(
-            params: .init(), authTokenOverride: ""
-        ).claimIds
+    func loadAll() async throws {
+        async let appleBlockedClaimIds = AccountMethods.listAppleBlockedClaimIds.call(params: .init()).claimIds
+        async let blockedClaimIds = AccountMethods.listBlockedClaimIds.call(params: .init()).claimIds
+        async let filteredClaimIds = AccountMethods.listFilteredClaimIds.call(params: .init()).claimIds
 
         // FIXME: Doc: allow not getting locale, means geo blocked will be always blocked?
-        odyseeLocale = try? await AccountMethods.localeGet.call(params: .init())
-        geoBlockedRules = try await AccountMethods.geoBlockedList.call(
-            params: .init(), authTokenOverride: ""
-        ).rules
+        async let odyseeLocale = AccountMethods.localeGet.call(params: .init())
+        async let geoBlockedRules = AccountMethods.geoBlockedList.call(params: .init()).rules
+
+        (
+            self.appleBlockedClaimIds,
+            self.blockedClaimIds,
+            self.filteredClaimIds,
+            self.odyseeLocale,
+            self.geoBlockedRules
+        ) = try await (
+            appleBlockedClaimIds,
+            blockedClaimIds,
+            filteredClaimIds,
+            odyseeLocale,
+            geoBlockedRules
+        )
     }
 
     enum Reason {

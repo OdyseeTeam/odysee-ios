@@ -98,10 +98,10 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         // Do any additional setup after loading the view
         updateMiniPlayer()
 
-        if Lbryio.isSignedIn() {
+        if Account.signedIn {
             // FIXME: This only runs after reopening app, not immediately when signing in
             // check if the user is pending_delete
-            if let pendingDeletion = Lbryio.currentUser?.pendingDeletion, pendingDeletion {
+            if Account.user?.pendingDeletion ?? false {
                 Task {
                     await resetUserAndViews()
                     rerunInit()
@@ -119,8 +119,8 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         super.viewDidAppear(animated)
 
         walletBalanceTask = Task {
-            for await balance in Globals.$walletBalance.values {
-                mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance?.total)
+            for await balance in Account.$walletBalance.values {
+                mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.total)
             }
         }
     }
@@ -173,7 +173,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
     }
 
     func checkAndShowYouTubeSync() {
-        guard let channels = Lbryio.currentUser?.youtubeChannels,
+        guard let channels = Account.user?.youtubeChannels,
               // Prompt Claim Channel(s) if "Your videos are ready to be transferred."
               YouTubeSyncScreen.ViewModel.transferEnabled(channels: channels)
         else {
@@ -185,7 +185,6 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
 
     func resetUserAndViews() async {
         // FIXME: Change
-        Lbry.walletBalance = nil
         mainBalanceLabel.text = "0"
         notificationBadgeView.isHidden = true
         notificationBadgeCountLabel.text = ""
@@ -195,7 +194,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         await AuthToken.reset()
         Wallet.shared.reset()
         // FIXME: claimfiltering reset?
-        // FIXME: Globals reset
+//        Account.shared.reset() // FIXME: Reset called by user updated
 
         // clear the wallet address if it exists
         UserDefaults.standard.removeObject(forKey: Helper.keyReceiveAddress)
@@ -380,7 +379,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
     }
 
     func checkUploadButton() {
-        uploadButtonView.isHidden = !Lbryio.isSignedIn()
+        uploadButtonView.isHidden = !Account.signedIn
     }
 
 //
@@ -552,7 +551,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         }
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
-        Lbry.ownChannels = channels
+//        Lbry.ownChannels = channels
         if !channels.isEmpty {
             oneTimeChannelsAssociation(channels)
         }

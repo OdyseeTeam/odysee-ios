@@ -42,8 +42,8 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewWillAppear(_ animated: Bool) {
         AppDelegate.shared.mainController?.toggleHeaderVisibility(hidden: true)
 
-        if Lbryio.isSignedIn() {
-            if !(Lbryio.currentUser?.isRewardApproved ?? false) {
+        if Account.signedIn {
+            if !(Account.user?.isRewardApproved ?? false) {
                 fetchUserAndCheckRewardStatus()
             } else {
                 // showRewardEligibleView()
@@ -54,23 +54,23 @@ class RewardsViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
 
     func fetchUserAndCheckRewardStatus() {
-        // check reward approved status first
-        do {
-            try Lbryio.fetchCurrentUser(completion: { user, _ in
-                if user == nil || !(user?.isRewardApproved ?? false) {
-                    self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
-                    self.showVerification()
-                } else {
-                    self.frDelegate?.requestFinished(showSkip: false, showContinue: true)
-                    // self.showRewardEligibleView()
-                    self.showRewardsList()
-                }
-            })
-        } catch {
-            // pass
-            frDelegate?.requestFinished(showSkip: true, showContinue: false)
-            showVerification()
-        }
+//        // check reward approved status first
+//        do {
+//            try Lbryio.fetchCurrentUser(completion: { user, _ in
+//                if user == nil || !(user?.isRewardApproved ?? false) {
+//                    self.frDelegate?.requestFinished(showSkip: true, showContinue: false)
+//                    self.showVerification()
+//                } else {
+//                    self.frDelegate?.requestFinished(showSkip: false, showContinue: true)
+//                    // self.showRewardEligibleView()
+//                    self.showRewardsList()
+//                }
+//            })
+//        } catch {
+//            // pass
+//            frDelegate?.requestFinished(showSkip: true, showContinue: false)
+//            showVerification()
+//        }
     }
 
     override func viewDidAppear(_ animated: Bool) {

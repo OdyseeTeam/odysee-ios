@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum Icons {
     static let re = if #available(iOS 18, *) {
@@ -61,8 +62,10 @@ enum Icons {
     static let youtubeSyncCompleted = "checkmark.circle"
     static let youtubeSyncIncomplete = "circle"
 
-    static let notificationSubscription = "heart.fill"
-    static let notification = "star"
+    static let notificationSubscription = "heart"
+    static let notificationSubscriptionColor = Color(red: 226 / 255.0, green: 73 / 255.0, blue: 94 / 255.0)
+    static let notificationFiatTip = "dollarsign.circle.fill"
+    static let notification = "bell"
 
     static let playlistPlay = "play.circle"
     static let playlistUnsave = "minus.square"

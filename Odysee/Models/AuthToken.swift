@@ -5,10 +5,15 @@
 //  Created by Keith Toh on 24/12/2025.
 //
 
+import Base58Swift
+import CryptoKit
 import FirebaseCrashlytics
 import Foundation
 
 actor AuthToken {
+    private static let keyHasRunAfterInstall = "hasRunAfterInstall"
+    static let keyAppId = "AppInstallationId"
+
     private static let shared = AuthToken()
 
     static var token: String {
@@ -24,6 +29,11 @@ actor AuthToken {
             do {
                 _ = try await AccountMethods.userSignOut.call(params: .init())
             } catch {
+                // FIXME: This is in init if authenticate fails, can't show
+                // FIXME: Just drop as sign out should be idempotent
+                // Actually important since failure to sign out leaves an orphaned token
+                // When doing manual sign out
+                // FIXME: Version that throws
                 await Helper.showError(error: error)
             }
         }
@@ -44,6 +54,14 @@ actor AuthToken {
             return token
         }
 
+        // Can be a reinstall after uninstall, in which case UserDefaults is cleared but not Keychain
+        // Reset the stored token and delete from Keychain, then generate again
+        if UserDefaults.standard.object(forKey: Self.keyHasRunAfterInstall) == nil {
+            reset()
+            UserDefaults.standard.set(true, forKey: Self.keyHasRunAfterInstall)
+            return await tryGenerate()
+        }
+
         if let loaded = loadAuthToken() {
             token = loaded
             return loaded
@@ -54,7 +72,7 @@ actor AuthToken {
 
     /// Handles errors and retries
     private func tryGenerate() async -> String {
-        repeat {
+        while true {
             do {
                 return try await generate()
             } catch {
@@ -63,33 +81,75 @@ actor AuthToken {
             }
 
             try? await Task.sleep(nanoseconds: 1_000_000_000)
-        } while true
+        }
     }
 
     /// Will persist the token to the actor and to Keychain
     private func generate() async throws -> String {
-        guard let installationId = Lbry.installationId, !installationId.isBlank else {
-            throw LbryioRequestError.runtimeError("The installation ID is not set")
+        let appId = if let appId = UserDefaults.standard.string(forKey: Self.keyAppId), !appId.isBlank {
+            appId
+        } else {
+            try Self.generateAppId()
         }
 
-        let userNew = try await AccountMethods.userNew.call(
-            params: .init(appId: installationId),
-            authTokenOverride: ""
-        )
+        let userNew = try await AccountMethods.userNew.call(params: .init(appId: appId))
 
         token = userNew.authToken
         persistAuthToken(token: userNew.authToken)
         return userNew.authToken
     }
 
+    // - MARK: Installation ID
+
+    /// Will persist the ID to UserDefaults
+    private static func generateAppId() throws -> String {
+        var bytes = [UInt8](repeating: 0, count: 64)
+        let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+
+        guard status == errSecSuccess else {
+            throw SecurityFrameworkError(status: status)
+        }
+
+        let hash = SHA384.hash(data: Data(bytes))
+        let appId = Base58.base58Encode(Array(hash.makeIterator()))
+
+        UserDefaults.standard.set(appId, forKey: Self.keyAppId)
+
+        return appId
+    }
+
+    struct SecurityFrameworkError: LocalizedError, CustomNSError {
+        let status: OSStatus
+
+        var errorDescription: String {
+            SecCopyErrorMessageString(status, nil) as String? ?? __("OSStatus \(status)")
+        }
+
+        var errorUserInfo: [String: Any] {
+            [NSLocalizedDescriptionKey: errorDescription]
+        }
+    }
+
     // - MARK: Keychain
 
     // Report errors but don't throw/crash, because user can just log in again
 
-    enum KeychainError: Error {
-        case noPassword
+    enum KeychainError: LocalizedError, CustomNSError {
         case unexpectedPasswordData
-        case unhandledError(status: OSStatus)
+        case secError(SecurityFrameworkError)
+
+        var errorDescription: String {
+            switch self {
+            case .unexpectedPasswordData:
+                __("Auth Token from Keychain could not be decoded")
+            case let .secError(securityFrameworkError):
+                __("Keychain error: \(securityFrameworkError.errorDescription)")
+            }
+        }
+
+        var errorUserInfo: [String: Any] {
+            [NSLocalizedDescriptionKey: errorDescription]
+        }
     }
 
     private func persistAuthToken(token: String) {
@@ -103,7 +163,7 @@ actor AuthToken {
 
         let status = SecItemAdd(query as CFDictionary, nil)
         guard status == errSecSuccess else {
-            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unhandledError(status: status))
+            Crashlytics.crashlytics().recordImmediate(error: KeychainError.secError(.init(status: status)))
             return
         }
     }
@@ -120,11 +180,10 @@ actor AuthToken {
         let status = SecItemCopyMatching(query as CFDictionary, &item)
         guard status != errSecItemNotFound else {
             // No need to log this when it's expected first-run behavior
-            // Crashlytics.crashlytics().recordImmediate(error: KeychainError.noPassword)
             return nil
         }
         guard status == errSecSuccess else {
-            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unhandledError(status: status))
+            Crashlytics.crashlytics().recordImmediate(error: KeychainError.secError(.init(status: status)))
             return nil
         }
 
@@ -145,7 +204,7 @@ actor AuthToken {
         ]
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
-            Crashlytics.crashlytics().recordImmediate(error: KeychainError.unhandledError(status: status))
+            Crashlytics.crashlytics().recordImmediate(error: KeychainError.secError(.init(status: status)))
             return
         }
     }

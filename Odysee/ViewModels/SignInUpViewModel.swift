@@ -47,9 +47,10 @@ extension SignInUpScreen {
             emailVerificationWait = Task {
                 while true {
                     do {
-                        let user = try await Lbryio.fetchCurrentUser()
+                        try await Account.shared.loadCurrentUser()
 
-                        if user.hasVerifiedEmail ?? false {
+                        // FIXME: Isn't this just issignedin
+                        if Account.user?.hasVerifiedEmail ?? false {
                             finish()
 
                             return
@@ -150,12 +151,7 @@ extension SignInUpScreen {
             }
 
             do {
-                let user = try await AccountMethods.userSignIn.call(params: .init(email: email, password: password))
-
-                Lbryio.currentUser = user
-                if let id = user.id {
-                    Analytics.setDefaultEventParameters(["user_id": id])
-                }
+                try await Account.shared.signInUser(params: .init(email: email, password: password))
 
                 finish()
 

@@ -119,7 +119,7 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
         channels.removeAll(keepingCapacity: true)
         addNewPlaceholder()
         channels.append(contentsOf: page.items)
-        Lbry.ownChannels = channels.filter { $0.claimId != "new" }
+//        Lbry.ownChannels = channels.filter { $0.claimId != "new" }
         checkNoChannels()
         channelListView.reloadData()
     }
@@ -256,14 +256,15 @@ class ChannelManagerViewController: UIViewController, UITableViewDelegate, UITab
     }
 
     @IBAction func newChannelTapped(_ sender: Any) {
-        guard let user = Lbryio.currentUser else {
+        guard let user = Account.user else {
             showError(message: "Failed to get current user")
             return
         }
 
         var ids = channels.compactMap(\.claimId)
-        if let ytChannels = user.youtubeChannels, ytChannels.count > 0 {
-            let ytChannelIds = Set(ytChannels.compactMap(\.channelClaimId))
+        // FIXME: Refactor
+        if user.youtubeChannels.count > 0 {
+            let ytChannelIds = Set(user.youtubeChannels.compactMap(\.channelClaimId))
             ids = ids.filter {
                 !ytChannelIds.contains($0)
             }

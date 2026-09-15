@@ -10,37 +10,37 @@ import Foundation
 import TaskGate
 
 @MainActor
+// FIXME: Rename appropriate (only handles SP and its sync)
 class Wallet: ObservableObject {
     static let shared = Wallet()
 
     /// Protected by `gate`
     private var remoteWalletHash: String?
-    @Published private(set) var prefs: SharedPreference
+    @Published private(set) var prefs = SharedPreference() // Default, should be replaced by pullSync immediately
     private let gate = AsyncGate()
 
     private var sync: Task<Void, Never>?
     private static let syncInterval: UInt64 = 300_000_000_000 // 5 minutes
     private static let syncRetryInterval: UInt64 = 10_000_000_000 // 10 seconds
 
-    private init() {
-        // Default, should be replaced by pullSync immediately
-        prefs = SharedPreference()
+    private init() {}
 
-        startSync()
-    }
+    /// Pulls sync once, causing caller to wait for data to be available, then
+    /// begins a sync loop, which must either wait on gate or cause others to wait on gate.\
+    /// This way there are no conflicts other than internal state that components copy before saving.
+    func startSync() async throws {
+        try await pullSync()
 
-    /// Begins a sync loop, which must either wait on gate or cause others to wait on gate
-    /// This way there are no conflicts other than internal state that components copy before saving
-    func startSync() {
-        guard Lbryio.isSignedIn(), sync == nil else {
+        guard Account.signedIn, sync == nil else {
             return
         }
 
         sync = Task {
             while true {
                 do {
-                    try await pullSync()
                     try await Task.sleep(nanoseconds: Self.syncInterval)
+
+                    try await pullSync()
                 } catch is CancellationError {
                     return
                 } catch {

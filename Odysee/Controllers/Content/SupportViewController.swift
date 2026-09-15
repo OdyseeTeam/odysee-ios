@@ -36,8 +36,8 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         )
 
         walletBalanceTask = Task {
-            for await balance in Globals.$walletBalance.values {
-                walletBalanceLabel.text = Helper.shortCurrencyFormat(value: balance?.available)
+            for await balance in Account.$walletBalance.values {
+                walletBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.available)
             }
         }
     }
@@ -91,7 +91,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
         channels.removeAll(keepingCapacity: true)
         addAnonymousPlaceholder()
         channels.append(contentsOf: page.items)
-        Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
+//        Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
         loadingSendSupportView.isHidden = true
         tipButton.isEnabled = true
         channelPickerView.reloadAllComponents()
@@ -182,7 +182,7 @@ class SupportViewController: UIViewController, UITextFieldDelegate, UIPickerView
             return
         }
 
-        if Lbry.walletBalance == nil || amount > Lbry.walletBalance?.available ?? 0 {
+        if amount > Account.walletBalance.available {
             showError(message: String.localized("Insufficient funds"))
             return
         }

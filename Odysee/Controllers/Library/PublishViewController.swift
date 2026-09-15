@@ -171,7 +171,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         channels.removeAll(keepingCapacity: true)
         addAnonymousPlaceholder()
         channels.append(contentsOf: page.items)
-        Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
+//        Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
         channelPickerView.reloadAllComponents()
 
         populateFieldsForEdit()
@@ -393,7 +393,7 @@ class PublishViewController: UIViewController, UIGestureRecognizerDelegate, UIPi
         } else {
             0
         }
-        if Lbry.walletBalance == nil || deposit - prevDeposit > Lbry.walletBalance?.available ?? 0 {
+        if deposit - prevDeposit > Account.walletBalance.available {
             showError(
                 message: "Please try to claim some credits on odysee.com directly or reach out to hello@odysee.com to get more credits"
             )

@@ -8,13 +8,13 @@
 import Foundation
 import ValueCodable
 
-struct Notification: Decodable {
+struct Notification: Decodable, Identifiable {
     var id: Int64
-    var notificationRule: String
+    var notificationRule: NotificationRule
     var isAppReadable: Bool
     var isRead: Bool
     var isSeen: Bool
-    var createdAt: Date
+    var activeAt: Date
     var notificationParameters: NotificationParameters?
 
     var title: String? {
@@ -35,8 +35,32 @@ struct Notification: Decodable {
         case isAppReadable = "is_app_readable"
         case isRead = "is_read"
         case isSeen = "is_seen"
-        case createdAt = "created_at"
+        case activeAt = "active_at"
         case notificationParameters = "notification_parameters"
+    }
+
+    enum NotificationRule: String, Decodable {
+        case creatorSubscriber = "creator_subscriber"
+
+        case comment
+        case creatorComment = "creator_comment"
+        case commentReply = "comment-reply"
+
+        case newContent = "new_content"
+
+        case newLivestream = "new_livestream"
+
+        case newMember = "new_member"
+
+        case weeklyWatchReminder = "weekly_watch_reminder"
+        case dailyWatchAvailable = "daily_watch_available"
+        case dailyWatchRemind = "daily_watch_remind"
+        case missedOut = "missed_out"
+        case rewardsApprovalPrompt = "rewards_approval_prompt"
+
+        case fiatTip = "fiat_tip"
+
+        case other
     }
 
     struct NotificationParameters: Decodable {
@@ -48,6 +72,11 @@ struct Notification: Decodable {
             case device
         }
 
+        init(device: Device, dynamic: Dynamic) {
+            self.device = device
+            self.dynamic = dynamic
+        }
+
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
 
@@ -57,15 +86,17 @@ struct Notification: Decodable {
             case "comment":
                 try .comment(container.decode(Dynamic.Comment.self, forKey: .dynamic))
             case "livestream":
-                try .livestream(container.decode(Dynamic.Claim.self, forKey: .dynamic))
+                try .livestream(container.decode(Dynamic.ClaimInfo.self, forKey: .dynamic))
             case "reply":
                 try .reply(container.decode(Dynamic.Reply.self, forKey: .dynamic))
+            case "reward":
+                .reward(())
             case "rewards":
-                try .rewards(container.decode(Dynamic.Reward.self, forKey: .dynamic))
+                try .rewards(container.decode(Dynamic.Rewards.self, forKey: .dynamic))
             case "subscription":
-                try .subscription(container.decode(Dynamic.Claim.self, forKey: .dynamic))
+                try .subscription(container.decodeIfPresent(Dynamic.ClaimInfo.self, forKey: .dynamic))
             default:
-                try .unknown(container.decode(Value.self, forKey: .dynamic)) // FIXME: Test
+                try .unknown(container.decode(Value.self, forKey: .dynamic))
             }
         }
 
@@ -79,10 +110,11 @@ struct Notification: Decodable {
 
         enum Dynamic {
             case comment(Comment)
-            case livestream(Claim)
+            case livestream(ClaimInfo)
             case reply(Reply)
-            case rewards(Reward)
-            case subscription(Claim)
+            case reward(Void)
+            case rewards(Rewards)
+            case subscription(ClaimInfo?)
 
             case unknown(Value)
 
@@ -122,7 +154,7 @@ struct Notification: Decodable {
                 }
             }
 
-            struct Claim: Decodable {
+            struct ClaimInfo: Decodable {
                 var claimTitle: String
                 var channelUrl: String
                 var channelThumbnail: String
@@ -160,7 +192,7 @@ struct Notification: Decodable {
                 }
             }
 
-            struct Reward: Decodable {
+            struct Rewards: Decodable {
                 var channelURI: String
             }
         }
