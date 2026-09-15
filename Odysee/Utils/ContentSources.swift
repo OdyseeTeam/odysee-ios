@@ -8,6 +8,7 @@
 import Foundation
 
 @MainActor
+// FIXME: ObservableObject with singleton for SwiftUI?
 enum ContentSources {
     static let languageCodeEN = "en"
     static let regionCodeUS = "US"

@@ -17,7 +17,7 @@ class YouTubeSyncViewController: UIViewController, UIGestureRecognizerDelegate {
             viewChannel: { [weak self] name, claimId in
                 self?.viewChannel(name: name, claimId: claimId)
             },
-            model: .init(channels: Lbryio.currentUser?.youtubeChannels)
+            model: .init(channels: Account.user?.youtubeChannels)
         )
         let vc = UIHostingController(rootView: rootView)
         vc.view.translatesAutoresizingMaskIntoConstraints = false

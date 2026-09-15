@@ -5,9 +5,7 @@
 //  Created by Akinwale Ariwodola on 02/11/2020.
 //
 
-import Base58Swift
 import Combine
-import CryptoKit
 import Foundation
 import os
 import UIKit
@@ -45,22 +43,8 @@ enum Lbry {
     static let methodStreamUpdate = "stream_update"
     static let methodGet = "get"
     static let methodPublish = "publish"
-    static let methodPreferenceGet = "preference_get"
-    static let methodPreferenceSet = "preference_set"
     static let methodSupportCreate = "support_create"
-    static let methodSyncHash = "sync_hash"
-    static let methodSyncApply = "sync_apply"
-    static let methodWalletBalance = "wallet_balance"
-    static let methodWalletStatus = "wallet_status"
-    static let methodWalletUnlock = "wallet_unlock"
     static let methodWalletSend = "wallet_send"
-
-    static var installationId: String?
-    static let keyInstallationId = "AppInstallationId"
-
-    static var walletBalance: WalletBalance?
-
-    static var ownChannels: [Claim] = []
 
     private struct APIBody<CallParams: Encodable>: Encodable {
         var method: String
@@ -239,24 +223,6 @@ enum Lbry {
             })
             task.resume()
         }
-    }
-
-    static func generateId() -> String? {
-        return generateId(numBytes: 64)
-    }
-
-    static func generateId(numBytes: Int) -> String? {
-        var data = Data(count: numBytes)
-        let result = data.withUnsafeMutableBytes {
-            // swift-format-ignore
-            // All of this is unsafe
-            SecRandomCopyBytes(kSecRandomDefault, numBytes, $0.baseAddress!)
-        }
-        if result == errSecSuccess {
-            let hash = SHA384.hash(data: data)
-            return Base58.base58Encode(Array(hash.makeIterator()))
-        }
-        return nil
     }
 }
 

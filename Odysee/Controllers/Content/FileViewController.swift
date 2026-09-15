@@ -1955,7 +1955,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func fireTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             showUAView()
             return
         }
@@ -1963,7 +1963,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func slimeTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             showUAView()
             return
         }
@@ -1987,7 +1987,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func followUnfollowTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             showUAView()
             return
         }
@@ -2020,7 +2020,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func bellTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             // shouldn't be able to access this action if the user is not signed in, but just in case
             showUAView()
             return
@@ -2241,7 +2241,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     }
 
     @IBAction func supportActionTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             showUAView()
             return
         }
@@ -2402,7 +2402,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         }
         channels.removeAll(keepingCapacity: true)
         channels.append(contentsOf: page.items)
-        Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
+//        Lbry.ownChannels = channels.filter { $0.claimId != Claim.anonymous.claimId }
         let defaultChannelId = Wallet.prefs.defaultChannelId
         let index = channels.firstIndex { $0.claimId == defaultChannelId } ?? 0
         if channels.count > index, currentCommentAsIndex == -1 {

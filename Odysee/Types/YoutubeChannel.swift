@@ -1,5 +1,5 @@
 //
-//  AccountYoutubeChannel.swift
+//  YoutubeChannel.swift
 //  Odysee
 //
 //  Created by Keith Toh on 12/02/2026.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AccountYoutubeChannel: Decodable {
+struct YoutubeChannel: Decodable {
     var ytChannelId: String
     var ytChannelName: String
     var lbryChannelName: String
@@ -76,7 +76,7 @@ struct AccountYoutubeChannel: Decodable {
     }
 }
 
-extension AccountYoutubeChannel: Identifiable {
+extension YoutubeChannel: Identifiable {
     var id: String {
         ytChannelId
     }

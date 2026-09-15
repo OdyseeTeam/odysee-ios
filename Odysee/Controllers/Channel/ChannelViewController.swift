@@ -104,12 +104,12 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             checkNotificationsDisabled()
         }
 
-        if !Lbryio.isSignedIn(), pageControl.currentPage == 2 {
+        if !Account.signedIn, pageControl.currentPage == 2 {
             pageControl.currentPage = 1
             updateScrollViewForPage(page: pageControl.currentPage)
         }
 
-        if Lbryio.isSignedIn() {
+        if Account.signedIn {
             loadChannels()
         }
 
@@ -174,17 +174,6 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             displayCommentsView()
         } else {
             displayNothingAtLocation()
-        }
-
-        Task {
-            if let page = try? await BackendMethods.claimList.call(params: .init(
-                claimType: [.channel],
-                page: 1,
-                pageSize: 999,
-                resolve: true
-            )) {
-                Lbry.ownChannels = page.items
-            }
         }
 
         Task {
@@ -829,7 +818,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func tipActionTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             showUAView()
             return
         }
@@ -845,7 +834,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func blockUnblockActionTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             showUAView()
             return
         }
@@ -855,7 +844,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
             return
         }
 
-        guard !Lbry.ownChannels.contains(where: { $0.claimId == claimId }) else {
+        guard !Account.channels.contains(where: { $0.claimId == claimId }) else {
             Helper.showError(message: "you cannot block one of your own channels")
             return
         }
@@ -904,7 +893,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func followUnfollowActionTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             showUAView()
             return
         }
@@ -937,7 +926,7 @@ class ChannelViewController: UIViewController, UIGestureRecognizerDelegate, UISc
     }
 
     @IBAction func bellActionTapped(_ sender: Any) {
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             showUAView()
             return
         }

@@ -110,7 +110,8 @@ class UserAccountViewController: UIViewController {
     }
 
     func finishWithWalletSync() {
-        Wallet.shared.startSync()
+        // FIXME:
+//        Wallet.shared.startSync()
 
         AppDelegate.shared.mainController?.checkUploadButton()
         AppDelegate.shared.mainController?.checkAndClaimEmailReward(completion: {})
@@ -137,7 +138,7 @@ class UserAccountViewController: UIViewController {
         if popViewController {
             AppDelegate.shared.mainNavigationController?.popViewController(animated: false)
         }
-        guard let channels = Lbryio.currentUser?.youtubeChannels,
+        guard let channels = Account.user?.youtubeChannels,
               // Prompt Claim Channel(s) if "Your videos are ready to be transferred."
               YouTubeSyncScreen.ViewModel.transferEnabled(channels: channels)
         else {

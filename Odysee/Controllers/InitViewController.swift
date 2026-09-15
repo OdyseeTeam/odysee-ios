@@ -15,6 +15,7 @@ class InitViewController: UIViewController {
     @IBOutlet var errorLabel: UILabel!
     @IBOutlet var loadingIndicator: UIActivityIndicatorView!
 
+    // FIXME: Doc
     /// Init process flow
     /// 1. Load/Generate installationId
     /// 2. loadCategories
@@ -23,41 +24,36 @@ class InitViewController: UIViewController {
     /// 5. Register install (Lbryio analytics, FCM token)
     /// 6. Switch to MainViewController
     func runInit() async {
-        let defaults = UserDefaults.standard
-
-        if defaults.object(forKey: Helper.keyHasRunAfterInstall) == nil {
-            await AuthToken.reset()
-            defaults.set(true, forKey: Helper.keyHasRunAfterInstall)
-        }
-
-        Lbry.installationId = defaults.string(forKey: Lbry.keyInstallationId)
-        if Lbry.installationId.isBlank {
-            Lbry.installationId = Lbry.generateId()
-            defaults.set(Lbry.installationId, forKey: Lbry.keyInstallationId)
-        }
-
         do {
             try await ContentSources.loadCategories()
+
+            // FIXME: If fails to load, fail open or closed?
+            // At the moment is fail open (all content allowed) and will just log error
+            // FIXME: Combine with loading categories?
+            try await ClaimFiltering.shared.loadAll()
         } catch {
             // Just log this error, but proceed with placeholder discover category
             logError(error: error)
         }
 
         do {
-            // Singleton init loads/generates auth token
-            _ = await AuthToken.token
+            while true {
+                // Singleton init loads/generates auth token
+                _ = await AuthToken.token
 
-            try await authenticate()
+                do {
+                    // Load current user; which loads Globals, starts wallet balance loop, and Wallet sync
+                    try await Account.shared.loadCurrentUser()
+
+                    break
+                } catch LbryioResponseError.error(_, 403) {
+                    // invalidated auth token, get a new one
+                    Lbryio.Defaults.reset()
+                    await AuthToken.reset()
+                }
+            }
 
             try await registerInstall()
-
-            // Singleton init loads Wallet and SharedPreference data
-            _ = Wallet.shared
-            // Singleton init loads block and filter rules
-            _ = ClaimFiltering.shared
-            // FIXME: Singleton to load notifications
-            // Singleton init loads Globals and starts wallet balance loop
-            _ = Globals.shared
 
             // successful authentication and install registration
             // open the main application interface
@@ -86,22 +82,8 @@ class InitViewController: UIViewController {
         errorView.layer.cornerRadius = 16
     }
 
-    /// fetchCurrentUser (through `AccountMethods/.../call`) will generate an AuthToken if none is stored
-    func authenticate() async throws {
-        do {
-            // Sets Analytics user_id
-            _ = try await Lbryio.fetchCurrentUser()
-        } catch LbryioResponseError.error(_, 403) {
-            // invalidated auth token, get a new one
-            Lbryio.Defaults.reset()
-            await AuthToken.reset()
-
-            try await authenticate()
-        }
-    }
-
     func registerInstall() async throws {
-        guard let installationId = Lbry.installationId, !installationId.isBlank else {
+        guard let appId = UserDefaults.standard.string(forKey: AuthToken.keyAppId), !appId.isBlank else {
             throw LbryioRequestError.runtimeError("The installation ID is not set")
         }
 
@@ -115,7 +97,7 @@ class InitViewController: UIViewController {
 
         _ = try await AccountMethods.installNew.call(params: .init(
             appVersion: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
-            appId: installationId,
+            appId: appId,
             firebaseToken: token
         ))
     }

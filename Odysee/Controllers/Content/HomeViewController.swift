@@ -30,7 +30,7 @@ class HomeViewController: UIViewController,
     var miniPlayerTopTask: Task<Void, Never>?
 
     lazy var library = {
-        let rootView = LibraryScreen()
+        let rootView = NotificationsScreen()
         let vc = UIHostingController(rootView: rootView)
         vc.view.translatesAutoresizingMaskIntoConstraints = false
         return vc

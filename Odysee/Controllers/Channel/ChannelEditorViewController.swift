@@ -162,7 +162,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         }
 
         // FIXME: Needs to load fresh
-        if !editMode && Lbry.ownChannels.filter({ $0.name?.lowercased() == name.lowercased() }).first != nil {
+        if !editMode && Account.channels.filter({ $0.name?.lowercased() == name.lowercased() }).first != nil {
             showError(message: String.localized("A channel with the specified name already exists"))
             return
         }
@@ -175,7 +175,7 @@ class ChannelEditorViewController: UIViewController, UITextFieldDelegate, UIGest
         } else {
             0
         }
-        if Lbry.walletBalance == nil || deposit - prevDeposit > Lbry.walletBalance?.available ?? 0 {
+        if deposit - prevDeposit > Account.walletBalance.available {
             showError(
                 message: "Please try to claim some credits on odysee.com directly or reach out to hello@odysee.com to get more credits"
             )

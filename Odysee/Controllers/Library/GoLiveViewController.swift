@@ -474,7 +474,7 @@ class GoLiveViewController: UIViewController, UIPickerViewDataSource, UIPickerVi
         }
 
         let deposit = Helper.minimumDeposit
-        if Lbry.walletBalance == nil || deposit > Lbry.walletBalance?.available ?? 0 {
+        if deposit > Account.walletBalance.available {
             showError(
                 message: "Please try to claim some credits on odysee.com directly or reach out to hello@odysee.com to get more credits"
             )

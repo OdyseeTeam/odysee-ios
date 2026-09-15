@@ -12,10 +12,11 @@ struct Method<ParamType: Encodable, ResultType: Decodable> {
     var name: String
     var defaultTransform: ((inout ResultType) throws -> Void)?
 
-    // For Lbryio
+    /// For AccountMethods
     var method: Method = .POST
 
     enum Method: String {
+        /// For methods that don't require authentication; can be cached by intermediate servers
         case GET
         case POST
     }
@@ -46,14 +47,10 @@ extension Method where ParamType: BackendMethodParams {
     func call(
         params: ParamType,
         url: URL = Lbry.lbrytvURL,
-        authTokenOverride: String? = nil,
         transform: ((inout ResultType) throws -> Void)? = nil
     ) async throws -> ResultType {
-        // Intentionally allow blank for calls that need it
-        let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
-
         let task = Task.detached(priority: .userInitiated) {
-            let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: authToken)
+            let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: await AuthToken.token)
 
             let (data, urlResponse) = try await URLSession.shared.data(for: request)
 
@@ -61,7 +58,13 @@ extension Method where ParamType: BackendMethodParams {
                 throw LbryioRequestError.invalidResponse(urlResponse)
             }
 
-            print("MYLOG", name, httpResponse.statusCode, String(data: data, encoding: .utf8))
+            // swift-format-ignore
+            print(
+                "NETLOG",
+                name,
+                httpResponse.statusCode,
+                String(data: data, encoding: .utf8)!.prefix(20).replacingOccurrences(of: "\n", with: " ")
+            )
 
             // FIXME: All call check respcode OK before decode
             let respCode = httpResponse.statusCode
@@ -107,16 +110,20 @@ extension Method where ParamType: CommentsMethodParams {
     func call(
         params: ParamType,
         url: URL = Lbry.commentronURL,
-        authTokenOverride: String? = nil,
         transform: ((inout ResultType) throws -> Void)? = nil
     ) async throws -> ResultType {
-        // Intentionally allow blank for calls that need it
-        let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
-
         let task = Task.detached(priority: .userInitiated) {
-            let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: authToken)
+            let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: await AuthToken.token)
 
-            let (data, _) = try await URLSession.shared.data(for: request)
+            let (data, r) = try await URLSession.shared.data(for: request)
+
+            // swift-format-ignore
+            print(
+                "NETLOG",
+                name,
+                (r as! HTTPURLResponse).statusCode,
+                String(data: data, encoding: .utf8)!.prefix(20).replacingOccurrences(of: "\n", with: " ")
+            )
 
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
@@ -141,21 +148,23 @@ extension Method where ParamType: CommentsMethodParams {
 }
 
 extension Method where ParamType: AccountMethodParams {
-    func call(
-        params: ParamType,
-        authTokenOverride: String? = nil,
-    ) async throws -> ResultType {
-        // Intentionally allow blank for calls that need it
-        let authToken = authTokenOverride != nil ? authTokenOverride : await AuthToken.token
+    init(get name: String) {
+        self.init(name: name, method: .GET)
+    }
 
+    init(post name: String) {
+        self.init(name: name)
+    }
+
+    func call(params: ParamType) async throws -> ResultType {
         let url = "\(Lbryio.connectionString)/\(name)"
         guard var requestUrl = URL(string: url) else {
             throw LbryioRequestError.invalidUrl(url)
         }
 
         var queryItems = try QueryItemsEncoder().encode(params)
-        queryItems.append(URLQueryItem(name: AccountMethods.authTokenParam, value: authToken))
 
+        // For methods that don't require authentication, use GET and encode in the URL
         if method == .GET {
             guard var components = URLComponents(string: url) else {
                 throw LbryioRequestError.invalidUrl(url)
@@ -180,7 +189,10 @@ extension Method where ParamType: AccountMethodParams {
         var req = URLRequest(url: requestUrl)
         req.httpMethod = method.rawValue
 
+        // For methods that require authentication, use POST and encode in the request body
         if method == .POST {
+            queryItems.append(URLQueryItem(name: AccountMethods.authTokenParam, value: await AuthToken.token))
+
             var components = URLComponents()
             components.queryItems = queryItems
 
@@ -198,6 +210,14 @@ extension Method where ParamType: AccountMethodParams {
         guard let httpResponse = urlResponse as? HTTPURLResponse else {
             throw LbryioRequestError.invalidResponse(urlResponse)
         }
+
+        // swift-format-ignore
+        print(
+            "NETLOG",
+            name,
+            httpResponse.statusCode,
+            String(data: data, encoding: .utf8)!.prefix(20).replacingOccurrences(of: "\n", with: " ")
+        )
 
         let respCode = httpResponse.statusCode
 
@@ -272,35 +292,37 @@ enum AccountMethods {
 
     struct NilType: Codable, AccountMethodParams {}
 
-    static let fileLastPositions = Method<FileLastPositionsParams, FileLastPositionsResult>(name: "file/last_positions")
-    static let userMe = Method<NilType, User>(name: "user/me", method: .GET)
-    static let userNew = Method<UserNewParams, UserNewResult>(name: "user/new")
-    static let userExists = Method<UserExistsParams, UserExistsResult>(name: "user/exists")
-    static let userSignUp = Method<UserSignInUpParams, NilType>(name: "user/signup")
-    static let userSignIn = Method<UserSignInUpParams, User>(name: "user/signin")
-    static let userSignOut = Method<NilType, NilType>(name: "user/signout")
-    static let userEmailResendToken = Method<UserEmailResendTokenParams, NilType>(name: "user_email/resend_token")
-    static let installNew = Method<InstallNewParams, NilType>(name: "install/new")
-    static let syncGet = Method<SyncGetParams, SyncGetResult>(name: "sync/get")
-    static let syncSet = Method<SyncSetParams, SyncSetResult>(name: "sync/set")
-    static let localeGet = Method<NilType, LocaleGetResult>(name: "locale/get", method: .GET)
-    static let geoBlockedList = Method<NilType, GeoBlockedListResult>(name: "geo/blocked_list")
-    static let subscriptionNew = Method<SubscriptionNewParams, NilType>(name: "subscription/new")
-    static let subscriptionDelete = Method<SubscriptionDeleteParams, NilType>(name: "subscription/delete")
-    static let viewHistory = Method<ViewHistoryParams, Page<ViewHistory>>(name: "user/view_history")
-    static let viewHistoryDelete = Method<ViewHistoryDeleteParams, NilType>(name: "user/view_history/delete")
-    static let viewHistoryDeleteAll = Method<NilType, NilType>(name: "user/view_history/delete")
-    static let ytNew = Method<YtNewParams, String>(name: "yt/new")
-    static let ytTransfer = Method<YtTransferParams, YtTransferResult>(name: "yt/transfer")
+    static let fileLastPositions = Method<FileLastPositionsParams, FileLastPositionsResult>(post: "file/last_positions")
+    static let userMe = Method<NilType, User>(post: "user/me")
+    static let userNew = Method<UserNewParams, UserNewResult>(post: "user/new")
+    static let userExists = Method<UserExistsParams, UserExistsResult>(post: "user/exists")
+    static let userSignUp = Method<UserSignInUpParams, NilType>(post: "user/signup")
+    static let userSignIn = Method<UserSignInUpParams, User>(post: "user/signin")
+    static let userSignOut = Method<NilType, NilType>(post: "user/signout")
+    static let userEmailResendToken = Method<UserEmailResendTokenParams, NilType>(post: "user_email/resend_token")
+    // FIXME: Only run on install/token change
+    static let installNew = Method<InstallNewParams, NilType>(post: "install/new")
+    static let syncGet = Method<SyncGetParams, SyncGetResult>(post: "sync/get")
+    static let syncSet = Method<SyncSetParams, SyncSetResult>(post: "sync/set")
+    static let localeGet = Method<NilType, LocaleGetResult>(post: "locale/get")
+    static let geoBlockedList = Method<NilType, GeoBlockedListResult>(post: "geo/blocked_list")
+    static let notificationList = Method<NotificationListParams, NotificationListResult>(post: "notification/list")
+    static let subscriptionNew = Method<SubscriptionNewParams, NilType>(post: "subscription/new")
+    static let subscriptionDelete = Method<SubscriptionDeleteParams, NilType>(post: "subscription/delete")
+    static let viewHistory = Method<ViewHistoryParams, Page<ViewHistory>>(post: "user/view_history")
+    static let viewHistoryDelete = Method<ViewHistoryDeleteParams, NilType>(post: "user/view_history/delete")
+    static let viewHistoryDeleteAll = Method<NilType, NilType>(post: "user/view_history/delete")
+    static let ytNew = Method<YtNewParams, String>(post: "yt/new")
+    static let ytTransfer = Method<YtTransferParams, YtTransferResult>(post: "yt/transfer")
 
-    static let ytTransferStatusCheck = Method<NilType, YtTransferResult>(name: "yt/transfer")
+    static let ytTransferStatusCheck = Method<NilType, YtTransferResult>(post: "yt/transfer")
     static let listAppleBlockedClaimIds = Method<ListAppleBlockedClaimIdsParams, FileListClaimIdsResult>(
-        name: "file/list_blocked", method: .GET
+        get: "file/list_blocked"
     )
     static let listBlockedClaimIds = Method<FileListClaimIdsParams, FileListClaimIdsResult>(
-        name: "file/list_blocked", method: .GET
+        get: "file/list_blocked"
     )
     static let listFilteredClaimIds = Method<FileListClaimIdsParams, FileListClaimIdsResult>(
-        name: "file/list_filtered", method: .GET
+        get: "file/list_filtered"
     )
 }

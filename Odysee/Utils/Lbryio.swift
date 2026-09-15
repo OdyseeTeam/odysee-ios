@@ -5,9 +5,7 @@
 //  Created by Akinwale Ariwodola on 10/11/2020.
 //
 
-import FirebaseAnalytics
 import FirebaseCrashlytics
-import FirebaseMessaging
 import Foundation
 import os
 
@@ -20,6 +18,7 @@ enum Lbryio {
         }
     }
 
+    // FIXME: Remove
     enum Defaults {
         private enum Key: String {
             case ChannelsAssociated
@@ -70,9 +69,6 @@ enum Lbryio {
 
     static let connectionString = "https://api.odysee.com"
     static let wsCommmentBaseUrl = "wss://comments.lbry.com/api/v2/live-chat/subscribe?subscription_id="
-
-    // FIXME: Remove
-    static var currentUser: User?
 
     static func get(
         resource: String,
@@ -244,50 +240,6 @@ enum Lbryio {
         return qs
     }
 
-    static func isSignedIn() -> Bool {
-        return currentUser != nil && !(currentUser?.primaryEmail).isEmpty
-    }
-
-    static func fetchCurrentUser(completion: @escaping (User?, Error?) -> Void) throws {
-        try get(resource: "user", action: "me", completion: { data, error in
-            if error != nil {
-                completion(nil, error)
-                return
-            }
-
-            if data != nil {
-                do {
-                    let jsonData = try JSONSerialization.data(
-                        withJSONObject: data as Any,
-                        options: [.prettyPrinted, .sortedKeys]
-                    )
-                    let user: User? = try JSONDecoder().decode(User.self, from: jsonData)
-                    if let user {
-                        currentUser = user
-                        if let id = user.id {
-                            Analytics.setDefaultEventParameters(["user_id": id])
-                        }
-
-                        completion(user, nil)
-                    }
-                } catch {
-                    completion(nil, error)
-                }
-            }
-        })
-    }
-
-    static func fetchCurrentUser() async throws -> User {
-        let user = try await AccountMethods.userMe.call(params: .init())
-
-        currentUser = user
-        if let id = user.id {
-            Analytics.setDefaultEventParameters(["user_id": id])
-        }
-
-        return user
-    }
-
     static func areCommentsEnabled(
         claimId: String,
         channelId: String?,
@@ -314,41 +266,6 @@ enum Lbryio {
                 completion(true)
             }
         }
-    }
-
-    static func newInstall(completion: @escaping (Error?) -> Void) {
-        Messaging.messaging().token(completion: { token, error in
-            if let error {
-                // no need to fail on error here
-                Crashlytics.crashlytics().recordImmediate(error: error)
-            }
-
-            var options = [String: String]()
-            if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-                options["app_version"] = version
-            }
-            options["app_id"] = Lbry.installationId
-            options["daemon_version"] = ""
-            options["node_id"] = ""
-            options["operating_system"] = "ios"
-            options["platform"] = "darwin"
-            options["domain"] = "odysee.com"
-            if let token, !token.isBlank {
-                options["firebase_token"] = token
-            }
-            do {
-                try post(resource: "install", action: "new", options: options, completion: { _, error in
-                    if error != nil {
-                        completion(error)
-                        return
-                    }
-                    // successful
-                    completion(nil)
-                })
-            } catch {
-                completion(error)
-            }
-        })
     }
 
     static func claimReward(type: String, walletAddress: String, completion: @escaping (Bool?, Error?) -> Void) {

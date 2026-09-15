@@ -46,9 +46,9 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        view.isHidden = !Lbryio.isSignedIn()
+        view.isHidden = !Account.signedIn
 
-        if !Lbryio.isSignedIn() {
+        if !Account.signedIn {
             // show the sign in view
             let vc = storyboard?.instantiateViewController(identifier: "ua_vc") as! UserAccountViewController
             AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
@@ -62,7 +62,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             parameters: [AnalyticsParameterScreenName: "Wallet", AnalyticsParameterScreenClass: "WalletViewController"]
         )
 
-        if Lbryio.isSignedIn() {
+        if Account.signedIn {
             checkReceiveAddress()
             loadRecentTransactions()
         }
@@ -79,7 +79,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             }
         }
         walletBalanceTask = Task {
-            for await balance in Globals.$walletBalance.values {
+            for await balance in Account.$walletBalance.values {
                 displayBalance(balance: balance)
             }
         }
@@ -127,7 +127,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             showError(message: String.localized("Please enter valid amount"))
             return
         }
-        if amount > Lbry.walletBalance?.available ?? 0 {
+        if amount > Account.walletBalance.available {
             showError(message: String.localized("Insufficient funds"))
             return
         }

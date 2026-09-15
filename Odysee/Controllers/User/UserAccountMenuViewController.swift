@@ -47,23 +47,23 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
         contentView.layer.cornerRadius = 16
         signUpLoginButton.layer.cornerRadius = 16
 
-        signUpLoginContainer.isHidden = Lbryio.isSignedIn()
+        signUpLoginContainer.isHidden = Account.signedIn
 
-        signedOutMenuHeight.isActive = !Lbryio.isSignedIn()
-        signedInMenuHeight.isActive = Lbryio.isSignedIn()
+        signedOutMenuHeight.isActive = !Account.signedIn
+        signedInMenuHeight.isActive = Account.signedIn
 
-        changeDefaultChannelButton.isHidden = !Lbryio.isSignedIn()
-        goLiveLabel.isHidden = !Lbryio.isSignedIn()
-        userEmailLabel.isHidden = !Lbryio.isSignedIn()
-        channelsLabel.isHidden = !Lbryio.isSignedIn()
-        rewardsLabel.isHidden = !Lbryio.isSignedIn()
-        // invitesLabel.isHidden = !Lbryio.isSignedIn()
-        youTubeSyncLabel.isHidden = !Lbryio.isSignedIn()
-        deleteAccountLabel.isHidden = !Lbryio.isSignedIn()
-        signOutLabel.isHidden = !Lbryio.isSignedIn()
+        changeDefaultChannelButton.isHidden = !Account.signedIn
+        goLiveLabel.isHidden = !Account.signedIn
+        userEmailLabel.isHidden = !Account.signedIn
+        channelsLabel.isHidden = !Account.signedIn
+        rewardsLabel.isHidden = !Account.signedIn
+        // invitesLabel.isHidden = !Globals.signedIn
+        youTubeSyncLabel.isHidden = !Account.signedIn
+        deleteAccountLabel.isHidden = !Account.signedIn
+        signOutLabel.isHidden = !Account.signedIn
 
-        if Lbryio.isSignedIn() {
-            userEmailLabel.text = Lbryio.currentUser?.primaryEmail
+        if Account.signedIn {
+            userEmailLabel.text = Account.user?.primaryEmail ?? Account.user?.latestClaimedEmail
             loadChannels()
         }
 
@@ -139,9 +139,9 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     @IBAction func deleteAccountTapped(_ sender: Any) {
-        if Lbryio.currentUser != nil {
+        if Account.user != nil {
             // FIXME: Needs to load fresh
-            if !Lbry.ownChannels.isEmpty {
+            if !Account.channels.isEmpty {
                 let alert = UIAlertController(
                     title: String.localized("Delete Account: Delete your Channels"),
                     message: String
@@ -157,7 +157,8 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                 return
             }
 
-            if let availableBalance = Lbry.walletBalance?.available, availableBalance > 1 {
+            let availableBalance = Account.walletBalance.available
+            if availableBalance > 1 {
                 let alert = UIAlertController(
                     title: String.localized("Delete Account: Wallet Balance"),
                     message: String
@@ -184,6 +185,7 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
                             return
                         }
 
+                        // FIXME: Why check again?
                         // send out all credits if there are any
                         if availableBalance > 1 {
                             self.sweepCredits()
@@ -209,33 +211,31 @@ class UserAccountMenuViewController: UIViewController, UIGestureRecognizerDelega
     }
 
     func sweepCredits() {
-        if let available = Lbry.walletBalance?.available {
-            let available = available - 0.1 // TODO: What if this goes below 0?
+        let available = Account.walletBalance.available - 0.1 // TODO: What if this goes below 0?
 
-            var params = [String: Any]()
-            params["addresses"] = [sweepWalletTarget]
-            params["amount"] = Helper.sdkAmountFormatter.string(from: available as NSDecimalNumber) ?? "0"
-            params["blocking"] = true
+        var params = [String: Any]()
+        params["addresses"] = [sweepWalletTarget]
+        params["amount"] = Helper.sdkAmountFormatter.string(from: available as NSDecimalNumber) ?? "0"
+        params["blocking"] = true
 
-            Lbry.apiCall(
-                method: Lbry.methodWalletSend,
-                params: params,
-                url: Lbry.lbrytvURL,
-                completion: { data, error in
-                    guard data != nil, error == nil else {
-                        DispatchQueue.main.async {
-                            self.showError(error: error)
-                            self.deleteAccountTapped(UIButton())
-                        }
-                        return
-                    }
-
+        Lbry.apiCall(
+            method: Lbry.methodWalletSend,
+            params: params,
+            url: Lbry.lbrytvURL,
+            completion: { data, error in
+                guard data != nil, error == nil else {
                     DispatchQueue.main.async {
-                        self.confirmDeleteAccount()
+                        self.showError(error: error)
+                        self.deleteAccountTapped(UIButton())
                     }
+                    return
                 }
-            )
-        }
+
+                DispatchQueue.main.async {
+                    self.confirmDeleteAccount()
+                }
+            }
+        )
     }
 
     func confirmDeleteAccount() {

@@ -1,5 +1,5 @@
 //
-//  CommentsAPIParams.swift
+//  CommentsParams.swift
 //  Odysee
 //
 //  Created by Keith Toh on 11/07/2022.

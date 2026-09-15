@@ -256,7 +256,7 @@ extension YouTubeSyncScreen {
 }
 
 #Preview {
-    let notEligible: AccountYoutubeChannel = .init(
+    let notEligible: YoutubeChannel = .init(
         ytChannelId: "NOTELIGIBLE",
         ytChannelName: "TestChannel",
         lbryChannelName: "@TestChannel",
@@ -272,7 +272,7 @@ extension YouTubeSyncScreen {
         totalVideos: 0,
         publicKey: ""
     )
-    let synced: AccountYoutubeChannel = .init(
+    let synced: YoutubeChannel = .init(
         ytChannelId: "SYNCED",
         ytChannelName: "TestChannel",
         lbryChannelName: "@TestChannel",

@@ -1,5 +1,5 @@
 //
-//  BackendAPIResult.swift
+//  BackendResult.swift
 //  Odysee
 //
 //  Created by Keith Toh on 18/12/2025.

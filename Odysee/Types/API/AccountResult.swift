@@ -1,5 +1,5 @@
 //
-//  AccountAPIResult.swift
+//  AccountResult.swift
 //  Odysee
 //
 //  Created by Keith Toh on 24/12/2025.
@@ -133,6 +133,8 @@ struct GeoBlockedListResult: Decodable {
     }
 }
 
+typealias NotificationListResult = [Notification]
+
 struct ViewHistory: Decodable {
     var claimId: String
     var claimName: String
@@ -148,7 +150,7 @@ struct ViewHistory: Decodable {
 typealias YtTransferResult = [YtTransferResultElement]
 
 struct YtTransferResultElement: Decodable {
-    var channel: AccountYoutubeChannel?
+    var channel: YoutubeChannel?
     var totalPublishedVideos: Int
     var totalTransferred: Int
     var changed: Bool
