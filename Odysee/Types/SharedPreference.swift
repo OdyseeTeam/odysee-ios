@@ -82,7 +82,7 @@ public struct SharedPreference: Codable {
             }
 
             struct Settings: CodingKey {
-                static let defaultChannelId = Settings(stringValue: "active_channel_claim")
+                static let defaultChannelId = Settings(stringValue: "activeChannelClaim")
 
                 var stringValue: String
 

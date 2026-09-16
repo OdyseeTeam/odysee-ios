@@ -31,13 +31,13 @@ struct Comment: Decodable, Hashable, Identifiable {
 
     private enum CodingKeys: String, CodingKey {
         case comment
-        case id = "comment_id"
-        case claimId = "claim_id"
+        case id = "commentId"
+        case claimId
         case timestamp
-        case parentId = "parent_id"
-        case channelId = "channel_id"
-        case channelName = "channel_name"
-        case channelUrl = "channel_url"
+        case parentId
+        case channelId
+        case channelName
+        case channelUrl
         case replyCount = "replies"
     }
 

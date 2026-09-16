@@ -21,7 +21,7 @@ struct WalletBalance: Decodable {
         case available
         case reserved
         case total
-        case reservedSubtotals = "reserved_subtotals"
+        case reservedSubtotals
 
         case claims
         case supports

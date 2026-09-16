@@ -11,18 +11,10 @@ typealias FileLastPositionsResult = [String: UInt]
 
 struct UserNewResult: Decodable {
     var authToken: String
-
-    enum CodingKeys: String, CodingKey {
-        case authToken = "auth_token"
-    }
 }
 
 struct UserExistsResult: Decodable {
     var hasPassword: Bool
-
-    enum CodingKeys: String, CodingKey {
-        case hasPassword = "has_password"
-    }
 }
 
 struct SyncGetResult: Decodable {
@@ -46,9 +38,9 @@ struct LocaleGetResult: Decodable {
     enum CodingKeys: String, CodingKey {
         case continent
         case country
-        case gdprRequired = "gdpr_required"
-        case isEUMember = "is_eu_member"
-        case isGoogleLimited = "is_google_limited"
+        case gdprRequired
+        case isEUMember = "isEuMember"
+        case isGoogleLimited
     }
 }
 
@@ -139,12 +131,6 @@ struct ViewHistory: Decodable {
     var claimId: String
     var claimName: String
     var lastPosition: UInt
-
-    enum CodingKeys: String, CodingKey {
-        case claimId = "claim_id"
-        case claimName = "claim_name"
-        case lastPosition = "last_position"
-    }
 }
 
 typealias YtTransferResult = [YtTransferResultElement]
@@ -154,13 +140,6 @@ struct YtTransferResultElement: Decodable {
     var totalPublishedVideos: Int
     var totalTransferred: Int
     var changed: Bool
-
-    enum CodingKeys: String, CodingKey {
-        case channel
-        case totalPublishedVideos = "total_published_videos"
-        case totalTransferred = "total_transferred"
-        case changed
-    }
 }
 
 struct FileListClaimIdsResult: Decodable {
@@ -180,8 +159,8 @@ struct FileListClaimIdsResult: Decodable {
         var tag: String
 
         enum CodingKeys: String, CodingKey {
-            case claimId = "claim_id"
-            case tag = "tag_name"
+            case claimId
+            case tag = "tagName"
         }
     }
 }

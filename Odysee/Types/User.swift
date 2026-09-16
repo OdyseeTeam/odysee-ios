@@ -39,37 +39,4 @@ struct User: Decodable {
 //    var internalFeature: Bool
 //    var odyseeMember: Bool
     var pendingDeletion: Bool
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        //    case language = "language"
-        //    case givenName = "given_name"
-        //    case familyName = "family_name"
-        //    case createdAt = "created_at"
-        //    case updatedAt = "updated_at"
-        //    case invitedByID = "invited_by_i_d"
-        //    case invitedAt = "invited_at"
-        //    case invitesRemaining = "invites_remaining"
-        //    case inviteRewardClaimed = "invite_reward_claimed"
-        case isRewardApproved = "is_reward_approved"
-        //    case isEmailEnabled = "is_email_enabled"
-        //    case country = "country"
-        //    case isOdyseeUser = "is_odysee_user"
-        //    case location = "location"
-        case youtubeChannels = "youtube_channels"
-        case primaryEmail = "primary_email"
-        //    case passwordSet = "password_set"
-        case latestClaimedEmail = "latest_claimed_email"
-        case hasVerifiedEmail = "has_verified_email"
-        //    case isIdentityVerified = "is_identity_verified"
-        //    case groups = "groups"
-        //    case deviceTypes = "device_types"
-        //    case odyseeLiveEnabled = "odysee_live_enabled"
-        //    case odyseeLiveDisabled = "odysee_live_disabled"
-        //    case globalMod = "global_mod"
-        //    case experimentalUI = "experimental_u_i"
-        //    case internalFeature = "internal_feature"
-        //    case odyseeMember = "odysee_member"
-        case pendingDeletion = "pending_deletion"
-    }
 }

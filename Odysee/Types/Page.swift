@@ -35,12 +35,12 @@ struct Page<Item: Decodable>: Decodable {
 
     private enum CodingKeys: String, CodingKey {
         case items
-        case totalItems = "total_items"
+        case totalItems
 
         case page
         /// Backend API
-        case totalPages = "total_pages"
+        case totalPages
         /// Account API `user/view_history`
-        case hasMore = "has_more"
+        case hasMore
     }
 }

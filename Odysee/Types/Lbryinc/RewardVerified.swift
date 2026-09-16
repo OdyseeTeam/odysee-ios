@@ -10,9 +10,4 @@ import Foundation
 struct RewardVerified: Decodable {
     var userId: Int64?
     var isRewardApproved: Bool?
-
-    private enum CodingKeys: String, CodingKey {
-        case userId = "user_id"
-        case isRewardApproved = "is_reward_approved"
-    }
 }

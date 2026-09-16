@@ -146,8 +146,12 @@ enum Lbry {
             URLSession.shared.dataTaskPublisher(for: request).mapError { $0 as Error }
         }
         .tryMap { data, _ -> ResultType in
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+
             // Decode and validate result.
-            let response = try JSONDecoder().decode(APIResponse<ResultType>.self, from: data)
+            let response = try decoder.decode(APIResponse<ResultType>.self, from: data)
             if response.jsonrpc != "2.0" {
                 assertionFailure()
                 throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")

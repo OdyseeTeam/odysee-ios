@@ -29,16 +29,6 @@ struct Notification: Decodable, Identifiable {
         notificationParameters?.device.target
     }
 
-    private enum CodingKeys: String, CodingKey {
-        case id
-        case notificationRule = "notification_rule"
-        case isAppReadable = "is_app_readable"
-        case isRead = "is_read"
-        case isSeen = "is_seen"
-        case activeAt = "active_at"
-        case notificationParameters = "notification_parameters"
-    }
-
     enum NotificationRule: String, Decodable {
         case creatorSubscriber = "creator_subscriber"
 
@@ -141,17 +131,6 @@ struct Notification: Decodable, Identifiable {
                 var amount: String
                 var currency: String?
                 var commentAuthorThumbnail: String
-
-                enum CodingKeys: String, CodingKey {
-                    case hash
-                    case parentId = "parent_id"
-                    case commentAuthor = "comment_author"
-                    case claimTitle = "claim_title"
-                    case comment
-                    case amount
-                    case currency
-                    case commentAuthorThumbnail = "comment_author_thumbnail"
-                }
             }
 
             struct ClaimInfo: Decodable {
@@ -160,14 +139,6 @@ struct Notification: Decodable, Identifiable {
                 var channelThumbnail: String
                 var claimThumbnail: String
                 var claimName: String
-
-                enum CodingKeys: String, CodingKey {
-                    case claimTitle = "claim_title"
-                    case channelUrl = "channel_url"
-                    case channelThumbnail = "channel_thumbnail"
-                    case claimThumbnail = "claim_thumbnail"
-                    case claimName = "claim_name"
-                }
             }
 
             struct Reply: Decodable {
@@ -179,17 +150,6 @@ struct Notification: Decodable, Identifiable {
                 var comment: String
                 var amount: String
                 var commentAuthorThumbnail: String
-
-                enum CodingKeys: String, CodingKey {
-                    case hash
-                    case parentId = "parent_id"
-                    case replyAuthor = "reply_author"
-                    case claimTitle = "claim_title"
-                    case parentComment = "parent_comment"
-                    case comment
-                    case amount
-                    case commentAuthorThumbnail = "comment_author_thumbnail"
-                }
             }
 
             struct Rewards: Decodable {

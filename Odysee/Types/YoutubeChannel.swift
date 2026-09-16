@@ -25,25 +25,6 @@ struct YoutubeChannel: Decodable {
     var publicKey: String
     var channelCertificate: String?
 
-    private enum CodingKeys: String, CodingKey {
-        case ytChannelId = "yt_channel_id"
-        case ytChannelName = "yt_channel_name"
-        case lbryChannelName = "lbry_channel_name"
-        case channelClaimId = "channel_claim_id"
-        case syncStatus = "sync_status"
-        case statusToken = "status_token"
-        case transferable
-        case transferState = "transfer_state"
-        case shouldSync = "should_sync"
-        case vip
-        case reviewed
-        case totalSubs = "total_subs"
-        case totalVideos = "total_videos"
-        case publishToAddress = "publish_to_address"
-        case publicKey = "public_key"
-        case channelCertificate = "channel_certificate"
-    }
-
     /// https://github.com/OdyseeTeam/ytsync/blob/f0a03d5bd7ed6cde87945482bbe676f6ca0ba1fe/shared/shared.go#L191-L205
     enum SyncStatus: String, Decodable {
         /// waiting for permission to sync
