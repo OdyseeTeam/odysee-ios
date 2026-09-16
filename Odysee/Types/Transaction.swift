@@ -83,20 +83,6 @@ struct Transaction: Decodable, Hashable {
         return value
     }
 
-    private enum CodingKeys: String, CodingKey {
-        case confirmations
-        case date
-        case fee
-        case timestamp
-        case txid
-        case value
-        case abandonInfo = "abandon_info"
-        case claimInfo = "claim_info"
-        case purchaseInfo = "purchase_info"
-        case supportInfo = "support_info"
-        case updateInfo = "update_info"
-    }
-
     struct TransactionInfo: Decodable {
         var address: String?
         var balanceDelta: String?
@@ -105,16 +91,6 @@ struct Transaction: Decodable, Hashable {
         var claimName: String?
         var isTip: Bool?
         var nout: Int?
-
-        private enum CodingKeys: String, CodingKey {
-            case address
-            case balanceDelta = "balance_delta"
-            case amount
-            case claimId = "claim_id"
-            case claimName = "claim_name"
-            case isTip = "is_tip"
-            case nout
-        }
     }
 
     func hash(into hasher: inout Hasher) {

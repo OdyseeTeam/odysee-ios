@@ -64,25 +64,25 @@ public struct Claim: Decodable {
     private enum CodingKeys: String, CodingKey {
         case address
         case amount
-        case canonicalUrl = "canonical_url"
-        case claimId = "claim_id"
-        case claimOp = "claim_op"
+        case canonicalUrl
+        case claimId
+        case claimOp
         case confirmations
         case height
-        case isChannelSignatureValid = "is_channel_signature_valid"
+        case isChannelSignatureValid
         case meta
         case name
-        case normalizedName = "normalized_name"
+        case normalizedName
         case nout
-        case permanentUrl = "permanent_url"
-        case shortUrl = "short_url"
-        case signingChannelRef = "signing_channel"
-        case repostedClaimRef = "reposted_claim"
+        case permanentUrl
+        case shortUrl
+        case signingChannelRef = "signingChannel"
+        case repostedClaimRef = "repostedClaim"
         case timestamp
         case txid
         case type
         case value
-        case valueType = "value_type"
+        case valueType
     }
 
     struct Metadata: Decodable {
@@ -116,33 +116,6 @@ public struct Claim: Decodable {
 
         // collection
         var claims: [String]?
-
-        private enum CodingKeys: String, CodingKey {
-            case title
-            case description
-            case thumbnail
-            case languages
-            case tags
-            case locations
-            case publicKey = "public_key"
-            case publicKeyId = "public_key_id"
-            case cover
-            case email
-            case websiteUrl = "website_url"
-            case featured
-            case license
-            case licenseUrl = "license_url"
-            case releaseTime = "release_time"
-            case author
-            case fee
-            case streamType = "stream_type"
-            case source
-            case video
-            case audio
-            case image
-            case software
-            case claims
-        }
     }
 
     struct Source: Decodable {
@@ -151,14 +124,6 @@ public struct Claim: Decodable {
         var hash: String?
         var name: String?
         var size: String?
-
-        private enum CodingKeys: String, CodingKey {
-            case sdHash = "sd_hash"
-            case mediaType = "media_type"
-            case hash
-            case name
-            case size
-        }
     }
 
     struct Fee: Decodable {
@@ -185,10 +150,6 @@ public struct Claim: Decodable {
 
     struct Meta: Decodable {
         var effectiveAmount: String?
-
-        private enum CodingKeys: String, CodingKey {
-            case effectiveAmount = "effective_amount"
-        }
     }
 
     var outpoint: Outpoint? {

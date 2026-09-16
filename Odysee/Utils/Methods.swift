@@ -76,6 +76,7 @@ extension Method where ParamType: BackendMethodParams {
 
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
 
             let response = try decoder.decode(LbryAPIResponse<ResultType>.self, from: data)
             if response.jsonrpc != "2.0" {
@@ -127,6 +128,7 @@ extension Method where ParamType: CommentsMethodParams {
 
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
 
             let response = try decoder.decode(LbryAPIResponse<ResultType>.self, from: data)
             if response.jsonrpc != "2.0" {
@@ -226,6 +228,7 @@ extension Method where ParamType: AccountMethodParams {
 
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
 
         let response = try decoder.decode(LbryioAPIResponse<ResultType>.self, from: data)
 

@@ -25,16 +25,11 @@ struct ReactListResult: Decodable {
 
     var othersReactions: [String: Reaction]
     var myReactions: [String: Reaction]?
-
-    enum CodingKeys: String, CodingKey {
-        case othersReactions = "others_reactions"
-        case myReactions = "my_reactions"
-    }
 }
 
 /// Decodes from API directly to like/dislike count + "my" reactions
 struct V2_ReactListResult: Decodable {
-    /// Dict mapping `comment_id` to reactions
+    /// Dict mapping `commentId` to reactions
     var reactions: [Comment.ID: CommentReactions]
 
     private struct Reaction: Decodable {
@@ -61,7 +56,7 @@ struct V2_ReactListResult: Decodable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case othersReactions = "others_reactions"
-        case myReactions = "my_reactions"
+        case othersReactions
+        case myReactions
     }
 }
