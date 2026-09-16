@@ -103,9 +103,9 @@ struct WatchHistoryScreen: View {
     WatchHistoryScreen(model: .init(claims: [
         .init(
             name: "claim",
-            signingChannelRef: .init(.init(
+            signingChannel: .init(
                 name: "channel"
-            ))
+            )
         )
     ]))
 }

@@ -23,15 +23,24 @@ enum StreamType: String, Codable {
     case video
 }
 
+@propertyWrapper
 final class ClaimBox: Decodable {
-    let wrappedValue: Claim
+    let wrappedValue: Claim?
 
     required init(from decoder: Decoder) throws {
         wrappedValue = try Claim(from: decoder)
     }
 
-    init(_ value: Claim) {
-        wrappedValue = value
+    init(wrappedValue: Claim?) {
+        self.wrappedValue = wrappedValue
+    }
+}
+
+extension KeyedDecodingContainer {
+    /// Handle decoding property wrapper with optional wrapped value
+    /// <https://forums.swift.org/t/using-property-wrappers-with-codable/29804/12>
+    func decode(_ type: ClaimBox.Type, forKey key: Self.Key) throws -> ClaimBox {
+        try decodeIfPresent(type, forKey: key) ?? ClaimBox(wrappedValue: nil)
     }
 }
 
@@ -50,11 +59,8 @@ public struct Claim: Decodable {
     var nout: Int?
     var permanentUrl: String?
     var shortUrl: String?
-    // FIXME: Propertywrapper
-    var signingChannelRef: ClaimBox?
-    var repostedClaimRef: ClaimBox?
-    var signingChannel: Claim? { signingChannelRef?.wrappedValue }
-    var repostedClaim: Claim? { repostedClaimRef?.wrappedValue }
+    @ClaimBox var signingChannel: Claim? = nil
+    @ClaimBox var repostedClaim: Claim? = nil
     var timestamp: Int64?
     var txid: String?
     var type: String?
@@ -76,8 +82,8 @@ public struct Claim: Decodable {
         case nout
         case permanentUrl
         case shortUrl
-        case signingChannelRef = "signingChannel"
-        case repostedClaimRef = "repostedClaim"
+        case signingChannel
+        case repostedClaim
         case timestamp
         case txid
         case type

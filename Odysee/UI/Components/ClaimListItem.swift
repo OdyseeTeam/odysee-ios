@@ -192,7 +192,7 @@ struct ClaimListItem: View {
         nout: 0,
         permanentUrl: "lbry://FutureofOdyseeVideo#05dbe782f1d8588251b80365610eda80920d8278",
         shortUrl: "lbry://FutureofOdyseeVideo#0",
-        signingChannelRef: .init(.init(
+        signingChannel: .init(
             canonicalUrl: "lbry://@Odysee#8",
             name: "@Odysee",
             normalizedName: "@odysee",
@@ -200,8 +200,7 @@ struct ClaimListItem: View {
                 title: "Odysee",
             ),
             valueType: .channel,
-        )),
-        repostedClaimRef: nil,
+        ),
         timestamp: 1_720_561_767,
         txid: "60bff0a555ce23207f9480184d0352c2df9df740463842999084c3487b2b5860",
         type: "claim",
