@@ -28,7 +28,7 @@ struct CommentListItem: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
-            ChannelThumbnail(claim: author)
+            ChannelThumbnail(channelClaim: author)
 
             VStack(alignment: .leading) {
                 WrappingHStack(lineSpacing: 8) {

@@ -7,24 +7,60 @@
 
 import SwiftUI
 
+// FIXME: Auto mark as seen
 struct NotificationsScreen: View {
     @ObservedObject private var account = Account.shared
-    var notifications: [Notification] {
-        account.notifications
-    }
+
+    @State private var refreshing = false
 
     var body: some View {
-        List {
-            Group {
-                ForEach(notifications) { notification in
-                    NotificationListItem(notification: notification)
-                }
+        ZStack {
+            NavigationView {
+                List {
+                    Group {
+                        ForEach(account.notifications) { notification in
+                            NotificationListItem(notification: notification)
+                        }
+                        .onDelete(perform: account.deleteNotifications)
+                        .deleteDisabled(account.inProgress)
 
-                MiniPlayerAvoiding()
+                        MiniPlayerAvoiding()
+                    }
+                    .listRowSeparator(.hidden)
+                }
+                .refreshable {
+                    refreshing = true
+                    defer {
+                        refreshing = false
+                    }
+
+                    await account.reloadNotifications()
+                }
+                .listStyle(.plain)
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Mark all as read") {
+                            Task {
+                                await account.markAllNotificationsRead()
+                            }
+                        }
+                        .disabled(account.notifications.allSatisfy(\.isRead))
+                    }
+                }
+                .task(account.markAllNotificationsSeen)
             }
-            .listRowSeparator(.hidden)
+            .navigationViewStyle(.stack)
+
+            ProgressView()
+                .controlSize(.large)
+                .apply {
+                    if !refreshing && account.inProgress {
+                        $0
+                    } else {
+                        $0.hidden()
+                    }
+                }
         }
-        .listStyle(.plain)
     }
 }
 

@@ -383,3 +383,16 @@ extension KeyedDecodingContainer {
         try Decimal(string: decode(String.self, forKey: key)) ?? 0
     }
 }
+
+extension MutableCollection {
+    /// Modified from https://stackoverflow.com/a/59926097
+    subscript<T>(mutatingAll keyPath: WritableKeyPath<Element, T>) -> T {
+        @available(*, unavailable)
+        get {
+            fatalError()
+        }
+        set {
+            indices.forEach { self[$0][keyPath: keyPath] = newValue }
+        }
+    }
+}

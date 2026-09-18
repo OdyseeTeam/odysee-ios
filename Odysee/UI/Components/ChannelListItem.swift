@@ -32,7 +32,7 @@ struct ChannelListItem: View {
                     .foregroundStyle(.red)
             } else if case let .claim(claim) = channel {
                 HStack(spacing: 20) {
-                    ChannelThumbnail(claim: claim)
+                    ChannelThumbnail(channelClaim: claim)
 
                     VStack(alignment: .leading) {
                         Text(claim.titleOrName ?? "")

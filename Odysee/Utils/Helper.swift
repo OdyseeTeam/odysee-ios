@@ -442,10 +442,14 @@ enum Helper {
 
     // TODO: Timezone check / conversion?
     static func formatTimestamp(_ timestamp: TimeInterval) -> String {
-        let date = Date(timeIntervalSince1970: timestamp)
+        formatDate(Date(timeIntervalSince1970: timestamp))
+    }
+
+    static func formatDate(_ date: Date) -> String {
+        date
             // Shift back by 1s, because timestamp == now leads to "in 0 seconds" rather than "0 seconds ago"
             .addingTimeInterval(-1)
-        return date.formatted(.relative(presentation: .numeric))
+            .formatted(.relative(presentation: .numeric))
     }
 }
 
