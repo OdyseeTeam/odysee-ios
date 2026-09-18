@@ -9,10 +9,12 @@ import Foundation
 import ValueCodable
 
 struct Notification: Decodable, Identifiable {
-    var id: Int64
+    var id: UInt64
     var notificationRule: NotificationRule
-    var isAppReadable: Bool
+    /// Whether notification has been "opened"
     var isRead: Bool
+    /// Whether notification has been viewed in NotificationsScreen\
+    /// Unseen count is used for Notifications unseen badge
     var isSeen: Bool
     var activeAt: Date
     var notificationParameters: NotificationParameters?

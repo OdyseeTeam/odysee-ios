@@ -47,7 +47,9 @@ struct PlaylistDetailScreen: View {
         ZStack {
             List {
                 Group {
-                    if !model.refreshing {
+                    // FIXME: What is this
+                    // FIXME: refreshing should be set by refresh handler, so manual calls to refresh still show inprogress
+                    if !playlistsModel.refreshing {
                         VStack(alignment: .leading, spacing: 8) {
                             if collection.isPublic,
                                let channel = collection.originalClaim?.signingChannel,

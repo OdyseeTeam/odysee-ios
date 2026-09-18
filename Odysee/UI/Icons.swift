@@ -79,4 +79,6 @@ enum Icons {
     static let filter = "line.3.horizontal.decrease"
 
     static let more = "ellipsis"
+
+    static let markRead = "eye"
 }

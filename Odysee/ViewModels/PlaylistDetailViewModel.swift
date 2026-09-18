@@ -13,7 +13,6 @@ extension PlaylistDetailScreen {
         static let pageSize = 50
 
         @Published private(set) var inProgress = false
-        @Published private(set) var refreshing: Bool = false
 
         @Published private(set) var claims: [Claim]
 

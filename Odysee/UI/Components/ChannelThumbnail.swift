@@ -9,15 +9,23 @@ import CachedAsyncImage
 import SwiftUI
 
 struct ChannelThumbnail: View {
-    var claim: Claim
+    var channel: (name: String?, thumbnail: String?)
+
+    init(channel: (name: String?, thumbnail: String?)) {
+        self.channel = channel
+    }
+
+    init(channelClaim: Claim) {
+        channel = (name: channelClaim.name, thumbnail: channelClaim.value?.thumbnail?.url)
+    }
 
     /// <https://github.com/OdyseeTeam/odysee-frontend/blob/c605de2a2f461d61fcc4745dd1008510ef1e3737/ui/component/channelThumbnail/view.tsx#L89-L95>
     /// <https://github.com/OdyseeTeam/odysee-frontend/blob/c605de2a2f461d61fcc4745dd1008510ef1e3737/ui/scss/component/_channel.scss#L612-L630>
     private var background: Color {
-        if claim.name == Claim.anonymous.name {
-            return Color(red: 204, green: 204, blue: 204)
+        if channel.name == Claim.anonymous.name {
+            return Color(white: 204 / 255.0)
         } else {
-            guard let char = claim.name?.first(where: { $0 != "@" })?.asciiValue else {
+            guard let char = channel.name?.first(where: { $0 != "@" })?.asciiValue else {
                 return Color("light_primary")
             }
 
@@ -36,9 +44,9 @@ struct ChannelThumbnail: View {
 
     var body: some View {
         Group {
-            if let url = claim.value?.thumbnail?.url {
+            if let thumbnail = channel.thumbnail, let url = URL(string: thumbnail) {
                 // FIXME: Less reloads somehow (when scrolling/scrolling back)
-                CachedAsyncImage(url: URL(string: url)) { phase in
+                CachedAsyncImage(url: url) { phase in
                     if let image = phase.image {
                         image
                             .resizable()
@@ -63,24 +71,23 @@ struct ChannelThumbnail: View {
 @available(iOS 17, *)
 #Preview(traits: .sizeThatFitsLayout) {
     ChannelThumbnail(
-        claim: .init(
-            value: .init(
-                thumbnail: .init(
-                    url: "https://thumbs.odycdn.com/5a920753363de87d6f1f4b0d90b44706.webp"
-                )
-            )
+        channel: (
+            name: nil,
+            thumbnail: "https://thumbs.odycdn.com/5a920753363de87d6f1f4b0d90b44706.webp"
         )
     )
 
     ChannelThumbnail(
-        claim: .init(
+        channel: (
             name: "@Odysee",
+            thumbnail: nil
         )
     )
 
     ChannelThumbnail(
-        claim: .init(
+        channel: (
             name: "Anonymous",
+            thumbnail: nil
         )
     )
 }

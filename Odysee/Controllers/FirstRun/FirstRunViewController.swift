@@ -234,6 +234,9 @@ class FirstRunViewController: UIViewController, FirstRunDelegate {
                                 withJSONObject: item,
                                 options: [.prettyPrinted, .sortedKeys]
                             )
+                            // FIXME: All jsondecoder keydecodingstrategy
+                            // FIXME: Migrate all legacy Lbry/Lbryio
+                            // FIXME: All JSONSerialization replace
                             let claimResult: Claim? = try JSONDecoder().decode(Claim.self, from: data)
                             if let claimResult,
                                claimResult.valueType == .channel,

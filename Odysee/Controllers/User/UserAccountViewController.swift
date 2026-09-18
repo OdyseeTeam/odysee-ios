@@ -110,9 +110,6 @@ class UserAccountViewController: UIViewController {
     }
 
     func finishWithWalletSync() {
-        // FIXME:
-//        Wallet.shared.startSync()
-
         AppDelegate.shared.mainController?.checkUploadButton()
         AppDelegate.shared.mainController?.checkAndClaimEmailReward(completion: {})
 
