@@ -309,6 +309,7 @@ enum AccountMethods {
     static let syncSet = Method<SyncSetParams, SyncSetResult>(post: "sync/set")
     static let localeGet = Method<NilType, LocaleGetResult>(get: "locale/get")
     static let geoBlockedList = Method<NilType, GeoBlockedListResult>(get: "geo/blocked_list")
+    static let lbcExchangeRate = Method<NilType, LbcExchangeRateResult>(get: "lbc/exchange_rate")
     static let notificationList = Method<NotificationListParams, NotificationListResult>(post: "notification/list")
     static let notificationEdit = Method<NotificationEditParams, NilType>(post: "notification/edit")
     static let notificationDelete = Method<NotificationDeleteParams, NilType>(post: "notification/delete")

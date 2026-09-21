@@ -80,7 +80,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         }
         walletBalanceTask = Task {
             for await balance in Account.$walletBalance.values {
-                displayBalance(balance: balance)
+                await displayBalance(balance: balance)
             }
         }
     }
@@ -234,7 +234,7 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
         sendAmountTextField.resignFirstResponder()
     }
 
-    func displayBalance(balance: WalletBalance?) {
+    func displayBalance(balance: WalletBalance?) async {
         let currencyFormatter = Helper.currencyFormatter
         if let balance {
             balanceLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.total))
@@ -244,18 +244,16 @@ class WalletViewController: UIViewController, UITableViewDelegate, UITableViewDa
             initialPublishesLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.claims))
             supportingContentLabel.text = currencyFormatter.string(from: NSDecimalNumber(decimal: balance.supports))
 
-            Lbryio.loadExchangeRate(completion: { rate, error in
-                guard let rate = rate, error == nil else {
-                    self.showError(error: error)
-                    return
-                }
-                DispatchQueue.main.async {
-                    self.usdBalanceLabel.text = String(
-                        format: "≈$%@",
-                        currencyFormatter.string(from: (balance.total * rate) as NSDecimalNumber) ?? ""
-                    )
-                }
-            })
+            do {
+                let rate = try await AccountMethods.lbcExchangeRate.call(params: .init()).lbcToUsd
+
+                usdBalanceLabel.text = String(
+                    format: "≈$%@",
+                    currencyFormatter.string(from: (balance.total * rate) as NSDecimalNumber) ?? ""
+                )
+            } catch {
+                Helper.showError(error: error)
+            }
         }
     }
 

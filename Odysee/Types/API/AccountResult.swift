@@ -125,6 +125,14 @@ struct GeoBlockedListResult: Decodable {
     }
 }
 
+struct LbcExchangeRateResult: Decodable {
+    var lbcToUsd: Decimal
+
+    enum CodingKeys: String, CodingKey {
+        case lbcToUsd = "lbc_usd"
+    }
+}
+
 typealias NotificationListResult = [Notification]
 
 struct ViewHistory: Decodable {
