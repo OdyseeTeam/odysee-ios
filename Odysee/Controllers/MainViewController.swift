@@ -45,6 +45,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
     let miniPlayerTop = CurrentValueSubject<CGFloat, Never>(0)
 
     var walletBalanceTask: Task<Void, Never>?
+    var notificationUnseenCountTask: Task<Void, Never>?
 
     let snackbar = Snackbar()
 
@@ -123,11 +124,25 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
                 mainBalanceLabel.text = Helper.shortCurrencyFormat(value: balance.total)
             }
         }
+        notificationUnseenCountTask = Task {
+            for await notifications in Account.$notifications.values {
+                let unseen = notifications.count { !$0.isSeen }
+
+                if unseen > 0 {
+                    notificationBadgeView.isHidden = false
+                    notificationBadgeCountLabel.text = unseen < 100 ? String(unseen) : __("99+")
+                } else {
+                    notificationBadgeView.isHidden = true
+                    notificationBadgeCountLabel.text = ""
+                }
+            }
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         walletBalanceTask?.cancel()
+        notificationUnseenCountTask?.cancel()
     }
 
     func checkAndClaimEmailReward(completion: @escaping (() -> Void)) {
@@ -382,65 +397,6 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
         uploadButtonView.isHidden = !Account.signedIn
     }
 
-//
-//    func loadNotifications() {
-//        if loadingNotifications {
-//            return
-//        }
-//        do {
-//            var options: [String: String] = [:]
-//            if Lbryio.latestNotificationId > 0 {
-//                options["since_id"] = String(Lbryio.latestNotificationId)
-//            }
-//
-//            try Lbryio.post(resource: "notification", action: "list", options: options, completion: { data, error in
-//                guard let data = data, error == nil else {
-//                    return
-//                }
-//
-//                if let items = data as? [[String: Any]] {
-//                    var loadedNotifications: [LbryNotification] = []
-//                    for item in items {
-//                        do {
-//                            let jsonData = try JSONSerialization.data(
-//                                withJSONObject: item as Any,
-//                                options: [.prettyPrinted, .sortedKeys]
-//                            )
-//                            let notification: LbryNotification? = try JSONDecoder()
-//                                .decode(LbryNotification.self, from: jsonData)
-//                            if let notification {
-//                                loadedNotifications.append(notification)
-//                            }
-//                        } catch {
-//                            // pass
-//                        }
-//                    }
-//                    Lbryio.cachedNotifications.append(contentsOf: loadedNotifications)
-//                    Lbryio.cachedNotifications.sort(by: { ($0.createdAt ?? "") > ($1.createdAt ?? "") })
-//                    Lbryio.latestNotificationId = Lbryio.cachedNotifications.compactMap(\.id).max() ?? 0
-//                }
-//
-//                self.loadingNotifications = false
-//                self.updateUnseenCount()
-//            })
-//        } catch {
-//            showError(error: error)
-//        }
-//    }
-//
-//    func updateUnseenCount() {
-//        let unseenCount = Lbryio.cachedNotifications.reduce(0) { $0 + ($1.isSeen ?? false ? 0 : 1) }
-//        DispatchQueue.main.async {
-//            if unseenCount > 0 {
-//                self.notificationBadgeView.isHidden = false
-//                self.notificationBadgeCountLabel.text = unseenCount < 100 ? String(unseenCount) : "99+"
-//            } else {
-//                self.notificationBadgeView.isHidden = true
-//                self.notificationBadgeCountLabel.text = ""
-//            }
-//        }
-//    }
-
     func updateMiniPlayer() {
         if AppDelegate.shared.currentClaim != nil, AppDelegate.shared.lazyPlayer != nil {
             miniPlayerTitleLabel.text = AppDelegate.shared.currentClaim?.value?.title
@@ -514,6 +470,10 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
             // Similarly, if the string begins or ends with the separator, the first or last substring, respectively, is empty.
             // Therefore it's safe to get [1]
             let destination = url.components(separatedBy: "lbry://?")[1]
+
+            if UIApplication.currentViewController() as? NotificationsViewController != nil {
+                AppDelegate.shared.mainNavigationController?.popViewController(animated: true)
+            }
 
             if destination == "subscriptions" || destination == "subscription" || destination == "following" {
                 AppDelegate.shared.mainTabViewController?.selectedIndex = 1

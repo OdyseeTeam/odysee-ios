@@ -38,6 +38,7 @@ struct Comments: View {
                         }
                     }
 
+                    // FIXME: No comments
                     CommentsList(expanded: $expanded, comments: model.comments)
                         .environmentObject(model)
                         .environment(\.parentId, nil)

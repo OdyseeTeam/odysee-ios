@@ -18,6 +18,7 @@ struct NotificationsScreen: View {
             NavigationView {
                 List {
                     Group {
+                        // FIXME: No notifications
                         ForEach(account.notifications) { notification in
                             NotificationListItem(notification: notification)
                         }
@@ -47,7 +48,11 @@ struct NotificationsScreen: View {
                         .disabled(account.notifications.allSatisfy(\.isRead))
                     }
                 }
-                .task(account.markAllNotificationsSeen)
+                .onAppear {
+                    Task {
+                        await account.markAllNotificationsSeen()
+                    }
+                }
             }
             .navigationViewStyle(.stack)
 

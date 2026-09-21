@@ -187,6 +187,7 @@ class Account: ObservableObject {
                 do {
                     while true {
                         let message = try await websocket.receive()
+                        print("NETLOG", message)
 
                         guard case let .string(json) = message,
                               let data = try? JSONDecoder().decode(WebsocketData.self, from: json.data),
@@ -231,8 +232,6 @@ class Account: ObservableObject {
 
     /// Doesn't set `inProgress` as it has no effect on UI or logic
     func markAllNotificationsSeen() async {
-        try? await Task.sleep(nanoseconds: 100_000_000_000)
-
         let ids = notifications.filter { !$0.isSeen }.map(\.id)
 
         guard ids.count > 0 else { return }

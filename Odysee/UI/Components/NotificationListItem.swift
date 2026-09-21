@@ -77,7 +77,37 @@ struct NotificationListItem: View {
     private func handleClick() async throws {
         try await Account.shared.markNotificationReadIfNeeded(notification: notification)
 
-        // FIXME: Other
+        if let targetUrl = notification.targetUrl {
+            if let controller = AppDelegate.shared.mainController,
+               controller.handleSpecialUrl(url: targetUrl)
+            {
+                return
+            }
+
+            if let lbryUrl = LbryUri.tryParse(url: targetUrl, requireProto: false) {
+                if lbryUrl.isChannel {
+                    let vc = AppDelegate.shared.mainViewController?.storyboard?
+                        .instantiateViewController(identifier: "channel_view_vc") as! ChannelViewController
+
+                    vc.claimUrl = lbryUrl
+                    (vc.currentCommentId, vc.currentCommentIsReply) = notification.commentInfo
+
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: true)
+                } else {
+                    let vc = AppDelegate.shared.mainViewController?
+                        .storyboard?.instantiateViewController(identifier: "file_view_vc") as! FileViewController
+
+                    vc.claimUrl = lbryUrl
+                    (vc.currentCommentId, vc.currentCommentIsReply) = notification.commentInfo
+
+                    AppDelegate.shared.mainNavigationController?.view.layer.add(
+                        Helper.fileViewTransition,
+                        forKey: kCATransition
+                    )
+                    AppDelegate.shared.mainNavigationController?.pushViewController(vc, animated: false)
+                }
+            }
+        }
 
         // FIXME: new_member needs special case: https://github.com/OdyseeTeam/odysee-frontend/blob/8f2001d4ee4fb6d80184baf62a58e3403f98861d/ui/component/notification/view.tsx#L109
     }
@@ -103,6 +133,7 @@ struct NotificationListItem: View {
 
     private var text: some View {
         // FIXME: Accessibility
+        // FIXME: Accidentally clicking this with < 2 lines just does nothing instead of going to notification target
         Button {
             unlimitedLines.toggle()
         } label: {
@@ -289,4 +320,5 @@ extension Notification {
             dynamic: .reward(())
         ))
     })
+    .buttonStyle(.plain)
 }

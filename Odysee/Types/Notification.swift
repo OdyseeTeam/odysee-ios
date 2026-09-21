@@ -31,6 +31,17 @@ struct Notification: Decodable, Identifiable {
         notificationParameters?.device.target
     }
 
+    var commentInfo: (String?, Bool) {
+        switch notificationParameters?.dynamic {
+        case let .comment(comment):
+            (comment.hash, !comment.parentId.isEmpty)
+        case let .reply(reply):
+            (reply.hash, !reply.parentId.isEmpty)
+        default:
+            (nil, false)
+        }
+    }
+
     enum NotificationRule: String, Decodable {
         case creatorSubscriber = "creator_subscriber"
 
