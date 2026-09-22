@@ -74,9 +74,8 @@ extension ManageFollowingScreen {
                                     }
                                 }
                             }
-
-                            MiniPlayerAvoiding()
                         }
+                        .avoidMiniPlayer()
                         .apply {
                             if #available(iOS 16, *) {
                                 $0.scrollContentBackground(.hidden)

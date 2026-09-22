@@ -41,7 +41,8 @@ struct CommentSticker: View {
 
     var sticker: ImageResource
 
-    @FontScaled(relativeTo: .body) private var size: CGFloat = 4
+    /// Size measured in number of lines in `body` font
+    @FontScaled(relativeTo: .body) var size: CGFloat = 4
 
     var body: some View {
         Image(sticker)

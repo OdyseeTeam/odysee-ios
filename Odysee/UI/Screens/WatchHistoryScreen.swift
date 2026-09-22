@@ -71,12 +71,11 @@ struct WatchHistoryScreen: View {
                                     }
                                 }
                         }
-
-                        MiniPlayerAvoiding()
                     }
                     .listRowSeparator(.hidden)
                     .listRowInsets(.init())
                 }
+                .avoidMiniPlayer()
                 .listStyle(.plain)
                 .refreshable(action: model.refresh)
 

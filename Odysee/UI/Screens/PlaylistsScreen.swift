@@ -200,12 +200,11 @@ struct PlaylistsScreen: View {
                                     .tint(.red)
                                 }
                         }
-
-                        MiniPlayerAvoiding()
                     }
                     .listRowSeparator(.hidden)
                     .listRowInsets(.init(top: 0, leading: 0, bottom: 0, trailing: 16))
                 }
+                .avoidMiniPlayer()
                 .listStyle(.plain)
                 .refreshable(action: model.refresh)
                 .toolbar {

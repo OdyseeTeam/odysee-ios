@@ -97,11 +97,10 @@ struct RewardVerificationScreen: View {
                     }
                     .padding(.leading, 10)
                 }
-
-                MiniPlayerAvoiding()
             }
             .padding()
         }
+        .avoidMiniPlayer()
         .apply {
             if #available(iOS 16.4, *) {
                 $0.scrollBounceBehavior(.basedOnSize)

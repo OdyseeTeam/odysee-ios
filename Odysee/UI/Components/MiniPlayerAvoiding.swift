@@ -7,27 +7,38 @@
 
 import SwiftUI
 
-/// Insert this at the end of a List/ScrollView to add "content inset" when miniplayer visible
-///
-/// This must be part of the list's content (i.e. List -> ForEach, not direct List)
-struct MiniPlayerAvoiding: View {
+struct MiniPlayerAvoiding: ViewModifier {
     @State private var miniPlayerTop: Double = 0
 
-    var body: some View {
-        Color.clear
-            .frame(height: miniPlayerTop)
-            .task {
-                guard let mainController = AppDelegate.shared.mainController else {
-                    return
-                }
+    func body(content: Content) -> some View {
+        content
+            .safeAreaInset(edge: .bottom) {
+                Color.clear
+                    .frame(height: miniPlayerTop)
+                    .task {
+                        guard let mainController = AppDelegate.shared.mainController else {
+                            return
+                        }
 
-                for await new in mainController.miniPlayerTop.values {
-                    miniPlayerTop = new
-                }
+                        // FIXME: rename to top
+                        for await new in mainController.miniPlayerTop.values {
+                            miniPlayerTop = new
+                        }
+                    }
             }
     }
 }
 
-#Preview {
-    MiniPlayerAvoiding()
+@MainActor
+extension List {
+    func avoidMiniPlayer() -> some View {
+        modifier(MiniPlayerAvoiding())
+    }
+}
+
+@MainActor
+extension ScrollView {
+    func avoidMiniPlayer() -> some View {
+        modifier(MiniPlayerAvoiding())
+    }
 }

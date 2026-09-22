@@ -190,5 +190,5 @@ struct CommentText: View {
 
 @available(iOS 17, *)
 #Preview(traits: .sizeThatFitsLayout) {
-    CommentText("Hello :+1: hang :unknown:")
+    CommentText("Hello :+1: and :unknown:")
 }

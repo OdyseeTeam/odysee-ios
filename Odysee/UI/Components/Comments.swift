@@ -10,8 +10,8 @@ import SwiftUI
 @available(iOS 16, *)
 struct Comments: View {
     // FIXME: hoist state to not reload when reappear
-    @StateObject private var model: ViewModel = .init()
-    @State private var expanded: Set<Comment.ID> = .init()
+    @StateObject var model: ViewModel
+    @State var expanded: Set<Comment.ID> = .init()
 
     @Namespace private var topId
 
@@ -27,16 +27,8 @@ struct Comments: View {
                             scrollProxy: proxy
                         )
                         .padding(.bottom)
-                        .id(topId)
-                        // FIXME: onChange means Reply -> Go to -> Reply doesn't scroll back up again
-                        .onChange(of: model.replyTo) {
-                            if $0 != nil {
-                                withAnimation {
-                                    proxy.scrollTo(topId)
-                                }
-                            }
-                        }
                     }
+                    .id(topId)
 
                     // FIXME: No comments
                     CommentsList(expanded: $expanded, comments: model.comments)
@@ -51,12 +43,19 @@ struct Comments: View {
                                 }
                             }
                     }
-
-                    MiniPlayerAvoiding()
-                        .listRowSeparator(.hidden)
                 }
+                .avoidMiniPlayer()
                 .environment(\.defaultMinListRowHeight, 0)
                 .listStyle(.plain)
+                .task { // Use for await rather than onChange, to capture duplicate values
+                    for await replyTo in model.$replyTo.values {
+                        if replyTo != nil {
+                            withAnimation {
+                                proxy.scrollTo(topId)
+                            }
+                        }
+                    }
+                }
             }
 
             ProgressView()
@@ -113,5 +112,6 @@ extension Comments {
 /// Preview of ProgressView
 @available(iOS 16, *)
 #Preview {
-    Comments()
+    // FIXME: Change to odysee
+    Comments(model: .init(claimId: "989f7977d0394ec45389ba05c50109dd958b655e"))
 }

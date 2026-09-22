@@ -1,5 +1,5 @@
 {
-  "originHash" : "45f2fe75a202a5395d4b6b919ffc074e6de151644ace7d793ffb810c0ad1ca05",
+  "originHash" : "87e1882f6e95ad9121dbdf65fedae3f36fe0bbdb078ac20d5b60e14b2f0a1499",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -152,6 +152,14 @@
       "state" : {
         "revision" : "289862b9466243cdec407997d4cb8ba529359a99",
         "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "listitemtracking",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Ceylo/ListItemTracking",
+      "state" : {
+        "revision" : "5fae2b803e9db0c706140cbfc279166161b2052d"
       }
     },
     {

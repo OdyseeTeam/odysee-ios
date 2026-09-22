@@ -17,18 +17,15 @@ struct NotificationsScreen: View {
         ZStack {
             NavigationView {
                 List {
-                    Group {
-                        // FIXME: No notifications
-                        ForEach(account.notifications) { notification in
-                            NotificationListItem(notification: notification)
-                        }
-                        .onDelete(perform: account.deleteNotifications)
-                        .deleteDisabled(account.inProgress)
-
-                        MiniPlayerAvoiding()
+                    // FIXME: No notifications
+                    ForEach(account.notifications) { notification in
+                        NotificationListItem(notification: notification)
                     }
+                    .onDelete(perform: account.deleteNotifications)
+                    .deleteDisabled(account.inProgress)
                     .listRowSeparator(.hidden)
                 }
+                .avoidMiniPlayer()
                 .refreshable {
                     refreshing = true
                     defer {

@@ -12,6 +12,12 @@ import TaskGate
 extension Comments {
     @MainActor
     class ViewModel: ObservableObject {
+        var claimId: String
+
+        init(claimId: String) {
+            self.claimId = claimId
+        }
+
         @Published var replyTo: Comment?
         @Published var channel: Claim? {
             didSet {
@@ -129,6 +135,7 @@ extension Comments {
 
                     return false
                 }
+            // FIXME: Maybe filter duplicates
 
             return Page(items: comments, isLastPage: list.isLastPage)
         }

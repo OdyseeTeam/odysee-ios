@@ -12,6 +12,8 @@ struct CommentPostForm: View {
     @ObservedObject var model: Comments.ViewModel
     var scrollProxy: ScrollViewProxy
 
+    @FontScaled(relativeTo: .body) private var bodySize
+
     var body: some View {
         if !Account.signedIn /* if no channels */ {
             Text("FIXME")
@@ -34,9 +36,15 @@ struct CommentPostForm: View {
                             Color.accentColor
                                 .frame(width: 2)
 
-                            CommentText(replyTo.comment)
-                                .lineLimit(1)
-                                .opacity(0.5)
+                            Group {
+                                if let sticker = CommentSticker.parse(replyTo.comment) {
+                                    CommentSticker(sticker: sticker, size: 2)
+                                } else {
+                                    CommentText(replyTo.comment)
+                                        .lineLimit(1)
+                                }
+                            }
+                            .opacity(0.5)
 
                             Spacer()
                         }
@@ -115,6 +123,7 @@ struct ChannelPickerNil: View {
 @available(iOS 16, *)
 #Preview {
     ScrollViewReader { proxy in
-        CommentPostForm(model: .init(), scrollProxy: proxy)
+        // FIXME: Change to odysee
+        CommentPostForm(model: .init(claimId: "989f7977d0394ec45389ba05c50109dd958b655e"), scrollProxy: proxy)
     }
 }

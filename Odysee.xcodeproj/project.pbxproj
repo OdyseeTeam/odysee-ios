@@ -37,6 +37,7 @@
 		5377EA852F7B6C3300C8E03E /* PublishesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */; };
 		5377EA872F7B6C6B00C8E03E /* PublishesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA862F7B6C6B00C8E03E /* PublishesViewModel.swift */; };
 		5385092028E13D28009A7AAB /* MembershipPerk.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5385091F28E13D28009A7AAB /* MembershipPerk.swift */; };
+		538AF2BB30613C5C001D414F /* ChannelScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538AF2BA30613C5C001D414F /* ChannelScreen.swift */; };
 		538C274D2EFB8BC200305361 /* AccountResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C274C2EFB8BC200305361 /* AccountResult.swift */; };
 		538C274F2EFB8BE900305361 /* AccountParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C274E2EFB8BE900305361 /* AccountParams.swift */; };
 		538C27562EFB8DA300305361 /* AuthToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = 538C27552EFB8DA300305361 /* AuthToken.swift */; };
@@ -57,6 +58,7 @@
 		539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */ = {isa = PBXBuildFile; productRef = 539D798B2F3E389400E7686E /* CachedAsyncImage */; };
 		539D798E2F3EBDCE00E7686E /* ManageFollowingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D798D2F3EBDCE00E7686E /* ManageFollowingViewModel.swift */; };
 		539D79932F3ECE7300E7686E /* ChannelListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 539D79922F3ECE7300E7686E /* ChannelListItem.swift */; };
+		53AAEEB83062DD01003D8830 /* ListItemTracking in Frameworks */ = {isa = PBXBuildFile; productRef = 53AAEEB73062DD01003D8830 /* ListItemTracking */; };
 		53AE21372F8DE086009939B2 /* PlaylistListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AE21362F8DE086009939B2 /* PlaylistListItem.swift */; };
 		53AE21392F99B59B009939B2 /* PlaylistsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AE21382F99B59B009939B2 /* PlaylistsViewModel.swift */; };
 		53AED4F32812A8750088A1BA /* OdyseeLivestream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53AED4F22812A8750088A1BA /* OdyseeLivestream.swift */; };
@@ -216,6 +218,7 @@
 		5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishesScreen.swift; sourceTree = "<group>"; };
 		5377EA862F7B6C6B00C8E03E /* PublishesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishesViewModel.swift; sourceTree = "<group>"; };
 		5385091F28E13D28009A7AAB /* MembershipPerk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MembershipPerk.swift; sourceTree = "<group>"; };
+		538AF2BA30613C5C001D414F /* ChannelScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChannelScreen.swift; sourceTree = "<group>"; };
 		538C274C2EFB8BC200305361 /* AccountResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountResult.swift; sourceTree = "<group>"; };
 		538C274E2EFB8BE900305361 /* AccountParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountParams.swift; sourceTree = "<group>"; };
 		538C27552EFB8DA300305361 /* AuthToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthToken.swift; sourceTree = "<group>"; };
@@ -371,6 +374,7 @@
 				5359CAC32FB37C840035D0D6 /* WrappingHStack in Frameworks */,
 				6453358B257FDC6800C49BD1 /* FirebaseMessaging in Frameworks */,
 				64019A0E269C101D00E16A51 /* ImageScrollView in Frameworks */,
+				53AAEEB83062DD01003D8830 /* ListItemTracking in Frameworks */,
 				539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */,
 				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
 				64A26CE526974B7A00AE19DE /* PerfectMarkdown in Frameworks */,
@@ -415,6 +419,7 @@
 				534457BD2F87E4E900E81A7E /* PlaylistsScreen.swift */,
 				53B7E2002FA24B26001CCFD6 /* PlaylistDetailScreen.swift */,
 				535856273059317400746234 /* NotificationsScreen.swift */,
+				538AF2BA30613C5C001D414F /* ChannelScreen.swift */,
 			);
 			path = Screens;
 			sourceTree = "<group>";
@@ -768,6 +773,7 @@
 				539D798B2F3E389400E7686E /* CachedAsyncImage */,
 				5359CAC22FB37C840035D0D6 /* WrappingHStack */,
 				532FCAB02FEE762300CBBAB1 /* TaskGate */,
+				53AAEEB73062DD01003D8830 /* ListItemTracking */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -861,6 +867,7 @@
 				539D798A2F3E389400E7686E /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */,
 				5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 				532FCAAF2FEE762300CBBAB1 /* XCRemoteSwiftPackageReference "TaskGate" */,
+				53AAEEB63062DD01003D8830 /* XCRemoteSwiftPackageReference "ListItemTracking" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -1004,6 +1011,7 @@
 				538C274F2EFB8BE900305361 /* AccountParams.swift in Sources */,
 				649F023C2717F918009A5698 /* Constants.swift in Sources */,
 				53B25D482FC5779500D91F8B /* ChannelPicker.swift in Sources */,
+				538AF2BB30613C5C001D414F /* ChannelScreen.swift in Sources */,
 				646E4A5F259CF13A0008C9C8 /* Comment.swift in Sources */,
 				5395404F301C889400DF10E6 /* Comments.swift in Sources */,
 				53486A5C2FADB7510028717C /* PlaylistDetailForm.swift in Sources */,
@@ -1489,6 +1497,14 @@
 				minimumVersion = 2.1.1;
 			};
 		};
+		53AAEEB63062DD01003D8830 /* XCRemoteSwiftPackageReference "ListItemTracking" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Ceylo/ListItemTracking";
+			requirement = {
+				kind = revision;
+				revision = 5fae2b803e9db0c706140cbfc279166161b2052d;
+			};
+		};
 		64019A0C269C101C00E16A51 /* XCRemoteSwiftPackageReference "ImageScrollView" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/huynguyencong/ImageScrollView.git";
@@ -1580,6 +1596,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 539D798A2F3E389400E7686E /* XCRemoteSwiftPackageReference "swiftui-cached-async-image" */;
 			productName = CachedAsyncImage;
+		};
+		53AAEEB73062DD01003D8830 /* ListItemTracking */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 53AAEEB63062DD01003D8830 /* XCRemoteSwiftPackageReference "ListItemTracking" */;
+			productName = ListItemTracking;
 		};
 		53F64E372ECCEC2A001A7D8F /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;

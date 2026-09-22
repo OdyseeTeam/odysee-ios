@@ -119,12 +119,11 @@ struct PlaylistDetailScreen: View {
                     .onMove(perform: model.move)
                     .onDelete(perform: model.delete)
                     .deleteDisabled(!isEditing) // Disable delete swipe action
-
-                    MiniPlayerAvoiding()
                 }
                 .listRowSeparator(.hidden)
                 .listRowInsets(.init())
             }
+            .avoidMiniPlayer()
             .listStyle(.plain)
             .navigationTitle(
                 // TODO: Try to use Binding for rename action

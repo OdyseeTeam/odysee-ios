@@ -32,7 +32,9 @@ struct LibraryScreen: View {
                 switch selectedTab {
                 case .publishes:
                     if #available(iOS 16, *) {
-                        Comments()
+                        ChannelScreen(channel: .uri(
+                            name: "@ktprograms", claimId: "989f7977d0394ec45389ba05c50109dd958b655e"
+                        ))
                     } else {
                         PublishesScreen()
                     }
