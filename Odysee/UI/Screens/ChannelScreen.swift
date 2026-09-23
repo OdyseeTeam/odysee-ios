@@ -102,10 +102,12 @@ struct Thing: View {
         var body: some View {
             GeometryReader { listGeometry in
                 List {
-                    Color.clear
+                    Color.red
+                        .listRowInsets(.init())
                         .frame(height: 300)
                         .onItemFrameChanged(listGeometry: listGeometry) { frame in
                             myOffset = frame?.origin.y
+                            print("MYLOG", myOffset)
 
                             if tab == num {
                                 if let frame {
@@ -115,10 +117,7 @@ struct Thing: View {
                                 }
                             }
                         }
-                        .id("TOP")
                         .onChange(of: tab) {
-                            // FIXME: Should just update header frame instead
-//                                scrollProxy.scrollTo("TOP")
                             if tab == num {
                                 offset = myOffset ?? -300
                             }
@@ -128,10 +127,10 @@ struct Thing: View {
                         Text(String($0))
                     }
                 }
-                .ignoresSafeArea()
                 .listStyle(.plain)
                 .trackListFrame()
             }
+            .ignoresSafeArea()
         }
     }
 
@@ -151,13 +150,17 @@ struct Thing: View {
         .ignoresSafeArea()
         .overlay(alignment: .top) {
             ZStack(alignment: .bottom) {
-                Color.purple
+                Image(.spacemanCover)
+                    .resizable()
+                    .opacity(0.5)
+                    .scaledToFill()
 
                 Text("Hellorld!")
                     .foregroundStyle(.white)
             }
-            .frame(height: 300)
-            .offset(y: max(offset, -250))
+            .frame(height: 300 + max(0, offset))
+            .offset(y: min(0, max(offset, -200)))
+            .ignoresSafeArea()
         }
     }
 }
@@ -165,4 +168,84 @@ struct Thing: View {
 @available(iOS 17, *)
 #Preview {
     Thing()
+}
+
+#Preview {
+    TabView {
+        Color.red
+    }
+    .tabViewStyle(.page(indexDisplayMode: .always))
+    .indexViewStyle(.page(backgroundDisplayMode: .always))
+    .overlay(alignment: .top) {
+        Color.purple
+            .frame(height: 100)
+            .ignoresSafeArea()
+    }
+}
+
+struct TheView: View {
+    @State var selection = 1
+    @State var offset: CGFloat = 0
+
+    var body: some View {
+        // FIXME: Make sure refreshable works (or don't)
+        TabView(selection: $selection) {
+            FrameTrackingList(offset: $offset, tag: 1, selection: $selection) {
+                ForEach(1 ..< 100) {
+                    Text(String($0))
+                }
+            }
+            FrameTrackingList(offset: $offset, tag: 2, selection: $selection) {
+                ForEach(100 ..< 200) {
+                    Text(String($0))
+                }
+            }
+            FrameTrackingList(offset: $offset, tag: 3, selection: $selection) {
+                ForEach(200 ..< 300) {
+                    Text(String($0))
+                }
+            }
+        }
+        .sharedHeaderPageView(
+            offset: $offset,
+            headerHeight: 300,
+            headerMinHeight: 80
+        ) {
+            ZStack(alignment: .bottom) {
+//                Image(.spacemanCover)
+//                    .resizable()
+//                    .scaledToFill()
+//                    .blur(radius: 20)
+//                    .frame(height: 300 + max(0, offset))
+//                    .clipShape(.rect)
+//
+//                Image(.spacemanCover)
+//                    .resizable()
+//                    .scaledToFit()
+
+                // This is from https://github.com/danielsaidi/ScrollKit/blob/main/Sources/ScrollKit/ScrollViewHeaderImage.swift
+                Color.clear
+                    .background {
+                        Image(.spacemanCover)
+                            .resizable()
+                            .scaledToFill()
+                    }
+                    .clipped()
+
+                VStack {
+                    Spacer()
+
+                    Text("Hello world!")
+                        .padding()
+                        .background(.black)
+                        .clipShape(.capsule)
+                        .foregroundStyle(.white)
+
+                    Spacer()
+                }
+                .frame(height: 80)
+            }
+        }
+        .border(.black)
+    }
 }

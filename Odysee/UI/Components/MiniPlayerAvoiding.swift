@@ -12,6 +12,7 @@ struct MiniPlayerAvoiding: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            // FIXME: (iOS 17) Change to safeAreaPadding
             .safeAreaInset(edge: .bottom) {
                 Color.clear
                     .frame(height: miniPlayerTop)
