@@ -11,17 +11,32 @@ import Foundation
 
 /// Converts all keys to snake case
 public class QueryItemsEncoder {
-    public init() {}
+    private var keyEncodingStrategy: KeyEncodingStrategy
+
+    public init(keyEncodingStrategy: KeyEncodingStrategy = .convertToSnakeCase) {
+        self.keyEncodingStrategy = keyEncodingStrategy
+    }
 
     public func encode<T: Encodable>(_ value: T) throws -> [URLQueryItem] {
-        let queryItemsEncoding = QueryItemsEncoding()
+        let queryItemsEncoding = QueryItemsEncoding(to: .init(keyEncodingStrategy: keyEncodingStrategy))
         try value.encode(to: queryItemsEncoding)
         return queryItemsEncoding.queryItems.queryItems
+    }
+
+    public enum KeyEncodingStrategy {
+        case useDefaultKeys
+        case convertToSnakeCase
     }
 }
 
 private struct QueryItemsEncoding: Encoder {
     fileprivate final class QueryItems {
+        init(keyEncodingStrategy: QueryItemsEncoder.KeyEncodingStrategy) {
+            self.keyEncodingStrategy = keyEncodingStrategy
+        }
+
+        private var keyEncodingStrategy: QueryItemsEncoder.KeyEncodingStrategy
+
         private(set) var queryItems: [URLQueryItem] = []
 
         /// <https://github.com/swiftlang/swift-foundation/blob/5da00f0dc72b182f50dd292421b0436b55ddc869/Sources/FoundationEssentials/JSON/JSONEncoder.swift#L175-L222>
@@ -88,7 +103,7 @@ private struct QueryItemsEncoding: Encoder {
 
     fileprivate var queryItems: QueryItems
 
-    init(to queryItems: QueryItems = QueryItems()) {
+    init(to queryItems: QueryItems) {
         self.queryItems = queryItems
     }
 
@@ -180,7 +195,23 @@ private struct QueryItemsKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerPr
         queryItems.encode(key: key, value: value.description)
     }
 
+    /// This check/error is at runtime, but we only encode static structs which are used for method calls
     mutating func encode<T>(_ value: T, forKey key: Key) throws where T: Encodable {
+        if let items = value as? [CustomStringConvertible] {
+            queryItems.encode(key: key, value: items.map(\.description).joined(separator: ","))
+            return
+        }
+
+        if #available(iOS 16, *) {
+            if let value = value as? (any RawRepresentable<String>) {
+                try encode(value.rawValue, forKey: key)
+                return
+            } else if let value = value as? (any RawRepresentable<CustomStringConvertible>) {
+                try encode(value.rawValue.description, forKey: key)
+                return
+            }
+        }
+
         fatalError("Only flat primitives are supported")
     }
 

@@ -32,6 +32,8 @@
 		5359CABD2FB2D5ED0035D0D6 /* Tags.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABC2FB2D5ED0035D0D6 /* Tags.swift */; };
 		5359CAC02FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */; };
 		5359CAC32FB37C840035D0D6 /* WrappingHStack in Frameworks */ = {isa = PBXBuildFile; productRef = 5359CAC22FB37C840035D0D6 /* WrappingHStack */; };
+		535F682E306A681A00BE6298 /* LighthouseParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535F682D306A681A00BE6298 /* LighthouseParams.swift */; };
+		535F6830306A6AAE00BE6298 /* LighthouseResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535F682F306A6AAE00BE6298 /* LighthouseResult.swift */; };
 		5361DF0E304969B100C016F8 /* ClaimFiltering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5361DF0D304969B000C016F8 /* ClaimFiltering.swift */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5377EA832F7B666E00C8E03E /* LibraryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA822F7B666E00C8E03E /* LibraryScreen.swift */; };
@@ -214,6 +216,8 @@
 		53593F30287E5D75007FD08E /* CommentsResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentsResult.swift; sourceTree = "<group>"; };
 		5359CABC2FB2D5ED0035D0D6 /* Tags.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tags.swift; sourceTree = "<group>"; };
 		5359CABF2FB2DCF10035D0D6 /* SharedPreference+PlaylistTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SharedPreference+PlaylistTest.swift"; sourceTree = "<group>"; };
+		535F682D306A681A00BE6298 /* LighthouseParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LighthouseParams.swift; sourceTree = "<group>"; };
+		535F682F306A6AAE00BE6298 /* LighthouseResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LighthouseResult.swift; sourceTree = "<group>"; };
 		5361DF0D304969B000C016F8 /* ClaimFiltering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimFiltering.swift; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5377EA822F7B666E00C8E03E /* LibraryScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryScreen.swift; sourceTree = "<group>"; };
@@ -435,6 +439,8 @@
 				53593F30287E5D75007FD08E /* CommentsResult.swift */,
 				538C274E2EFB8BE900305361 /* AccountParams.swift */,
 				538C274C2EFB8BC200305361 /* AccountResult.swift */,
+				535F682D306A681A00BE6298 /* LighthouseParams.swift */,
+				535F682F306A6AAE00BE6298 /* LighthouseResult.swift */,
 			);
 			path = API;
 			sourceTree = "<group>";
@@ -976,6 +982,7 @@
 				641E7EB92608BDB100A79CD3 /* Predefined.swift in Sources */,
 				64FF820F2604FB0B009B7A3B /* FirstRunDelegate.swift in Sources */,
 				648F320C2575D52500E2CA51 /* UserAccountViewController.swift in Sources */,
+				535F6830306A6AAE00BE6298 /* LighthouseResult.swift in Sources */,
 				53D4FED93019A57400F20363 /* MiniPlayerAvoiding.swift in Sources */,
 				CCDDA9172655C1340006035F /* FileDismissAnimationController.swift in Sources */,
 				53486A602FAEDF8F0028717C /* ThumbnailPicker.swift in Sources */,
@@ -990,6 +997,7 @@
 				64FBE7A125502A290082AF2E /* HomeViewController.swift in Sources */,
 				53ED42043052C72500DF4DDF /* User.swift in Sources */,
 				53C01F552F28CFFC008ED3F8 /* SignInUpScreen.swift in Sources */,
+				535F682E306A681A00BE6298 /* LighthouseParams.swift in Sources */,
 				533562922ECEBF9E0024ECC9 /* RewardVerificationScreen.swift in Sources */,
 				5377EA872F7B6C6B00C8E03E /* PublishesViewModel.swift in Sources */,
 				648F31FC2575122500E2CA51 /* SuggestedChannelCollectionViewCell.swift in Sources */,

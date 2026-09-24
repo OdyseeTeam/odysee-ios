@@ -10,10 +10,6 @@ import Odysee
 import Testing
 
 struct QueryItemsCoderTests {
-    struct CamelCase: Codable {
-        var thisThing: String
-    }
-
     struct Params: Codable, Equatable {
         var email: String
         var password: String
@@ -24,6 +20,17 @@ struct QueryItemsCoderTests {
         var components = URLComponents()
         components.queryItems = items
         #expect(components.percentEncodedQuery == "email=test@example.com&password=123")
+    }
+
+    struct WithArray: Codable {
+        var items: [Int]
+    }
+
+    @Test func encode_withArray() async throws {
+        let items = try QueryItemsEncoder().encode(WithArray(items: [1, 2, 3, 42]))
+        var components = URLComponents()
+        components.queryItems = items
+        #expect(components.percentEncodedQuery == "items=1,2,3,42")
     }
 
     @Test func decode() async throws {
@@ -62,6 +69,10 @@ struct QueryItemsCoderTests {
 
             throw InvalidURLQueryItemsError()
         }
+    }
+
+    struct CamelCase: Codable {
+        var thisThing: String
     }
 
     @Test func decodeEnum_success() async throws {
