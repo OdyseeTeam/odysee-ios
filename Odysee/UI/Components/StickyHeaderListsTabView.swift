@@ -66,7 +66,7 @@ struct FrameTrackingList<SelectionValue: Hashable, Content: View>: View {
         }
     }
 
-    /// If this tab is active, pdates `offset` to either the current offset, if not `nil`,
+    /// If this tab is active, updates `offset` to either the current offset, if not `nil`,
     /// or `-1 * headerHeight`, so that the header is entirely out of view
     private func updateOffset() {
         if tag == selection {
@@ -139,6 +139,60 @@ extension TabView {
     }
 }
 
+@available(iOS 17, *)
 #Preview {
-    TheView()
+    @Previewable @State var selection = 1
+    @Previewable @State var offset: CGFloat = 0
+
+    TabView(selection: $selection) {
+        FrameTrackingList(offset: $offset, tag: 1, selection: $selection) {
+            ForEach(1 ..< 100) {
+                Text(String($0))
+            }
+        }
+        FrameTrackingList(offset: $offset, tag: 2, selection: $selection) {
+            ForEach(100 ..< 200) {
+                Text(String($0))
+            }
+        }
+        FrameTrackingList(offset: $offset, tag: 3, selection: $selection) {
+            ForEach(200 ..< 300) {
+                Text(String($0))
+            }
+        }
+    }
+    .sharedHeaderPageView(
+        offset: $offset,
+        headerHeight: 300,
+        headerMinHeight: 80
+    ) {
+        ZStack(alignment: .bottom) {
+            //                Image(.spacemanCover)
+            //                    .resizable()
+            //                    .scaledToFill()
+            //                    .blur(radius: 20)
+            //                    .frame(height: 300 + max(0, offset))
+            //                    .clipShape(.rect)
+            //
+            //                Image(.spacemanCover)
+            //                    .resizable()
+            //                    .scaledToFit()
+
+            ScrollViewHeaderImage(Image(.spacemanCover))
+
+            VStack {
+                Spacer()
+
+                Text("Hello world!")
+                    .padding()
+                    .background(.black)
+                    .clipShape(.capsule)
+                    .foregroundStyle(.white)
+
+                Spacer()
+            }
+            .frame(height: 80)
+        }
+    }
+    .border(.black)
 }
