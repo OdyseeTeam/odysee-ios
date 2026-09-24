@@ -5,15 +5,21 @@
 //  Created by Keith Toh on 18/12/2025.
 //
 
-import FirebaseCrashlytics
 import Foundation
 
 struct Method<ParamType: Encodable, ResultType: Decodable> {
+    @available(*, unavailable)
+    init(name: String, defaultTransform: ((inout ResultType) throws -> Void)? = nil, method: Method) {
+        self.name = name
+        self.defaultTransform = defaultTransform
+        self.method = method
+    }
+
     var name: String
     var defaultTransform: ((inout ResultType) throws -> Void)?
 
     /// For AccountMethods
-    var method: Method = .POST
+    var method: Method = .GET
 
     enum Method: String {
         /// For methods that don't require authentication; can be cached by intermediate servers
@@ -41,158 +47,154 @@ struct Method<ParamType: Encodable, ResultType: Decodable> {
             case error
         }
     }
-}
 
-extension Method where ParamType: BackendMethodParams {
-    func call(
-        params: ParamType,
-        url: URL = Lbry.lbrytvURL,
-        transform: ((inout ResultType) throws -> Void)? = nil
-    ) async throws -> ResultType {
-        let task = Task.detached(priority: .userInitiated) {
-            let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: await AuthToken.token)
-
-            let (data, urlResponse) = try await URLSession.shared.data(for: request)
-
-            guard let httpResponse = urlResponse as? HTTPURLResponse else {
-                throw LbryioRequestError.invalidResponse(urlResponse)
-            }
-
-            // swift-format-ignore
-            print(
-                "NETLOG",
-                name,
-                httpResponse.statusCode,
-                String(data: data, encoding: .utf8)!.prefix(20).replacingOccurrences(of: "\n", with: " ")
-            )
-
-            // FIXME: All call check respcode OK before decode
-            let respCode = httpResponse.statusCode
-            Crashlytics.crashlytics().setCustomValue(
-                String(data: data, encoding: .utf8),
-                forKey: "Lbry.call_data"
-            )
-            Crashlytics.crashlytics().setCustomValue(respCode, forKey: "Lbry.call_respCode")
-
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-
-            let response = try decoder.decode(LbryAPIResponse<ResultType>.self, from: data)
-            if response.jsonrpc != "2.0" {
-                assertionFailure()
-                throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
-            }
-
-            guard var result = response.result else {
-                if name == BackendMethods.sharedPreferenceGet.name,
-                   response.error?.message != "authentication required",
-                   var result = SharedPreferenceGetResult(shared: nil) as? ResultType
-                {
-                    try defaultTransform?(&result)
-                    try transform?(&result)
-                    return result
-                }
-
-                throw LbryApiResponseError(response.error?.message ?? "unknown api error")
-            }
-
-            try defaultTransform?(&result)
-            try transform?(&result)
-
-            return result
-        }
-
-        return try await task.value
-    }
-}
-
-extension Method where ParamType: CommentsMethodParams {
-    func call(
-        params: ParamType,
-        url: URL = Lbry.commentronURL,
-        transform: ((inout ResultType) throws -> Void)? = nil
-    ) async throws -> ResultType {
-        let task = Task.detached(priority: .userInitiated) {
-            let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: await AuthToken.token)
-
-            let (data, r) = try await URLSession.shared.data(for: request)
-
-            // swift-format-ignore
-            print(
-                "NETLOG",
-                name,
-                (r as! HTTPURLResponse).statusCode,
-                String(data: data, encoding: .utf8)!.prefix(20).replacingOccurrences(of: "\n", with: " ")
-            )
-
-            let decoder = JSONDecoder()
-            decoder.dateDecodingStrategy = .iso8601
-            decoder.keyDecodingStrategy = .convertFromSnakeCase
-
-            let response = try decoder.decode(LbryAPIResponse<ResultType>.self, from: data)
-            if response.jsonrpc != "2.0" {
-                assertionFailure()
-                throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
-            }
-
-            guard var result = response.result else {
-                throw LbryApiResponseError(response.error?.message ?? "unknown api error")
-            }
-
-            try transform?(&result)
-
-            return result
-        }
-
-        return try await task.value
-    }
-}
-
-extension Method where ParamType: AccountMethodParams {
-    init(get name: String) {
-        self.init(name: name, method: .GET)
+    private var decoder: JSONDecoder {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
     }
 
-    init(post name: String) {
-        self.init(name: name)
-    }
-
-    func call(params: ParamType) async throws -> ResultType {
-        let url = "\(Lbryio.connectionString)/\(name)"
-        guard var requestUrl = URL(string: url) else {
+    private func paramsGetQuery(params: ParamType, url: String) throws -> URL {
+        guard var components = URLComponents(string: url) else {
             throw LbryioRequestError.invalidUrl(url)
         }
 
-        var queryItems = try QueryItemsEncoder().encode(params)
+        components.queryItems = try QueryItemsEncoder().encode(params)
+        components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(
+            of: "+",
+            with: "%2B"
+        )
 
-        // For methods that don't require authentication, use GET and encode in the URL
-        if method == .GET {
-            guard var components = URLComponents(string: url) else {
-                throw LbryioRequestError.invalidUrl(url)
-            }
-            components.queryItems = queryItems
-            components.percentEncodedQuery = components.percentEncodedQuery?.replacingOccurrences(
-                of: "+",
-                with: "%2B"
-            )
-
-            guard let url = components.url else {
-                throw LbryioRequestError.invalidUrlComponents(components)
-            }
-            requestUrl = url
+        guard let url = components.url else {
+            throw LbryioRequestError.invalidUrlComponents(components)
         }
 
+        return url
+    }
+
+    private var paramsSession: URLSession {
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.urlCache = nil
 
         let session = URLSession(configuration: config)
+        return session
+    }
+}
+
+extension Method where ParamType: BackendMethodParams {
+    init(name: String, defaultTransform: ((inout ResultType) throws -> Void)? = nil) {
+        self.name = name
+        self.defaultTransform = defaultTransform
+    }
+
+    func call(
+        params: ParamType,
+        url: URL = Lbry.lbrytvURL
+    ) async throws -> ResultType {
+        let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: await AuthToken.token)
+
+        let (data, r) = try await URLSession.shared.data(for: request)
+
+        // swift-format-ignore
+        print(
+            "NETLOG",
+            name,
+            (r as! HTTPURLResponse).statusCode,
+            String(data: data, encoding: .utf8)!.prefix(20).replacingOccurrences(of: "\n", with: " ")
+        )
+
+        // FIXME: All call check respcode OK before decode
+
+        let response = try decoder.decode(LbryAPIResponse<ResultType>.self, from: data)
+        if response.jsonrpc != "2.0" {
+            assertionFailure()
+            throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
+        }
+
+        guard var result = response.result else {
+            if name == BackendMethods.sharedPreferenceGet.name,
+               response.error?.message != "authentication required",
+               var result = SharedPreferenceGetResult(shared: nil) as? ResultType
+            {
+                try defaultTransform?(&result)
+                return result
+            }
+
+            throw LbryApiResponseError(response.error?.message ?? "unknown api error")
+        }
+
+        try defaultTransform?(&result)
+
+        return result
+    }
+}
+
+extension Method where ParamType: CommentsMethodParams {
+    init(name: String) {
+        self.name = name
+    }
+
+    func call(
+        params: ParamType,
+        url: URL = Lbry.commentronURL
+    ) async throws -> ResultType {
+        let request = try Lbry.apiRequest(method: name, params: params, url: url, authToken: await AuthToken.token)
+
+        let (data, r) = try await URLSession.shared.data(for: request)
+
+        // swift-format-ignore
+        print(
+            "NETLOG",
+            name,
+            (r as! HTTPURLResponse).statusCode,
+            String(data: data, encoding: .utf8)!.prefix(20).replacingOccurrences(of: "\n", with: " ")
+        )
+
+        let response = try decoder.decode(LbryAPIResponse<ResultType>.self, from: data)
+        if response.jsonrpc != "2.0" {
+            assertionFailure()
+            throw LbryApiResponseError("wrong jsonrpc \(response.jsonrpc)")
+        }
+
+        guard let result = response.result else {
+            throw LbryApiResponseError(response.error?.message ?? "unknown api error")
+        }
+
+        return result
+    }
+}
+
+extension Method where ParamType: AccountMethodParams {
+    init(get name: String) {
+        self.name = name
+        method = .GET
+    }
+
+    init(post name: String) {
+        self.name = name
+        method = .POST
+    }
+
+    func call(params: ParamType) async throws -> ResultType {
+        let url = "\(Lbryio.connectionString)/\(name)"
+
+        let requestUrl = if method == .GET {
+            // For methods that don't require authentication, use GET and encode in the URL
+            try paramsGetQuery(params: params, url: url)
+        } else if let requestUrl = URL(string: url) {
+            requestUrl
+        } else {
+            throw LbryioRequestError.invalidUrl(url)
+        }
+
         var req = URLRequest(url: requestUrl)
         req.httpMethod = method.rawValue
 
         // For methods that require authentication, use POST and encode in the request body
         if method == .POST {
+            var queryItems = try QueryItemsEncoder().encode(params)
             queryItems.append(URLQueryItem(name: AccountMethods.authTokenParam, value: await AuthToken.token))
 
             var components = URLComponents()
@@ -207,7 +209,7 @@ extension Method where ParamType: AccountMethodParams {
             ).data
         }
 
-        let (data, urlResponse) = try await session.data(for: req)
+        let (data, urlResponse) = try await paramsSession.data(for: req)
 
         guard let httpResponse = urlResponse as? HTTPURLResponse else {
             throw LbryioRequestError.invalidResponse(urlResponse)
@@ -223,10 +225,6 @@ extension Method where ParamType: AccountMethodParams {
 
         let respCode = httpResponse.statusCode
 
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-
         let response = try decoder.decode(LbryioAPIResponse<ResultType>.self, from: data)
 
         guard let result = response.result else {
@@ -234,6 +232,32 @@ extension Method where ParamType: AccountMethodParams {
         }
 
         return result
+    }
+}
+
+extension Method where ParamType: LighthouseMethodParams {
+    init(name: String) {
+        self.name = name
+    }
+
+    func call(params: ParamType) async throws /* -> ResultType*/ {
+        let url = "\(Lighthouse.connectionString)/\(name)"
+
+        let requestUrl = try paramsGetQuery(params: params, url: url)
+
+        var req = URLRequest(url: requestUrl)
+
+        let (data, r) = try await paramsSession.data(for: req)
+
+        // swift-format-ignore
+        print(
+            "NETLOG",
+            name,
+            (r as! HTTPURLResponse).statusCode,
+            String(data: data, encoding: .utf8)!.prefix(20).replacingOccurrences(of: "\n", with: " ")
+        )
+
+        // FIXME: implement
     }
 }
 
@@ -331,4 +355,12 @@ enum AccountMethods {
     static let listFilteredClaimIds = Method<FileListClaimIdsParams, FileListClaimIdsResult>(
         get: "file/list_filtered"
     )
+}
+
+protocol LighthouseMethodParams {}
+
+enum LighthouseMethods {
+    struct NilType: Codable, LighthouseMethodParams {}
+
+    static let search = Method<NilType, NilType>(name: "search")
 }

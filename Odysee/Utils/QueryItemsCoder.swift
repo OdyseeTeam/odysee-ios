@@ -180,7 +180,13 @@ private struct QueryItemsKeyedEncoding<Key: CodingKey>: KeyedEncodingContainerPr
         queryItems.encode(key: key, value: value.description)
     }
 
+    /// This check/error is at runtime, but we only encode static structs which are used for method calls
     mutating func encode<T>(_ value: T, forKey key: Key) throws where T: Encodable {
+        if let items = value as? [CustomStringConvertible] {
+            queryItems.encode(key: key, value: items.map(\.description).joined(separator: ","))
+            return
+        }
+
         fatalError("Only flat primitives are supported")
     }
 

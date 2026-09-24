@@ -9,15 +9,6 @@ import Foundation
 
 struct FileLastPositionsParams: Encodable, AccountMethodParams {
     var claimIds: [String]
-
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(claimIds.joined(separator: ","), forKey: .claimIds)
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case claimIds
-    }
 }
 
 struct UserNewParams: Encodable, AccountMethodParams {
@@ -67,38 +58,10 @@ struct NotificationEditParams: Encodable, AccountMethodParams {
     var notificationIds: [Notification.ID]
     var isRead: Bool?
     var isSeen: Bool?
-
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(
-            notificationIds.map(String.init).joined(separator: ","),
-            forKey: .notificationIds
-        )
-        try container.encodeIfPresent(isRead, forKey: .isRead)
-        try container.encodeIfPresent(isSeen, forKey: .isSeen)
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case notificationIds
-        case isRead
-        case isSeen
-    }
 }
 
 struct NotificationDeleteParams: Encodable, AccountMethodParams {
     var notificationIds: [Notification.ID]
-
-    func encode(to encoder: any Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(
-            notificationIds.map(String.init).joined(separator: ","),
-            forKey: .notificationIds
-        )
-    }
-
-    enum CodingKeys: String, CodingKey {
-        case notificationIds
-    }
 }
 
 struct SubscriptionNewParams: Encodable, AccountMethodParams {
