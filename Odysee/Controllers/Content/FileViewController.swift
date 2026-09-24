@@ -161,6 +161,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
     var dislikesContent = false
     var reacting = false
     var playerConnected = false
+    var detachedForBackgroundAudio = false
     var playerRate: Float = 1
     var isLivestream = false
     var isPlaylist = false
@@ -1121,6 +1122,7 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         let asset = AVURLAsset(url: sourceUrl, options: ["AVURLAssetHTTPHeaderFieldsKey": headers])
         let playerItem = AVPlayerItem(asset: asset)
         currentPlayer = AVPlayer(playerItem: playerItem)
+        currentPlayer?.audiovisualBackgroundPlaybackPolicy = .continuesIfPossible
 
         AppDelegate.shared.currentClaim = singleClaim
 
@@ -1201,11 +1203,48 @@ class FileViewController: UIViewController, UIGestureRecognizerDelegate, UINavig
         playerConnected = false
     }
 
+    /// Keeps the current item audible after the screen locks or Audio Only backgrounds the app.
+    /// AVPlayerViewController pauses on those transitions. Detach it, then resume the same player.
+    func continueAudioInBackground() {
+        assert(Thread.isMainThread)
+        guard !AppDelegate.shared.pictureInPictureActive else { return }
+
+        let player = avpc.player ?? AppDelegate.shared.lazyPlayer
+        guard let player else { return }
+
+        let wasPlaying = AppDelegate.shared.playbackActiveWhileForeground || player.rate > 0
+        guard wasPlaying else { return }
+
+        let currentRate = player.rate
+        let savedRate = AppDelegate.shared.playbackRateWhileForeground
+        let resumeRate: Float = if currentRate > 0 {
+            currentRate
+        } else if savedRate > 0 {
+            savedRate
+        } else {
+            1
+        }
+
+        if avpc.player != nil {
+            disconnectPlayer()
+        }
+        detachedForBackgroundAudio = true
+
+        guard player.rate == 0 else { return }
+        try? AVAudioSession.sharedInstance().setActive(true)
+        player.playImmediately(atRate: resumeRate)
+    }
+
     func connectPlayer() {
-        if AppDelegate.shared.lazyPlayer != nil {
-            avpc.player = AppDelegate.shared.lazyPlayer
+        if let player = AppDelegate.shared.lazyPlayer {
+            let rate = player.rate
+            avpc.player = player
+            if detachedForBackgroundAudio, rate > 0, player.rate == 0 {
+                player.playImmediately(atRate: rate)
+            }
         }
         playerConnected = true
+        detachedForBackgroundAudio = false
     }
 
     func logFileView(url: String, timeToStart: Int64, position: Int? = nil) {
