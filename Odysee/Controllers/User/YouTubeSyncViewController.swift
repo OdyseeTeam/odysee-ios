@@ -8,6 +8,16 @@
 import FirebaseAnalytics
 import SwiftUI
 
+struct Thing: View {
+    var body: some View {
+        NavigationView {
+            if #available(iOS 16, *) { ChannelScreen(channel: .uri(
+                name: "@ktprograms", claimId: "989f7977d0394ec45389ba05c50109dd958b655e"
+            )) } else { EmptyView() }
+        }
+    }
+}
+
 class YouTubeSyncViewController: UIViewController, UIGestureRecognizerDelegate {
     lazy var youTubeSync = {
 //        let rootView = YouTubeSyncScreen(
@@ -19,7 +29,7 @@ class YouTubeSyncViewController: UIViewController, UIGestureRecognizerDelegate {
 //            },
 //            model: .init(channels: Account.user?.youtubeChannels)
 //        )
-        let rootView = TheView()
+        let rootView = Thing()
         let vc = UIHostingController(rootView: rootView)
         vc.view.translatesAutoresizingMaskIntoConstraints = false
         return vc

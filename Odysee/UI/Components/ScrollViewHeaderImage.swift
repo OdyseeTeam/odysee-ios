@@ -1,0 +1,42 @@
+//
+//  ScrollViewHeaderImage.swift
+//  ScrollKit
+//
+//  Created by Daniel Saidi on 2023-02-04.
+//  Copyright © 2023-2026 Daniel Saidi. All rights reserved.
+//
+
+// Taken from https://github.com/danielsaidi/ScrollKit/blob/main/Sources/ScrollKit/ScrollViewHeaderImage.swift under MIT License
+
+import SwiftUI
+
+/// This view takes any image and adjusts it to be used as a
+/// scroll view header.
+///
+/// This view will automatically stretch correctly, and will
+/// clip itself to the available space.
+public struct ScrollViewHeaderImage: View {
+    /// Create a scroll view header image.
+    ///
+    /// - Parameter image: The image to wrap.
+    public init(_ image: Image) {
+        self.image = image
+    }
+
+    private let image: Image
+
+    public var body: some View {
+        Color.clear.background(
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        )
+        .clipped()
+    }
+}
+
+#Preview {
+    ScrollViewHeaderImage(
+        Image(systemName: "checkmark")
+    )
+}

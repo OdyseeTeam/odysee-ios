@@ -30,8 +30,19 @@ struct MiniPlayerAvoiding: ViewModifier {
     }
 }
 
+// MARK: - Extensions for modifier
+
+/// Specify allowed types (scrolling views) to avoid accidentally placing modifier on scroll view *content*
+
 @MainActor
 extension List {
+    func avoidMiniPlayer() -> some View {
+        modifier(MiniPlayerAvoiding())
+    }
+}
+
+@MainActor
+extension FrameTrackingList {
     func avoidMiniPlayer() -> some View {
         modifier(MiniPlayerAvoiding())
     }

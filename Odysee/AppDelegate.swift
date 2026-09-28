@@ -42,6 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     // This prevents the app from taking over the audio stream on launch.
     lazy var lazyPlayer: AVPlayer? = {
         do {
+            // FIXME: Hangs if called on main thread
             try AVAudioSession.sharedInstance().setActive(true, options: [])
         } catch {
             mainController?.showMessage(message: "Lazy AVAudioSession activation failed! \(error)")

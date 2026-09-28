@@ -7,9 +7,18 @@
 
 import SwiftUI
 
+// FIXME: How will this work on file_vc etc (due to not needing a shared header)
 @available(iOS 16, *)
 struct Comments: View {
-    // FIXME: hoist state to not reload when reappear
+    // MARK: Sticky header parameters
+
+    typealias SelectionValue = Int
+    @Binding var offset: CGFloat
+    var tag: SelectionValue
+    @Binding var selection: SelectionValue
+
+    // MARK: Other parameters and variables
+
     @StateObject var model: ViewModel
     @State var expanded: Set<Comment.ID> = .init()
 
@@ -18,7 +27,7 @@ struct Comments: View {
     var body: some View {
         ZStack {
             ScrollViewReader { proxy in
-                List {
+                FrameTrackingList(offset: $offset, tag: tag, selection: $selection) {
                     VStack {
                         TitleSort(model: model)
 
@@ -46,12 +55,11 @@ struct Comments: View {
                 }
                 .avoidMiniPlayer()
                 .environment(\.defaultMinListRowHeight, 0)
-                .listStyle(.plain)
                 .task { // Use for await rather than onChange, to capture duplicate values
                     for await replyTo in model.$replyTo.values {
                         if replyTo != nil {
                             withAnimation {
-                                proxy.scrollTo(topId)
+                                proxy.scrollTo(topId, anchor: .bottom)
                             }
                         }
                     }
@@ -74,6 +82,7 @@ struct Comments: View {
                     }
                 }
         }
+        .tag(tag) // FIXME: Is duplicated inside FrameTrackingList, but shouldn't affect anything
     }
 }
 
@@ -109,9 +118,12 @@ extension Comments {
     }
 }
 
-/// Preview of ProgressView
 @available(iOS 16, *)
 #Preview {
     // FIXME: Change to odysee
-    Comments(model: .init(claimId: "989f7977d0394ec45389ba05c50109dd958b655e"))
+    Comments(
+        offset: .constant(0), tag: 0, selection: .constant(0),
+        model: .init(claimId: "989f7977d0394ec45389ba05c50109dd958b655e")
+    )
+    .environment(\.stickyHeaderHeight, 100)
 }
