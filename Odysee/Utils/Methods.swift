@@ -134,6 +134,10 @@ extension Method where ParamType: BackendMethodParams {
 
         // FIXME: All call check respcode OK before decode
 
+        if name == BackendMethods.claimSearch.name {
+            try print("MYLOG", decoder.decode(LbryAPIResponse<Page<V2_Claim>>.self, from: data))
+        }
+
         let response = try decoder.decode(LbryAPIResponse<ResultType>.self, from: data)
         if response.jsonrpc != "2.0" {
             assertionFailure()

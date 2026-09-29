@@ -20,6 +20,7 @@ enum Predefined {
 
     static let nilLanguage: Language = .init(code: "", engName: "", name: "")
 
+    // FIXME: (SwiftUI): Convert to map
     static let supportedLanguages: [Language] = [
         nilLanguage,
 

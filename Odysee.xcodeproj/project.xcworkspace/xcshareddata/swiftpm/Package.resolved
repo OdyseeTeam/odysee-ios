@@ -1,5 +1,5 @@
 {
-  "originHash" : "87e1882f6e95ad9121dbdf65fedae3f36fe0bbdb078ac20d5b60e14b2f0a1499",
+  "originHash" : "0ba3683ce0dda37941c7adb05d08f318101f3d545cc373586a0c4b776f6dbf93",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -248,6 +248,15 @@
       "state" : {
         "revision" : "c169a5744230951031770e27e475ff6eefe51f9d",
         "version" : "1.33.3"
+      }
+    },
+    {
+      "identity" : "swift-tagged",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/pointfreeco/swift-tagged",
+      "state" : {
+        "revision" : "3907a9438f5b57d317001dc99f3f11b46882272b",
+        "version" : "0.10.0"
       }
     },
     {

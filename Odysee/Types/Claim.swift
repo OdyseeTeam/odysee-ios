@@ -156,6 +156,9 @@ public struct Claim: Decodable {
 
     struct Meta: Decodable {
         var effectiveAmount: String?
+        var claimsInChannel: Int?
+        var supportAmount: String?
+        var creationTimestamp: Int64?
     }
 
     var outpoint: Outpoint? {

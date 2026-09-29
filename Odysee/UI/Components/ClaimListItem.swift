@@ -173,6 +173,8 @@ struct ClaimListItem: View {
     }
 }
 
+// FIXME: Repost thumbnails/overlay
+
 @available(iOS 17, *)
 #Preview(traits: .sizeThatFitsLayout) {
     let claim: Claim = .init(

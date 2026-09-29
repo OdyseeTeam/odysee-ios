@@ -17,8 +17,8 @@ public struct Tags: Codable, Equatable {
         var name: String
     }
 
-    init(_ tags: [String]?) {
-        wrappedValue = tags
+    public init(wrappedValue: [String]? = nil) {
+        self.wrappedValue = wrappedValue
     }
 
     public init(from decoder: any Decoder) throws {
@@ -42,6 +42,6 @@ extension KeyedDecodingContainer {
     /// Handle decoding property wrapper with optional wrapped value
     /// <https://forums.swift.org/t/using-property-wrappers-with-codable/29804/12>
     func decode(_ type: Tags.Type, forKey key: Self.Key) throws -> Tags {
-        try decodeIfPresent(type, forKey: key) ?? Tags(nil)
+        try decodeIfPresent(type, forKey: key) ?? Tags()
     }
 }

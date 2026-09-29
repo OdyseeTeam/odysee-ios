@@ -33,7 +33,8 @@ struct LibraryScreen: View {
                 case .publishes:
                     if #available(iOS 16, *) {
                         ChannelScreen(channel: .uri(
-                            name: "@ktprograms", claimId: "989f7977d0394ec45389ba05c50109dd958b655e"
+                            //                            name: "@ktprograms", claimId: "989f7977d0394ec45389ba05c50109dd958b655e"
+                            name: "@ktprograms1", claimId: "2c4d23c644dc40e258238fe0858c3ea14f5691ea"
                         ))
                     } else {
                         PublishesScreen()

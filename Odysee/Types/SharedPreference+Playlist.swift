@@ -18,7 +18,7 @@ extension SharedPreference {
         public var name: String
         public var title: String?
         public var description: String?
-        @Tags public var tags: [String]?
+        @Tags public var tags
         public var thumbnail: Thumbnail?
         public var type: CollectionType
         public var createdAt: Int?
@@ -183,7 +183,7 @@ extension SharedPreference {
             self.name = name
             self.title = title
             self.description = description
-            _tags = Tags(tags)
+            _tags = Tags(wrappedValue: tags)
             self.thumbnail = thumbnail
             self.type = type
             self.createdAt = createdAt

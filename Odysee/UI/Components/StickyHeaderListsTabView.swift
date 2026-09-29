@@ -46,6 +46,7 @@ struct FrameTrackingList<SelectionValue: Hashable, Content: View>: View {
         GeometryReader { listGeometry in
             List {
                 Color.clear
+                    .listRowSeparator(.hidden)
                     .listRowInsets(.init())
                     // FIXME: Remove toolbar height
                     .frame(height: headerHeight)

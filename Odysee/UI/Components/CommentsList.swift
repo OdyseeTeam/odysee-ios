@@ -16,6 +16,7 @@ extension EnvironmentValues {
     /// When `nil`, means there's no replies (list item isn't in a DisclosureGroup
     ///
     /// Must be set to `nil` to clear, otherwise it's inherited from parent items
+    // FIXME: Storing a closure in '@Entry var toggleReplies' may invalidate dependents on every update because closures may not be comparable. (from macro 'Entry ')
     @Entry var toggleReplies: (() -> Void)?
 
     // MARK: Comments List (Recursive)

@@ -36,6 +36,9 @@
 		535F682E306A681A00BE6298 /* LighthouseParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535F682D306A681A00BE6298 /* LighthouseParams.swift */; };
 		535F6830306A6AAE00BE6298 /* LighthouseResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 535F682F306A6AAE00BE6298 /* LighthouseResult.swift */; };
 		5361DF0E304969B100C016F8 /* ClaimFiltering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5361DF0D304969B000C016F8 /* ClaimFiltering.swift */; };
+		536C0250306C00B400573133 /* V2_Claim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536C024F306C00B400573133 /* V2_Claim.swift */; };
+		536C0253306C3BC900573133 /* Tagged in Frameworks */ = {isa = PBXBuildFile; productRef = 536C0252306C3BC900573133 /* Tagged */; };
+		536C0255306C3BC900573133 /* TaggedTime in Frameworks */ = {isa = PBXBuildFile; productRef = 536C0254306C3BC900573133 /* TaggedTime */; };
 		536E27C32EB1B55700A02197 /* LbryUriTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 536E27C22EB1B55700A02197 /* LbryUriTest.swift */; };
 		5377EA832F7B666E00C8E03E /* LibraryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA822F7B666E00C8E03E /* LibraryScreen.swift */; };
 		5377EA852F7B6C3300C8E03E /* PublishesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */; };
@@ -221,6 +224,7 @@
 		535F682D306A681A00BE6298 /* LighthouseParams.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LighthouseParams.swift; sourceTree = "<group>"; };
 		535F682F306A6AAE00BE6298 /* LighthouseResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LighthouseResult.swift; sourceTree = "<group>"; };
 		5361DF0D304969B000C016F8 /* ClaimFiltering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimFiltering.swift; sourceTree = "<group>"; };
+		536C024F306C00B400573133 /* V2_Claim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = V2_Claim.swift; sourceTree = "<group>"; };
 		536E27C22EB1B55700A02197 /* LbryUriTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LbryUriTest.swift; sourceTree = "<group>"; };
 		5377EA822F7B666E00C8E03E /* LibraryScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryScreen.swift; sourceTree = "<group>"; };
 		5377EA842F7B6C3300C8E03E /* PublishesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublishesScreen.swift; sourceTree = "<group>"; };
@@ -385,8 +389,10 @@
 				53AAEEB83062DD01003D8830 /* ListItemTracking in Frameworks */,
 				539D798C2F3E389400E7686E /* CachedAsyncImage in Frameworks */,
 				64533589257FDC6800C49BD1 /* FirebaseAnalytics in Frameworks */,
+				536C0255306C3BC900573133 /* TaggedTime in Frameworks */,
 				64A26CE526974B7A00AE19DE /* PerfectMarkdown in Frameworks */,
 				6411C0B0255B35260018C3D5 /* Base58Swift in Frameworks */,
+				536C0253306C3BC900573133 /* Tagged in Frameworks */,
 				532FCAB12FEE762300CBBAB1 /* TaskGate in Frameworks */,
 				53F64E382ECCEC2A001A7D8F /* FirebaseCrashlytics in Frameworks */,
 				648F70D226307BC700885A2F /* HaishinKit in Frameworks */,
@@ -512,6 +518,7 @@
 				648F31F72573F75600E2CA51 /* Lbryinc */,
 				53ED42033052C72500DF4DDF /* User.swift */,
 				6413273D2556E86000CBB6B8 /* Claim.swift */,
+				536C024F306C00B400573133 /* V2_Claim.swift */,
 				642B6B0B257AB9F200F17355 /* WalletBalance.swift */,
 				642B6B10257B4CBC00F17355 /* Transaction.swift */,
 				530525AA28125CCE00D92A2E /* Txo.swift */,
@@ -786,6 +793,8 @@
 				5359CAC22FB37C840035D0D6 /* WrappingHStack */,
 				532FCAB02FEE762300CBBAB1 /* TaskGate */,
 				53AAEEB73062DD01003D8830 /* ListItemTracking */,
+				536C0252306C3BC900573133 /* Tagged */,
+				536C0254306C3BC900573133 /* TaggedTime */,
 			);
 			productName = Odysee;
 			productReference = 64FBE79925502A290082AF2E /* Odysee.app */;
@@ -880,6 +889,7 @@
 				5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */,
 				532FCAAF2FEE762300CBBAB1 /* XCRemoteSwiftPackageReference "TaskGate" */,
 				53AAEEB63062DD01003D8830 /* XCRemoteSwiftPackageReference "ListItemTracking" */,
+				536C0251306C3BC900573133 /* XCRemoteSwiftPackageReference "swift-tagged" */,
 			);
 			productRefGroup = 64FBE79A25502A290082AF2E /* Products */;
 			projectDirPath = "";
@@ -1020,6 +1030,7 @@
 				6411C0B5255B94DA0018C3D5 /* MainViewController.swift in Sources */,
 				53B2CFDD3023056700EB0068 /* CommentListItem.swift in Sources */,
 				53954051301D8B9800DF10E6 /* CommentsList.swift in Sources */,
+				536C0250306C00B400573133 /* V2_Claim.swift in Sources */,
 				CC80EC0F2672A80700CA07DA /* Page.swift in Sources */,
 				64666B032587378400DF4608 /* ChannelEditorViewController.swift in Sources */,
 				538C274F2EFB8BE900305361 /* AccountParams.swift in Sources */,
@@ -1489,6 +1500,14 @@
 				minimumVersion = 2.2.11;
 			};
 		};
+		536C0251306C3BC900573133 /* XCRemoteSwiftPackageReference "swift-tagged" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-tagged";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.0;
+			};
+		};
 		5390C80B2ECE13A3005A104B /* XCRemoteSwiftPackageReference "ActionSheetPicker-3" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/OdyseeTeam/ActionSheetPicker-3.0";
@@ -1597,6 +1616,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5359CAC12FB37C840035D0D6 /* XCRemoteSwiftPackageReference "WrappingHStack" */;
 			productName = WrappingHStack;
+		};
+		536C0252306C3BC900573133 /* Tagged */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 536C0251306C3BC900573133 /* XCRemoteSwiftPackageReference "swift-tagged" */;
+			productName = Tagged;
+		};
+		536C0254306C3BC900573133 /* TaggedTime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 536C0251306C3BC900573133 /* XCRemoteSwiftPackageReference "swift-tagged" */;
+			productName = TaggedTime;
 		};
 		5390C80C2ECE13A3005A104B /* ActionSheetPicker-3.0 */ = {
 			isa = XCSwiftPackageProductDependency;
