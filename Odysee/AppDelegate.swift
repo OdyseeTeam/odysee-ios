@@ -38,6 +38,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     var didShowLoopNotification = false
 
+    // Playback the user actually started. AVPlayerViewController pauses when the
+    // screen locks; that pause must not clear this, or audio cannot resume.
+    var playbackActiveWhileForeground = false
+    var playbackRateWhileForeground: Float = 1
+    var acceptingPlaybackIntent = true
+    var pictureInPictureActive = false
+
     // One-time only lazily activate the Audio Session when playing a file.
     // This prevents the app from taking over the audio stream on launch.
     lazy var lazyPlayer: AVPlayer? = {
@@ -140,7 +147,59 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         UNUserNotificationCenter.current().requestAuthorization(options: authOptions, completionHandler: { _, _ in })
         application.registerForRemoteNotifications()
 
+        // Registered before any AVPlayerViewController exists, so this observer runs
+        // before the controller pauses playback in response to the same notification.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(capturePlaybackBeforeSystemPause),
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(deviceWillLock),
+            name: UIApplication.protectedDataWillBecomeUnavailableNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(reconcilePlaybackAfterForeground),
+            name: UIApplication.didBecomeActiveNotification,
+            object: nil
+        )
+
         return true
+    }
+
+    @objc private func capturePlaybackBeforeSystemPause() {
+        acceptingPlaybackIntent = false
+        guard let player = lazyPlayer else { return }
+        if player.rate > 0 || player.timeControlStatus == .playing ||
+            player.timeControlStatus == .waitingToPlayAtSpecifiedRate
+        {
+            playbackActiveWhileForeground = true
+            if player.rate > 0 {
+                playbackRateWhileForeground = player.rate
+            }
+        }
+    }
+
+    @objc private func deviceWillLock() {
+        currentFileViewController?.continueAudioInBackground()
+    }
+
+    @objc private func reconcilePlaybackAfterForeground() {
+        acceptingPlaybackIntent = true
+        guard let player = lazyPlayer else {
+            playbackActiveWhileForeground = false
+            return
+        }
+        let playing = player.rate > 0 || player.timeControlStatus == .playing ||
+            player.timeControlStatus == .waitingToPlayAtSpecifiedRate
+        playbackActiveWhileForeground = playing
+        if player.rate > 0 {
+            playbackRateWhileForeground = player.rate
+        }
     }
 
     func application(
@@ -190,6 +249,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         remoteCommands[.pause] = commandCenter.pauseCommand.addTarget { [unowned self] _ in
             if let lazyPlayer = lazyPlayer {
+                playbackActiveWhileForeground = false
                 lazyPlayer.pause()
                 return .success
             }
@@ -202,6 +262,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                 if lazyPlayer.rate == 0 {
                     lazyPlayer.play()
                 } else {
+                    playbackActiveWhileForeground = false
                     lazyPlayer.pause()
                 }
                 return .success
@@ -294,6 +355,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         else {
             UIApplication.shared.isIdleTimerDisabled = false
             return
+        }
+
+        if acceptingPlaybackIntent, UIApplication.shared.applicationState == .active {
+            if lazyPlayer.rate > 0 || lazyPlayer.timeControlStatus == .playing {
+                playbackActiveWhileForeground = true
+                if lazyPlayer.rate > 0 {
+                    playbackRateWhileForeground = lazyPlayer.rate
+                }
+            } else if lazyPlayer.timeControlStatus == .paused {
+                playbackActiveWhileForeground = false
+            }
         }
 
         // Keep screen on when playing

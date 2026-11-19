@@ -284,6 +284,8 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
             AppDelegate.shared.lazyPlayer?.allowsExternalPlayback = false
             AppDelegate.shared.playerObservers = nil
             AppDelegate.shared.lazyPlayer = nil
+            AppDelegate.shared.playbackActiveWhileForeground = false
+            AppDelegate.shared.pictureInPictureActive = false
 
             AppDelegate.shared.resetPlayerObserver()
             AppDelegate.shared.removeRemoteTransportControls()
@@ -307,6 +309,7 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
                 lazyPlayer.play()
                 miniPlayerPlayPauseButton.image = UIImage(systemName: Icons.pause)
             } else {
+                AppDelegate.shared.playbackActiveWhileForeground = false
                 lazyPlayer.pause()
                 miniPlayerPlayPauseButton.image = UIImage(systemName: Icons.play)
             }
@@ -860,6 +863,22 @@ class MainViewController: UIViewController, UINavigationControllerDelegate, AVPl
 
     func playerViewControllerWillStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
         AppDelegate.shared.pictureInPicturePlayingClaim = AppDelegate.shared.currentClaim
+        AppDelegate.shared.pictureInPictureActive = true
+    }
+
+    func playerViewControllerDidStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
+        AppDelegate.shared.pictureInPictureActive = true
+    }
+
+    func playerViewControllerDidStopPictureInPicture(_ playerViewController: AVPlayerViewController) {
+        AppDelegate.shared.pictureInPictureActive = false
+    }
+
+    func playerViewController(
+        _ playerViewController: AVPlayerViewController,
+        failedToStartPictureInPictureWithError error: Error
+    ) {
+        AppDelegate.shared.pictureInPictureActive = false
     }
 
     func playerViewController(

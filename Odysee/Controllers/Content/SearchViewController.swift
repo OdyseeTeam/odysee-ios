@@ -45,6 +45,7 @@ class SearchViewController: UIViewController,
     var currentTimeFilter: Lighthouse.TimeFilter?
     var currentSortBy: Lighthouse.SortBy?
     var searching: Bool = false
+    var hasMoreResults = true
     var lighthouseUrls = [String]()
     let pageSize = 20
     var claims = OrderedSet<Claim>()
@@ -203,6 +204,7 @@ class SearchViewController: UIViewController,
         }
 
         if from == 0 {
+            hasMoreResults = true
             Analytics.logEvent("search", parameters: ["query": query])
         }
 
@@ -241,15 +243,12 @@ class SearchViewController: UIViewController,
             completion: { results, _ in
                 guard let results = results, !results.isEmpty else {
                     DispatchQueue.main.async {
-                        self.searching = false
-                        self.claims = []
-                        self.resultsListView.reloadData()
-                        self.resolveWinning(query: query)
-                        self.checkNoResults()
+                        self.finishEmptySearchPage(query: query, from: from)
                     }
                     return
                 }
 
+                let isLastPage = results.count < self.pageSize
                 self.lighthouseUrls = results.compactMap { item in
                     if let name = item["name"] as? String,
                        let claimId = item["claimId"] as? String
@@ -262,6 +261,17 @@ class SearchViewController: UIViewController,
                         nil
                     }
                 }
+                guard !self.lighthouseUrls.isEmpty else {
+                    DispatchQueue.main.async {
+                        self.finishEmptySearchPage(query: query, from: from)
+                    }
+                    return
+                }
+                if isLastPage {
+                    DispatchQueue.main.async {
+                        self.hasMoreResults = false
+                    }
+                }
                 Lbry.apiCall(
                     method: BackendMethods.resolve,
                     params: .init(urls: self.lighthouseUrls)
@@ -269,6 +279,19 @@ class SearchViewController: UIViewController,
                 .subscribeResult(self.didResolveResults)
             }
         )
+    }
+
+    /// A later page with no hits means the list is finished. Don't wipe results already shown.
+    func finishEmptySearchPage(query: String, from: Int) {
+        assert(Thread.isMainThread)
+        searching = false
+        hasMoreResults = false
+        if from == 0 || claims.isEmpty {
+            claims = []
+            resultsListView.reloadData()
+            resolveWinning(query: query)
+        }
+        checkNoResults()
     }
 
     func didResolveResults(_ result: Result<ResolveResult, Error>) {
@@ -318,6 +341,7 @@ class SearchViewController: UIViewController,
 
     func resetSearch() {
         claims = []
+        hasMoreResults = true
         DispatchQueue.main.async {
             self.resultsListView.reloadData()
         }
@@ -540,7 +564,8 @@ class SearchViewController: UIViewController,
             return
         }
 
-        if (resultsListView.contentSize.height - resultsListView.bounds.size.height) >= 0 &&
+        if hasMoreResults &&
+            (resultsListView.contentSize.height - resultsListView.bounds.size.height) >= 0 &&
             resultsListView.contentOffset.y >=
             (resultsListView.contentSize.height - resultsListView.bounds.size.height)
         {
